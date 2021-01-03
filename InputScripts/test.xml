@@ -1,0 +1,342 @@
+<input
+  job = "harmonic_pes">
+
+<job_parameters 
+        temperature                              = "300"
+        spectrum_intensity_threshold             = "0.001"
+/>
+
+<!-- 
+  ______________________________________________________________________ 
+
+    Tags which start with "OPT_" will be ignored.
+    To include these optional keywords please "uncomment" by removing 
+    "OPT_" from the start and the corresponding end tag (if present)
+  ______________________________________________________________________ 
+
+ -->
+
+<parallel_approximation
+        max_vibr_excitations_in_initial_el_state = "1"
+        max_vibr_excitations_in_target_el_state  = "4"
+        combination_bands                        = "true"
+        use_normal_coordinates_of_target_states  = "true"
+ >
+
+  <OPT_do_not_excite_subspace size = "0" normal_modes = " " />
+
+  <OPT_energy_thresholds  units="eV, K, cm-1">
+    <initial_state   units="K">      1000    </initial_state>
+    <target_state   units="eV">      0.25    </target_state>
+  </OPT_energy_thresholds> 
+
+  <OPT_print_franck_condon_matrices flag="true"/>
+
+</parallel_approximation>
+
+<!-- 
+  ______________________________________________________________________ 
+
+ -->
+
+<OPT_dushinsky_rotations target_state="1"
+      max_vibr_excitations_in_initial_el_state = "1"
+      max_vibr_excitations_in_target_el_state  = "4"
+      > 
+  <OPT_max_vibr_to_store  target_el_state="4"/>
+
+  <OPT_do_not_excite_subspace size = "2" normal_modes = "0 1" />
+
+  <OPT_energy_thresholds  units="eV, K, cm-1">
+    <initial_state   units="K">      1000    </initial_state>
+    <target_state   units="eV">      0.25    </target_state>
+  </OPT_energy_thresholds> 
+
+  <OPT_single_exitation 
+       ini="0" 
+       targ="1v1"/>
+
+</OPT_dushinsky_rotations>
+
+<!-- 
+  ______________________________________________________________________ 
+
+ -->
+
+<initial_state>
+  <!-- THIS INITIAL STATE IS FROM "h2o_qchem.out" FILE -->
+
+  <geometry
+    number_of_atoms = "3"
+    linear = "false"
+    units   ="angstr"
+    text   = "
+      O       0.000000     0.000000     0.113962
+      H      -0.748828     0.000000    -0.455848
+      H       0.748828     0.000000    -0.455848
+             "
+        />
+
+  <OPT_manual_atoms_reordering
+     new_order="0 1 2" />
+
+  <normal_modes
+    if_mass_weighted="true"
+    text = "
+          0.000  0.000 -0.070    0.000  0.000 -0.050   -0.071  0.000  0.000
+         -0.430  0.000  0.559    0.583  0.000  0.398    0.561  0.000  0.427
+          0.430  0.000  0.559   -0.583  0.000  0.398    0.561  0.000 -0.427
+
+             "
+   atoms = "   O     H     H  "
+        />
+
+  <OPT_manual_normal_modes_reordering
+     new_order="0 1 2" />
+
+  <frequencies
+    text = "
+       1750.92                4142.16                4237.44
+             "
+        />
+
+</initial_state>
+
+<!-- 
+  ______________________________________________________________________ 
+
+ -->
+
+<target_state>
+
+  <ip units="eV"> 1 </ip>
+
+  <!-- THIS TARGET STATE IS FROM "h2o_molpro.out" FILE -->
+  <geometry
+    number_of_atoms = "3"
+    linear = "false"
+    units   ="au"
+    text   = "
+       O    0.000000000    0.000000000   -0.120483673
+       H    0.000000000    1.415013605    0.956240684
+       H    0.000000000   -1.415013605    0.956240684
+                   "
+        />
+
+  <OPT_manual_atoms_reordering
+     new_order="0 1 2" />
+
+  <normal_modes
+    if_mass_weighted="true"
+    text = "
+     0.00000     0.00000    -0.06771        0.00000     0.00000    -0.04909        0.00000    -0.06796     0.00000
+     0.00000    -0.41341     0.53737        0.00000     0.57022     0.38959        0.00000     0.53939     0.41044
+     0.00000     0.41341     0.53737        0.00000    -0.57022     0.38959        0.00000     0.53939    -0.41044
+
+             "
+   atoms = " O  H  H "
+        />
+
+  <OPT_manual_normal_modes_reordering
+     new_order="0 1 2" />
+
+  <frequencies
+    text = "
+          1750.39     4142.65     4237.92
+             "
+        />
+
+</target_state>
+
+<!-- 
+  ______________________________________________________________________ 
+
+ -->
+
+<target_state>
+
+  <ip units="eV"> 2 </ip>
+
+  <!-- THIS TARGET STATE IS FROM "h2o_aces_old.out" FILE -->
+  <geometry
+    number_of_atoms = "3"
+    linear = "false"
+    units   ="au"
+    text   = "
+      O        0.00000000     0.00000005     0.12054476
+      H        0.00000000    -1.41495347    -0.95656584
+      H        0.00000000     1.41495260    -0.95656650
+             "
+        />
+
+  <OPT_manual_atoms_reordering
+     new_order="0 1 2" />
+
+  <normal_modes
+    if_mass_weighted="false"
+    text = "
+    0.000 0.0000  0.2708    0.0000  0.0000  0.1964    0.0000  0.2718  0.0000
+    0.000 0.4151 -0.5394    0.0000 -0.5724 -0.3912    0.0000 -0.5415 -0.4122
+    0.000-0.4151 -0.5394    0.0000  0.5724 -0.3912    0.0000 -0.5415  0.4122
+
+             "
+   atoms = "O   H   H   "
+        />
+
+  <OPT_manual_normal_modes_reordering
+     new_order="0 1 2" />
+
+  <frequencies
+    text = "
+              1751.31                   4141.52                   4236.61 
+             "
+        />
+
+</target_state>
+
+<!-- 
+  ______________________________________________________________________ 
+
+ -->
+
+<target_state>
+
+  <ip units="eV"> 3 </ip>
+
+  <!-- THIS TARGET STATE IS FROM "h2o_aces_new.out" FILE -->
+  <geometry
+    number_of_atoms = "3"
+    linear = "false"
+    units   ="au"
+    text   = "
+      O        0.00000000     0.00000005    -0.12054473
+      H        0.00000000    -1.41495306     0.95656558
+      H        0.00000000     1.41495221     0.95656623
+             "
+        />
+
+  <OPT_manual_atoms_reordering
+     new_order="0 1 2" />
+
+  <normal_modes
+    if_mass_weighted="false"
+    text = "
+  0.0000  0.0000  0.2708    0.0000  0.0000  0.1964    0.0000  0.2718  0.0000
+  0.0000 -0.4151 -0.5395    0.0000  0.5725 -0.3911    0.0000 -0.5415  0.4122
+  0.0000  0.4151 -0.5395    0.0000 -0.5725 -0.3911    0.0000 -0.5415 -0.4122
+
+             "
+   atoms = "O   H   H   "
+        />
+
+  <OPT_manual_normal_modes_reordering
+     new_order="0 1 2" />
+
+  <frequencies
+    text = "
+              1749.67                   4141.13                   4237.01 
+             "
+        />
+
+</target_state>
+
+<!-- 
+  ______________________________________________________________________ 
+
+ -->
+
+<target_state>
+
+  <ip units="eV"> 4 </ip>
+
+  <!-- THIS TARGET STATE IS FROM "h2o_gamess.out" FILE -->
+  <geometry
+    number_of_atoms = "3"
+    linear = "false"
+    units   ="au"
+    text   = "
+      O    -0.0000130277       -0.1205372395        0.0000000000
+      H     1.4151971296        0.9564278022        0.0000000000
+      H    -1.4149903701        0.9565851692        0.0000000000
+     
+             "
+        />
+
+  <OPT_manual_atoms_reordering
+     new_order="0 1 2" />
+
+  <normal_modes
+    if_mass_weighted="true"
+    text = "
+ -0.00000016 -0.06772342  0.00000000    -0.00024468 -0.04909578  0.00000000    -0.06796999  0.00018021  0.00000000
+ -0.41341384  0.53751704  0.00000000     0.57220644  0.39100692  0.00000000     0.53738012  0.40910024  0.00000000
+  0.41341645  0.53730490  0.00000000    -0.56832298  0.38817837  0.00000000     0.54135208 -0.41196032  0.00000000
+
+             "
+   atoms = " O    H    H   
+"
+        />
+
+  <OPT_manual_normal_modes_reordering
+     new_order="0 1 2" />
+
+  <frequencies
+    text = "
+       1749.68 4140.55 4236.50
+             "
+        />
+
+</target_state>
+
+<!-- 
+  ______________________________________________________________________ 
+
+ -->
+
+<target_state>
+
+  <ip units="eV"> 5 </ip>
+
+  <!-- THIS TARGET STATE IS FROM "h2o_other.out" FILE -->
+  <geometry
+    number_of_atoms = "3"
+    linear = "false"
+    units   ="angstr"
+    text   = "
+      O      0.000000    0.000000    0.113962
+      H      0.000000    0.748828   -0.455848
+      H      0.000000   -0.748828   -0.455848
+             "
+        />
+
+  <OPT_manual_atoms_reordering
+     new_order="0 1 2" />
+
+  <normal_modes
+    if_mass_weighted="true"
+    text = "
+   0.00   0.00   0.07     0.00   0.00   0.05     0.00   0.07   0.00
+   0.00  -0.43  -0.56     0.00   0.58  -0.40     0.00  -0.56   0.43
+   0.00   0.43  -0.56     0.00  -0.58  -0.40     0.00  -0.56  -0.43
+
+             "
+   atoms = "    O   H   H   "
+        />
+
+  <OPT_manual_normal_modes_reordering
+     new_order="0 1 2" />
+
+  <frequencies
+    text = "
+   1750.9224              4142.1539              4237.4314
+             "
+        />
+
+</target_state>
+
+<!-- 
+  ______________________________________________________________________ 
+
+ -->
+
+</input>

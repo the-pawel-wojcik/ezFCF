@@ -1,0 +1,322 @@
+Job "./ezspectrum_exe trans_hcoh_small.xml" has been started: Sun Jan  3 13:13:47 2021
+
+TOC (size=4) for node input:
+job_parameters              29       153
+parallel_approximation       153       533
+initial_state              533      1946
+target_state              1946      3432
+
+A copy of the "trans_hcoh_small.xml" input:
+------------------------------------------------------------------------------
+Node input
+TOC (size=4) for node input:
+job_parameters              29       153
+parallel_approximation       153       533
+initial_state              533      1946
+target_state              1946      3432
+
+<input
+   job="harmonic_pes">
+
+<job_parameters 
+   spectrum_intensity_threshold = "0.0001" 
+   temperature                  = "0"
+   > 
+</job_parameters>
+
+
+<parallel_approximation
+        max_vibr_excitations_in_initial_el_state = "0"
+        max_vibr_excitations_in_target_el_state  = "6"
+        combination_bands                        = "true"
+        use_normal_coordinates_of_target_states  = "true"
+	>
+
+  <do_not_excite_subspace size = "3" normal_modes = " 3 4 5 "
+			  >
+  </do_not_excite_subspace>
+
+</parallel_approximation>
+
+
+<initial_state>
+
+  <!-- THIS INITIAL STATE IS FROM "aces-trans-neut.out" FILE -->
+ 
+  <geometry 
+      linear="false" 
+      number_of_atoms="4" 
+      units="au"
+      text=" 
+             C        1.39149214     0.22982244     0.00000000 
+             O       -1.06145138    -0.15710283     0.00000000 
+             H        2.14668108    -1.72045361     0.00000000 
+             H       -1.86894079     1.47733232     0.00000000              
+           ">
+    </geometry>
+
+  <normal_modes 
+      atoms="C   O   H   H   " 
+      if_mass_weighted="false" 
+      text="     
+
+    0.000 0.0000  0.1672    0.0068 -0.0096  0.0000    0.7610  0.1203  0.0000     
+    0.000 0.0000  0.1970   -0.3061 -0.1299  0.0000   -0.5934 -0.0758  0.0000     
+    0.000 0.0000 -0.6262    0.5151  0.2098  0.0000   -0.0703 -0.0739  0.0000     
+    0.000 0.0000 -0.7356    0.6811  0.3406  0.0000   -0.1916 -0.0392  0.0000      
+
+    0.008 0.3186  0.0000    0.0979 -0.2576  0.0000    0.0014 -0.0079  0.0000     
+    0.049-0.2715  0.0000    0.0039  0.0046  0.0000    0.1077 -0.2163  0.0000    
+   -0.717-0.1940  0.0000   -0.3580  0.8918  0.0000   -0.0014  0.0204  0.0000     
+    0.489 0.1761  0.0000    0.0046 -0.0211  0.0000   -0.4324  0.8684  0.0000          
+    ">
+    </normal_modes>
+
+  <frequencies 
+      text="   1101.42   1217.81   1339.50    
+            1520.23   2882.19   3772.87  ">
+    </frequencies>
+
+</initial_state>
+
+<target_state>
+
+  <ip> 1.0 </ip>
+
+  <!-- THIS TARGET STATE IS FROM "aces-trans-cat.out" FILE -->
+
+  <geometry 
+     linear="false" 
+     number_of_atoms="4" 
+     units="au"
+     text=" 
+            C        1.27696171      .22568715      .00000000 
+            O        -.99596717     -.17361608      .00000000 
+            H        2.72705111    -1.24297869      .00000000 
+            H       -2.12489821     1.31117283      .00000000              
+          "> 
+   </geometry>
+
+  <normal_modes 
+     atoms="C   O   H   H   " 
+     if_mass_weighted="false" 
+     text="
+    .000  .0000   .2204     .0673   .1327   .0000     .0088  -.3860   .0000     
+    .000  .0000   .1512     .1959   .1127   .0000    -.0018   .3225   .0000    
+    .000  .0000  -.6733    -.4720  -.4678   .0000     .4892   .3729   .0000     
+    .000  .0000  -.6894    -.5407  -.4391   .0000    -.5122  -.3257   .0000    
+
+    .726  .1452   .0000     .2366  -.1874   .0000     .0029   .0069   .0000  
+   -.627 -.0970   .0000    -.0334  -.0023   .0000    -.1558   .1870   .0000   
+    .124 -.1226   .0000    -.6772   .6700   .0000     .0095  -.0073   .0000  
+   -.131  .0080   .0000    -.0061  -.0142   .0000     .6009  -.7612   .0000       
+   ">
+    </normal_modes>
+
+  <manual_normal_modes_reordering 
+      new_order="0 1 3 2 4 5">
+    </manual_normal_modes_reordering>
+
+  <frequencies 
+      text="   965.57    998.29    1257.25
+            1706.09   3097.48    3529.09 ">
+    </frequencies>
+
+</target_state>
+
+</input>
+------------------------------------------------------------------------------
+ 
+TOC (size=4) for node input:
+job_parameters              29       153
+parallel_approximation       153       533
+initial_state              533      1946
+target_state              1946      3432
+
+TOC (size=100) for node masses:
+TOC (size=0) for node job_parameters:
+
+TOC (size=3) for node initial_state:
+geometry                   617      1011
+normal_modes              1011      1801
+frequencies               1801      1928
+
+
+====== Reading the initial state ======
+TOC (size=0) for node geometry:
+
+TOC (size=0) for node C:
+
+TOC (size=0) for node O:
+
+TOC (size=0) for node H:
+
+TOC (size=0) for node H:
+
+TOC (size=0) for node normal_modes:
+
+TOC (size=0) for node frequencies:
+
+TOC (size=5) for node target_state:
+ip                        1962      1980
+geometry                  2044      2428
+normal_modes              2428      3187
+manual_normal_modes_reordering      3187      3292
+frequencies               3292      3415
+
+===== Reading the target state #0 =====
+TOC (size=0) for node ip:
+
+TOC (size=0) for node geometry:
+
+TOC (size=0) for node C:
+
+TOC (size=0) for node O:
+
+TOC (size=0) for node H:
+
+TOC (size=0) for node H:
+
+TOC (size=0) for node normal_modes:
+
+TOC (size=0) for node frequencies:
+
+TOC (size=0) for node manual_normal_modes_reordering:
+
+New normal modes order was requested:
+0 1 3 2 4 5
+Normal modes were reordered accordingly.
+Done reading states
+
+Coordinate axes were aligned with MOI principal axes; center mass was shifted to the origin.
+
+New molecular geometry:
+   C      0.1216       0.0000      -0.7363 
+   O     -0.0831       0.0000       0.5617 
+   H     -0.9104       0.0000      -1.1360 
+   H      0.7818       0.0000       0.9890 
+
+MOI tensor:
+                0           1           2
+    0   13.839364    0.000000    0.000000
+    1    0.000000   15.578733    0.000000
+    2    0.000000    0.000000    1.739369
+
+
+Coordinate axes were aligned with MOI principal axes; center mass was shifted to the origin.
+Also rotated by 2/2*pi, 2/2*pi, and 2/2*pi CCW around x, y, and z.
+The norm of the geometry difference from the initial state is 0.4350
+
+New molecular geometry:
+   C      0.1194       0.0000      -0.6757 
+   O     -0.0919       0.0000       0.5270 
+   H     -0.6578       0.0000      -1.4431 
+   H      0.6938       0.0000       1.1245 
+
+MOI tensor:
+                0           1           2
+    0   13.295704    0.000000   -0.000000
+    1    0.000000   14.523102    0.000000
+    2   -0.000000    0.000000    1.227398
+
+
+Done doing transformations
+------------------------------------------------------------------------------
+TOC (size=1) for node parallel_approximation:
+do_not_excite_subspace       408       506
+
+
+=== Reading the parallel approximation job parameters ===
+TOC (size=0) for node do_not_excite_subspace:
+
+WARNING! The normal modes of the target state were reordered!
+         New order is used for the "do_not_excite_subspace".
+
+The following normal modes will have no vibrational excitations:
+3 4 5 
+
+===== Overlap matrix of the target state #1 with the initial state =====
+The normal modes overlap matrix whit the initial state is diagonal
+  (do_not_excite_subspace is excluded)
+
+------------------------------------------------------------------------------
+
+Photoelectron spectrum in the parallel approximation will be evaluated
+
+===== Target state #1 =====
+
+Difference (dQ) between the initial and the target state geometries.
+Angstrom*sqrt(amu):
+
+normal mode  dQ in initial  dQ in target   frequency   frequency   comments
+  number      state coord.  state coord.    initial      target
+
+       0       0.000000        0.000000      1101.42     965.57
+       1       0.050117       -0.143830      1217.81     998.29
+       2      -0.251180       -0.212790      1339.50    1706.09
+       3      -0.340128        0.333375      1520.23    1257.25
+       4       0.098849       -0.089563      2882.19    3097.48
+       5       0.009135       -0.042227      3772.87    3529.09
+
+
+TARGET state normal coordinates (displacements dQ) will be used.
+
+Maximum number of vibrational excitations: 0 and 6
+ in the initial and each target state, respectively.
+
+Maximum number of combination bands = 84
+   = 1 (# of vibrational states in the initial electronic state)
+   * 84 (# of vibrational states in the target electronic state)
+
+A set of initial vibrational states is being created...
+  energy threshold is not specified in the input
+  1 vibrational states below the energy threshold
+
+A set of target vibrational states is being created...
+  energy threshold is not specified in the input
+  84 vibrational states below the energy threshold
+
+Total number of combination bands with thresholds applied: 84
+
+Intensities of combination bands are being calculated...
+------------------------------------------------------------------------------
+           Stick photoelectron spectrum (parallel approximation)
+------------------------------------------------------------------------------
+
+WARNING! The normal modes of one of the target states were reordered!
+         New order is used for the target state assignment.
+
+NOTE: only the following normal modes were excited: ("excite subspace"):
+  0 1 2 
+
+WARNING! The normal modes of one of the target states were reordered!
+         New order is used for the "excite subspace"
+
+Energy,eV    Intensity     FC factor         E",K   Transition
+
+-1.0000      1.683175e-02  +1.297372e-01     0.000  0(0)->1(0)
+-1.1238      6.226836e-03  +7.891030e-02     0.000  0(0)->1(1v1)
+-1.2115      1.492033e-02  +1.221488e-01     0.000  0(0)->1(1v2)
+-1.2475      6.175640e-04  +2.485083e-02     0.000  0(0)->1(2v1)
+-1.3353      5.519714e-03  +7.429478e-02     0.000  0(0)->1(1v1,1v2)
+-1.4231      8.530840e-03  +9.236255e-02     0.000  0(0)->1(2v2)
+-1.4591      5.474332e-04  +2.339729e-02     0.000  0(0)->1(2v1,1v2)
+-1.5468      3.155949e-03  +5.617784e-02     0.000  0(0)->1(1v1,2v2)
+-1.6346      3.870237e-03  +6.221123e-02     0.000  0(0)->1(3v2)
+-1.6706      3.130001e-04  +1.769181e-02     0.000  0(0)->1(2v1,2v2)
+-1.7584      1.431778e-03  +3.783885e-02     0.000  0(0)->1(1v1,3v2)
+-1.8461      1.514316e-03  +3.891422e-02     0.000  0(0)->1(4v2)
+-1.8821      1.420006e-04  +1.191640e-02     0.000  0(0)->1(2v1,3v2)
+-1.9699      5.602151e-04  +2.366886e-02     0.000  0(0)->1(1v1,4v2)
+-2.0576      5.328116e-04  +2.308271e-02     0.000  0(0)->1(5v2)
+-2.1814      1.971115e-04  +1.403964e-02     0.000  0(0)->1(1v1,5v2)
+-2.2692      1.728748e-04  +1.314818e-02     0.000  0(0)->1(6v2)
+------------------------------------------------------------------------------
+
+Stick spectrum was also saved in "trans_hcoh_small.xml.spectrum_parallel" file 
+ (Full list of the normal modes was used for assining transitions)
+------------------------------------------------------------------------------
+
+
+Job "./ezspectrum_exe trans_hcoh_small.xml" has been finished: Sun Jan  3 13:13:47 2021
+

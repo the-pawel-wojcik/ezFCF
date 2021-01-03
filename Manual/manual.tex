@@ -1,0 +1,1170 @@
+\documentclass[11pt]{article}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{amsmath}
+
+\begin{document}
+
+\newcommand{\ezS}{\texttt{ezSpectrum} }
+\newcommand{\ezSnospace}{\texttt{ezSpectrum}}
+\newcommand{\ai}{\textit{ab initio} }
+\newcommand{\xml}{\texttt{.xml} }
+
+\newcommand{\ul}[2]{\texttt{#1{\underline{~}#2}} } %% \texttt{1_2}
+
+\newcommand{\ket}[1]{|#1\rangle}      %% |i>
+\newcommand{\bra}[1]{\langle #1|}     %% <t|
+\newcommand{\braket}[2]{\langle #1|#2\rangle}      %% <t|i>
+
+% XML listings' style
+\definecolor{code_background}{rgb}{0.9,0.9,0.9} 
+\lstset{
+language=XML,
+basicstyle=\footnotesize,
+stringstyle=\ttfamily,
+showstringspaces=false,
+backgroundcolor=\color{code_background},
+}
+
+%----------------------------------------------------------------------
+
+\title{ezSpectrum v3.0}
+\author{{\em Franck-Condon factors in the harmonic approximation}\\ 
+\vspace{20mm}\\Vadim Mozhayskiy, Samer Gozem, and Anna I. Krylov\\ \vspace{20mm}}
+\date{\today}
+\maketitle
+
+\thispagestyle{empty}
+
+\begin{center}
+\vspace{30mm}
+\normalsize{The program is available for download and for online use at\\ 
+\texttt{iopenshell.usc.edu/downloads/} }
+\end{center}
+
+\clearpage
+\thispagestyle{empty}
+
+\tableofcontents
+
+%----------------------------------------------------------------------
+
+\clearpage
+
+\section*{Introduction}
+\addcontentsline{toc}{section}{Introduction}
+
+\ezS computes stick photoelectron/photodetachment spectra for polyatomics 
+within the double-harmonic approximation. 
+
+\begin{figure}[h!]
+  \centering
+  \caption{ 1D photoelectron spectrum in the harmonic approximation.
+$\chi''$ and $\chi'$ are the initial and the target vibrational wavefunctions, respectively;
+$E_i$ are the energies of the vibrational levels;
+$IE$ is the adiabatic ionization energy;
+$\Delta Q$ is the displacement of the
+target state's equilibrium geometry along the normal coordinate;
+$\braket{\chi'}{\chi''}$ are the Franck-Condon factors for $\chi'\leftarrow \chi''$
+vibronic transitions.}
+  \includegraphics[width=0.9\textwidth]{fcfs_1d.pdf}
+  \label{fig:fcfs}
+\end{figure}
+
+Franck-Condon factors (FCFs), the overlaps between the initial and target
+vibrational wavefunctions, can be calculated:
+\begin{itemize} 
+\item in {\em the parallel normal modes approximation} as products of 
+one-dimensional harmonic wave functions (see Sec.~\ref{sec:parallel});
+\item including {\em Duschinsky rotations} of the normal modes as full-dimensional integrals (see Sec.~\ref{sec:dushinsky}).
+\end{itemize}
+In both cases the overlap integrals are computed analytically.
+
+\ezS calculations require equilibrium geometries, harmonic frequencies, 
+and normal mode vectors for each electronic state. These data computed by \ai packages. 
+
+The key feature of \ezS is a program-independent \xml input. 
+It can be prepared either manually following the format description and examples, 
+or by running the python script that processes 
+{\tt Q-Chem}, {\tt ACESII}, {\tt Molpro}, {\tt GAMESS}, and {\tt Gaussian}
+\footnote{We are Gaussian free zone, and encourage everyone to degauss their workplace as well.} outputs.
+The script can be easily modified to process outputs of other programs. 
+ 
+Please contact Professor Anna I. Krylov ({\tt krylov@usc.edu}) and Vadim Mozhayskiy 
+({\tt mozhaysk@usc.edu}) if you have suggestions, questions, or bugs to report. Have fun!  
+
+%----------------------------------------------------------------------
+\section{Quick start}
+
+In this section it is explained how to create an input \xml file from your electronic structure 
+program outputs using \ul{make}{xml.py} script and how to run \ezSnospace.
+For brief overview of the \xml syntax please see the Appendix;
+the detailed description of the input file format is given in the  
+next sections of the manual.
+
+%----------------------------------------------------------------------
+\subsection{Create an input file: \ul{make}{xml.py} script}
+\label{sec:script}
+
+\ul{make}{xml.py} python script creates an \xml input file for \ezS from several \ai outputs. 
+All \ai outputs should be for the same molecule (different electronic states and total charges are OK) 
+and contain a frequency job at the optimized geometry. 
+A resulting \xml input file will contain basic default job parameters and an \ul{electronic}{state} element 
+for every output file provided. 
+
+The script \ul{make}{xml.py} executed with no arguments prints the usage format:
+\begin{lstlisting}[frame=single,framerule=0pt]
+  make_xml.py  <filename.xml>  <initial_state.out>
+        <target_state_1.out> <target_state_2.out> etc...
+\end{lstlisting}
+{\tt filename.xml} is the name of \xml input file to be  created,
+and other parameters are the file names of \ai outputs.
+The first output is for the initial electronic state,
+and all sequential files are for the target electronic states.
+
+\ul{supported.ab}{initio/} folder contains sample input and output files
+for \ai packages supported by the script.
+Each file containstakes the in an H$_2$O frequency job using HF/6-311G**.
+Here is the summary of \ai outputs' formats:
+
+\begin{center}
+\begin{tabular}{rcc}
+\hline
+  & Cartesian geometry & Mass weighted\\
+  & units              & normal modes? \\
+\hline
+{\tt Q-Chem} & \AA & Yes\\
+{\tt ACES II}  & Bohr & No\\
+{\tt GAMESS} and {\tt Molpro}  & Bohr & Yes\\
+{\tt Gaussian}  & \AA & Yes\\
+\hline
+\end{tabular}
+\end{center}
+
+For these packages \ul{make}{xml.py} script sets all necessary flags automatically,
+but if you plan to use other \ai programs you can compare the format of your
+outputs with the ones provided. Please see \ul{supported.ab}{initio /README} 
+file for additional info.
+
+Some tags in the created input \xml file are ``commented'' by
+the {\tt OPT\underline{~}} prefix: when removed, the tags become
+visible for \ezSnospace; for more details on comments see Sec.~\ref{sec:comments}.
+
+
+
+%----------------------------------------------------------------------
+\subsection{Run a sample job}
+
+\ezS executable takes the input \xml file as a single argument. 
+There are several sample input \xml files in the {\tt samples/} folder:
+\begin{itemize}
+\item \ul{trans}{hcoh.xml}---a basic input for both parallel approximation and Duschinsky rotations calculations; 
+no hot bands (0 K temperature); 
+\item \ul{cis}{hcoh.xml}---includes hot bands (600 K temperature) and energy thresholds for vibrational states;
+\item {\tt adenine.xml}---atoms and normal modes are reordered in the target state; single FCFs are requested 
+in the Duschinsky rotations section;
+\item {\tt thymine.xml}---only Duschinsky rotations with full set of optional keywords; 
+it takes several minutes to complete this job.
+\end{itemize}
+
+Note that the input file must contain \ul{parallel}{approximation} or \ul{dushinsky}{rotations} section.
+One may include both sections in a single input and compare the calculated spectra.
+
+To run \ezS for one of the examples type:
+\begin{lstlisting}[frame=single,framerule=0pt]
+  ezSpectrum samples/cis_hcoh.xml > samples/cis_hcoh.xml.out
+\end{lstlisting}
+
+Calculated spectra in the parallel approximation 
+and with the Duschinsky rotations will be saved in the \ul{cis}{hcoh}\ul{.spectrum}{parallel} and
+\ul{cis}{hcoh}\ul{.spectrum}{dushinsky} files, respectively as well as in the \ul{cis}{hcoh.xml.out} output file. 
+The format of the spectrum and the output files is briefly described in Sec.~\ref{sec:output}
+
+
+%----------------------------------------------------------------------
+\subsection{Job parameters}
+\label{sec:parameters}
+
+There are two general job parameters: the temperature in Kelvin 
+and a minimum intensity threshold for spectral lines.
+
+Here is an example of the input file structure:
+\begin{lstlisting}[frame=single,framerule=0pt]
+<input 
+   job="harmonic_pes">
+
+  <job_parameters 
+     temperature                    = "300"
+     spectrum_intensity_threshold   = "0.001"
+    />
+
+  <parallel_approximation    ....  />
+
+  <dushinsky_rotations .... />
+
+  <initial_state>  .... </initial_state>
+
+  <target_state>   .... </target_state>
+
+</input>
+\end{lstlisting}
+
+Job-specific parameters for the parallel approximation and Duschinsky rotations are described
+in Sec.~\ref{sec:parallel} and Sec.~\ref{sec:dushinsky}, respectively. The initial and target state elements are created 
+by the \ul{make}{xml.py} script and can be easily adjusted by the user (see Sec.~\ref{sec:elstates}).
+
+Both temperature and intensity threshold are applied after FCFs are calculated
+(using either approximation).
+The intensity $I$ of the vibronic transition is proportional to the square of the FCF 
+($\braket{\chi '}{\chi''}^2$, where $\chi''$ and $\chi '$ are the 
+vibrational wavefunctions of the initial and target electronic states, respectively).
+For the hot bands (i.e. transitions from the vibrationally excited initial electronic state) 
+the intensity is additionally multiplied by the Boltzmann population of the
+initial vibrational state at temperature $T$. 
+The overall intensity $I^{calc}$ for a given $\chi ' \leftarrow \chi''$ transition
+is calculated as:
+\begin{align}
+I\sim I^{calc}&=\braket{\chi '}{\chi''}^2\cdot e^{-E''/kT},
+\label{eq:intens}
+\end{align}
+where $E''$ is the energy of the initial vibrational state relative to the ground vibrational state.
+If the calculated intensity is above the specified threshold, the transition is included in the spectrum.
+The Boltzmann distribution in the above equation is not normalized and the population of excited vibrational
+states of the initial electronic state is calculated relative to the population of the ground vibrational
+state (which is always one). 
+
+
+
+%----------------------------------------------------------------------
+\subsection{Output}
+\label{sec:output}
+
+A stick photoelectron spectrum is printed both at the end of each section of the output 
+(parallel approximation and Duschinsky rotations sections)
+and in separate files: \ul{*.spectrum}{parallel} and/or \ul{*.spectrum}{dushinsky}.
+
+Spectra are printed as five columns (from left to right):
+\begin{itemize}
+\item energy positions of the spectral lines: $E=-IE-(E'-E'')$, where $E''$ and $E'$ are the energies
+of the vibrational states relative to the ground vibrational states of the initial and target
+electronic states respectively (see Fig.~\ref{fig:fcfs}); 
+$IE$ is a ZPE-adjusted adiabatic ionization energy 
+(the energy difference between the ground vibrational states of the initial and the target electronic state);
+\item spectral intensities calculated by Eq.~(\ref{eq:intens});
+\item Franck-Condon Factors $\braket{\chi '}{\chi''}$;
+\item $E''$---energies of initial vibrational states relative to the ground vibrational state 
+of the initial electronic state;
+\item assignment of the vibronic transitions $\psi''\to\psi '$; both vibronic states are
+printed as: {\em ``electronic state number''}({\em``list of vibrational excitations''}), 
+where each vibrational excitation is in the following format: [{\em number of quanta}]v[{\em normal mode's number}];
+zero in parentheses is the ground vibrational state; normal mode's numbering starts with zero;
+\end{itemize}
+
+For example:
+\begin{lstlisting}[frame=single,framerule=0pt]
+Energy  Intensity    FC factor     E",K   Transition
+
+-1.000  1.1102e-02  +1.053e-01     0.000  0(0)->1(0)
+-1.030  5.2203e-04  -1.365e-01  2145.805  0(1v3)->1(1v2)
+-1.099  1.6786e-04  +1.522e-01  2956.964  0(2v0)->1(2v0,1v1)
+-1.122  2.3433e-02  +1.530e-01     0.000  0(0)->1(1v1)
+\end{lstlisting}
+
+Every \ezS output file starts with a copy of the input \xml file followed by the 
+molecular geometries of each electronic state after the automatic alignment procedure. 
+It is recommended to check that all states were aligned correctly---a large 
+value of the ``The norm of the geometry difference from the initial state'' in the output
+may indicate a mis-alignment of the geometries (see Sec.~\ref{sec:emptyspec}).
+The parallel approximation job's output also includes: 
+(a) the normal modes' overlap matrices between the initial and each of the
+target electronic states (each matrix should be diagonal for the parallel approximation;
+otherwise, the normal modes must be reordered to minimize the off diagonal elements---see 
+Sec.~\ref{sec:nonparallel});
+and (b) the table of the target states displacements, 
+$\Delta Q$, relative to the initial state geometry in the ``initial coordinates''
+and in ``target coordinates'' (i.e., along the normal modes of the initial and the target electronic states, respectively).
+In the Duschinsky rotation section of the output, one should check the normal modes rotation matrix determinant,
+$Det(S)$, which should be close to one (see Sec.~\ref{sec:detS}); also check that you have enough
+memory to store all the requested ``layers''. 
+
+
+%----------------------------------------------------------------------
+\subsection{Atomic masses file}
+\label{sec:masses}
+
+File {\tt atomicMasses.xml} contains atomic masses in atomic mass units (amu) and must be present in the same folder 
+as an \xml input file. 
+If you need more atoms, e.g. isotopes, you can add new
+elements into the root element {\tt masses} of this file. 
+The user-defined atomic names must start with a letter and contain only letters and numbers.
+Here is an example of a short {\tt atomicMasses.xml} file:
+\begin{lstlisting}[frame=single,framerule=0pt]
+<masses>
+  <H>   1.007820 </H>
+  <C>  12.000000 </C>
+  <C14> 14      </C14>
+</masses>
+\end{lstlisting}
+
+%----------------------------------------------------------------------
+\section{Parallel approximation}
+\label{sec:parallel}
+
+%----------------------------------------------------------------------
+\subsection{Overview}
+\label{sec:para:overview}
+
+In the dipole approximation, the intensity of one-electron transition between two vibronic states
+is proportional to the square of the electric dipole transition moment, which
+in adiabatic approximation can be expressed as:
+\begin{align}
+\bra{\chi '(Q)\cdot\psi'(q,Q)} M(q,Q) \ket{\psi''(q,Q)\cdot\chi''(Q)} & = \nonumber\\
+\mu \cdot \braket{\chi '(Q)}{\chi ''(Q)}, & 
+\end{align}
+where
+$\psi''$ and $\psi'$ are the electronic wavefunctions, $\chi''$ and $\chi'$---the vibrational wavefunctions
+of the initial and target states, respectively;
+$q$ and $Q$ are the electronic and nuclear coordinates.
+If the dependence 
+of an electronic transition moment $\mu$  on the nuclear coordinates is neglected,
+the intensity of the transition is proportional to the square of the 
+Franck-Condon factor (FCF)\cite{Franck:25,Condon:26}:
+\begin{align}
+\braket{\chi '(Q)}{\chi ''(Q)}.
+\end{align}
+
+In the harmonic approximation vibrational wavefunctions are products of
+one dimensional harmonic oscillator wavefunctions. 
+If normal coordinates of the initial and the target electronic states are assumed to be the same
+(the parallel approximation),
+multidimensional Franck-Condon factors are simple the products of one dimensional FCFs:
+\begin{align}
+\braket{\chi'(Q)}{\chi''(Q)}&=\nonumber\\
+\braket{\chi'_1(Q_1)\cdot\chi'_2(Q_2)\cdot...}{\chi''_1(Q_1)\cdot\chi''_2(Q_2)\cdot...}&=\nonumber\\
+\braket{\chi'_1(Q_1)}{\chi''_1(Q_1)}\cdot\braket{\chi'_2(Q_2)}{\chi''_2(Q_2)}\cdot...&
+\label{eq:product_fcf}
+\end{align}
+
+\ezS computes each one-dimensional harmonic FCF analytically\cite{FranckCondon:Math:30}:
+
+\begin{align}
+\langle\chi'_{\nu'} |\chi''_{\nu''}\rangle = &
+\sqrt{\frac{2\alpha}{\alpha^2+1}}
+\cdot
+\sqrt{\frac{\nu''\nu'}{2^{(\nu''+\nu')}}}
+\cdot
+e^{\frac{-\delta^2}{2(\alpha^2+1)}} 
+\quad
+\sum_{L=0}^{L<min\{\nu'',\:\nu'\}} 
+\quad
+\sum_{i=0}^{i\le\frac{\nu'-L}{2}-1} 
+\quad
+\sum_{j=0}^{j\le\frac{\nu''-L}{2}-1}  \nonumber \\ 
+&\left[\frac{1}{L!}\left(\frac{4\alpha}{1+\alpha^2}\right)^L
+\frac{1}{i!}\left(\frac{1-\alpha^2}{1+\alpha^2}\right)^i
+\frac{1}{j!}\left(\frac{\alpha^2-1}{1+\alpha^2}\right)^j \right. \nonumber\\
+&\left.
+\frac{1}{\nu'-2i-L}
+\left(\frac{-2\alpha\delta}{1+\alpha^2}\right)^{\nu'-2i-L}
+\frac{1}{\nu''-2j-L}
+\left(\frac{2\delta}{1+\alpha^2}\right)^{\nu''-2j-L}\right],
+\end{align}
+where
+\begin{align}
+\alpha&=\sqrt{\frac{\omega''}{\omega'}}\nonumber\\
+\delta&=\Delta Q\sqrt{\omega''},
+\end{align}
+$\nu''$ and $\nu'$ are quantum numbers; $\omega''$ and $\omega'$ are harmonic frequencies of the initial and the target 
+electronic state, respectively; $\Delta Q$ is the displacement of the target electronic state relative to the initial one
+along a mass-weighted normal mode.
+
+%----------------------------------------------------------------------
+\subsection{Keywords}
+\label{sec:para:keywords}
+
+Here is an example of the \ul{parallel}{approximation} element with a full
+set of keywords (all sub elements of the \ul{parallel}{approximation} element are optional):
+\begin{lstlisting}[frame=single,framerule=0pt]
+<parallel_approximation
+   max_vibr_excitations_in_initial_el_state = "1"
+   max_vibr_excitations_in_target_el_state  = "4"
+   combination_bands                        = "true"
+   use_normal_coordinates_of_target_states  = "true"
+   >
+
+   <print_franck_condon_matrices flag="true"/>
+
+   <do_not_excite_subspace size="3" normal_modes="0 3 7" />
+
+   <energy_thresholds  units="eV, K, cm-1">
+      <initial_state   units="K">  1000 </initial_state>
+      <target_state   units="eV">  0.25 </target_state>
+   </energy_thresholds>
+
+</parallel_approximation>
+\end{lstlisting}
+Four attributes of the \ul{parallel}{approximation} element are always required:
+\begin{itemize}
+\item maximum number of the vibrational excitations in the initial and target electronic states
+(the total number of quanta in all normal modes);
+\item flag to include the combination bands (vibrational states with several normal modes excited at the same time);
+\item the flag whether to use the normal modes of the target ({\tt true}) or the initial ({\tt false}) state.
+\end{itemize}
+The latter requires clarification. In general, if there are no hot bands in the spectrum 
+(0 K, and only the ground vibrational state of the initial electronic state is populated),
+using the normal modes of the target electronic state is prefered. 
+Indeed, rotation of
+the initial ground states' vibrational wavefunction does not significantly change the overlap integrals with
+the target state (see Fig~\ref{fig:rotations}); on the other hand, rotation of target state's vibrational wavefunctions with many 
+nodes strongly affects the overlap matrices.
+
+
+\begin{figure}[h!]
+  \centering
+  \caption{The effect of normal coordinate's rotation on the FCFs within the parallel mode
+approximation: (a) the correct overlap between wave-functions on lower (q'') and upper (q') surfaces;
+(b) the overlap when lower normal coordinates are rotated to coincide with upper coordinates;
+(c) the overlap when upper normal coordinates are rotated to coincide with lower coordinates. 
+More detailed discussion can be found in Ref.~\cite{Koziol:HCOH:2009}.}
+  \includegraphics[width=0.9\textwidth]{nm_rotations.pdf}
+  \label{fig:rotations}
+\end{figure}
+
+
+%----------------------------------------------------------------------
+\subsection{Reduced dimensionality calculations and energy thresholds}
+\label{sec:para:subspace}
+
+Commonly, some normal modes can be excluded from the model because they are not excited in the experiment,
+or, not active due to the symmetry restrictions. 
+
+The time cost of combination band calculation grows exponentially with the number of the normal modes, 
+but can be significantly reduced by excluding some of the normal modes from the ``active subspace'' 
+by adding:
+\begin{lstlisting}[frame=single,framerule=0pt]
+   <do_not_excite_subspace size="2" normal_modes="3 38" />
+\end{lstlisting}
+into the \ul{parallel}{approximation} element. In this example, no vibrational quanta will be added to 
+the normal modes number {\tt 3} and {\tt 38}. (Please remember that normal modes are numbered from {\tt 0}.)
+
+The number of the combination bands  may also be reduced by applying 
+thresholds to the energies of the vibrational states 
+(relative to the ground vibrational states):
+\begin{lstlisting}[frame=single,framerule=0pt]
+ <energy_thresholds  units="eV, K, cm-1">
+    <initial_state   units="K">     1000    </initial_state>
+    <target_state   units="eV">      0.25   </target_state>
+ </energy_thresholds>
+\end{lstlisting}
+The energies of the thresholds can be in electron volts, Kelvins and wavenumbers 
+(the value of the {\tt units} attribute must be {\tt eV}, {\tt K} or {\tt cm-1}, respectively).
+In the parallel approximation lists of the initial and the target vibrational states below 
+specified thresholds are formed first. 
+Then the FCFs for all possible initial-target combinations are evaluated.
+This algorithm reduces the calculation time, but requires more memory to store
+the initial-target pairs of states (see Sec.~\ref{sec:crash}).
+
+Note that, if the energy threshold is lower than some of the vibrational frequencies, 
+you may include these ``high frequency'' normal modes
+into the {\tt do not excite subspace} for an additional speedup.
+
+If normal modes of the target state are reordered 
+to maximally diagonalize the normal modes' overlap matrix (see Sec.~\ref{sec:nmodes}),  
+the new order is used whenever the normal modes are referenced in the input.
+If normal modes of the target electronic state are used ({\tt use normal coordinates of target states = "true"}),
+then the new order of normal modes will be used in the output as well.
+In particular the new order of the normal modes is used in:
+the transition assignments of the final spectrum printout and 
+in the {\tt do not excite subspace} element of the input.
+
+
+%----------------------------------------------------------------------
+\section{Duschinsky rotations}
+\label{sec:dushinsky}
+
+%----------------------------------------------------------------------
+\subsection{Overview}
+\label{sec:dhush:overview}
+
+The harmonic approximation is briefly described in Sec.~\ref{sec:para:overview}.
+When normal modes of the initial and the target electronic state are significantly non-parallel,
+the nuclear coordinates of the initial and the target vibrational wavefunctions are different,
+and the full FCFs $\braket{\chi '(Q')}{\chi'' (Q'')}$ 
+are not represented by the product of the one-dimensional integrals, Eq.~(\ref{eq:product_fcf}).
+Multidimensional Franck-Condon factors between two harmonic vibrational wavefunctions
+can be evaluated analytically \cite{Kupka:FC:86,Duschinsky:math:98}.
+For a molecule with $K$ atoms and $N$ normal modes 
+($N=3K-6$ or $N=3K-5$ for non-linear and linear molecules, respectively),
+normal modes of the initial and target states are related by the Duschinsky transformation\cite{Duschinky:37}:
+\begin{align}
+\overrightarrow{Q'}=S\cdot\overrightarrow{Q''}+\overrightarrow{d},&
+\label{eq:dushinsky}
+\end{align}
+where the normal modes rotational matrix $S$ $[N\times N]$ is:
+\begin{align}
+S=L'^TL''&\nonumber
+\end{align}
+and the vector of displacements $\overrightarrow{d}$ $[N]$ along the normal coordinates is:
+\begin{align}
+\overrightarrow{d}=L'^T\sqrt{T}(\overrightarrow{x_0''}-\overrightarrow{x_0'})&\nonumber
+\end{align}
+where $L''$ $[N\times 3K]$ and $L'$ $[N\times 3K]$ are rectangular matrices composed of $N$ mass-weighted normal vectors
+(in Cartesian coordinates) of the initial and the target electronic states respectively;
+$\overrightarrow{x_0''}$ $[3K]$ and $\overrightarrow{x_0'}$ $[3K]$ are the Cartesian geometries vectors
+of the initial and the target states respectively; and matrix $T$ $[3K\times 3K]$ 
+is the diagonal matrix composed of atomic masses: $T=diag\{m_1,m_1,m_1,m_2,m_2,m_2,...,m_K,m_K,m_K\}$.
+
+The overlap integral (FCF) between the ground vibrational states of the initial and target electronic states is
+given by\cite{Duschinsky:math:98}:
+\begin{align}
+\braket{\chi'_0}{\chi''_0}=&\nonumber\\
+\frac{2^{N/2}}{\sqrt{det(S)}}
+\left[ \prod_{\eta=1}^{N} \left(\frac{\omega'_{\eta}}{\omega''_{\eta}}\right)  \right]^{1/4}
+\sqrt{det(Q)}
+\left[e^{-\frac{1}{2}\overrightarrow{\delta}^T(1-P)\overrightarrow{\delta}} \right]&
+\end{align}
+(Note that there is a typo in this equation in Ref.~\cite{Duschinsky:math:98})
+FCFs for transition from the ground vibrational state of the initial electronic 
+state are calculated recursively\cite{Duschinsky:math:98} from the 
+$\braket{\chi'_0}{\chi''_0}$ integral as:
+
+\begin{align}
+\braket{ \chi'_{\nu'_1,...\nu'_{\xi}+1,...\nu'_N} }{\chi''_0}&=\nonumber\\
+\sqrt{\frac{2}{\nu'_{\xi}+1}} \left[ (1-P)\overrightarrow{\delta}\right]_{\xi} 
+\braket{ \chi'_{\nu'_1,...\nu'_{\xi},...\nu'_N} }{\chi''_0}&+\nonumber\\
+\sum_{\theta=1}^{N} \sqrt{\frac{\nu'_{\theta}}{\nu'_{\xi}+1}}  \left[ 2P-1\right]_{\xi\theta}
+\braket{ \chi'_{\nu'_1,...\nu'_{\theta}-1,...\nu'_N} }{\chi''_0}&
+\end{align}
+
+Hot bands (transitions from the vibrationally excited initial electronic state) are 
+given by:
+
+\begin{align}
+\braket{ \chi'_{\nu'_1,...\nu'_N} }{ \chi''_{\nu''_1,...\nu''_{\eta}+1,...\nu''_N} }&=\nonumber\\
+-\sqrt{\frac{2}{\nu''_{\eta}+1}} \left[ R\overrightarrow{\delta} \right]_{\eta}
+\braket{ \chi'_{\nu'_1,...\nu'_N} }{ \chi''_{\nu''_1,...\nu''_{\eta},...\nu''_N} }&+\nonumber\\
+\sum_{\theta=1}^{N}   \sqrt{ \frac{\nu''_{\theta}}{\nu''_{\eta}+1} }   \left[ 2Q-1 \right]_{\eta\theta}
+\braket{ \chi'_{\nu'_1,...\nu'_N} }{ \chi''_{\nu''_1,...\nu''_{\theta}-1,...\nu''_N} }&+\nonumber\\
+\sum_{\xi=1}^{N}   \sqrt{ \frac{\nu'_{\xi}}{\nu''_{\eta}+1} }   R_{\eta\xi}
+\braket{ \chi'_{\nu'_1,...\nu'_{\xi}-1,...\nu'_N} }{ \chi''_{\nu''_1,...\nu''_{\eta},...\nu''_N} }&
+\end{align}
+
+where $\nu_i$ is a number of vibrational quanta in the $i$-th normal mode.
+$J$, $Q$, $P$, and $R$ are square $[N\times N]$ matrices:
+
+\begin{align}
+J&=\lambda' S \lambda''^{-1}\nonumber\\
+Q&=(1-J^TJ)^{-1}\nonumber\\
+P&=JQJ^T\nonumber\\
+R&=QJ^T\nonumber
+\end{align}
+
+$\overrightarrow{\delta}$ is a vector $[N]$:
+
+\begin{align}
+\overrightarrow{\delta}&=\lambda'\overrightarrow{d}\nonumber
+\end{align}
+
+$\lambda''$ and $\lambda'$ are $[N\times N]$ diagonal matrices:
+
+\begin{align}
+\lambda''&=diag\{\sqrt{\omega''_1},\sqrt{\omega''_2},... \sqrt{\omega''_N}\}\nonumber\\
+\lambda'&=diag\{\sqrt{\omega'_1},\sqrt{\omega'_2},... \sqrt{\omega'_N}\}\nonumber
+\end{align}
+
+
+where $\omega''_i$ and $\omega'_i$ are the frequencies of the $i-$th normal mode in atomic units.
+
+
+Total number of vibrational states with up to $K$ quanta for the molecule with $N$ normal modes is
+given by\cite{stars_and_bars}:
+
+\begin{align}
+\left[ 1+\sum_{k=1}^{K} {{N+k-1}\choose{N-1}} \right]^2&=\left[ 1+\sum_{k=1}^{K}\frac{(N+k-1)!}{(N-1)!k!} \right]^2
+\end{align}
+
+
+
+%----------------------------------------------------------------------
+\subsection{Keywords}
+\label{sec:dhush:keywords}
+
+Full dimensional harmonic FCFs (with Duschinsky rotations) are evaluated
+if the \ul{dushinsky}{rotations} element is present in the root of the input \xml file:
+\begin{lstlisting}[frame=single,framerule=0pt]
+<dushinsky_rotations target_state="1"
+      max_vibr_excitations_in_initial_el_state = "3"
+      max_vibr_excitations_in_target_el_state  = "8"
+/>
+\end{lstlisting}
+All three arguments in the example above are required:
+\begin{itemize}
+\item target state from the input to include; 
+if there is only one target state in the input, the attribute's value must be {\tt "1"}.
+Duschinsky rotation calculations are implemented for to only one target state for simplicity of the input,
+if you need to include several target states, please combine the results from several separate calculations.
+\item maximum number of the vibrational excitations in the initial and target electronic states
+(total number of excitations in all normal modes combined).
+\end{itemize}
+This minimal set of parameters is sufficient for a Duschinsky rotation calculation, 
+however for larger systems it is often unrealistic to go beyond even few quanta of vibrational excitations. 
+Additional keywords can be used to reduce the number of FCFs and the time of a calculation. 
+Here is the example of the \ul{dushinsky}{rotations} element with all optional keywords included:
+\begin{lstlisting}[frame=single,framerule=0pt]
+<dushinsky_rotations target_state="1"
+      max_vibr_excitations_in_initial_el_state = "3"
+      max_vibr_excitations_in_target_el_state  = "8"
+      > 
+
+   <energy_thresholds  units="eV, K, cm-1">
+     <initial_state   units="K">  1000  </initial_state>
+     <target_state   units="eV">  0.25  </target_state>
+   </energy_thresholds>
+  
+   <max_vibr_to_store  target_el_state="6"/>
+
+   <do_not_excite_subspace size="2" normal_modes="3 38" />
+
+   <single_excitation 
+        ini="0" 
+       targ="2v38"/>
+   <single_excitation 
+        ini="2v3 3v4"  
+       targ="1v1 1v2 1v3 7v38"/>
+   <single_excitation 
+        ini="1v0" 
+       targ="0"/>
+
+</dushinsky_rotations>
+\end{lstlisting}
+The optional keywords are described in the next sections of the manual.
+
+In general there is no need to reorder the normal modes (see Sec.~\ref{sec:nmodes}) 
+for the Duschinsky rotation calculations, 
+and we advise you to use the default order (as in the \ai input).
+If normal modes of the target state have to be reordered,
+please remember that the new order is to be used in all assignments in the output 
+and in the input.
+In particular the new order of the normal modes is used in:
+\begin{itemize}
+\item transition assignments of the final spectrum printout (energies and intensities of the 
+Duschinsky rotation spectrum are obviously unaffected by any normal modes reordering);
+\item single \ul{excitation}{element}-s of the input (see Sec.~\ref{sec:dush:single_ex});
+\item {\tt do\underline{~}not\underline{~}excite\underline{~}subspace} element of the input (see Sec.~\ref{sec:dush:subspace}).
+\end{itemize}
+
+
+
+%----------------------------------------------------------------------
+\subsection{Reduced dimensionality calculations}
+\label{sec:dush:subspace}
+
+It is common that some normal modes can be excluded from the model: whether they are not excited in the experiment,
+or, for example, not active because of the symmetry restrictions. 
+
+The time cost of combination band calculations grows exponentially with the number of normal modes, 
+and can be significantly reduced by excluding some of the normal modes from the ``active subspace'' 
+by adding:
+\begin{lstlisting}[frame=single,framerule=0pt]
+   <do_not_excite_subspace size="2" normal_modes="3 38" />
+\end{lstlisting}
+into the \ul{dushinsky}{rotations} element. In this example no vibrational quanta will be added to 
+the normal modes number {\tt 3} and {\tt 38} (please note that normal modes are numbered from {\tt 0}).
+
+%----------------------------------------------------------------------
+\subsection{Single FCFs}
+\label{sec:dush:single_ex}
+
+One can include FCFs for particular vibronic transitions by adding
+\ul{single}{excitation} elements to the \ul{dushinsky}{rotations}.
+For example:
+\begin{lstlisting}[frame=single,framerule=0pt]
+   <single_excitation
+        ini="0" 
+       targ="2v2"/>
+   <single_excitation 
+        ini="2v0 3v2"  
+       targ="1v1/>
+\end{lstlisting}
+That may be useful, for example, if one want to include the ``tail'' of a long vibrational progression 
+that goes beyond the maximum number of vibrational quanta value.
+
+In the above example for a molecule with three normal modes, 
+the following FCFs will be evaluated: $\braket{002}{000}$ and $\braket{010}{203}$.
+The vibrational state of the initial and target electronic states are
+described in the {\tt ini} and {\tt targ} attributes, respectively.
+The values of these attributes are either {\tt "0"} for the ground vibrational state, 
+or a list of excited normal modes (space and/or end-of-line separated).
+The first number in each word (before the letter {\tt v}) is the number of quanta in a particular normal mode,
+and the second number is the normal mode number 
+(normal modes are numbered from zero; also see a note in Sec.~\ref{sec:dhush:keywords} regarding the normal modes reordering).
+
+All requested single FCFs are evaluated and printed in the output. 
+However only transitions with an intensity above the requested threshold are added to the spectrum.
+
+You can also include excitations to normal modes from the \ul{do}{not}\ul{excite}{subspace}.
+
+
+
+%----------------------------------------------------------------------
+\subsection{Other keywords: CPU and memory use}
+
+As it was mentioned in Sec~\ref{sec:dhush:overview}, \ezS stores in memory only FCFs 
+for the transitions from the ground vibrational state of the initial electronic state (i.e., no hot bands are stored).
+All hot bands are evaluated recursively, which may require considerable CPU time. 
+To reduce the number of hot bands, one can apply thresholds
+to the energies of the vibrationally excited states 
+(above the ground vibrational state) in both initial and target electronic states:
+\begin{lstlisting}[frame=single,framerule=0pt]
+ <energy_thresholds  units="eV, K, cm-1">
+    <initial_state   units="K">     1000    </initial_state>
+    <target_state   units="eV">      0.25   </target_state>
+ </energy_thresholds>
+\end{lstlisting}
+Note that in Duschinsky rotation calculations {\em only hot bands} calculations 
+will be accelerated by the use of the energy thresholds.
+The energy of the thresholds can be in electron volts, Kelvins and wavenumbers 
+(the value of the {\tt units} attribute must be {\tt eV}, {\tt K} or {\tt cm-1}, respectively).
+
+If the energy threshold is lower than some of the vibrational frequencies, 
+you may include these ``high frequency'' normal modes
+into the \ul{do}{not}\ul{excite}{subspace} for an additional speedup.
+
+If the memory is insufficient to store all ``layers'' (sets of FCFs with the same number of vibrational quanta)
+up to the {\tt max vibr excitations in target el state} value, you may limit the maximum number of ``layers'' to store 
+by adding:
+\begin{lstlisting}[frame=single,framerule=0pt]
+  <max_vibr_to_store  target_el_state="6"/>
+\end{lstlisting}
+into the \ul{dushinsky}{rotations} element.
+In the example above only layers with up to six vibrational excitations will be stored.
+
+Sizes of the layers for a molecule with 39 normal modes (15 atoms) are shown in the table below 
+(printed in the output before the FCFs evaluation):
+
+\begin{center}
+\begin{tabular}{rr}
+\hline
+ Layer & Size in bytes \\
+\hline
+  {\tt  K'=0 }  & 8 b \\
+  {\tt  K'=1 }  & 312 b \\
+  {\tt  K'=2 }  & 6.09 Kb \\
+  {\tt  K'=3 }  & 83.28 Kb \\
+  {\tt  K'=4 }  & 874.45 Kb \\
+  {\tt  K'=5 }  & 7.34 Mb \\
+  {\tt  K'=6 }  & 53.86 Mb \\
+  {\tt  K'=7 }  & 346.22 Mb \\
+  {\tt  K'=8 }  & 1.94 Gb \\ 
+  {\tt  K'=9 }  & 10.15 Gb\\
+  {\tt  K'=10}  & 48.73 Gb \\
+  {\tt  K'=11}  & 217.08 Gb \\
+\hline
+\end{tabular}
+\end{center}
+
+The next table shows the time benchmarks for different number of layers stored in the memory for the same molecule
+\footnote{These times were obtained on Intel Xeon 3.2GHz processor}.
+
+\begin{center}
+\begin{tabular}{cccc}
+\hline
+Layers stored    & Memory & No hot bands& 11,505,823 hot bands \\
+(max number of   & used,  & included    & (up to 3 vibr. quanta \\
+vibr. quanta=8)  & Gb     &             & in the initial state)\\
+\hline
+0 & 0.00 & 14h 4min & 25h 28min \\
+6 & 0.06 & 40 min   & 2h 5min \\
+8 & 2.40 & 29 min   & 1h 54 min \\
+\hline
+\end{tabular}
+\end{center}
+
+Note that recursive evaluation of two highest layers (second row) is done in almost the same time 
+as when all layers are stored (third row), 
+which is obvious from the recursion equations in Sec.~\ref{sec:dhush:overview}.
+However full recursive calculations (first row) are much slower.
+
+
+%----------------------------------------------------------------------
+\section{\ul{initial}{state} and \ul{target}{state} elements}
+\label{sec:elstates}
+
+For each \ai output \ul{make}{xml.py} script adds the electronic state element 
+into an input  \xml file; \ul{initial}{state} element is created from the first provided output, 
+and \ul{target}{state} elements are created from all consecutive outputs.
+In many cases there is no need in changing anything except the {\tt IP} element (see below).
+However the optional elements described in this section may be used for 
+the ``manual'' reordering of normal modes and/or atoms if necessary.
+Full description of the electronic state element format may be also useful 
+if the data is taken from currently unsupported \ai packages.
+
+Each electronic state element must have the following elements: 
+(a) {\tt geometry} (Sec.~\ref{sec:geometry});
+(b) \ul{normal}{modes} (Sec.~\ref{sec:nmodes});
+and (c) {\tt frequencies} (Sec.~\ref{sec:freq}). 
+In addition, each \ul{target}{state} element must have the ionization energy in electron volts (eV) in the {\tt IP} element. 
+The value of the adiabatic IP should be ZPE-adjusted (i.e. the energy difference between ground vibrational states of 
+initial and target electronic states). \ul{make}{xml.py} script fills the {\tt IP} elements with the default values
+starting with 1.0 eV for the first target state. If you have a calculated or measured IP, you can change it manually.
+
+The optional elements of the electronic state element are:\\
+(a) {\tt manual\underline{~}atoms\underline{~}reordering} (Sec.~\ref{sec:geometry});\\
+(b) {\tt manual\underline{~}coordinates\underline{~}transformation} (Sec.~\ref{sec:alignment}); and\\
+(c) {\tt manual\underline{~}normal\underline{~}modes\underline{~}reordering} (Sec.~\ref{sec:nmodes}).
+
+%----------------------------------------------------------------------
+\subsection{\texttt{geometry} element}
+\label{sec:geometry}
+
+The {\tt geometry} element contains the molecular geometry of an electronic state and has the following format:
+\begin{itemize}
+\item attribute {\tt text} equals to the molecular geometry in Cartesian coordinates, i.e. {\tt "AtomName1 X1 Y1 Z1    AtomName2 X2 Y2 Z2 ..." };
+atomic names and coordinates can be separated by any number of spaces, tabs and/or end-of-line symbols;
+\item coordinates can be in Angstroms or atomic units (Bohrs), and {\tt units} attribute
+must be set to {\tt "angstr"} or {\tt "au"} respectively (see Sec.~\ref{sec:script} for the geometry's format in different \ai packages);
+\item masses for every atomic name are listed in the {\tt atomicMasses.xml} file (see Sec.~\ref{sec:masses});
+\item {\tt number\underline{~}of\underline{~}atoms} attribute; 
+\item attribute {\tt linear} is {\tt "true"} or {\tt "y"} for a linear molecule 
+and {\tt "false"} or {\tt "n"} for a non-linear molecule.
+\end{itemize}
+
+Here is an example of a {\tt geometry} element:
+\begin{lstlisting}[frame=single,framerule=0pt]
+  <geometry 
+     number_of_atoms="4" 
+     linear="false" 
+     units="au"
+     text=" 
+       C    1.39149214     0.22982244   0.00
+       O   -1.06145138    -0.15710283   0.00
+       H    2.14668108    -1.72045361   0.00
+       H   -1.86894079     1.47733232   0.00 "
+   />
+\end{lstlisting}
+
+If your \ai outputs have different order of atoms for different electronic states, 
+you can reorder atoms in both {\tt geometry} and \ul{normal}{modes} by adding 
+the {\tt manual atoms reordering} element in the electronic state element:
+\begin{lstlisting}[frame=single,framerule=0pt]
+ <manual_atoms_reordering 
+    new_order="0 3 1 2" />
+\end{lstlisting}
+The numbering of atoms starts with zero. 
+Please pay special attention to the order of the ``same'' atoms, e.g. hydrogens in this example.
+
+
+%----------------------------------------------------------------------
+\subsection{Automatic alignment of the states}
+\label{sec:alignment}
+
+Orientation of the molecule in the \ai outputs is not always well defined. 
+However, the geometries of initial 
+and target electronic states must be aligned before the FCF calculations.
+To overcome this problem, \ezS implements a simple automatic alignment algorithm. It aligns translational and rotational
+degrees of freedom to ensure that the subspaces of the normal modes is the same for all electronic states.
+
+Each electronic state is realigned in three steps:
+\begin{itemize}
+\item atomic coordinates are shifted so that the center of mass coincides with the coordinates origin;
+\item molecular geometry and normal modes are rotated so that the principal axes of the moment of inertia 
+tensor are aligned with the coordinate axes;
+\item molecular geometry and normal modes of each \ul{target}{state} are additionally rotated by 
+$k_i\cdot\pi/2$ ($k_i$ is an integer, $i={x,y,z}$) around $x$, $y$, and $z$ axes so that each target state has the same orientation 
+as the initial state (the norm of the geometries difference is minimized).
+\end{itemize}
+
+This ``automatic alignment algorithm'' is pretty robust, but if it fails to align the states, each state can be reoriented 
+manually by adding the {\tt manual coordinates transformation} element to the 
+electronic state element.
+The shift and rotation around axis $i$ ($i={x,y,z}$) is defined in {\tt shift along $i$} attribute in Angstroms
+and {\tt rotate around $i$} attribute in units of $\pi$, respectively. 
+When the manual transformation is performed, first the geometry is shifted and than it is rotated around $x$, then $y$, and then $z$ axis. 
+Note that the coordinate system is ``right-handed'' and the rotation is CCW if you look along the 
+direction of the axis of rotation. 
+Here is the example of the {\tt manual coordinates transformation} element:
+\begin{lstlisting}[frame=single,framerule=0pt]
+<manual_coordinates_transformation 
+  shift_along_x="0.07" shift_along_y="0" shift_along_z="0" 
+  rotate_around_x="1" rotate_around_y="0.5" rotate_around_z="0"/>
+\end{lstlisting}
+The automatic reorientation is skipped for states with the manual reorientation.
+So, if an automatic alignment does not work for your system it is recommended to add the
+manual coordinate transformation to {\em each} electronic state in the {\tt xml} input.
+
+
+%----------------------------------------------------------------------
+\subsection{\ul{normal}{modes} element}
+\label{sec:nmodes}
+
+The matrix of normal modes' vectors must be listed in the {\tt "text"} attribute of the \ul{normal}{modes} element and
+formatted as it is shown in Fig.~\ref{fig:nm_format}.
+\begin{figure}[h!]
+  \centering
+  \caption{The format of the normal modes' vectors in the input file:
+(a) normal modes are grouped in sets of three; 
+(b) every next set of three normal modes is below the previous one; 
+(c) within each set, the first line is the list of coordinates for the first atom, 
+the second---for the second atom, and so on.}
+  \includegraphics[width=0.9\textwidth]{nm_format.pdf}
+  \label{fig:nm_format}
+\end{figure}
+
+If normal modes' vectors are mass weighted 
+(\AA$/\sqrt{amu}$, e.g., as in a {\tt Q-Chem} or {\tt MOLPRO} outputs) the argument 
+{\tt if mass weighted} must be {\tt "true"} or {\tt "y"}; 
+otherwise (e.g., as in an {\tt ACESII} outputs) it must be set to {\tt "false"} or {\tt "n"}
+(see Sec.~\ref{sec:script} for the normal modes format in different \ai packages).
+
+Atomic names in the {\tt atoms} attribute of the \ul{normal}{modes} element 
+define atomic masses for which normal modes were calculated (used to ``un-massweight'' the normal modes).
+Note, that atomic names in the {\tt geometry} element can be different,
+which may be used for the isotope substitutions: one can rerun \ezS for a molecule with
+the isotope substitutions using the set of normal modes from an \ai output for the non-substituted molecule.
+
+Here is an example of the minimal \ul{normal}{modes} element for a water molecule:
+\begin{lstlisting}[frame=single,framerule=0pt]
+<normal_modes
+   if_mass_weighted="y"
+   atoms = "O   H   H"
+   text = "
+     0.000 0.0 -0.072    0.000 0.0  0.049   -0.073 0.0  0.000
+    -0.417 0.0  0.569   -0.592 0.0 -0.386    0.576 0.0  0.407
+     0.417 0.0  0.569    0.592 0.0 -0.386    0.576 0.0 -0.407 "
+ />
+\end{lstlisting}
+
+Script \ul{make}{xml.py} keeps the normal modes order the same as in an \ai output, i.e. in the frequency ascending order. 
+This does not guarantee that the particular normal mode 
+(e.g. the symmetric stretch) has the same number 
+in all electronic states, which is required for the {\em parallel mode approximation}.
+One can reorder normal modes (only in the \ul{target}{state}-s) with the optional 
+{\tt manual normal modes reordering} element:
+\begin{lstlisting}[frame=single,framerule=0pt]
+  <manual_normal_modes_reordering new_order="0 1 3 2 4 5"/>
+\end{lstlisting}
+The numbering of the normal modes starts with zero. 
+\ezS prints the overlap matrix between normal modes of the initial and each target state,
+which helps to assign the normal modes of the target states to the normal modes of the initial one.
+By default only a non-diagonal part of the overlap matrix is printed, 
+but one can print a full overlap matrix by adding an optional {\tt <print\underline{~}normal\underline{~}modes flag="true"/>} 
+element to the root {\tt input} element of the input file (see Sec.~\ref{sec:emptyspec} for some additional details).
+
+Please note that the reordering of the normal modes may affect the output assignment of the vibrational transitions and
+the input keywords, which refer to the normal modes. For more details, please see notes in the end of the  
+of the parallel approximation (Sec.~\ref{sec:para:keywords}) 
+and Duschinsky rotation (Sec.~\ref{sec:dhush:keywords}) keywords sections.
+
+Normal modes vectors are printed after the automatic or manual transformations,
+if an optional {\tt <print normal modes flag="true"/>} 
+element is in the root element of the input file.
+
+%----------------------------------------------------------------------
+\subsection{\texttt{frequencies} element}
+\label{sec:freq}
+
+Frequencies must be in the wavenumbers and listed in the {\tt text} attribute of the {\tt frequencies} 
+element separated by any number of spaces, tabs, or/and end-of-line symbols. For example:
+\begin{lstlisting}[frame=single,framerule=0pt]
+  <frequencies 
+     text="   1101.42   1217.81   1339.50    
+              1520.23   2882.19   3772.87  "/>
+\end{lstlisting}
+The order of the frequencies should be the same as the order of the normal modes in the \ul{normal}{modes} element.
+
+
+
+%----------------------------------------------------------------------
+\clearpage
+\section{Common problems and FAQ}
+
+
+%----------------------------------------------------------------------
+\subsection{My spectrum is empty!}
+\label{sec:emptyspec}
+
+There could be many causes for this. Try the following:
+
+\begin{itemize}
+
+\item Check the intensity threshold (make it 0) and the energy thresholds (remove). 
+Switch off combination bands for a faster diagnostics of the parallel approximation.
+
+\item Check that dQ-s (displacements along normal modes) in the parallel approximation are small
+(generally less than 1.0 and usually in the order of 0.1). 
+Large dQ-s may indicate too large changes in the geometries 
+(you may try to go higher in the vibrational excitations by
+increasing the total number of vibrations limit for the target state).
+However, often this means that the normal modes are not parallel, geometries are not aligned,
+or the order of atoms is different in different states. See the items below for more details.
+
+\item Check that normal modes' overlap matrix is diagonal if you use the parallel approximation (see Sec.~\ref{sec:nonparallel})
+and that det(S) is close to one (see Sec.~\ref{sec:detS}) if you use the Duschinsky rotations.
+
+\item Check that geometries of all states are similarly aligned after 
+the automatic alignment procedure: you can plot ``New molecular geometries'' for each state
+from the \ezS output with your favorite visualization software. 
+A large value of the ``Norm of the geometry difference'' is an indicator of miss-aligned geometries.
+The following can cause problems in the alignment:
+(a) geometries of electronic states are very different (e.g. cyclomerization of a linear molecule);
+(b) you have two chiral isomers which can not be aligned by rotation;
+(c) the order of atoms is not the same in all electronic states
+(if not---reorder, see Sec.~\ref{sec:geometry}, 
+pay a special attention to the order of the like atoms, e.g, hydrogens).
+If the automatic alignment does not work and all of the above is checked, try to align
+your molecules manually (see Sec.~\ref{sec:alignment}).
+\end{itemize}
+
+
+%----------------------------------------------------------------------
+\subsection{How do I comment parts of the input?}
+\label{sec:comments}
+
+The formal rule is to enclose comments in {\tt <!--} and {\tt -->} tags (see Appendix).
+However, any tag which is not recognized by \ezS is simply ignored.
+So you can modify both an open and a respective close tags of the element to make it a comment.
+For example in the inputs created with \ul{make}{xml.py} script optional elements (keywords)
+are preceded with {\tt OPT\underline{~}} and are invisible for \ezSnospace.
+
+You also can add comments to the elements by adding any attributes which are well formatted. 
+For example, the attribute {\tt units} of the \ul{energy}{threshold} element is
+a comment and ignored by \ezSnospace.
+
+
+%----------------------------------------------------------------------
+\subsection{Normal modes are not parallel...}
+\label{sec:nonparallel}
+Or even worse---you get a ``Normal modes' overlap matrix is non diagonal'' message in your output.
+
+Parallel approximation assumes that normal modes of the initial and target states are parallel.
+In many cases this works very well even for a slightly rotated normal modes. 
+However the normal modes in the \ai outputs are in the frequency ascending order,
+which may be different since the frequency of a particular normal mode changes from state to state. 
+
+So the goal is to make the overlap matrix as diagonal as possible by reordering
+the normal modes of each target state using the {\tt manual normal modes reordering} element
+(see Sec.~\ref{sec:nmodes}). 
+If the number of normal modes is large, you can try to use {\tt do not excite subspace}
+to reorder a small subset of normal modes at a time
+(especially if the molecule is symmetric and normal modes can be naturally separated).
+If you want to see the full normal modes' overlap matrix when you use a subspace add
+\begin{lstlisting}[frame=single,framerule=0pt]
+<print_normal_modes flag="true"/>
+\end{lstlisting}
+into the root element {\tt input}
+This will also print normal modes after all coordinate transformations.
+
+An online normal modes' reordering tool may be useful (available in the online version of \ezS 
+at {\tt iopenshell.usc.edu/downloads})
+
+Also note that Duschinsky rotations automatically eliminate the normal modes' reordering problem, but for
+large molecules it may be problematic to include high vibrational excitations with Duschinsky rotations.
+
+
+%----------------------------------------------------------------------
+\subsection{$Det(S)$ is less than one (or even zero)}
+\label{sec:detS}
+
+$S$ is the normal modes' rotation matrix in a Duschinsky transformation, Eq.~(\ref{eq:dushinsky}).
+If all normal modes are in the ``excite subspace'', $Det(S)$ should be almost 1.0, 
+which corresponds to a true rotation and therefore both sets of normal modes span the same space.
+
+However if you use a ``do not excite subspace'' keyword, than two ``active''
+subspaces may be different and not alignable by a rotation (therefore $Det(S)$ is not 1.0).
+So, either your subspace is not uncoupled from the rest of the normal modes, or, 
+mkore likely, you use different normal modes in your initial and target subspaces.
+The latter requires reordering of the normal modes of the target electronic state
+(see Secs. \ref{sec:nmodes} and \ref{sec:nonparallel}).
+Once again, if you use a full space of normal modes, there is no need to reorder normal modes for Duschinsky rotations section.
+
+%----------------------------------------------------------------------
+\subsection{\ezS crashes with no error message!}
+\label{sec:crash}
+
+There is one known problem: \ezS crashes when too many FCFs are requested.
+We will try to address this in the future, 
+but basically in the case of a crash it would be unrealistic anyway to evaluate all requested combination bands 
+in a finite time.
+So, the only solution is to reduce the number of FCFs:
+\begin{itemize}
+\item apply intensity and energy thresholds;  
+\item limit maximum number of vibrational excitations; 
+\item reduce the ``excite normal modes' subspace'' by excluding normal modes along which the geometry change is small.
+\end{itemize}
+
+Another possibility is that you just found a new bug in \ezS :)---please let us know and forward us
+the problematic input. We will try to update the program asap!
+
+%----------------------------------------------------------------------
+\subsection{FCFs are very large or infinite}
+\label{sec:infinite}
+
+We are aware of one problem that causes this, which is due to hidden line break characters introduced by Windows. 
+This can easily be solved by using {\tt dos2unix} (which is already available on Linux or can be downloaded online) 
+to convert line breaks back to unix format. Try applying {\tt dos2unix} to the input {\tt xml} file and on {\tt atomicMasses.xml}.
+
+
+%----------------------------------------------------------------------
+\subsection{\ezS ends with a format error}
+\label{sec:formaterror}
+
+This problem can be caused by several issues related to the format of the {\tt xml} input. However, one common problem 
+occurs when Raman intensities are requested in {\tt Q-Chem}. As a result, the 
+{\tt Q-Chem} output is not read correctly by the \ul{make}{xml.py} script and this causes the ''format error"
+to show up in \ezS. Re-run the {\tt Q-Chem} job without requesting Raman to avoid this problem.
+
+%----------------------------------------------------------------------
+\clearpage
+\section*{Bibliography}
+\addcontentsline{toc}{section}{Bibliography}
+\bibliography{abbr,general,vm,krylovgroup,footnotes}
+\bibliographystyle{aip}
+
+%----------------------------------------------------------------------
+\clearpage
+\section*{Appendix. An overview of the \texttt{xml} format}
+\addcontentsline{toc}{section}{Appendix. An overview of the \texttt{xml} format}
+\label{sec:xmlformat}
+
+Extensible Markup Language (XML) is widely used for storage of a structured data. 
+Any data, which is representable as a tree structure, can be saved in an .xml file. 
+Tables and databases are the simplest examples of the possible applications. 
+
+Every node in a tree (including all sub-nodes) is called an element. 
+Every element in the {\tt .xml} file should be placed within ``tags'' as in HTML (a special case of XML). 
+XML tags can have any names, which are defined by the particular application.
+
+Here is the set of rules for creating a ``well formatted'' {\tt .xml} file:
+\begin{itemize}
+
+\item Document must have only one root element. 
+In the case of \ezS, the input file has the {\tt <input> ... </input>} root element, 
+and the {\tt atomicMasses.xml} file has the {\tt <masses> ... </masses>} root element.
+
+\item Comments can appear anywhere in the document and must be enclosed by {\tt <!--} and {\tt -->}. 
+Also any valid element or argument (see below) can be considered as a comment if it is not used by the program
+(see Section~\ref{sec:comments}).
+
+\item Every element must be enclosed by the {\em start} and {\em end} tags: 
+{\tt <sample\underline{~}tag>} and {\tt </sample\underline{~}tag>}.
+
+\item If an element does not have any sub-elements the {\em start} and {\em end} tags can be combined in a single tag: 
+{\tt <sample\underline{~}tag />}, which is equivalent to {\tt <sample\underline{~}tag>  </sample\underline{~}tag>}.
+
+\item Every element may contain any number of elements.
+
+\item {\em Start} tags can have any number of attributes in the following format: 
+{\tt <sample\underline{~}tag attribute1\underline{~}name = "attr1\underline{~}value" attribute2\underline{~}name = "attr2\underline{~}vailue">}. 
+Values of attributes must be quoted by single or double quotes.
+
+\item The names of elements (tags) and attributes are case sensitive.
+
+\item Elements can not overlap. 
+Here is an example of an incorrect format: {\tt <tag1> <tag2> </tag1> </tag2>}. 
+The error message will be that no end {\tt </tag2>} tag was found in the {\tt <tag1>...</tag1>} element.
+
+\end{itemize}
+
+
+\end{document}
