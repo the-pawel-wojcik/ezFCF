@@ -1,30 +1,34 @@
-NEED TO UPDATE!!!!
 
-                          ezSpectrum v.3.0
+                          ezSpectrum v.4.0
 
-                              2010
+			  	2021
 
-	          Vadim Mozhayskiy and Anna Krylov
+	(Based on 2010 v.3.0 by Vadim Mozhayskiy and Anna Krylov)
 
 
    		The program is available for download and 
 	     for online use at iopenshell.usc.edu/downloads/
 
 
-To compile type "make" (see Makefile) --
-static compilation, requires LAPACK, BLAS, and EXPAT libries.
+To compile type "make -f makefile" (e.g., make.mac) 
+
+Compilation requires LAPACK and BLAS.
 
 ----------------------------------------------------------------------
-the manual: manual/manual.tex, manual/manual.pdf
-the script: make_xml.py
-atomic masses: atomicMasses.xml
-----------------------------------------------------------------------
-Distribution packages (see README files therein):
+The structure of the code:
+ezSpectrum_code: source code and makefiles
+atomic masses:   ezSpectrum_code/atomicMasses.xml
 
-ezSpectrum.distribute/ezSpectrum.v3.0.tar.gzip -- package for download
-  (includes executables, samples, make_xml.py script, manual, ... )
-ezSpectrum.distribute/ezSpectrum.v3.0.online.tar.gz -- online version
-  (includes both webpage and cgi-bin scripts; ready to install)
+the manual: Manual/manual.tex, manual/manual.pdf
+InputScripts: script for generating xml inputs from supported ab initio packages
+              InputScripts/make_xml.py
+	      and examples of inputs and outputs  
+
+Plotting: python scripts for plotting spectra
+
+Samples: xml inputs (new format) and outputs 
+References: xml inputs (old format) and outputs (ezDyson v.3.0) for sample jobs
+
 ----------------------------------------------------------------------
 The structure of the code:
 
@@ -54,9 +58,6 @@ molecular_prop/spectrum.h
 KMatrix -- matrix math & LAPACK wrapers
 matrix_math/kmatrix.h
 
-simpleXMLparser -- parser for .xml input files 
-molecular_prop/simple_xml_parser.C
-
 ----------------------------------------------------------------------
 Additional funcions (see comments in each file):
 
@@ -68,6 +69,9 @@ harmonic_pes/vibrational_indexing.h
 basic_methods/mathutil.* -- Factorial, Combination, etc.
 
 basic_methods/genutil.* -- misc functions
+
+aik_xml_parser -- parser for .xml input files (rewritten by AIK)
+basic_methods/aik_xml_parser.C
 
 ----------------------------------------------------------------------
 

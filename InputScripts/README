@@ -26,7 +26,7 @@ h2o_other.out      Gaussian (we can not guarantee it is fully supported,
 
 You can check the script with all supported types by running:
 
-  ../make_xml.py test.xml h2o_qchem.out h2o_molpro.out h2o_aces_old.out \
+ ./make_xml.py test.xml h2o_qchem.out h2o_molpro.out h2o_aces_old.out \
                      h2o_aces_new.out h2o_gamess.out h2o_other.out
 
 
