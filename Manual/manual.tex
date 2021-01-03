@@ -29,7 +29,7 @@ backgroundcolor=\color{code_background},
 
 %----------------------------------------------------------------------
 
-\title{ezSpectrum v3.0}
+\title{ezSpectrum v4.0}
 \author{{\em Franck-Condon factors in the harmonic approximation}\\ 
 \vspace{20mm}\\Vadim Mozhayskiy, Samer Gozem, and Anna I. Krylov\\ \vspace{20mm}}
 \date{\today}
@@ -52,6 +52,43 @@ backgroundcolor=\color{code_background},
 
 \clearpage
 
+\section*{What is new in v.4.0}
+
+The functionality  and most of the compute kernels are the same as in v.3, 
+but the input parser was rewritten to remove the dependency on the outside library. 
+The parser
+  works almost as before, but with the following (temporary) restrictions:
+  \begin{itemize}
+  \item Empty XML tags are not supported, i.e., this
+    \renewcommand{\baselinestretch}{1.0}
+\begin{verbatim}
+<geometry
+ n_of_atoms="3"
+ text = "
+      O      -0.0002310000    -0.1047090000     0.0000000000
+      H      -0.7616800000     0.4751910000     0.0000000000
+      H       0.7589890000     0.4781700000     0.0000000000
+
+  "
+/>
+\end{verbatim}
+should be changed to
+\begin{verbatim}
+<geometry
+ n_of_atoms="3"
+ text = "
+      O      -0.0002310000    -0.1047090000     0.0000000000
+      H      -0.7616800000     0.4751910000     0.0000000000
+      H       0.7589890000     0.4781700000     0.0000000000
+
+">
+</geometry>
+\end{verbatim}
+\renewcommand{\baselinestretch}{1.5}
+\item The closing tags, such as \begin{verbatim}</geometry>\end{verbatim} above, should be separated by either a space or a newline from the previous text. For example  \begin{verbatim}"></geometry>\end{verbatim} would result in an error.
+  \end{itemize}    
+
+  
 \section*{Introduction}
 \addcontentsline{toc}{section}{Introduction}
 
@@ -107,7 +144,8 @@ next sections of the manual.
 \subsection{Create an input file: \ul{make}{xml.py} script}
 \label{sec:script}
 
-\ul{make}{xml.py} python script creates an \xml input file for \ezS from several \ai outputs. 
+\ul{make}{xml.py} python script (located in \ul{InputScripts} directory)
+creates an \xml input file for \ezS from several \ai outputs. 
 All \ai outputs should be for the same molecule (different electronic states and total charges are OK) 
 and contain a frequency job at the optimized geometry. 
 A resulting \xml input file will contain basic default job parameters and an \ul{electronic}{state} element 
@@ -123,7 +161,7 @@ and other parameters are the file names of \ai outputs.
 The first output is for the initial electronic state,
 and all sequential files are for the target electronic states.
 
-\ul{supported.ab}{initio/} folder contains sample input and output files
+\ul{InputScripts/} folder contains sample input and output files
 for \ai packages supported by the script.
 Each file containstakes the in an H$_2$O frequency job using HF/6-311G**.
 Here is the summary of \ai outputs' formats:
@@ -151,7 +189,7 @@ Some tags in the created input \xml file are ``commented'' by
 the {\tt OPT\underline{~}} prefix: when removed, the tags become
 visible for \ezSnospace; for more details on comments see Sec.~\ref{sec:comments}.
 
-
+To plot the spectra, use \ul{plot\_spectrum.py} script located in \ul{Plotting} directory.  
 
 %----------------------------------------------------------------------
 \subsection{Run a sample job}
