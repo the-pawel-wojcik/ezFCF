@@ -1,7 +1,7 @@
 # open an interactive session, waiting for resources can take up to a minute
 salloc --ntasks=1 --time=1:00:00 
 
-# cd to scratch
+# cd to scratch 
 cd /scratch/$USER
 
 # load lapack and its dependecy gcc modules
@@ -12,3 +12,8 @@ echo ${NETLIB_LAPACK_ROOT}/lib64
 
 # optional for vim
 module load vim/8.1.2141
+
+
+#AIK comments: 
+# 1. Can comile and run without salloc and from home (no need to go to scratch)
+# 2. 'module load' only works for me when using ddefault bash shell. Does not work when I switch to tcsh  

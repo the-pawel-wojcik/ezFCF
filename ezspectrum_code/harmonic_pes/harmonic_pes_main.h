@@ -31,11 +31,12 @@
 #include "parallel_approximation.h"
 #include "dushinsky.h"
 #include "vibrational_indexing.h"
+#include "aik_xml_parser.h"
 
 #include <limits>
 
-//! program itself
-bool harmonic_pes_main (const char* xmlFileName);
+//! program itself: 
+bool harmonic_pes_main (const char *InputFileName, xml_node& node_input, xml_node& node_amu_table);
 
 
 #endif

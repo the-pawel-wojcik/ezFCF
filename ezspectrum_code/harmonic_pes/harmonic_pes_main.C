@@ -1,22 +1,13 @@
 #include "harmonic_pes_main.h"
 
-#include "aik_xml_parser.h"
-
 //! splits string of type "3v21" into two integers 3 and 21
 void get_qnt_nm(std::string& ex_str, int& qnt, int& nm );
 //! converts string of type "1v1,1v2,1v3,3v19" into a vibrational state (i.e. vector of integers)
 void fillVibrState(My_istringstream& vibr_str, VibronicState& v_state, const int nm_max);
 
-bool harmonic_pes_main (const char* xmlFileName)
+//xmlFilleName is needed only to make name for the output file.
+bool harmonic_pes_main (const char *InputFileName, xml_node& node_input, xml_node& node_amu_table)
 {
-
-  std::ifstream xml_file(xmlFileName); 
-  xml_node node_input("input",xml_file);
-
-  std::ifstream xml_amu_file(ATOMIC_MASSES_FILE); 
-  xml_node node_amu_table("masses",xml_amu_file);
-  //node_amu_table.print(std::cout);
-
   //======= read "global" job variables  =====================================================
   xml_node node_jobparams(node_input,"job_parameters",0);
   //node_jobparams.print(std::cout);
@@ -330,7 +321,7 @@ bool harmonic_pes_main (const char* xmlFileName)
     
     // for the web version: save the overlap matrix (with displacements) in an xml file
     std::stringstream nmoverlapFName; 
-    nmoverlapFName << xmlFileName << ".nmoverlap";
+    nmoverlapFName << InputFileName << ".nmoverlap";
     
     
     std::cout << "------------------------------------------------------------------------------\n\n";
@@ -387,7 +378,7 @@ bool harmonic_pes_main (const char* xmlFileName)
     
     // save this spectrum to the file
     std::stringstream spectrumFName; 
-    spectrumFName << xmlFileName << ".spectrum_parallel";
+    spectrumFName << InputFileName << ".spectrum_parallel";
     (*parallel_ptr).getSpectrum().PrintStickTable(spectrumFName.str().c_str());
     std::cout << "\nStick spectrum was also saved in \"" << spectrumFName.str() << "\" file \n";
     if(if_use_do_not_excite_subspace)
@@ -735,7 +726,7 @@ bool harmonic_pes_main (const char* xmlFileName)
   
       // save the spectrum to the file
       std::stringstream spectrumFName; 
-      spectrumFName << xmlFileName << ".spectrum_dushinsky";
+      spectrumFName << InputFileName << ".spectrum_dushinsky";
       (*dushinsky_ptr).getSpectrum().PrintStickTable(spectrumFName.str().c_str());
       std::cout << "\nStick spectrum was also saved in \"" << spectrumFName.str() << "\" file \n";
       if(nms_dushinsky.size()!=n_norm_modes)

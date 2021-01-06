@@ -16,8 +16,13 @@ int main(int argc, char* argv[])
   std::cout << "Job \"" << argv[0] << ' ' << argv[1] << "\" has been started: " << GetTime() << '\n';
 
 
-  std::ifstream xml_file(arg.c_str()); 
+  std::ifstream xml_file(arg.c_str());
+  if(!xml_file.is_open()) {
+    std::cout << "Input file " << arg.c_str() << " is not found." << std::endl;
+    exit(1);
+  }
   xml_node node_input("input",xml_file);
+  
   bool if_web_version=node_input.read_flag_value("if_web_version");
   if (not(if_web_version)) {
     std::cout << "A copy of the \"" << argv[1] << "\" input:\n";
@@ -26,12 +31,19 @@ int main(int argc, char* argv[])
     std::cout << "------------------------------------------------------------------------------\n \n";
   }
 
-  
   std::string job=node_input.read_string_value("job");
-   
+
+  std::ifstream xml_amu_file(ATOMIC_MASSES_FILE);
+  if(!xml_amu_file.is_open()) {
+    std::cout << "Atomic masses file " << ATOMIC_MASSES_FILE << " is not found in the current directory." << std::endl;
+    exit(1);
+  }
+  xml_node node_amu_table("masses",xml_amu_file);
+  
   bool done = false;
   if (job == "harmonic_pes")
-    done=harmonic_pes_main(arg.c_str());
+    //done=harmonic_pes_main(arg.c_str());
+    done=harmonic_pes_main(arg.c_str(), node_input,node_amu_table);
   
   if ( !done )
     std::cout << "Method \"" << job <<"\" is unknown, or it has been failed. \n";
