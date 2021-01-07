@@ -20,13 +20,6 @@ Also reads input data from the XML file (vm'06)
 
 class MolState
 {
-#if 0
-  //! Input file
-  simpleXMLparser xmlF; 
-  //! "AtomName<->Mass" table
-  simpleXMLparser amuF;  
-#endif
-
   //! N Atoms 
   std::vector<Atom> atoms;
   //! M Normal modes and frequencies (3N-5 or 3N-6) Stored in mass unweighted format in Angstoms (i.e as in ACESII)
@@ -112,28 +105,8 @@ class MolState
   bool ifAlignedManually();
   bool ifNMReorderedManually();
 
-#if 0  
-  //-- XML parser ---------------------------------------------------
-  //! 2DO (should be from the parent XML_simple_parser)
-  MolState& node(const char* elementName, int elementNumber) {  xmlF.node(elementName,elementNumber); return *this; };
-  //! 2DO (should be from the parent XML_simple_parser)
-  MolState& node(const char* elementName) {  xmlF.node(elementName,1); return *this; };
-  //! 2DO (should be from the parent XML_simple_parser)
-  MolState& reset() {  xmlF.reset(); return *this; };
-  //! 2DO (should be from the parent XML_simple_parser)
-  bool Check() {return xmlF.Check(); };
-  // ----------------------------------------------------------------
-#endif
-  
 };
 
 
 #endif
 
-/*!
-2DO:
-(should be from the parent XML_simple_parser)
-// after read state (2DO check if was read) get
-//DONE if number_of_atoms is greater than the actual number in the "text" ...
-//hek -- check the parcer -- if specified file does not exist -- do something 
-*/
