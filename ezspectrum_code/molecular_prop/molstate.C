@@ -451,10 +451,23 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
   int i,j,k,l;
 
   //------------ Read IP (if provided) ----------------------------------
-  if(node_state.find_subnode("ip"))
-    energy=node_state.read_node_double_value("ip");
-  else
-    energy = 0.0;
+  energy = 0.0; //units are eV
+  if(node_state.find_subnode("ip")) {
+
+    xml_node node_ip(node_state,"ip",0);
+    std::string units=node_ip.read_string_value("units");
+    energy=node_ip.read_node_double_value();
+    std::cout << std::fixed << std::setprecision(6); //  <<  std::setw(6);
+    std::cout << "IP=" << energy << " " << units << std::endl;
+    
+    if ( !covert_energy_to_eV(energy,units) ) {
+      std::cout << "\nError! Unknow units of the IP: \"" << units <<"\"\n  (should be equal to \"eV\", \"K\", or \"cm-1\")\n\n";
+      exit(1);
+    }
+
+    std::cout << "IP=" << energy << " eV " << std::endl;
+  }
+    
   //------------ Read the Geometry --------------------------------------
 
   xml_node node_geometry(node_state,"geometry",0);

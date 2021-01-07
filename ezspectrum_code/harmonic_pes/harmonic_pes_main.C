@@ -149,12 +149,7 @@ bool harmonic_pes_main (const char *InputFileName, xml_node& node_input, xml_nod
 	std::string units=node_istate.read_string_value("units");
 	energy_threshold_initial=node_istate.read_node_double_value();
 	//std::cout << "Thresh=" << energy_threshold_initial << " " << units << std::endl;
-	
-	if (units=="cm-1")
-	  energy_threshold_initial*=WAVENUMBERS2EV;
-	else if (units=="K")
-	  energy_threshold_initial*=KELVINS2EV;
-	else if (units!="eV") {
+	if ( !covert_energy_to_eV(energy_threshold_initial,units) ) {
 	  std::cout << "\nError! Unknow units of the initial state threshold: \"" << units <<"\"\n  (should be equal to \"eV\", \"K\", or \"cm-1\")\n\n";
 	  exit(1);
 	}
@@ -167,12 +162,7 @@ bool harmonic_pes_main (const char *InputFileName, xml_node& node_input, xml_nod
 	std::string units=node_tstate.read_string_value("units");
 	energy_threshold_target=node_tstate.read_node_double_value();
 	//std::cout << "Thresh=" << energy_threshold_target << " " << units << std::endl;
-	
-	if (units=="cm-1")
-	  energy_threshold_target*=WAVENUMBERS2EV;
-	else if (units=="K")
-	  energy_threshold_target*=KELVINS2EV;
-	else if (units!="eV") {
+	if ( !covert_energy_to_eV(energy_threshold_target,units) ) {
 	  std::cout << "\nError! Unknow units of the target state threshold: \"" << units <<"\"\n  (should be equal to \"eV\", \"K\", or \"cm-1\")\n\n";
 	  exit(1);
 	}
@@ -336,7 +326,8 @@ bool harmonic_pes_main (const char *InputFileName, xml_node& node_input, xml_nod
     Parallel* parallel_ptr = new Parallel(elStates, nms_parallel, 
 					  fcf_threshold, temperature, 
 					  max_n_initial, max_n_target, 
-					  if_comb_bands, if_use_target_nm, if_print_fcfs, if_web_version, nmoverlapFName.str().c_str(),  
+					  if_comb_bands, if_use_target_nm, if_print_fcfs, if_web_version,
+					  nmoverlapFName.str().c_str(),  
 					  energy_threshold_initial,  energy_threshold_target);
     
     //================================================================================
@@ -551,15 +542,11 @@ bool harmonic_pes_main (const char *InputFileName, xml_node& node_input, xml_nod
 	  xml_node node_istate(node_energy_thresholds,"initial_state",0);
 	  std::string units=node_istate.read_string_value("units");
 	  energy_threshold_initial=node_istate.read_node_double_value();
-	  
-	  if (units=="cm-1")
-	    energy_threshold_initial*=WAVENUMBERS2EV;
-	  else if (units=="K")
-	    energy_threshold_initial*=KELVINS2EV;
-	  else if (units!="eV") {
+	  if ( !covert_energy_to_eV(energy_threshold_initial,units) ) {
 	    std::cout << "\nError! Unknow units of the initial state threshold: \"" << units <<"\"\n  (should be equal to \"eV\", \"K\", or \"cm-1\")\n\n";
 	    exit(1);
 	  }
+
 	}
 
 	if ( node_energy_thresholds.find_subnode("target_state")) {
@@ -567,12 +554,7 @@ bool harmonic_pes_main (const char *InputFileName, xml_node& node_input, xml_nod
 	  xml_node node_tstate(node_energy_thresholds,"target_state",0);
 	  std::string units=node_tstate.read_string_value("units");
 	  energy_threshold_target=node_tstate.read_node_double_value();
-	  
-	  if (units=="cm-1")
-	    energy_threshold_target*=WAVENUMBERS2EV;
-	  else if (units=="K")
-	    energy_threshold_target*=KELVINS2EV;
-	  else if (units!="eV") {
+	  if ( !covert_energy_to_eV(energy_threshold_target,units) ) {
 	    std::cout << "\nError! Unknow units of the target state threshold: \"" << units <<"\"\n  (should be equal to \"eV\", \"K\", or \"cm-1\")\n\n";
 	    exit(1);
 	  }

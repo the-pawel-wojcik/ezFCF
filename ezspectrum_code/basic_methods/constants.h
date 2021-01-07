@@ -6,6 +6,8 @@
 \ingroup METHODS
 */
 
+#include <string>
+
 //! PI CHECK THIS
 #define PI 3.141592654
 //! Dimension of Cartesian 3D world
@@ -40,5 +42,9 @@
 
 //! if less than threshold, considered to be zero
 #define COORDINATE_THRESHOLD 0.00000001 //Angstrom
+
+
+//! Convert energy to eV
+bool covert_energy_to_eV(double& ene, const std::string& units);
 
 #endif
