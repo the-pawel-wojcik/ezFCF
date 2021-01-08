@@ -21,7 +21,7 @@ states (IP, EA, etc) should be adjusted as necessary in the created XML file.
 """
 
 import sys
-
+import numpy as np
 
 def main(xml_filename, ai_filenames, run_type):
 
@@ -55,6 +55,8 @@ def main(xml_filename, ai_filenames, run_type):
                 input_type="molpro"
             if (Line.find('GAMESS VERSION = ')>=0) and (input_type==""):
                 input_type="gamess"
+            if (Line.find('$orca_hessian_file')>=0) and (input_type==""):
+                input_type="orca"
             if (Line.find('RESTRICTED RIGHTS')>=0) and (input_type==""):
                 input_type="other"
 
@@ -382,7 +384,7 @@ def main(xml_filename, ai_filenames, run_type):
                         NAtoms+=1
                     ifGeometryIsLoaded='true'
 
-                if (Line.find('Atom AN')>=0) or (Line.find('Atom  AN')>=0):
+                if Line.find('Atom AN')>=0:
                     for i in range(NAtoms):
                         Line=StateF.readline()
                         NormalModes=NormalModes+Line[10:]
@@ -403,6 +405,83 @@ def main(xml_filename, ai_filenames, run_type):
 
             # END OTHER
             # ================================================================================
+
+
+
+        if (input_type=="orca"):
+            ifAtomsLoaded=False
+
+            if_normal_modes_weighted="true"  # this is what the ORCA output is saying 
+            #geometry_units="au"              # the same with previous
+            geometry_units="angstr"              # the same with previous
+
+            Lines=[ line.rstrip() for line in StateF.readlines()] # load file with newline symbols ('\n') stripped
+            IndNormModes=Lines.index('$normal_modes')             # index of the line where normal modes start
+            IndVibFreq=Lines.index('$vibrational_frequencies')    # index of the line where vibrational frequencies start
+            IndXYZ=Lines.index('$atoms')                          # index of the XYZ coordinates
+                
+            NAt=int(Lines[IndXYZ+1].split()[0])                   # number of the atoms in the molecule (next line after $atoms)
+            #print("Number of atoms: %i" % NAt)                    
+            for a in Lines[(IndXYZ+2):(IndXYZ+2+NAt)]:            # parce the XYZ block
+                words=a.split()                                   
+                Geometry+="%6s   %12.6f %12.6f %12.6f\n" % tuple([words[0]]+list(0.529177210903*np.array(words[2:5],dtype=float)))  # Geometry is the XYZ geometry in the format <Atom Label>  <X> <Y> <Z>, atomic masses (2nd column) are ignored
+                atoms_list+="   "+words[0]+" "                                         # atom list is the list of atomic labels
+            #print(atoms_list)
+            #print(Geometry)
+
+            NInRow=len(Lines[IndNormModes+2].split())
+            NVib=3*NAt
+            NormModes=np.zeros( (NVib,NAt,3), dtype=float )
+            NAtoms=NAt
+
+            Coeff=0.529177210903*np.sqrt(1822.8884845)
+            BlockNum=0
+            while BlockNum*NInRow<3*NAt:
+                NModes=np.array(Lines[IndNormModes+2+BlockNum*(NVib+1)].split(), dtype=int)
+                #print(NModes)
+                for i in range(0,NVib):
+                    words=Lines[IndNormModes+2+BlockNum*(NVib+1)+1+i].split()
+                    tmp=np.array(words[1:],dtype=float)
+                    #print(words,tmp)
+                    for imode,nmode in enumerate(NModes):
+                        NormModes[nmode][i / 3][i % 3]=tmp[imode]
+                BlockNum+=1
+                
+            #print(NormModes)
+
+            for nmodeblock in range(6,NVib,3):
+                for nat in range(0,NAt):
+                    for nmib in range(0,3):
+                        NormalModes+="   %7.3f %7.3f %7.3f" % tuple(NormModes[nmodeblock+nmib][nat])
+                    NormalModes+="\n"
+                NormalModes+="\n"
+
+            #print(NormalModes)
+            #exit()
+            count=0
+            for i in range(6,NVib):
+                Frequencies+="    %7.2f" % float(Lines[IndVibFreq+2+i].split()[1])
+                count+=1
+                if count%3==0 and count>=3:
+                    Frequencies+="\n"
+
+
+
+            # END ORCA
+            # ================================================================================
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         # Write the state to the xml file
         xmlF.write('  <geometry\n'+'    number_of_atoms = "'+str(NAtoms)+'"\n')
@@ -444,6 +523,10 @@ def main(xml_filename, ai_filenames, run_type):
         xmlF.write('             "\n        />\n\n')
 
         return ""
+
+
+
+
 
 ###################################################
 ## END
