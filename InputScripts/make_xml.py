@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 
 """
-This script creates an input XML file for the 'ezSpectrum 3.0' program
+This script creates an input XML file for the ezFCF 1.0 (formerly ezSpectrum) program
 
 Script supports the following ab initio outputs:
 
 Q-Chem
 ACES II (versions 0.3 [old] and 2.5.0 [new])
+Cfour (should be handled by new ACES II)
 Molpro
 GAMESS (linear molecules are not supported)
 ORCA

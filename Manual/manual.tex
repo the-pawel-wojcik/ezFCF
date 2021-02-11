@@ -7,6 +7,7 @@
 \begin{document}
 
 \newcommand{\ezS}{\texttt{ezSpectrum} }
+\newcommand{\ezFCF}{\texttt{ezFCF}}
 \newcommand{\ezSnospace}{\texttt{ezSpectrum}}
 \newcommand{\ai}{\textit{ab initio} }
 \newcommand{\xml}{\texttt{.xml} }
@@ -29,9 +30,10 @@ backgroundcolor=\color{code_background},
 
 %----------------------------------------------------------------------
 
-\title{ezSpectrum v4.0}
+\title{ezFCF v1.0}
 \author{{\em Franck-Condon factors in the harmonic approximation}\\ 
-\vspace{20mm}\\Vadim Mozhayskiy, Samer Gozem, and Anna I. Krylov\\ \vspace{20mm}}
+  \vspace{20mm}\\
+  Samer Gozem, Pawel Wojcik, Vadim Mozhayskiy, and Anna I. Krylov\\ \vspace{20mm}}
 \date{\today}
 \maketitle
 
@@ -52,12 +54,15 @@ backgroundcolor=\color{code_background},
 
 \clearpage
 
-\section*{What is new in v.4.0}
+\section*{What's new: ezFCF v.1.0 versus ezSpectrum v.3.0}
 
-The functionality  and most of the compute kernels are the same as in v.3, 
-but the input parser was rewritten to remove the dependency on the outside library. 
-The parser
-  works almost as before, but with the following (temporary) restrictions:
+\ezFCF\ v.1 is an updated version of \ezS\ v.3. It is a part of \texttt{ezSpectra} spectroscopy
+modeling suite.  The functionality 
+and most of the compute kernels in \ezFCF\ v.1
+are the same as in \ezS\ v.3, 
+but the input parser was rewritten to remove the dependency on the outside library. In addition, we extended
+the support to include {\tt Orca} (many thanks to Denis Tikhonov who provided the script). 
+The xml parser  works almost as before, but with the following (temporary) restrictions:
   \begin{itemize}
   \item Empty XML tags are not supported, i.e., this
     \renewcommand{\baselinestretch}{1.0}
@@ -92,12 +97,12 @@ should be changed to
 \section*{Introduction}
 \addcontentsline{toc}{section}{Introduction}
 
-\ezS computes stick photoelectron/photodetachment spectra for polyatomics 
+\ezFCF\ (formerly known as \ezS) computes stick photoelectron/photodetachment spectra for polyatomics 
 within the double-harmonic approximation. 
 
 \begin{figure}[h!]
   \centering
-  \caption{ 1D photoelectron spectrum in the harmonic approximation.
+  \caption{1D photoelectron spectrum in the harmonic approximation.
 $\chi''$ and $\chi'$ are the initial and the target vibrational wavefunctions, respectively;
 $E_i$ are the energies of the vibrational levels;
 $IE$ is the adiabatic ionization energy;
@@ -116,26 +121,28 @@ vibrational wavefunctions, can be calculated:
 one-dimensional harmonic wave functions (see Sec.~\ref{sec:parallel});
 \item including {\em Duschinsky rotations} of the normal modes as full-dimensional integrals (see Sec.~\ref{sec:dushinsky}).
 \end{itemize}
-In both cases the overlap integrals are computed analytically.
+In both cases the overlap integrals are computed analytically.  We note that often it is the squares of the
+overlaps that are called FCFs.
 
-\ezS calculations require equilibrium geometries, harmonic frequencies, 
+\ezFCF\ calculations require equilibrium geometries, harmonic frequencies, 
 and normal mode vectors for each electronic state. These data computed by \ai packages. 
 
-The key feature of \ezS is a program-independent \xml input. 
+The key feature of \ezFCF\ is a program-independent \xml input. 
 It can be prepared either manually following the format description and examples, 
 or by running the python script that processes 
-{\tt Q-Chem}, {\tt ACESII}, {\tt Molpro}, {\tt GAMESS}, and {\tt Gaussian}
+{\tt Q-Chem}, {\tt ACESII}, {\tt Molpro}, {\tt GAMESS}, {\tt Orca}, and {\tt Gaussian}
 \footnote{We are Gaussian free zone, and encourage everyone to degauss their workplace as well.} outputs.
 The script can be easily modified to process outputs of other programs. 
  
-Please contact Professor Anna I. Krylov ({\tt krylov@usc.edu}) and Vadim Mozhayskiy 
-({\tt mozhaysk@usc.edu}) if you have suggestions, questions, or bugs to report. Have fun!  
+Please contact Professor Anna I. Krylov ({\tt krylov@usc.edu})
+%and Vadim Mozhayskiy  ({\tt mozhaysk@usc.edu})
+if you have suggestions, questions, or bugs to report. Have fun!  
 
 %----------------------------------------------------------------------
 \section{Quick start}
 
 In this section it is explained how to create an input \xml file from your electronic structure 
-program outputs using \ul{make}{xml.py} script and how to run \ezSnospace.
+program outputs using \ul{make}{xml.py} script and how to run \ezFCF.
 For brief overview of the \xml syntax please see the Appendix;
 the detailed description of the input file format is given in the  
 next sections of the manual.
@@ -145,7 +152,7 @@ next sections of the manual.
 \label{sec:script}
 
 \ul{make}{xml.py} python script (located in \ul{InputScripts} directory)
-creates an \xml input file for \ezS from several \ai outputs. 
+creates an \xml input file for \ezFCF\ from several \ai outputs. 
 All \ai outputs should be for the same molecule (different electronic states and total charges are OK) 
 and contain a frequency job at the optimized geometry. 
 A resulting \xml input file will contain basic default job parameters and an \ul{electronic}{state} element 
@@ -163,7 +170,7 @@ and all sequential files are for the target electronic states.
 
 \ul{InputScripts/} folder contains sample input and output files
 for \ai packages supported by the script.
-Each file containstakes the in an H$_2$O frequency job using HF/6-311G**.
+Each file contains the in an H$_2$O frequency job using HF/6-311G**.
 Here is the summary of \ai outputs' formats:
 
 \begin{center}
@@ -187,32 +194,43 @@ file for additional info.
 
 Some tags in the created input \xml file are ``commented'' by
 the {\tt OPT\underline{~}} prefix: when removed, the tags become
-visible for \ezSnospace; for more details on comments see Sec.~\ref{sec:comments}.
+visible for \ezFCF; for more details on comments see Sec.~\ref{sec:comments}.
 
-To plot the spectra, use \ul{plot\_spectrum.py} script located in \ul{Plotting} directory.  
+To plot the spectra, use {\tt plot\_spectrum.py} script located in {\tt Plotting} directory.  
 
 %----------------------------------------------------------------------
 \subsection{Run a sample job}
 
-\ezS executable takes the input \xml file as a single argument. 
+\ezFCF\ executable takes the input \xml file as a single argument. 
 There are several sample input \xml files in the {\tt samples/} folder:
 \begin{itemize}
 \item \ul{trans}{hcoh.xml}---a basic input for both parallel approximation and Duschinsky rotations calculations; 
 no hot bands (0 K temperature); 
 \item \ul{cis}{hcoh.xml}---includes hot bands (600 K temperature) and energy thresholds for vibrational states;
+\item {\tt formaldehyde.xml}---a basic input for both parallel approximation and Duschinsky rotations calculations;
+normal modes are reordered manually for the best match;
 \item {\tt adenine.xml}---atoms and normal modes are reordered in the target state; single FCFs are requested 
 in the Duschinsky rotations section;
 \item {\tt thymine.xml}---only Duschinsky rotations with full set of optional keywords; 
 it takes several minutes to complete this job.
 \end{itemize}
-
 Note that the input file must contain \ul{parallel}{approximation} or \ul{dushinsky}{rotations} section.
 One may include both sections in a single input and compare the calculated spectra.
 
-To run \ezS for one of the examples type:
+To run \ezFCF\ for one of the examples type:
 \begin{lstlisting}[frame=single,framerule=0pt]
-  ezSpectrum samples/cis_hcoh.xml > samples/cis_hcoh.xml.out
+  ./ezFCF_mac.exe samples/cis_hcoh.xml > samples/cis_hcoh.xml.out
 \end{lstlisting}
+on Mac OS or
+\begin{lstlisting}[frame=single,framerule=0pt]
+  ./ezFCF_linux.exe samples/cis_hcoh.xml > samples/cis_hcoh.xml.out
+\end{lstlisting}
+on a Linux machine. 
+Note that the the executables must be executable---you may need to run
+\begin{lstlisting}[frame=single,framerule=0pt]
+  chmod +x ezFCF*.exe
+\end{lstlisting}
+after download. In addition, on Mac OS you may need to go into system preferences to allow the program to run. 
 
 Calculated spectra in the parallel approximation 
 and with the Duschinsky rotations will be saved in the \ul{cis}{hcoh}\ul{.spectrum}{parallel} and
@@ -309,7 +327,7 @@ Energy  Intensity    FC factor     E",K   Transition
 -1.122  2.3433e-02  +1.530e-01     0.000  0(0)->1(1v1)
 \end{lstlisting}
 
-Every \ezS output file starts with a copy of the input \xml file followed by the 
+Every \ezFCF\ output file starts with a copy of the input \xml file followed by the 
 molecular geometries of each electronic state after the automatic alignment procedure. 
 It is recommended to check that all states were aligned correctly---a large 
 value of the ``The norm of the geometry difference from the initial state'' in the output
@@ -326,13 +344,22 @@ In the Duschinsky rotation section of the output, one should check the normal mo
 $Det(S)$, which should be close to one (see Sec.~\ref{sec:detS}); also check that you have enough
 memory to store all the requested ``layers''. 
 
+A basic {\tt python} script for plotting the resulting spectra is provided in {\tt Plotting}. To use it to plot a spectrum  from {\tt Samples}, follow these steps:
+\begin{lstlisting}[frame=single,framerule=0pt]
+  cd Samples
+  ln -s ../Plotting/plot_spectrum.py .
+  ./plot_spectrum.py trans_hcoh.xml.spectrum_parallel
+\end{lstlisting}
+The plot will be in {\tt trans\_hcoh.xml.spectrum\_parallel.pf}. Tweak the parameters in the script for the desired appearance. 
+
 
 %----------------------------------------------------------------------
 \subsection{Atomic masses file}
 \label{sec:masses}
 
 File {\tt atomicMasses.xml} contains atomic masses in atomic mass units (amu) and must be present in the same folder 
-as an \xml input file. 
+as an \xml input file (you can use {\tt ln -s} command to create a link to the master copy from the directory
+where you intend to run {\tt ezFCF}). 
 If you need more atoms, e.g. isotopes, you can add new
 elements into the root element {\tt masses} of this file. 
 The user-defined atomic names must start with a letter and contain only letters and numbers.
@@ -384,7 +411,7 @@ multidimensional Franck-Condon factors are simple the products of one dimensiona
 \label{eq:product_fcf}
 \end{align}
 
-\ezS computes each one-dimensional harmonic FCF analytically\cite{FranckCondon:Math:30}:
+\ezFCF\ computes each one-dimensional harmonic FCF analytically\cite{FranckCondon:Math:30}:
 
 \begin{align}
 \langle\chi'_{\nu'} |\chi''_{\nu''}\rangle = &
@@ -451,7 +478,7 @@ Four attributes of the \ul{parallel}{approximation} element are always required:
 \end{itemize}
 The latter requires clarification. In general, if there are no hot bands in the spectrum 
 (0 K, and only the ground vibrational state of the initial electronic state is populated),
-using the normal modes of the target electronic state is prefered. 
+using the normal modes of the target electronic state is preferred. 
 Indeed, rotation of
 the initial ground states' vibrational wavefunction does not significantly change the overlap integrals with
 the target state (see Fig~\ref{fig:rotations}); on the other hand, rotation of target state's vibrational wavefunctions with many 
@@ -748,7 +775,7 @@ You can also include excitations to normal modes from the \ul{do}{not}\ul{excite
 %----------------------------------------------------------------------
 \subsection{Other keywords: CPU and memory use}
 
-As it was mentioned in Sec~\ref{sec:dhush:overview}, \ezS stores in memory only FCFs 
+As it was mentioned in Sec~\ref{sec:dhush:overview}, \ezFCF\ stores in memory only FCFs 
 for the transitions from the ground vibrational state of the initial electronic state (i.e., no hot bands are stored).
 All hot bands are evaluated recursively, which may require considerable CPU time. 
 To reduce the number of hot bands, one can apply thresholds
@@ -900,7 +927,7 @@ Please pay special attention to the order of the ``same'' atoms, e.g. hydrogens 
 Orientation of the molecule in the \ai outputs is not always well defined. 
 However, the geometries of initial 
 and target electronic states must be aligned before the FCF calculations.
-To overcome this problem, \ezS implements a simple automatic alignment algorithm. It aligns translational and rotational
+To overcome this problem, \ezFCF\ implements a simple automatic alignment algorithm. It aligns translational and rotational
 degrees of freedom to ensure that the subspaces of the normal modes is the same for all electronic states.
 
 Each electronic state is realigned in three steps:
@@ -958,7 +985,7 @@ otherwise (e.g., as in an {\tt ACESII} outputs) it must be set to {\tt "false"} 
 Atomic names in the {\tt atoms} attribute of the \ul{normal}{modes} element 
 define atomic masses for which normal modes were calculated (used to ``un-massweight'' the normal modes).
 Note, that atomic names in the {\tt geometry} element can be different,
-which may be used for the isotope substitutions: one can rerun \ezS for a molecule with
+which may be used for the isotope substitutions: one can rerun \ezFCF\ for a molecule with
 the isotope substitutions using the set of normal modes from an \ai output for the non-substituted molecule.
 
 Here is an example of the minimal \ul{normal}{modes} element for a water molecule:
@@ -982,8 +1009,10 @@ One can reorder normal modes (only in the \ul{target}{state}-s) with the optiona
 \begin{lstlisting}[frame=single,framerule=0pt]
   <manual_normal_modes_reordering new_order="0 1 3 2 4 5"/>
 \end{lstlisting}
-The numbering of the normal modes starts with zero. 
-\ezS prints the overlap matrix between normal modes of the initial and each target state,
+The numbering of the normal modes starts with zero. The \texttt{formaldehyde.xml} sample job
+illustrates modes reordering (try to run it without and see what happens).
+
+\ezFCF\ prints the overlap matrix between normal modes of the initial and each target state,
 which helps to assign the normal modes of the target states to the normal modes of the initial one.
 By default only a non-diagonal part of the overlap matrix is printed, 
 but one can print a full overlap matrix by adding an optional {\tt <print\underline{~}normal\underline{~}modes flag="true"/>} 
@@ -1017,6 +1046,10 @@ The order of the frequencies should be the same as the order of the normal modes
 \clearpage
 \section{Common problems and FAQ}
 
+%----------------------------------------------------------------------
+\subsection{It does not run.}
+
+Make sure your executables have proper permissions---use {\tt chmod} command if necessary. 
 
 %----------------------------------------------------------------------
 \subsection{My spectrum is empty!}
@@ -1042,7 +1075,7 @@ and that det(S) is close to one (see Sec.~\ref{sec:detS}) if you use the Duschin
 
 \item Check that geometries of all states are similarly aligned after 
 the automatic alignment procedure: you can plot ``New molecular geometries'' for each state
-from the \ezS output with your favorite visualization software. 
+from the \ezFCF\ output with your favorite visualization software. 
 A large value of the ``Norm of the geometry difference'' is an indicator of miss-aligned geometries.
 The following can cause problems in the alignment:
 (a) geometries of electronic states are very different (e.g. cyclomerization of a linear molecule);
@@ -1060,14 +1093,14 @@ your molecules manually (see Sec.~\ref{sec:alignment}).
 \label{sec:comments}
 
 The formal rule is to enclose comments in {\tt <!--} and {\tt -->} tags (see Appendix).
-However, any tag which is not recognized by \ezS is simply ignored.
+However, any tag which is not recognized by \ezFCF\ is simply ignored.
 So you can modify both an open and a respective close tags of the element to make it a comment.
 For example in the inputs created with \ul{make}{xml.py} script optional elements (keywords)
-are preceded with {\tt OPT\underline{~}} and are invisible for \ezSnospace.
+are preceded with {\tt OPT\underline{~}} and are invisible for \ezFCF.
 
 You also can add comments to the elements by adding any attributes which are well formatted. 
 For example, the attribute {\tt units} of the \ul{energy}{threshold} element is
-a comment and ignored by \ezSnospace.
+a comment and ignored by \ezFCF.
 
 
 %----------------------------------------------------------------------
@@ -1093,7 +1126,7 @@ If you want to see the full normal modes' overlap matrix when you use a subspace
 into the root element {\tt input}
 This will also print normal modes after all coordinate transformations.
 
-An online normal modes' reordering tool may be useful (available in the online version of \ezS 
+An online normal modes' reordering tool may be useful (available in the online version of \ezFCF\
 at {\tt iopenshell.usc.edu/downloads})
 
 Also note that Duschinsky rotations automatically eliminate the normal modes' reordering problem, but for
@@ -1111,16 +1144,16 @@ which corresponds to a true rotation and therefore both sets of normal modes spa
 However if you use a ``do not excite subspace'' keyword, than two ``active''
 subspaces may be different and not alignable by a rotation (therefore $Det(S)$ is not 1.0).
 So, either your subspace is not uncoupled from the rest of the normal modes, or, 
-mkore likely, you use different normal modes in your initial and target subspaces.
+more likely, you use different normal modes in your initial and target subspaces.
 The latter requires reordering of the normal modes of the target electronic state
 (see Secs. \ref{sec:nmodes} and \ref{sec:nonparallel}).
 Once again, if you use a full space of normal modes, there is no need to reorder normal modes for Duschinsky rotations section.
 
 %----------------------------------------------------------------------
-\subsection{\ezS crashes with no error message!}
+\subsection{\ezFCF\ crashes with no error message!}
 \label{sec:crash}
 
-There is one known problem: \ezS crashes when too many FCFs are requested.
+There is one known problem: \ezFCF\ crashes when too many FCFs are requested.
 We will try to address this in the future, 
 but basically in the case of a crash it would be unrealistic anyway to evaluate all requested combination bands 
 in a finite time.
@@ -1131,7 +1164,7 @@ So, the only solution is to reduce the number of FCFs:
 \item reduce the ``excite normal modes' subspace'' by excluding normal modes along which the geometry change is small.
 \end{itemize}
 
-Another possibility is that you just found a new bug in \ezS :)---please let us know and forward us
+Another possibility is that you just found a new bug in \ezFCF\ :)---please let us know and forward us
 the problematic input. We will try to update the program asap!
 
 %----------------------------------------------------------------------
@@ -1144,13 +1177,13 @@ to convert line breaks back to unix format. Try applying {\tt dos2unix} to the i
 
 
 %----------------------------------------------------------------------
-\subsection{\ezS ends with a format error}
+\subsection{\ezFCF\ ends with a format error}
 \label{sec:formaterror}
 
 This problem can be caused by several issues related to the format of the {\tt xml} input. However, one common problem 
 occurs when Raman intensities are requested in {\tt Q-Chem}. As a result, the 
 {\tt Q-Chem} output is not read correctly by the \ul{make}{xml.py} script and this causes the ''format error"
-to show up in \ezS. Re-run the {\tt Q-Chem} job without requesting Raman to avoid this problem.
+to show up in \ezFCF. Re-run the {\tt Q-Chem} job without requesting Raman to avoid this problem.
 
 %----------------------------------------------------------------------
 \clearpage
@@ -1177,7 +1210,7 @@ Here is the set of rules for creating a ``well formatted'' {\tt .xml} file:
 \begin{itemize}
 
 \item Document must have only one root element. 
-In the case of \ezS, the input file has the {\tt <input> ... </input>} root element, 
+In the case of \ezFCF, the input file has the {\tt <input> ... </input>} root element, 
 and the {\tt atomicMasses.xml} file has the {\tt <masses> ... </masses>} root element.
 
 \item Comments can appear anywhere in the document and must be enclosed by {\tt <!--} and {\tt -->}. 

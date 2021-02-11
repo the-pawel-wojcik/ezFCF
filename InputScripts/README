@@ -1,7 +1,7 @@
 
 This folder contains samples of all formats supported by the 
 "make_xml.py" script, which creates an input XML file for 
-the 'ezSpectrum 3.0' program.
+the eezFCF (formerly known as ezSpectrum)  program.
 
 Script requires a set of ab initio outputs with frequency jobs in
 the optimized geometries. First file in the argument's list is
@@ -12,8 +12,7 @@ normal modes into the XML file.
 Default job parameters and energy difference between the electronic
 states (IP, EA, etc) should be adjusted as necessary in the created XML file.
 
-
-All ab initio inputs (*.in) and outputs (*.out) in this folder contain 
+Several ab initio inputs (*.in) and outputs (*.out) in this folder contain 
 the same frequency job, H2O molecule at HF/6-311G** level of theory:
 
 h2o_qchem.*        Q-Chem 
@@ -29,14 +28,22 @@ You can check the script with all supported types by running:
  ./make_xml.py test.xml h2o_qchem.out h2o_molpro.out h2o_aces_old.out \
                      h2o_aces_new.out h2o_gamess.out h2o_other.out
 
-
 test.xml file will contain ab inito data extracted from the outputs
-and will be accepted by ezSpectrum. The produced spectrum will have 
+and will be accepted by ezFCF. The produced spectrum will have 
 only zero-zero transitions with unit intensities, since all electronic 
 states are the same.
 
+Two additional examples contain formaldehyde (same job, outputs from Orca and Q-Chem):
+ch2o_neutral_qchem.out
+ch2o_cation_qchem.out
 
+ch2o_neutral_orca.out	
+ch2o_cation_orca.out	
 
-
-
-
+Running
+./make_xml.py formaldehyde.xml ch2o_neutral_qchem.out ch2o_cation_qchem.out
+or 
+./make_xml.py formaldehyde.xml ch2o_neutral_orca.out ch2o_cation_orca.out
+will genenerate xml files that were used for Samples/formaldehyde.xml example
+(in which the normal modes were manually reordered to ensure maximmum overlap).
+The output spectra are inlcuded in Samples for comparisons. 

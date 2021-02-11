@@ -34,7 +34,7 @@ def main():
    #gaussian width, in eV 
    #FWHM
    #width=0.025
-   width=0.005
+   width=0.025
    spectrum1=spt.compute_spectrum(abs(x_0),abs(x_max),step,abs(data1[:,0]),data1[:,1],width)
    #print "Spectrum 1", spectrum1
    
@@ -48,7 +48,7 @@ def main():
    ax = fig.add_axes(rect)
    # 2.0 for HCOH, 80 for thymine and 15 for adenine
    #ylim=2.0 
-   ylim=25.0
+   ylim=40.0
    ax.set_xlim(abs(x_0),abs(x_max))
    ax.set_ylim(0.0,  ylim)  
    ax.set_xticks(xtics)

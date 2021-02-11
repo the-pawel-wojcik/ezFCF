@@ -283,7 +283,7 @@ void xml_node::make_toc() {
     }
   }
     
-  print_toc();
+  //  print_toc();
 }
 
 
