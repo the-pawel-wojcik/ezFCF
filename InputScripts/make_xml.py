@@ -23,8 +23,7 @@ states (IP, EA, etc) should be adjusted as necessary in the created XML file.
 """
 
 import sys
-import numpy as np
-
+#import numpy as np
 
 DEFAULT_JOB_PARAMETERS = """<input
   job = "harmonic_pes">
@@ -414,6 +413,8 @@ def parse_gamess(StateF, data: dict, run_type):
 
 def parse_orca(StateF, data: dict):
     """ Parser of an ORCA output. """
+    import numpy as np
+
     data['if_normal_modes_weighted'] = True                 # this is what the ORCA output is saying
     data['geometry_units'] = "angstr"                       # the same with previous
 
