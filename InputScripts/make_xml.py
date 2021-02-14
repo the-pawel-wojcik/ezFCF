@@ -423,8 +423,8 @@ def parse_orca(StateF, data: dict):
     IndVibFreq = Lines.index('$vibrational_frequencies')    # index of the line where vibrational frequencies start
     IndXYZ = Lines.index('$atoms')                          # index of the XYZ coordinates
 
-    NAt = int(Lines[IndXYZ+1].split()[0])                   # number of atoms in the molecule (next line after $atoms)
-    for a in Lines[(IndXYZ+2):(IndXYZ+2+NAt)]:              # parse the XYZ block
+    NAt = int(Lines[IndXYZ + 1].split()[0])                 # number of atoms in the molecule (next line after $atoms)
+    for a in Lines[(IndXYZ + 2):(IndXYZ + 2 + NAt)]:        # parse the XYZ block
         words = a.split()
         # Geometry is the XYZ geometry in the format <Atom Label>  <X> <Y> <Z>, atomic masses (2nd column) are ignored
         data['Geometry'] += f"{words[0]:6s}  "
@@ -435,26 +435,26 @@ def parse_orca(StateF, data: dict):
         # atom list is the list of atomic labels
         data['atoms_list'] += "   " + words[0] + " "
 
-    NInRow = len(Lines[IndNormModes+2].split())
-    NVib = 3*NAt
+    NInRow = len(Lines[IndNormModes + 2].split())
+    NVib = 3 * NAt
     NormModes = np.zeros((NVib, NAt, 3), dtype=float)
     data['NAtoms'] = NAt
 
     BlockNum = 0
-    while BlockNum*NInRow < 3*NAt:
-        NModes = np.array(Lines[IndNormModes + 2 + BlockNum*(NVib + 1)].split(), dtype=int)
+    while BlockNum * NInRow < 3 * NAt:
+        NModes = np.array(Lines[IndNormModes + 2 + BlockNum * (NVib + 1)].split(), dtype=int)
         for i in range(0, NVib):
-            words = Lines[IndNormModes + 2 + BlockNum*(NVib + 1) + 1 + i].split()
+            words = Lines[IndNormModes + 2 + BlockNum * (NVib + 1) + 1 + i].split()
             tmp = np.array(words[1:], dtype=float)
             for imode, nmode in enumerate(NModes):
-                NormModes[nmode][i / 3][i % 3] = tmp[imode]
+                NormModes[nmode][i // 3][i % 3] = tmp[imode]
         BlockNum += 1
 
     for nmodeblock in range(6, NVib, 3):
         for nat in range(0, NAt):
             for nmib in range(0, 3):
                 data['NormalModes'] += "  "
-                for mode in NormModes[nmodeblock+nmib][nat]:
+                for mode in NormModes[nmodeblock + nmib][nat]:
                     data['NormalModes'] += f" {mode:7.3f}"
             data['NormalModes'] += "\n"
         data['NormalModes'] += "\n"
