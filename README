@@ -22,10 +22,10 @@ atomic masses:   ezSpectrum_code/atomicMasses.xml
 
 the manual: Manual/manual.tex, manual/manual.pdf
 InputScripts: script for generating xml inputs from supported ab initio packages
-              InputScripts/make_xml.py
+              InputScripts/make_xml.py  (python3 is required)
 	      and examples of inputs and outputs  
 
-Plotting: python scripts for plotting spectra
+Plotting: python scripts for plotting spectra (both python2 and python3)
 
 Samples: xml inputs (new format) and outputs 
 References: xml inputs (old format) and outputs (ezDyson v.3.0) for sample jobs

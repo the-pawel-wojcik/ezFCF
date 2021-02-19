@@ -151,7 +151,7 @@ next sections of the manual.
 \subsection{Create an input file: \ul{make}{xml.py} script}
 \label{sec:script}
 
-\ul{make}{xml.py} python script (located in \ul{InputScripts} directory)
+\ul{make}{xml.py} python script (located in {\tt InputScripts} directory)
 creates an \xml input file for \ezFCF\ from several \ai outputs. 
 All \ai outputs should be for the same molecule (different electronic states and total charges are OK) 
 and contain a frequency job at the optimized geometry. 
@@ -168,7 +168,7 @@ and other parameters are the file names of \ai outputs.
 The first output is for the initial electronic state,
 and all sequential files are for the target electronic states.
 
-\ul{InputScripts/} folder contains sample input and output files
+{\tt InputScripts} folder contains sample input and output files
 for \ai packages supported by the script.
 Each file contains the in an H$_2$O frequency job using HF/6-311G**.
 Here is the summary of \ai outputs' formats:
@@ -183,6 +183,7 @@ Here is the summary of \ai outputs' formats:
 {\tt ACES II}  & Bohr & No\\
 {\tt GAMESS} and {\tt Molpro}  & Bohr & Yes\\
 {\tt Gaussian}  & \AA & Yes\\
+{\tt Orca}      & \AA  & Yes   \\
 \hline
 \end{tabular}
 \end{center}
@@ -225,8 +226,7 @@ on Mac OS or
 \begin{lstlisting}[frame=single,framerule=0pt]
   ./ezFCF_linux.exe samples/cis_hcoh.xml > samples/cis_hcoh.xml.out
 \end{lstlisting}
-on a Linux machine. 
-Note that the the executables must be executable---you may need to run
+on a Linux machine. The working directory should also contain the {\tt atomicMasses.xml} file (see Section \ref{sec:massses}. Note that the the executables must be executable---you may need to run
 \begin{lstlisting}[frame=single,framerule=0pt]
   chmod +x ezFCF*.exe
 \end{lstlisting}
@@ -344,13 +344,13 @@ In the Duschinsky rotation section of the output, one should check the normal mo
 $Det(S)$, which should be close to one (see Sec.~\ref{sec:detS}); also check that you have enough
 memory to store all the requested ``layers''. 
 
-A basic {\tt python} script for plotting the resulting spectra is provided in {\tt Plotting}. To use it to plot a spectrum  from {\tt Samples}, follow these steps:
+A basic {\tt python} script for plotting the resulting spectra is provided in {\tt Plotting} (both {\tt python2} and {\tt python3} versions). To use it to plot a spectrum  from {\tt Samples}, follow these steps:
 \begin{lstlisting}[frame=single,framerule=0pt]
   cd Samples
   ln -s ../Plotting/plot_spectrum.py .
   ./plot_spectrum.py trans_hcoh.xml.spectrum_parallel
 \end{lstlisting}
-The plot will be in {\tt trans\_hcoh.xml.spectrum\_parallel.pf}. Tweak the parameters in the script for the desired appearance. 
+The plot will be in {\tt trans\_hcoh.xml.spectrum\_parallel.pdf}. Tweak the parameters in the script for the desired appearance. (Note that {\tt python} excecutable path should be properly setup). 
 
 
 %----------------------------------------------------------------------

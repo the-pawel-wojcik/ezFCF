@@ -1,6 +1,6 @@
 This folder contains samples of all formats supported by the 
 "make_xml.py" script, which creates an input XML file for 
-the eezFCF (formerly known as ezSpectrum)  program.
+the ezFCF (formerly known as ezSpectrum)  program.
 
 Script requires a set of ab initio outputs with frequency jobs in
 the optimized geometries. First file in the argument's list is
