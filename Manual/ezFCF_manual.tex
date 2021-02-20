@@ -54,45 +54,6 @@ backgroundcolor=\color{code_background},
 
 \clearpage
 
-\section*{What's new: ezFCF v.1.0 versus ezSpectrum v.3.0}
-
-\ezFCF\ v.1 is an updated version of \ezS\ v.3. It is a part of \texttt{ezSpectra} spectroscopy
-modeling suite.  The functionality 
-and most of the compute kernels in \ezFCF\ v.1
-are the same as in \ezS\ v.3, 
-but the input parser was rewritten to remove the dependency on the outside library. In addition, we extended
-the support to include {\tt Orca} (many thanks to Denis Tikhonov who provided the script). 
-The {\tt xml} parser  works almost as before, but with the following (temporary) restrictions:
-  \begin{itemize}
-  \item Empty XML tags are not supported, i.e., this
-    \renewcommand{\baselinestretch}{1.0}
-\begin{verbatim}
-<geometry
- n_of_atoms="3"
- text = "
-      O      -0.0002310000    -0.1047090000     0.0000000000
-      H      -0.7616800000     0.4751910000     0.0000000000
-      H       0.7589890000     0.4781700000     0.0000000000
-
-  "
-/>
-\end{verbatim}
-should be changed to
-\begin{verbatim}
-<geometry
- n_of_atoms="3"
- text = "
-      O      -0.0002310000    -0.1047090000     0.0000000000
-      H      -0.7616800000     0.4751910000     0.0000000000
-      H       0.7589890000     0.4781700000     0.0000000000
-
-">
-</geometry>
-\end{verbatim}
-\renewcommand{\baselinestretch}{1.5}
-\item The closing tags, such as \begin{verbatim}</geometry>\end{verbatim} above, should be separated by either a space or a newline from the previous text. For example  \begin{verbatim}"></geometry>\end{verbatim} would result in an error.
-  \end{itemize}    
-The scripts were rewritten to use {\sl python3}. 
   
 \section*{Introduction}
 \addcontentsline{toc}{section}{Introduction}
@@ -139,19 +100,79 @@ Please contact Professor Anna I. Krylov ({\tt krylov@usc.edu})
 if you have suggestions, questions, or bugs to report. Have fun!  
 
 %----------------------------------------------------------------------
+\section*{What's new: ezFCF v.1.0 versus ezSpectrum v.3.0}
+
+\ezFCF\ v.1 is an updated version of \ezS\ v.3. It is a part of \texttt{ezSpectra} spectroscopy
+modeling suite.  The functionality 
+and most of the compute kernels in \ezFCF\ v.1
+are the same as in \ezS\ v.3, 
+but the input parser was rewritten to remove the dependency on the outside library. In addition, we extended
+the support to include {\tt Orca} (many thanks to Denis Tikhonov who provided the script). 
+The {\tt xml} parser  works almost as before, but with the following (temporary) restrictions:
+  \begin{itemize}
+  \item Empty XML tags are not supported, i.e., this
+    \renewcommand{\baselinestretch}{1.0}
+\begin{verbatim}
+<geometry
+ n_of_atoms="3"
+ text = "
+      O      -0.0002310000    -0.1047090000     0.0000000000
+      H      -0.7616800000     0.4751910000     0.0000000000
+      H       0.7589890000     0.4781700000     0.0000000000
+
+  "
+/>
+\end{verbatim}
+should be changed to
+\begin{verbatim}
+<geometry
+ n_of_atoms="3"
+ text = "
+      O      -0.0002310000    -0.1047090000     0.0000000000
+      H      -0.7616800000     0.4751910000     0.0000000000
+      H       0.7589890000     0.4781700000     0.0000000000
+
+">
+</geometry>
+\end{verbatim}
+\renewcommand{\baselinestretch}{1.5}
+\item The closing tags, such as \begin{verbatim}</geometry>\end{verbatim} above, should be separated by either a space or a newline from the previous text. For example  \begin{verbatim}"></geometry>\end{verbatim} would result in an error.
+  \end{itemize}    
+The scripts were rewritten to use {\sl python3}. The current scripts take the above changes into account, but the old {\sl xml} inputs need to be edited. 
+
+
+
+%----------------------------------------------------------------------
 \section{Quick start}
 
 In this section it is explained how to create an input \xml file from your electronic structure 
 program outputs using \ul{make}{xml.py} script and how to run \ezFCF.
 For brief overview of the \xml syntax please see the Appendix;
 the detailed description of the input file format is given in the  
-next sections of the manual.
+subsequent sections of the manual. 
+
+The distribution \verb|ezFCF_v1.0.tar.gz| includes the following:
+\begin{verbatim}
+atomic masses:  xml file with atomic masses (needed for program to run)
+LICENCE: lincence info (please read)
+Manual: user manual (tex and pdf)
+bin:  precompiled binaries for MacOS and Linux and python script
+make_xml.py (python3 is required) for xml input generation 
+InputScripts: xml inputs from supported ab initio packages
+	      and examples of inputs and outputs  
+Plotting: python scripts for plotting spectra (both python2 and python3)
+Samples: xml inputs (new format) and outputs 
+References: xml inputs (old format) and outputs (ezFCF v.1.0) for sample jobs
+ezSpectrum_code: source code and makefiles
+\end{verbatim}
+After you install it, you can add path to the bin directory in your \verb|.csh| or \verb|.bsh| configuration file.
+Alternatively, you can create links to the executables in your working directory.
 
 %----------------------------------------------------------------------
 \subsection{Create an input file: \ul{make}{xml.py} script}
 \label{sec:script}
 
-\ul{make}{xml.py} python script (located in {\tt InputScripts} directory)
+\ul{make}{xml.py} python script (located in {\tt bin} directory)
 creates an \xml input file for \ezFCF\ from several \ai outputs. 
 All \ai outputs should be for the same molecule (different electronic states and total charges are OK) 
 and contain a frequency job at the optimized geometry. 
@@ -226,7 +247,7 @@ on Mac OS or
 \begin{lstlisting}[frame=single,framerule=0pt]
   ./ezFCF_linux.exe samples/cis_hcoh.xml > samples/cis_hcoh.xml.out
 \end{lstlisting}
-on a Linux machine. The working directory should also contain the {\tt atomicMasses.xml} file (see Section \ref{sec:massses}. Note that the the executables must be executable---you may need to run
+on a Linux machine. The working directory should also contain the {\tt atomicMasses.xml} file (see Section \ref{sec:masses}). Note that the the executables must be executable---you may need to run
 \begin{lstlisting}[frame=single,framerule=0pt]
   chmod +x ezFCF*.exe
 \end{lstlisting}
@@ -350,7 +371,7 @@ A basic {\tt python} script for plotting the resulting spectra is provided in {\
   ln -s ../Plotting/plot_spectrum.py .
   ./plot_spectrum.py trans_hcoh.xml.spectrum_parallel
 \end{lstlisting}
-The plot will be in {\tt trans\_hcoh.xml.spectrum\_parallel.pdf}. Tweak the parameters in the script for the desired appearance. (Note that {\tt python} excecutable path should be properly setup). 
+The plot will be in {\tt trans\_hcoh.xml.spectrum\_parallel.pdf}. Tweak the parameters in the script for the desired appearance. (Note that {\tt python} executable path should be properly setup). 
 
 
 %----------------------------------------------------------------------
