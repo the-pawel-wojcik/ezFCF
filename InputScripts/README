@@ -1,6 +1,8 @@
 This folder contains samples of all formats supported by the 
 "make_xml.py" script, which creates an input XML file for 
 the ezFCF (formerly known as ezSpectrum)  program.
+The script is located in bin directory (you need to add it to the path
+variable or use 'ln -s' command). 
 
 Script requires a set of ab initio outputs with frequency jobs in
 the optimized geometries. First file in the argument's list is
@@ -24,8 +26,9 @@ h2o_other.out      Gaussian (we can not guarantee it is fully supported,
 
 You can check the script with all supported types by running:
 
- ./make_xml.py test.xml h2o_qchem.out h2o_molpro.out h2o_aces_old.out \
+ make_xml.py test.xml h2o_qchem.out h2o_molpro.out h2o_aces_old.out \
                      h2o_aces_new.out h2o_gamess.out h2o_other.out
+(you may need to use ./make_xml.py)
 
 test.xml file will contain ab inito data extracted from the outputs
 and will be accepted by ezFCF. The produced spectrum will have 
@@ -40,9 +43,9 @@ ch2o_neutral_orca.out
 ch2o_cation_orca.out	
 
 Running
-./make_xml.py formaldehyde.xml ch2o_neutral_qchem.out ch2o_cation_qchem.out
+make_xml.py formaldehyde.xml ch2o_neutral_qchem.out ch2o_cation_qchem.out
 or 
-./make_xml.py formaldehyde.xml ch2o_neutral_orca.out ch2o_cation_orca.out
+make_xml.py formaldehyde.xml ch2o_neutral_orca.out ch2o_cation_orca.out
 will genenerate xml files that were used for Samples/formaldehyde.xml example
 (in which the normal modes were manually reordered to ensure maximmum overlap).
 The output spectra are inlcuded in Samples for comparisons. 
