@@ -223,7 +223,8 @@ bool KMatrix::CheckIfUnit(char *ttl, double thresh, FILE *fl) const
 
 void KMatrix::Adjust(int d1, int d2)
 {
-  if( dim1!=d1 || dim2!=d2 )
+  if( dim1!=d1 || dim2!=d2 ) 
+    {
     if( d1*d2!=size )
       {
 	Free();
@@ -240,6 +241,7 @@ void KMatrix::Adjust(int d1, int d2)
 	dim1=d1;
 	dim2=d2;
       }
+    }
 }
 
 double KMatrix::Trace() const
@@ -441,12 +443,14 @@ KMatrix& KMatrix::LeftMult(const KMatrix& B, bool if_perm)
   KMatrix tmp(b_rows,a_cols,true);
 
   if(tmp.size) //call dgemm only if result has non-zero size
+    {
     if(!if_perm) 
       CL_DGEMM('n','n',a_cols,b_rows,a_rows,1.,matrix,a_cols,
 	       B.matrix,b_cols,0.,tmp.matrix,a_cols);
     else
       CL_DGEMM('n','t',a_cols,b_rows,a_rows,1.,matrix,a_cols,
 	       B.matrix,b_rows,0.,tmp.matrix,a_cols);
+    }
   *this = tmp;
   return *this;
 }
@@ -1589,7 +1593,7 @@ bool KMatrix::IfLinearDependentRows(char *ttl, FILE *out, double thresh) const
       if(IfLinearDependentRows(i,j,thresh) )
 	{
 	  r=true;
-	  fprintf(out,ttl);
+	  fprintf(out,"%s", ttl);
 	  fprintf(out,"Rows %d,%d are lineary dependent\n",i,j);
 	}
   return r;

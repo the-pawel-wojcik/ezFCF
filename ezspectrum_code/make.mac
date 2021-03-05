@@ -1,4 +1,4 @@
-CC=gcc-mp-6
+CC=gcc-6
 
 CCFLAGS = -O3 -fopenmp
 #-static

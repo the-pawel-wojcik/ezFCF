@@ -102,7 +102,7 @@ bool harmonic_pes_main (const char *InputFileName, xml_node& node_input, xml_nod
     }
   } 
 
-  std::cout << "Done doing transformations" << std::endl;
+  std::cout << "Done with the transformations" << std::endl;
   std::cout << "------------------------------------------------------------------------------\n";
 
 
@@ -233,6 +233,11 @@ void harmonic_pes_parallel(xml_node& node_input, std::vector <MolState>& elState
     max_n_target  = node_parallel_approx.read_int_value("max_vibr_excitations_in_target_el_state");
     bool if_comb_bands = node_parallel_approx.read_bool_value("combination_bands");
     bool if_use_target_nm = node_parallel_approx.read_bool_value("use_normal_coordinates_of_target_states");
+
+    if(temperature==0) {
+    max_n_initial = 0 ;
+    std::cout << "\nSince temperature=0, \"max_vibr_excitations_in_initial_el_state\" has been set to 0.\n"<< std::flush;
+    }
     
     // check if print normal modes after transformations & overlap matrix
     //FIXIT: check if loc is correect
@@ -256,7 +261,7 @@ void harmonic_pes_parallel(xml_node& node_input, std::vector <MolState>& elState
 	energy_threshold_initial=node_istate.read_node_double_value();
 	//std::cout << "Thresh=" << energy_threshold_initial << " " << units << std::endl;
 	if ( !covert_energy_to_eV(energy_threshold_initial,units) ) {
-	  std::cout << "\nError! Unknow units of the initial state threshold: \"" << units <<"\"\n  (should be equal to \"eV\", \"K\", or \"cm-1\")\n\n";
+	  std::cout << "\nError! Unknown units of the initial state threshold: \"" << units <<"\"\n  (should be equal to \"eV\", \"K\", or \"cm-1\")\n\n";
 	  exit(1);
 	}
       }
@@ -269,7 +274,7 @@ void harmonic_pes_parallel(xml_node& node_input, std::vector <MolState>& elState
 	energy_threshold_target=node_tstate.read_node_double_value();
 	//std::cout << "Thresh=" << energy_threshold_target << " " << units << std::endl;
 	if ( !covert_energy_to_eV(energy_threshold_target,units) ) {
-	  std::cout << "\nError! Unknow units of the target state threshold: \"" << units <<"\"\n  (should be equal to \"eV\", \"K\", or \"cm-1\")\n\n";
+	  std::cout << "\nError! Unknown units of the target state threshold: \"" << units <<"\"\n  (should be equal to \"eV\", \"K\", or \"cm-1\")\n\n";
 	  exit(1);
 	}
       }
@@ -378,14 +383,14 @@ void harmonic_pes_parallel(xml_node& node_input, std::vector <MolState>& elState
       
       //Create an overlap submatrix:
       if ((if_overlap_diagonal) or (new_normal_modes_list.size()<=1)) {
-	std::cout << "The normal modes overlap matrix whit the initial state is diagonal\n";
+	std::cout << "The normal modes overlap matrix with the initial state is diagonal\n";
 	if (new_normal_modes_list.size()<=1)
 	  std::cout<<"  (do_not_excite_subspace is excluded)\n";
 	std::cout<<"\n";
       }
       else {        
-	std::cout << "WARNING! The normal mmodes overlap matrix whith the initial state\n"
-		  << "         is non-diagonal! Consider normal modes reordering.\n\n";
+	std::cout << "WARNING! The normal modes overlap matrix with the initial state\n"
+		  << "         is non-diagonal! Consider reordering the normal modes.\n\n";
 	// create a normal mode submatrix:
 	KMatrix overlap_submatrix(new_normal_modes_list.size(),new_normal_modes_list.size());
 	overlap_submatrix.Set(0.0);
@@ -394,7 +399,7 @@ void harmonic_pes_parallel(xml_node& node_input, std::vector <MolState>& elState
 	    overlap_submatrix.Elem2(nm1,nm2)=NMoverlap.Elem2(new_normal_modes_list[nm1],new_normal_modes_list[nm2]);
 	
 	//print the overlap_submatrix (with correct column/row labbels):
-	std::cout << "  The non diagonal part of the normal modes overlap matrix (do_not_excite_subspace is excluded):";
+	std::cout << "  The non-diagonal part of the normal modes overlap matrix (do_not_excite_subspace is excluded):";
 	std::cout << "\n     ";
 	
 	for (int j=0; j<new_normal_modes_list.size(); j++)
@@ -468,7 +473,7 @@ void harmonic_pes_parallel(xml_node& node_input, std::vector <MolState>& elState
     else                
       std::cout << "\n\n\n"
 		<<"WARNING! The spectrum is empty.\n\n"
-		<<"         Plese refer to \"The spectrum is empty!\" in the\n"
+		<<"         Plese refer to \"My spectrum is empty!\" in the\n"
 		<<"         \"Common problems\" section of the manual\n\n\n\n";
     
     std::cout << "------------------------------------------------------------------------------\n";
@@ -479,7 +484,7 @@ void harmonic_pes_parallel(xml_node& node_input, std::vector <MolState>& elState
     (*parallel_ptr).getSpectrum().PrintStickTable(spectrumFName.str().c_str());
     std::cout << "\nStick spectrum was also saved in \"" << spectrumFName.str() << "\" file \n";
     if(if_use_do_not_excite_subspace)
-      std::cout << " (Full list of the normal modes was used for assining transitions)\n";
+      std::cout << " (Full list of the normal modes was used for assigning transitions)\n";
     
     std::cout << "------------------------------------------------------------------------------\n\n";
     
@@ -537,6 +542,11 @@ void harmonic_pes_dushinksy(xml_node& node_input, std::vector <MolState>& elStat
   // maximum number of quanta to store:     
   int max_quanta_ini = node_dushinsky_rotations.read_int_value("max_vibr_excitations_in_initial_el_state");
   int max_quanta_targ = node_dushinsky_rotations.read_int_value("max_vibr_excitations_in_target_el_state");
+
+  if(temperature==0) {
+  max_quanta_ini = 0 ;
+  std::cout << "\nSince temperature=0, \"max_vibr_excitations_in_initial_el_state\" has been set to 0.\n"<< std::flush;
+  }
   
   int Kp_max_to_save=32000;
   if(node_dushinsky_rotations.find_subnode("max_vibr_to_store")) {
@@ -569,7 +579,7 @@ void harmonic_pes_dushinksy(xml_node& node_input, std::vector <MolState>& elStat
 	tmp_iStr >> tmpInt;
 	//input error check:
 	if (tmp_iStr.fail()) {
-	  std::cout << "\nError: non numeric symbol or less entries then specified by the \"size\" value\n\n";
+	  std::cout << "\nError: non-numeric symbol or fewer entries than specified by the \"size\" value\n\n";
 	  exit(1);
 	}
 	if ((tmpInt<0)or(tmpInt>n_norm_modes-1)) {
@@ -600,7 +610,7 @@ void harmonic_pes_dushinksy(xml_node& node_input, std::vector <MolState>& elStat
   }
   
   if (nms_dushinsky.size()<n_norm_modes) {
-    std::cout << "The following normal will be excited\n(for both states the order is same as in in the input):\n ";
+    std::cout << "The following normal will be excited\n(for both states the order is same as in the input):\n ";
     for (int nm=0; nm<nms_dushinsky.size(); nm++)
       std::cout << nms_dushinsky[nm] << ' ';
     std::cout<<"\n\n";
@@ -667,7 +677,7 @@ void harmonic_pes_dushinksy(xml_node& node_input, std::vector <MolState>& elStat
 	std::string units=node_istate.read_string_value("units");
 	energy_threshold_initial=node_istate.read_node_double_value();
 	if ( !covert_energy_to_eV(energy_threshold_initial,units) ) {
-	  std::cout << "\nError! Unknow units of the initial state threshold: \"" << units <<"\"\n  (should be equal to \"eV\", \"K\", or \"cm-1\")\n\n";
+	  std::cout << "\nError! Unknown units of the initial state threshold: \"" << units <<"\"\n  (should be equal to \"eV\", \"K\", or \"cm-1\")\n\n";
 	  exit(1);
 	}
 	
@@ -679,7 +689,7 @@ void harmonic_pes_dushinksy(xml_node& node_input, std::vector <MolState>& elStat
 	std::string units=node_tstate.read_string_value("units");
 	energy_threshold_target=node_tstate.read_node_double_value();
 	if ( !covert_energy_to_eV(energy_threshold_target,units) ) {
-	  std::cout << "\nError! Unknow units of the target state threshold: \"" << units <<"\"\n  (should be equal to \"eV\", \"K\", or \"cm-1\")\n\n";
+	  std::cout << "\nError! Unknown units of the target state threshold: \"" << units <<"\"\n  (should be equal to \"eV\", \"K\", or \"cm-1\")\n\n";
 	  exit(1);
 	}
       }
@@ -801,9 +811,9 @@ void harmonic_pes_dushinksy(xml_node& node_input, std::vector <MolState>& elStat
   
   if (max_quanta_ini!=0) {
     if (points_removed>0)                 
-      std::cout << "  " << points_removed << " hotbands were removed from the spectrum\n";
+      std::cout << "  " << points_removed << " hot bands were removed from the spectrum\n";
     else
-      std::cout << "All hotbands are above the intensity threshold\n";
+      std::cout << "All hot bands are above the intensity threshold\n";
     std::cout << "\n" << std::flush;
   }
   
@@ -836,7 +846,7 @@ void harmonic_pes_dushinksy(xml_node& node_input, std::vector <MolState>& elStat
   (*dushinsky_ptr).getSpectrum().PrintStickTable(spectrumFName.str().c_str());
   std::cout << "\nStick spectrum was also saved in \"" << spectrumFName.str() << "\" file \n";
   if(nms_dushinsky.size()!=n_norm_modes)
-    std::cout << " (Full list of the normal modes was used for assining transitions)\n";
+    std::cout << " (Full list of the normal modes was used for assigning transitions)\n";
   std::cout << "\n\n";
   
   delete dushinsky_ptr;

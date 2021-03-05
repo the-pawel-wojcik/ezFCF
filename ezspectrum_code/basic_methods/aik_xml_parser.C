@@ -442,7 +442,7 @@ double xml_node::read_node_double_value() const {
 void xml_node::print(std::ostream& out) {
 
   out << "Node "<<  xml_node_name << std::endl;
-  print_toc(out);
+  //print_toc(out);
   //std::string current_string;
   //read_string(begin_sec,end_sec,xml_file,current_string);
   //out <<  current_string << std::endl;

@@ -30,7 +30,7 @@ backgroundcolor=\color{code_background},
 
 %----------------------------------------------------------------------
 
-\title{ezFCF v1.0}
+\title{ezFCF v1.1}
 \author{{\em Franck-Condon factors in the harmonic approximation}\\ 
   \vspace{20mm}\\
   Samer Gozem, Pawel Wojcik, Vadim Mozhayskiy, and Anna I. Krylov\\ \vspace{20mm}}
@@ -100,7 +100,7 @@ Please contact Professor Anna I. Krylov ({\tt krylov@usc.edu})
 if you have suggestions, questions, or bugs to report. Have fun!  
 
 %----------------------------------------------------------------------
-\section*{What's new: ezFCF v.1.0 versus ezSpectrum v.3.0}
+\section*{What's new: ezFCF v.1.1 versus ezSpectrum v.3.0}
 
 \ezFCF\ v.1 is an updated version of \ezS\ v.3. It is a part of \texttt{ezSpectra} spectroscopy
 modeling suite.  The functionality 
@@ -137,6 +137,7 @@ should be changed to
 \end{verbatim}
 \renewcommand{\baselinestretch}{1.5}
 \item The closing tags, such as \begin{verbatim}</geometry>\end{verbatim} above, should be separated by either a space or a newline from the previous text. For example  \begin{verbatim}"></geometry>\end{verbatim} would result in an error.
+\item We have added new plotting Python scripts that generate a convoluted spectrum from the output of \ezFCF.
   \end{itemize}    
 The scripts were rewritten to use {\sl python3}. The current scripts take the above changes into account, but the old {\sl xml} inputs need to be edited. 
 
@@ -165,7 +166,7 @@ Samples: xml inputs (new format) and outputs
 References: xml inputs (old format) and outputs (ezFCF v.1.0) for sample jobs
 ezSpectrum_code: source code and makefiles
 \end{verbatim}
-After you install it, you can add path to the bin directory in your \verb|.csh| or \verb|.bsh| configuration file.
+After you install it, you can add the path to the bin directory in your \verb|.csh| or \verb|.bsh| configuration file.
 Alternatively, you can create links to the executables in your working directory.
 
 %----------------------------------------------------------------------
@@ -185,7 +186,7 @@ The script \ul{make}{xml.py} executed with no arguments prints the usage format:
         <target_state_1.out> <target_state_2.out> etc...
 \end{lstlisting}
 {\tt filename.xml} is the name of \xml input file to be  created,
-and other parameters are the file names of \ai outputs.
+and other arguments are the file names of \ai outputs.
 The first output is for the initial electronic state,
 and all sequential files are for the target electronic states.
 
@@ -254,8 +255,8 @@ on a Linux machine. The working directory should also contain the {\tt atomicMas
 after download. In addition, on Mac OS you may need to go into the System Preferences to allow the program to run. 
 
 Calculated spectra in the parallel approximation 
-and with the Duschinsky rotations will be saved in the \ul{cis}{hcoh}\ul{.spectrum}{parallel} and
-\ul{cis}{hcoh}\ul{.spectrum}{dushinsky} files, respectively as well as in the \ul{cis}{hcoh.xml.out} output file. 
+and with the Duschinsky rotations will be saved in the \ul{cis}{hcoh.xml}\ul{.spectrum}{parallel} and
+\ul{cis}{hcoh.xml}\ul{.spectrum}{dushinsky} files, respectively as well as in the \ul{cis}{hcoh.xml.out} output file. 
 The format of the spectrum and the output files is briefly described in Sec.~\ref{sec:output}
 
 
@@ -880,7 +881,7 @@ However full recursive calculations (first row) are much slower.
 For each \ai output \ul{make}{xml.py} script adds the electronic state element 
 into an input  \xml file; \ul{initial}{state} element is created from the first provided output, 
 and \ul{target}{state} elements are created from all consecutive outputs.
-In many cases there is no need in changing anything except the {\tt IP} element (see below).
+In many cases there is no need in changing anything except the \ul{excitation}{energy} element (see below).
 However the optional elements described in this section may be used for 
 the ``manual'' reordering of normal modes and/or atoms if necessary.
 Full description of the electronic state element format may be also useful 
@@ -890,10 +891,11 @@ Each electronic state element must have the following elements:
 (a) {\tt geometry} (Sec.~\ref{sec:geometry});
 (b) \ul{normal}{modes} (Sec.~\ref{sec:nmodes});
 and (c) {\tt frequencies} (Sec.~\ref{sec:freq}). 
-In addition, each \ul{target}{state} element must have the ionization energy in electron volts (eV) in the {\tt IP} element. 
-The value of the adiabatic IP should be ZPE-adjusted (i.e. the energy difference between ground vibrational states of 
-initial and target electronic states). \ul{make}{xml.py} script fills the {\tt IP} elements with the default values
-starting with 1.0 eV for the first target state. If you have a calculated or measured IP, you can change it manually.
+In addition, each \ul{target}{state} element must have the excitation or ionization energy indicated in electron 
+volts (eV) in the \ul{excitation}{energy} element. The value of the adiabatic excitation or ionization energy 
+should be the ZPE-corrected (0-0) adiabatic energy (i.e. the energy difference between lowest vibrational states of 
+initial and target electronic states). \ul{make}{xml.py} script fills the \ul{excitation}{energy} elements with a default value
+of 1.0 eV for the first target state.
 
 The optional elements of the electronic state element are:\\
 (a) {\tt manual\underline{~}atoms\underline{~}reordering} (Sec.~\ref{sec:geometry});\\
@@ -1099,7 +1101,7 @@ the automatic alignment procedure: you can plot ``New molecular geometries'' for
 from the \ezFCF\ output with your favorite visualization software. 
 A large value of the ``Norm of the geometry difference'' is an indicator of miss-aligned geometries.
 The following can cause problems in the alignment:
-(a) geometries of electronic states are very different (e.g. cyclomerization of a linear molecule);
+(a) geometries of electronic states are very different (e.g. cyclization of a linear molecule);
 (b) you have two chiral isomers which can not be aligned by rotation;
 (c) the order of atoms is not the same in all electronic states
 (if not---reorder, see Sec.~\ref{sec:geometry}, 
@@ -1134,7 +1136,7 @@ In many cases this works very well even for a slightly rotated normal modes.
 However the normal modes in the \ai outputs are in the frequency ascending order,
 which may be different since the frequency of a particular normal mode changes from state to state. 
 
-So the goal is to make the overlap matrix as diagonal as possible by reordering
+The goal is to make the overlap matrix as diagonal as possible by reordering
 the normal modes of each target state using the {\tt manual normal modes reordering} element
 (see Sec.~\ref{sec:nmodes}). 
 If the number of normal modes is large, you can try to use {\tt do not excite subspace}

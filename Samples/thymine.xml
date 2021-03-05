@@ -309,7 +309,7 @@
 
 <target_state>
 
-  <ip units="eV"> 8.91 </ip>
+  <excitation_energy units="eV"> 8.91 </excitation_energy>
 
   <geometry
     number_of_atoms = "15"

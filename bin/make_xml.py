@@ -699,7 +699,7 @@ def main(xml_filename, ai_filenames, run_type):
     for targetStateFileName in ai_filenames[1:]:
         state_n += 1
         xmlF.write('<target_state>\n\n')
-        xmlF.write(f'  <ip units="eV"> {str(state_n)} </ip>\n\n')
+        xmlF.write(f'  <excitation_energy units="eV"> {str(state_n)} </excitation_energy>\n\n')
         xmlF.write(f'  <!-- THIS TARGET STATE IS FROM "{targetStateFileName}" FILE -->\n')
 
         try:

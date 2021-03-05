@@ -2,7 +2,7 @@
 
 void SpectralPoint::print()
 {
-  std::cout << std::fixed << std::setprecision(4) << std::setw(7) << E;
+  std::cout << std::fixed << std::setprecision(4) << std::setw(7) << -E;
   std::cout << std::scientific << std::setprecision(6) << std::setw(18) << I << "  ";
   std::cout << std::scientific << std::setprecision(6) << std::setw(11) << std::showpos << FCF << std::noshowpos ;
   std::cout << std::fixed << std::setprecision(3) << std::setw(10) << Epp/KELVINS2EV << "  ";

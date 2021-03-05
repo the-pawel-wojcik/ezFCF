@@ -755,7 +755,7 @@ void Dushinsky::printLayersSizes(const int uptoKp)
       std::cout << "\n";
     }          
 
-  std::cout << "Please be sure that you have enough memory to store all this layers,\n" 
+  std::cout << "Please be sure that you have enough memory to store all these layers,\n" 
 	    << "otherwise use \"max_vibr_to_store\" tag to limit the memory use.\n"
 	    << "You also can reduce \"max_vibr_excitations_in_target_el_state\" value,\n"
 	    << "and/or use \"single_excitation\" elements to add higher excitations.\n";

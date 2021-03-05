@@ -78,7 +78,7 @@
 
 <target_state>
 
-  <ip units="eV"> 1 </ip>
+  <excitation_energy units="eV"> 10.868 </excitation_energy>
 
   <!-- THIS TARGET STATE IS FROM "q1.out" FILE -->
   <geometry

@@ -18,7 +18,7 @@ void Spectrum::PrintStickTable( const char* spectrumFileName )
   for (int i=0; i<spectralPoints.size(); i++)
     if ( spectralPoints[i].getIfPrint() )
       {
-	spectrumF << std::fixed << std::setprecision(4) << std::setw(7) << getSpectralPoint(i).getEnergy();
+	spectrumF << std::fixed << std::setprecision(4) << std::setw(7) << -getSpectralPoint(i).getEnergy();
 	spectrumF << std::scientific << std::setprecision(6) << std::setw(18) << getSpectralPoint(i).getIntensity() << "  ";
 	spectrumF << std::scientific << std::setprecision(6) << std::setw(11) << std::showpos << getSpectralPoint(i).getFCF()<< std::noshowpos;
 	spectrumF << std::fixed << std::setprecision(3) << std::setw(10) << getSpectralPoint(i).getE_prime_prime()/KELVINS2EV << "  ";

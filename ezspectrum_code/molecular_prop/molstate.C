@@ -295,7 +295,8 @@ void MolState::applyCoordinateThreshold(const double threshold)
 
 bool MolState::getNormalModeOverlapWithOtherState(MolState& other, KMatrix& overlap, std::vector<int>& normal_modes_list)
 {
-  overlap; //#NM x #NM
+// SG: next line not used.
+//  overlap; //#NM x #NM
   overlap.Adjust(NNormModes(),NNormModes());
   overlap.Set(0.0);
 
@@ -452,9 +453,9 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
 
   //------------ Read IP (if provided) ----------------------------------
   energy = 0.0; //units are eV
-  if(node_state.find_subnode("ip")) {
+  if(node_state.find_subnode("excitation_energy")) {
 
-    xml_node node_ip(node_state,"ip",0);
+    xml_node node_ip(node_state,"excitation_energy",0);
     std::string units=node_ip.read_string_value("units");
     energy=node_ip.read_node_double_value();
     std::cout << std::fixed << std::setprecision(6); //  <<  std::setw(6);
