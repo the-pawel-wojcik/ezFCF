@@ -64,7 +64,7 @@
 
 <target_state>
 
-  <ip> 1.0 </ip>
+  <excitation_energy> 8.79 </excitation_energy>
 
   <!-- THIS TARGET STATE IS FROM "aces-trans-cat.out" FILE -->
 

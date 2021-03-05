@@ -1,20 +1,8 @@
-Job "./ezspectrum_exe trans_hcoh_small.xml" has been started: Sun Jan  3 13:13:47 2021
-
-TOC (size=4) for node input:
-job_parameters              29       153
-parallel_approximation       153       533
-initial_state              533      1946
-target_state              1946      3432
+Job "../bin/ezFCF_mac.exe trans_hcoh_small.xml" has been started: Fri Mar  5 03:39:18 2021
 
 A copy of the "trans_hcoh_small.xml" input:
 ------------------------------------------------------------------------------
 Node input
-TOC (size=4) for node input:
-job_parameters              29       153
-parallel_approximation       153       533
-initial_state              533      1946
-target_state              1946      3432
-
 <input
    job="harmonic_pes">
 
@@ -81,7 +69,7 @@ target_state              1946      3432
 
 <target_state>
 
-  <ip> 1.0 </ip>
+  <excitation_energy> 8.79 </excitation_energy>
 
   <!-- THIS TARGET STATE IS FROM "aces-trans-cat.out" FILE -->
 
@@ -127,62 +115,11 @@ target_state              1946      3432
 </input>
 ------------------------------------------------------------------------------
  
-TOC (size=4) for node input:
-job_parameters              29       153
-parallel_approximation       153       533
-initial_state              533      1946
-target_state              1946      3432
-
-TOC (size=100) for node masses:
-TOC (size=0) for node job_parameters:
-
-TOC (size=3) for node initial_state:
-geometry                   617      1011
-normal_modes              1011      1801
-frequencies               1801      1928
-
 
 ====== Reading the initial state ======
-TOC (size=0) for node geometry:
-
-TOC (size=0) for node C:
-
-TOC (size=0) for node O:
-
-TOC (size=0) for node H:
-
-TOC (size=0) for node H:
-
-TOC (size=0) for node normal_modes:
-
-TOC (size=0) for node frequencies:
-
-TOC (size=5) for node target_state:
-ip                        1962      1980
-geometry                  2044      2428
-normal_modes              2428      3187
-manual_normal_modes_reordering      3187      3292
-frequencies               3292      3415
-
 ===== Reading the target state #0 =====
-TOC (size=0) for node ip:
-
-TOC (size=0) for node geometry:
-
-TOC (size=0) for node C:
-
-TOC (size=0) for node O:
-
-TOC (size=0) for node H:
-
-TOC (size=0) for node H:
-
-TOC (size=0) for node normal_modes:
-
-TOC (size=0) for node frequencies:
-
-TOC (size=0) for node manual_normal_modes_reordering:
-
+IP=8.790000 
+IP=8.790000 eV 
 New normal modes order was requested:
 0 1 3 2 4 5
 Normal modes were reordered accordingly.
@@ -220,15 +157,12 @@ MOI tensor:
     2   -0.000000    0.000000    1.227398
 
 
-Done doing transformations
+Done with the transformations
 ------------------------------------------------------------------------------
-TOC (size=1) for node parallel_approximation:
-do_not_excite_subspace       408       506
-
 
 === Reading the parallel approximation job parameters ===
-TOC (size=0) for node do_not_excite_subspace:
 
+Since temperature=0, "max_vibr_excitations_in_initial_el_state" has been set to 0.
 WARNING! The normal modes of the target state were reordered!
          New order is used for the "do_not_excite_subspace".
 
@@ -236,7 +170,7 @@ The following normal modes will have no vibrational excitations:
 3 4 5 
 
 ===== Overlap matrix of the target state #1 with the initial state =====
-The normal modes overlap matrix whit the initial state is diagonal
+The normal modes overlap matrix with the initial state is diagonal
   (do_not_excite_subspace is excluded)
 
 ------------------------------------------------------------------------------
@@ -294,29 +228,29 @@ WARNING! The normal modes of one of the target states were reordered!
 
 Energy,eV    Intensity     FC factor         E",K   Transition
 
--1.0000      1.683175e-02  +1.297372e-01     0.000  0(0)->1(0)
--1.1238      6.226836e-03  +7.891030e-02     0.000  0(0)->1(1v1)
--1.2115      1.492033e-02  +1.221488e-01     0.000  0(0)->1(1v2)
--1.2475      6.175640e-04  +2.485083e-02     0.000  0(0)->1(2v1)
--1.3353      5.519714e-03  +7.429478e-02     0.000  0(0)->1(1v1,1v2)
--1.4231      8.530840e-03  +9.236255e-02     0.000  0(0)->1(2v2)
--1.4591      5.474332e-04  +2.339729e-02     0.000  0(0)->1(2v1,1v2)
--1.5468      3.155949e-03  +5.617784e-02     0.000  0(0)->1(1v1,2v2)
--1.6346      3.870237e-03  +6.221123e-02     0.000  0(0)->1(3v2)
--1.6706      3.130001e-04  +1.769181e-02     0.000  0(0)->1(2v1,2v2)
--1.7584      1.431778e-03  +3.783885e-02     0.000  0(0)->1(1v1,3v2)
--1.8461      1.514316e-03  +3.891422e-02     0.000  0(0)->1(4v2)
--1.8821      1.420006e-04  +1.191640e-02     0.000  0(0)->1(2v1,3v2)
--1.9699      5.602151e-04  +2.366886e-02     0.000  0(0)->1(1v1,4v2)
--2.0576      5.328116e-04  +2.308271e-02     0.000  0(0)->1(5v2)
--2.1814      1.971115e-04  +1.403964e-02     0.000  0(0)->1(1v1,5v2)
--2.2692      1.728748e-04  +1.314818e-02     0.000  0(0)->1(6v2)
+ 8.7900      1.683175e-02  +1.297372e-01     0.000  0(0)->1(0)
+ 8.9138      6.226836e-03  +7.891030e-02     0.000  0(0)->1(1v1)
+ 9.0015      1.492033e-02  +1.221488e-01     0.000  0(0)->1(1v2)
+ 9.0375      6.175640e-04  +2.485083e-02     0.000  0(0)->1(2v1)
+ 9.1253      5.519714e-03  +7.429478e-02     0.000  0(0)->1(1v1,1v2)
+ 9.2131      8.530840e-03  +9.236255e-02     0.000  0(0)->1(2v2)
+ 9.2491      5.474332e-04  +2.339729e-02     0.000  0(0)->1(2v1,1v2)
+ 9.3368      3.155949e-03  +5.617784e-02     0.000  0(0)->1(1v1,2v2)
+ 9.4246      3.870237e-03  +6.221123e-02     0.000  0(0)->1(3v2)
+ 9.4606      3.130001e-04  +1.769181e-02     0.000  0(0)->1(2v1,2v2)
+ 9.5484      1.431778e-03  +3.783885e-02     0.000  0(0)->1(1v1,3v2)
+ 9.6361      1.514316e-03  +3.891422e-02     0.000  0(0)->1(4v2)
+ 9.6721      1.420006e-04  +1.191640e-02     0.000  0(0)->1(2v1,3v2)
+ 9.7599      5.602151e-04  +2.366886e-02     0.000  0(0)->1(1v1,4v2)
+ 9.8476      5.328116e-04  +2.308271e-02     0.000  0(0)->1(5v2)
+ 9.9714      1.971115e-04  +1.403964e-02     0.000  0(0)->1(1v1,5v2)
+10.0592      1.728748e-04  +1.314818e-02     0.000  0(0)->1(6v2)
 ------------------------------------------------------------------------------
 
 Stick spectrum was also saved in "trans_hcoh_small.xml.spectrum_parallel" file 
- (Full list of the normal modes was used for assining transitions)
+ (Full list of the normal modes was used for assigning transitions)
 ------------------------------------------------------------------------------
 
 
-Job "./ezspectrum_exe trans_hcoh_small.xml" has been finished: Sun Jan  3 13:13:47 2021
+Job "../bin/ezFCF_mac.exe trans_hcoh_small.xml" has been finished: Fri Mar  5 03:39:18 2021
 
