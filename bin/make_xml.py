@@ -95,6 +95,10 @@ DEFAULT_JOB_PARAMETERS = """<input
 
  -->\n\n"""
 
+WRONG_INPUT = """To create an XML file from ab initio outputs type:
+make_xml.py  <filename.xml> <initial_state.out> <target_state_1.out> <target_state_2.out> etc...
+"""
+
 
 def parse_qchem(StateF, data: dict):
     """ Parser of a Q-Chem output. """
@@ -662,7 +666,7 @@ def read_write_state(file_name, run_type: str, which_state: str, xmlF):
 def main(xml_filename, ai_filenames, run_type):
     if len(ai_filenames) == 0:
         if run_type != "web":
-            print(wrong_input)
+            print(WRONG_INPUT)
             sys.exit(2)
         else:
             return "Error. make_xml.py: no ab-initio file names found"
@@ -723,9 +727,6 @@ def main(xml_filename, ai_filenames, run_type):
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        wrong_input = '\nTo create an XML file from ab initio outputs type:\n'
-        wrong_input += '"make_xml.py  <filename.xml> '
-        wrong_input += '<initial_state.out> <target_state_1.out> <target_state_2.out> etc..."\n\n'
-        print(wrong_input)
+        print(WRONG_INPUT)
         sys.exit(2)
     main(sys.argv[1], sys.argv[2:], "command_line")
