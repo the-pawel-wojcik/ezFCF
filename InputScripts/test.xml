@@ -112,7 +112,7 @@
 
 <target_state>
 
-  <ip units="eV"> 1 </ip>
+  <excitation_energy units="eV"> 1 </excitation_energy>
 
   <!-- THIS TARGET STATE IS FROM "h2o_molpro.out" FILE -->
   <geometry
@@ -160,7 +160,7 @@
 
 <target_state>
 
-  <ip units="eV"> 2 </ip>
+  <excitation_energy units="eV"> 2 </excitation_energy>
 
   <!-- THIS TARGET STATE IS FROM "h2o_aces_old.out" FILE -->
   <geometry
@@ -208,7 +208,7 @@
 
 <target_state>
 
-  <ip units="eV"> 3 </ip>
+  <excitation_energy units="eV"> 3 </excitation_energy>
 
   <!-- THIS TARGET STATE IS FROM "h2o_aces_new.out" FILE -->
   <geometry
@@ -256,7 +256,7 @@
 
 <target_state>
 
-  <ip units="eV"> 4 </ip>
+  <excitation_energy units="eV"> 4 </excitation_energy>
 
   <!-- THIS TARGET STATE IS FROM "h2o_gamess.out" FILE -->
   <geometry
@@ -306,7 +306,7 @@
 
 <target_state>
 
-  <ip units="eV"> 5 </ip>
+  <excitation_energy units="eV"> 5 </excitation_energy>
 
   <!-- THIS TARGET STATE IS FROM "h2o_gaussian.out" FILE -->
   <geometry
