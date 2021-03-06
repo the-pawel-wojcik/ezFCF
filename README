@@ -1,6 +1,6 @@
 
                         
-                       ezFCF v.1.0 (formerly known as ezSpectrum)
+                       ezFCF v.1.1 (formerly known as ezSpectrum)
 
 			  	2021
 
@@ -24,8 +24,8 @@ bin:  precompiled binaries for MacOS and Linux and python script
 make_xml.py (python3 is required) for xml input generation 
 InputScripts: xml inputs from supported ab initio packages
 	      and examples of inputs and outputs  
-Plotting: python scripts for plotting spectra (both python2 and python3)
-Samples: xml inputs (new format) and outputs (ezFCF v.1.0)
+Plotting: python scripts for plotting spectra (works with python2 and python3)
+Samples: xml inputs (new format) and outputs (ezFCF v.1.1)
 References: xml inputs (old format) and outputs (ezSpectrum v.3.0) for sample jobs
 ezSpectrum_code: source code and makefiles
 

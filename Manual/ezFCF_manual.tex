@@ -137,7 +137,9 @@ should be changed to
 \end{verbatim}
 \renewcommand{\baselinestretch}{1.5}
 \item The closing tags, such as \begin{verbatim}</geometry>\end{verbatim} above, should be separated by either a space or a newline from the previous text. For example  \begin{verbatim}"></geometry>\end{verbatim} would result in an error.
-\item We have added new plotting Python scripts that generate a convoluted spectrum from the output of \ezFCF.
+\item We changed  \begin{verbatim}<ip>\end{verbatim} to \begin{verbatim}<excitation_energy>\end{verbatim}. 
+\item We changed how the stick spectra is printed (use positive energy now). 
+\item We added new plotting {\sl Python} scripts that generate a convoluted spectrum from the output of \ezFCF.
   \end{itemize}    
 The scripts were rewritten to use {\sl python3}. The current scripts take the above changes into account, but the old {\sl xml} inputs need to be edited. 
 
@@ -324,10 +326,10 @@ and in separate files: \ul{*.spectrum}{parallel} and/or \ul{*.spectrum}{dushinsk
 
 Spectra are printed as five columns (from left to right):
 \begin{itemize}
-\item energy positions of the spectral lines: $E=-IE-(E'-E'')$, where $E''$ and $E'$ are the energies
+\item energy positions of the spectral lines: $E=E^a_{00}+(E'-E'')$, where $E''$ and $E'$ are the energies
 of the vibrational states relative to the ground vibrational states of the initial and target
 electronic states respectively (see Fig.~\ref{fig:fcfs}); 
-$IE$ is a ZPE-adjusted adiabatic ionization energy 
+$E^a_{00}$ is a ZPE-adjusted adiabatic ionization or excitation energy 
 (the energy difference between the ground vibrational states of the initial and the target electronic state);
 \item spectral intensities calculated by Eq.~(\ref{eq:intens});
 \item Franck-Condon Factors $\braket{\chi '}{\chi''}$;
@@ -343,10 +345,10 @@ For example:
 \begin{lstlisting}[frame=single,framerule=0pt]
 Energy  Intensity    FC factor     E",K   Transition
 
--1.000  1.1102e-02  +1.053e-01     0.000  0(0)->1(0)
--1.030  5.2203e-04  -1.365e-01  2145.805  0(1v3)->1(1v2)
--1.099  1.6786e-04  +1.522e-01  2956.964  0(2v0)->1(2v0,1v1)
--1.122  2.3433e-02  +1.530e-01     0.000  0(0)->1(1v1)
+1.000  1.1102e-02  +1.053e-01     0.000  0(0)->1(0)
+1.030  5.2203e-04  -1.365e-01  2145.805  0(1v3)->1(1v2)
+1.099  1.6786e-04  +1.522e-01  2956.964  0(2v0)->1(2v0,1v1)
+1.122  2.3433e-02  +1.530e-01     0.000  0(0)->1(1v1)
 \end{lstlisting}
 
 Every \ezFCF\ output file starts with a copy of the input \xml file followed by the 
@@ -366,7 +368,7 @@ In the Duschinsky rotation section of the output, one should check the normal mo
 $Det(S)$, which should be close to one (see Sec.~\ref{sec:detS}); also check that you have enough
 memory to store all the requested ``layers''. 
 
-A basic {\tt python} script for plotting the resulting spectra is provided in {\tt Plotting} (both {\tt python2} and {\tt python3} versions). To use it to plot a spectrum  from {\tt Samples}, follow these steps:
+A basic {\tt python} script for plotting the resulting spectra is provided in {\tt Plotting} (should work with both {\tt python2} and {\tt python3}). To use it to plot a spectrum  from {\tt Samples}, follow these steps:
 \begin{lstlisting}[frame=single,framerule=0pt]
   cd Samples
   ln -s ../Plotting/plot_spectrum.py .

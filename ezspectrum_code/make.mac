@@ -6,11 +6,10 @@ CCFLAGS = -O3 -fopenmp
 
 
 INC = -I /usr/local/include/
-#LXML = -lexpat
 LSTD = -lstdc++
 #LARMA=-L/usr/local/lib/ -larmadillo
 LMATH = -llapack -lblas
-LDFLAGS = $(LXML) $(LSTD) $(LARMA) $(LMATH) -lm 
+LDFLAGS =  $(LSTD) $(LARMA) $(LMATH) -lm 
 
 CODE = ezFCF_mac.exe
 
