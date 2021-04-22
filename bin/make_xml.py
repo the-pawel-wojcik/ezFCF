@@ -231,7 +231,7 @@ def parse_aces_new(StateF, data: dict):
 # ================================================================================
 
 
-def parse_molpro(StateF, data: dict):
+def parse_molpro_old(StateF, data: dict):
     """ Parser of a Molpro output. """
     normal_coordinates = []
     n_normal_modes = 0
@@ -266,6 +266,101 @@ def parse_molpro(StateF, data: dict):
                 LineZ = StateF.readline()
 
                 # analyse the length of the line 20+12*j:
+                nm_per_line = (len(LineX)-23)//12
+
+                n_normal_modes += nm_per_line
+
+                for j in range(nm_per_line):
+                    new_entry = LineX[23+12*j:23+12*(j+1)] + LineY[23+12*j:23+12*(j+1)] + LineZ[23+12*j:23+12*(j+1)]
+                    normal_coordinates[i].append(new_entry)
+
+            n_normal_modes //= data['NAtoms']  # repeated "NAtoms"-times
+
+        if (Line.find('Wavenumbers [cm-1]') >= 0) and (if_frequencies_are_loaded is False):
+            data['Frequencies'] += Line.replace('Wavenumbers [cm-1]', '')
+            no_lines_with_frequencies += 1
+
+        if Line.find('Normal Modes of low/zero frequencies') >= 0:
+            if_frequencies_are_loaded = True
+            if_normal_modes_are_loaded = True
+
+        Line = StateF.readline()
+
+    # now create normal modes in q-chem format:
+    printed_normal_modes = 0
+    for_range = len(normal_coordinates[0])//3
+    for j in range(for_range):
+        for i in range(data['NAtoms']):
+            new_entry = normal_coordinates[i][j*3] + "   "
+            new_entry += normal_coordinates[i][j*3 + 1] + "   "
+            new_entry += normal_coordinates[i][j*3 + 2] + '\n'
+            data['NormalModes'] += new_entry
+        printed_normal_modes += 3
+        data['NormalModes'] += '\n'
+
+    # add the reminder of 3
+    reminder = len(normal_coordinates[0]) % 3
+    if reminder > 0:
+        for i in range(data['NAtoms']):
+            for j in range(reminder):
+                data['NormalModes'] += normal_coordinates[i][printed_normal_modes + j] + "   "
+            data['NormalModes'] += '\n'
+        data['NormalModes'] += '\n'
+
+    if n_normal_modes == (3 * data['NAtoms'] - 5):
+        data['ifLinear'] = True
+
+    data['if_normal_modes_weighted'] = True
+    data['geometry_units'] = "au"
+
+    # END OLD MOLPRO
+    # ================================================================================
+
+
+def parse_molpro_new(StateF, data: dict):
+    """ Parser of a new version of the Molpro output. """
+    normal_coordinates = []
+    n_normal_modes = 0
+    no_lines_with_frequencies = 0
+    if_geometry_is_loaded = False
+    if_frequencies_are_loaded = False
+    if_normal_modes_are_loaded = False
+
+    Line = StateF.readline()
+    while Line:
+        # geometry
+        if (Line.find('Atomic Coordinates') >= 0) and (if_geometry_is_loaded is False):
+            StateF.readline()
+            StateF.readline()
+            StateF.readline()
+            Line = StateF.readline()
+            """
+             parse_molpro_old seraches for 'Bond lengths in Bohr (Angstrom)' 
+             to detect the end of the atoms list.
+             This section is missing in the 2015 version.
+             I have replaced it with a search for an empty line as a marker 
+             of the end of the atoms list. Pawel
+            """
+            while not Line.rstrip() == '':
+                data['NAtoms'] += 1
+                data['Geometry'] += "      " + Line[5:8] + Line[19:]
+                data['atoms_list'] += Line[5:8]
+                Line = StateF.readline()
+            if_geometry_is_loaded = True
+            # create an empty list of coordinates for every atom in form "X_nm1 Y_nm1 Z_nm1 X_nm2 Y_nm2 Z_nm2 X_nm3..."
+            for i in range(data['NAtoms']):
+                normal_coordinates.append([])
+
+        """
+         Everything below works just the same as in the pasrse_molpro_old. Pawel
+        """
+        if (Line.find('Intensities [relative]') >= 0) and (if_normal_modes_are_loaded is False):
+            for i in range(data['NAtoms']):
+                LineX = StateF.readline()
+                LineY = StateF.readline()
+                LineZ = StateF.readline()
+
+                # analyse the length of the line 23+12*j:
                 nm_per_line = (len(LineX)-23)//12
 
                 n_normal_modes += nm_per_line
@@ -554,7 +649,18 @@ def read_state(FileName, data: dict, run_type: str):
 
         if Line.find('PROGRAM SYSTEM MOLPRO') >= 0:
             file_type_detected = True
-            parse_molpro(StateF, data)
+            # Skip to the line that starts with 'Version'
+            while not Line.lstrip().startswith("Version"):
+                Line = StateF.readline()
+
+            version = Line.split()[1]
+            version_year = int(version.split(".")[0])
+            # TODO: Molpro version 2015.1 produces new outptu,
+            # but it might be not the oldest version which does so.
+            if version_year < 2015:
+                parse_molpro_old(StateF, data)
+            else:
+                parse_molpro_new(StateF, data)
             break
 
         if Line.find('GAMESS VERSION = ') >= 0:
