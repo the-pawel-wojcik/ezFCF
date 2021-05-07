@@ -364,7 +364,11 @@ std::size_t xml_node::read_int_value(std::string field) const  {
 
 bool xml_node::read_bool_value(std::string field) const  { 
 
-  return (read_string_value(field)=="true");
+//SG: Modified to make case insensitive.
+  std::string tmp_bool = read_string_value(field) ;
+  std::transform(tmp_bool.begin(), tmp_bool.end(), tmp_bool.begin(), ::tolower) ;
+  return (tmp_bool=="true");
+
 }
 
 
