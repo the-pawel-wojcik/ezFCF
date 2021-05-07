@@ -575,6 +575,7 @@ def parse_other(StateF, data: dict):
     Parser of a Gaussian output.
     We can not guarantee it is fully supported, since we are not allowed to touch it.
     Use at your own risk!
+    This script will not copy the geometry if the "nosymm" keyword is used in Gaussian.
     """
     ifAtomsLoaded = False
     if_geometry_is_loaded = False
@@ -600,7 +601,7 @@ def parse_other(StateF, data: dict):
                 data['NAtoms'] += 1
             if_geometry_is_loaded = True
 
-        if Line.find('Atom AN') >= 0:
+        if Line.find('Atom AN') >= 0 or Line.find('Atom  AN') >= 0 :
             for _ in range(data['NAtoms']):
                 Line = StateF.readline()
                 data['NormalModes'] += Line[10:]

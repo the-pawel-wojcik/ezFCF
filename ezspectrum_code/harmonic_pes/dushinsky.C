@@ -164,7 +164,7 @@ Dushinsky::Dushinsky(std::vector <MolState>& molStates, std::vector<int>& nm_lis
   std::cout << "Determinant of the normal modes rotation matrix: |Det(S)| =" << std::fixed << std::setw(12) << std::setprecision(8) << fabs(detS)<<"\n";
   if (fabs(detS)<0.5)
     {   
-      std::cout << "\nError: |Det(S)| is too small (<0.5). Please see \"|Det(S)| is less then one\n   (or even zero)\" in the \"Common problems\" section of the manual\n\n";
+      std::cout << "\nError: |Det(S)| is too small (<0.5). Please see \"|Det(S)| is less than one\n   (or even zero)\" in the \"Common problems\" section of the manual\n\n";
       exit(2);
     }
   
