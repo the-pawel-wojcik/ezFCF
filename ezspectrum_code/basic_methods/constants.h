@@ -7,6 +7,7 @@
 */
 
 #include <string>
+#include <algorithm>
 
 //! PI CHECK THIS
 #define PI 3.141592654
