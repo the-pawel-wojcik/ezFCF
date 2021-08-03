@@ -23,7 +23,6 @@ states (IP, EA, etc) should be adjusted as necessary in the created XML file.
 """
 
 import sys
-#import numpy as np
 
 DEFAULT_JOB_PARAMETERS = """<input
   job = "harmonic_pes">
@@ -340,11 +339,22 @@ def parse_molpro_new(StateF, data: dict):
              This section is missing in the 2015 version.
              I have replaced it with a search for an empty line as a marker 
              of the end of the atoms list. Pawel
+             Aug 2021:
+             After a bug reported by Wensha, I added the section assuring 
+             that the first letter of a symbol is uppercase and the 
+             second one is lowercase. Pawel
             """
             while not Line.rstrip() == '':
+                # atom name is the first (not zeroth) position in the line
+                atom_symbol = Line.split()[1].lower()
+                # assure that cases are correct
+                atom_symbol = Line.split()[1].lower()
+                atom_symbol = atom_symbol[0].upper() + atom_symbol[1:]
+                # display symbol as 3 characters long string (fill with spaces)
+                atom_symbol = f"{atom_symbol:3s}" 
                 data['NAtoms'] += 1
-                data['Geometry'] += "      " + Line[5:8] + Line[19:]
-                data['atoms_list'] += Line[5:8]
+                data['Geometry'] += "      " + atom_symbol + Line[19:]
+                data['atoms_list'] += atom_symbol
                 Line = StateF.readline()
             if_geometry_is_loaded = True
             # create an empty list of coordinates for every atom in form "X_nm1 Y_nm1 Z_nm1 X_nm2 Y_nm2 Z_nm2 X_nm3..."
