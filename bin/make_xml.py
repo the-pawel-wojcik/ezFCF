@@ -123,7 +123,9 @@ def parse_qchem(StateF, data: dict):
                 data['NormalModes'] += Line[2:]
             data['NormalModes'] += '\n'
 
-        # TODO: I do not understand the comment below. It comes from the previous version of the script. Pawel
+        # TODO: I do not understand the comment below. 
+        # It comes from the previous version of the script. Pawel
+
         # remove end of the line symbols!!!
         if Line.find('Frequency: ') >= 0:
             data['Frequencies'] += Line.replace('Frequency:', '')
@@ -138,7 +140,7 @@ def parse_qchem(StateF, data: dict):
     data['geometry_units'] = "angstr"
 
     # END Q-Chem
-    # ================================================================================
+    # =========================================================================
 
 
 def parse_aces_old(StateF, data: dict):
@@ -147,7 +149,9 @@ def parse_aces_old(StateF, data: dict):
     if_geometry_is_loaded = False
     Line = StateF.readline()
     while Line:
-        # TODO: Pawel: I do not understand the comment below. It comes from the previous version of the script
+        # TODO: I do not understand the comment below. 
+        # It comes from the previous version of the script. Pawel
+
         # in FREQ job only one such line. Check it if it will be from OPT job....
         if (Line.find('Coordinates (in bohr)') >= 0) and (if_geometry_is_loaded is False):
             StateF.readline()
@@ -182,7 +186,7 @@ def parse_aces_old(StateF, data: dict):
     data['geometry_units'] = "au"
 
     # END ACES_OLD
-    # ================================================================================
+    # =========================================================================
 
 
 def parse_aces_new(StateF, data: dict):
@@ -191,7 +195,9 @@ def parse_aces_new(StateF, data: dict):
     if_geometry_is_loaded = False
     Line = StateF.readline()
     while Line:
-        # TODO: Pawel: I do not understand the comment below. It comes from the previous version of the script
+        # TODO: I do not understand the comment below. 
+        # It comes from the previous version of the script. Pawel
+
         # in FREQ job only one such line. Check it if it will be from OPT job....
         if (Line.find('C o o r d i n a t e s') >= 0) and (if_geometry_is_loaded is False):
             StateF.readline()
@@ -313,7 +319,7 @@ def parse_molpro_old(StateF, data: dict):
     data['geometry_units'] = "au"
 
     # END OLD MOLPRO
-    # ================================================================================
+    # =========================================================================
 
 
 def parse_molpro_new(StateF, data: dict):
@@ -357,7 +363,8 @@ def parse_molpro_new(StateF, data: dict):
                 data['atoms_list'] += atom_symbol
                 Line = StateF.readline()
             if_geometry_is_loaded = True
-            # create an empty list of coordinates for every atom in form "X_nm1 Y_nm1 Z_nm1 X_nm2 Y_nm2 Z_nm2 X_nm3..."
+            # create an empty list of coordinates for every atom in form 
+            # "X_nm1 Y_nm1 Z_nm1 X_nm2 Y_nm2 Z_nm2 X_nm3..."
             for i in range(data['NAtoms']):
                 normal_coordinates.append([])
 
@@ -419,7 +426,7 @@ def parse_molpro_new(StateF, data: dict):
     data['geometry_units'] = "au"
 
     # END MOLPRO
-    # ================================================================================
+    # =========================================================================
 
 
 def parse_gamess(StateF, data: dict, run_type):
@@ -449,7 +456,8 @@ def parse_gamess(StateF, data: dict, run_type):
                 Line = StateF.readline()
             if_geometry_is_loaded = True
             data['NAtoms'] -= 1
-            # create an empty list of coordinates for every atom in form "X_nm1 Y_nm1 Z_nm1 X_nm2 Y_nm2 Z_nm2 X_nm3..."
+            # create an empty list of coordinates for every atom in form 
+            # "X_nm1 Y_nm1 Z_nm1 X_nm2 Y_nm2 Z_nm2 X_nm3..."
             for i in range(data['NAtoms']):
                 normal_coordinates.append([])
 
@@ -517,7 +525,7 @@ def parse_gamess(StateF, data: dict, run_type):
     data['geometry_units'] = "au"
 
     # END GAMESS
-    # ================================================================================
+    # =========================================================================
 
 
 def parse_orca(StateF, data: dict):
@@ -577,8 +585,186 @@ def parse_orca(StateF, data: dict):
             data['Frequencies'] += "\n"
 
     # END ORCA
-    # ================================================================================
+    # =========================================================================
 
+
+def parse_orca_new(StateF, data: dict, run_type):
+    """ Parser of an ORCA output. 
+    On Sep 8th 2021 users reported that optput of Orca 4.2.0
+    is not recognized by the script. This is a version of 
+    'parse_orca' function edited to match the new output format.
+    """
+
+    if run_type != "web":
+        print("\nWarning! All geometries from ORCA's outputs treated as non-linear (excpet for diatomics).")
+
+
+    line = StateF.readline()
+    while line.find('Program Version') <= 0:
+        line = StateF.readline()
+
+    # version detection, without a use so far
+    version = line.split()[2]
+    #print(f"Orca version {version} detected")
+
+    # load file with newline symbols ('\n') stripped
+    Lines = [line.rstrip() for line in StateF.readlines()]  
+
+    all_number_of_atoms = [x for x in Lines if x.startswith('Number of atoms')]
+    # take the number of atoms from the last calculation
+    NAt = int(all_number_of_atoms[-1].split()[-1])
+    # raise an error in case that the number of atoms changed
+    for number in all_number_of_atoms:
+        local_n_at = int(number.split()[-1])
+        if local_n_at != NAt:
+            err = "Number of atoms changed during the calculation"
+            raise RuntimeError(err)
+    data['NAtoms'] = NAt
+    # TODO: Detect general linear molecule 
+    if NAt == 2:
+        data['ifLinear'] = True 
+
+    # Parse geometry
+    """
+    ---------------------------------
+    CARTESIAN COORDINATES (ANGSTROEM)
+    ---------------------------------
+      <atom>     <x>    <y>  <z> 
+      ...
+    """
+    data['geometry_units'] = "angstr"
+    # find the last index of the geometry 
+    # (in case that the optimization precedes the frequencies)
+    Lines.reverse()
+    IndXYZ = Lines.index('CARTESIAN COORDINATES (ANGSTROEM)')
+    IndXYZ = - IndXYZ - 1
+    Lines.reverse()
+
+    for line in Lines[(IndXYZ + 2):(IndXYZ + 2 + NAt)]:
+        words = line.split()
+        data['Geometry'] += f"{words[0]:6s}  "
+        for word in words[1:4]:
+            coordinate = float(word)
+            data['Geometry'] += f" {coordinate:12.6f}"
+        data['Geometry'] += "\n"
+        # atom list is the list of atomic labels
+        data['atoms_list'] += "   " + words[0] + " "
+
+    # Parse frequencies in the ORCA format
+    """ 
+    -----------------------
+    VIBRATIONAL FREQUENCIES
+    -----------------------
+
+    Scaling factor for frequencies =  1.000000000 (already applied!)
+
+       0:         0.00 cm**-1
+       1:         0.00 cm**-1
+       2:         0.00 cm**-1
+       3:         0.00 cm**-1
+       4:         0.00 cm**-1
+       5:       516.22 cm**-1
+    """
+    # TODO: What is the role of the scaling factor?
+
+    # index of vibrational frequencies start
+    IndVibFreq = Lines.index('VIBRATIONAL FREQUENCIES')
+    NVib = 3 * NAt
+
+    # TODO: Check if there is more to be done for linear molecules 
+    # other than changing number of normal modes from 3N - 6 to 3N - 5. 
+    range_start = 6
+    if data['ifLinear']:
+        range_start = 5
+
+    count = 0
+    for i in range(range_start, NVib):
+        freq = float(Lines[IndVibFreq + 5 + i].split()[1])
+        data['Frequencies'] += "    " + f"{freq:7.2f}"
+        count += 1
+        if count % 3 == 0 and count >= 3:
+            data['Frequencies'] += "\n"
+
+    # Parse normal modes. The example of h2o:
+    """
+    ------------
+    NORMAL MODES
+    ------------
+
+    These modes are the Cartesian displacements weighted by the diagonal matrix
+    M(i,i)=1/sqrt(m[i]) where m[i] is the mass of the displaced atom
+    Thus, these vectors are normalized but *not* orthogonal
+
+                     0          1          2          3          4          5
+         0       0.000000   0.000000   0.000000   0.000000   0.000000   0.000000
+         1       0.000000   0.000000   0.000000   0.000000   0.000000   0.000000
+         ...
+         8       0.000000   0.000000   0.000000   0.000000   0.000000   0.000000
+                      6          7          8
+         0       0.000000   0.000000   0.000000
+         1      -0.000000  -0.000001  -0.070719
+         ...
+         8      -0.559003  -0.398458   0.427232
+    """
+    data['if_normal_modes_weighted'] = True
+
+    # index of the line where normal modes start
+    IndNormModes = Lines.index('NORMAL MODES')
+
+    # NormalModes is a list of normal modes: [mode_1, mode_2, ...]
+    # len(NormalModes) equals NVib which equals 3 * NAt (ORCA's convention)
+    # each mode_n is a list of lenth NAt: [At_1, At_2, ..., At_{NAt}]
+    # each At_n is a list of length 3: [x, y, z]
+    # initialize the container
+    NormalModes = [[[0.0 for i in range(3)] for j in range(NAt)] for k in range(NVib)]
+
+    # max number of normal modes displayed in a row
+    NInRow = len(Lines[IndNormModes + 7].split())
+    BlockNum = 0
+    # parse normal modes blocks
+    # BlockNum * NInRow in number of modes already parsed
+    while BlockNum * NInRow < 3 * NAt:
+        labels_line = Lines[IndNormModes + 7 + BlockNum * (NVib + 1)]
+        # len of mode_labels is less or equal to NInRow
+        mode_labels = [int(x) for x in labels_line.split()]
+        for i in range(0, NVib):
+            tmp_coordinates = Lines[IndNormModes + 7 + BlockNum * (NVib + 1) + 1 + i]
+            coordinates = [float(word) for word in tmp_coordinates.split()[1:]]
+            for imode, mode_label in enumerate(mode_labels):
+                atom_idx = i // 3
+                xyz_idx = i % 3
+                NormalModes[mode_label][atom_idx][xyz_idx] = coordinates[imode]
+        BlockNum += 1
+
+    # Copy normal modes to the data['NormalModes'] in a Q-Chem format
+    """
+     0.000  -0.000   0.070     0.000  -0.000   0.050     0.000  -0.071  -0.000
+     0.000  -0.430  -0.559     0.000   0.583  -0.398     0.000   0.561  -0.427
+     0.000   0.430  -0.559     0.000  -0.583  -0.398     0.000   0.561   0.427
+     0.000   0.430  -0.559     0.000  -0.583  -0.398     0.000   0.561   0.427
+
+     0.000  -0.000   0.070
+     0.000  -0.430  -0.559
+     0.000   0.430  -0.559
+     0.000   0.430  -0.559
+    """
+    # each block contains at most 3 normal modes
+    block = 0
+    # There is 'NVib - range_start' normal modes to print
+    while block * 3 < NVib - range_start:
+        modes_left = NVib - range_start - block * 3
+        no_of_modes_to_print = min(3, modes_left)
+        for nat in range(0, NAt):
+            for nmib in range(0, no_of_modes_to_print):
+                data['NormalModes'] += "  "
+                for mode in NormalModes[range_start + block * 3 + nmib][nat]:
+                    data['NormalModes'] += f" {mode:7.3f}"
+            data['NormalModes'] += "\n"
+        data['NormalModes'] += "\n"
+        block += 1
+
+    # END ORCA NEW
+    # =========================================================================
 
 def parse_other(StateF, data: dict):
     """
@@ -632,7 +818,7 @@ def parse_other(StateF, data: dict):
     data['geometry_units'] = "angstr"
 
     # END OTHER
-    # ================================================================================
+    # =========================================================================
 
 
 def read_state(FileName, data: dict, run_type: str):
@@ -682,6 +868,11 @@ def read_state(FileName, data: dict, run_type: str):
         if Line.find('$orca_hessian_file') >= 0:
             file_type_detected = True
             parse_orca(StateF, data)
+            break
+
+        if Line.find('* O   R   C   A *') >= 0:
+            file_type_detected = True
+            parse_orca_new(StateF, data, run_type)
             break
 
         if Line.find('RESTRICTED RIGHTS') >= 0:

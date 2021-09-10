@@ -352,4 +352,52 @@
 
  -->
 
+<target_state>
+
+  <excitation_energy units="eV"> 6 </excitation_energy>
+
+  <!-- THIS TARGET STATE IS FROM "h2o_orca.out" FILE -->
+  <geometry
+    number_of_atoms = "3"
+    linear = "false"
+    units   = "angstr"
+    text   = "
+O            0.000000     0.000000    -0.063790
+H            0.000000    -0.748761     0.506193
+H            0.000000     0.748760     0.506193
+             ">
+  </geometry>
+
+  <OPT_manual_atoms_reordering
+     new_order="0 1 2">
+  </OPT_manual_atoms_reordering>
+
+  <normal_modes
+    if_mass_weighted="True"
+    text = "
+     0.000  -0.000   0.070     0.000  -0.000   0.050     0.000  -0.071  -0.000
+     0.000  -0.430  -0.559     0.000   0.583  -0.398     0.000   0.561  -0.427
+     0.000   0.430  -0.559     0.000  -0.583  -0.398     0.000   0.561   0.427
+
+           "
+   atoms = "   O    H    H            ">
+  </normal_modes>
+
+  <OPT_manual_normal_modes_reordering
+     new_order="0 1 2">
+  </OPT_manual_normal_modes_reordering>
+
+  <frequencies
+    text = "
+    1750.98    4142.03    4236.68
+             ">
+  </frequencies>
+
+</target_state>
+
+<!--
+  ______________________________________________________________________
+
+ -->
+
 </input>

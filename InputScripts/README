@@ -21,14 +21,16 @@ h2o_aces_new.*     ACESII 2.5.0 version
 h2o_aces_old.*     ACESII 0.3 version
 h2o_molpro.*       Molpro
 h2o_gamess.*       GAMESS (Note: linear molecules are not supported)
+h2o_orca.out       ORCA version 4.2.0 (Note: linear molecules not tested)
 h2o_other.out      Gaussian (we can not guarantee it is fully supported, 
                    since we are not allowed to touch it). Use at your own risk!
 
 You can check the script with all supported types by running:
 
  make_xml.py test.xml h2o_qchem.out h2o_molpro.out h2o_aces_old.out \
-                     h2o_aces_new.out h2o_gamess.out h2o_other.out
-(you may need to use ./make_xml.py)
+                     h2o_aces_new.out h2o_gamess.out h2o_gaussian.out \
+                     h2o_orca.out
+(you may need to use ./make_xml.py or 'python ./make_xml.py ...')
 
 test.xml file will contain ab inito data extracted from the outputs
 and will be accepted by ezFCF. The produced spectrum will have 
