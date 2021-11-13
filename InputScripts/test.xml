@@ -400,4 +400,50 @@ H            0.000000     0.748760     0.506193
 
  -->
 
+<target_state>
+
+  <excitation_energy units="eV"> 7 </excitation_energy>
+
+  <!-- THIS TARGET STATE IS FROM "h2o_nwchem.out" FILE -->
+  <geometry
+    number_of_atoms = "3"
+    linear = "false"
+    units   = "au"
+    text   = "
+      O       0.000000     0.000005     0.383233
+      H       0.000000    -1.430360     1.502122
+      H       0.000000     1.430354     1.502143
+             ">
+  </geometry>
+
+  <OPT_manual_atoms_reordering
+     new_order="0 1 2">
+  </OPT_manual_atoms_reordering>
+
+  <normal_modes
+    if_mass_weighted="True"
+    text = "
+          0.000  0.000 -0.068    0.000  0.000 -0.049   -0.000 -0.067 -0.000
+         -0.000  0.412  0.538   -0.000 -0.571  0.388    0.000  0.534 -0.418
+          0.000 -0.412  0.538   -0.000  0.571  0.388    0.000  0.534  0.418
+           "
+   atoms = "O  H  H             ">
+  </normal_modes>
+
+  <OPT_manual_normal_modes_reordering
+     new_order="0 1 2">
+  </OPT_manual_normal_modes_reordering>
+
+  <frequencies
+    text = "
+     1669.05     3873.04     3991.71             ">
+  </frequencies>
+
+</target_state>
+
+<!--
+  ______________________________________________________________________
+
+ -->
+
 </input>

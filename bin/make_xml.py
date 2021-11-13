@@ -98,6 +98,14 @@ WRONG_INPUT = """To create an XML file from ab initio outputs type:
 make_xml.py  <filename.xml> <initial_state.out> <target_state_1.out> <target_state_2.out> etc...
 """
 
+def fortran_to_float(number: str) -> float:
+    """
+    Translates the fortran output, e.g., -1.4303601D+00 to a float.
+    """
+    significand = float(number.split('D')[0])
+    exponent = int(number.split('D')[1])
+    out = significand * 10 ** exponent
+    return out
 
 def parse_qchem(StateF, data: dict):
     """ Parser of a Q-Chem output. """
@@ -123,7 +131,7 @@ def parse_qchem(StateF, data: dict):
                 data['NormalModes'] += Line[2:]
             data['NormalModes'] += '\n'
 
-        # TODO: I do not understand the comment below. 
+        # TODO: I do not understand the comment below.
         # It comes from the previous version of the script. Pawel
 
         # remove end of the line symbols!!!
@@ -149,7 +157,7 @@ def parse_aces_old(StateF, data: dict):
     if_geometry_is_loaded = False
     Line = StateF.readline()
     while Line:
-        # TODO: I do not understand the comment below. 
+        # TODO: I do not understand the comment below.
         # It comes from the previous version of the script. Pawel
 
         # in FREQ job only one such line. Check it if it will be from OPT job....
@@ -195,7 +203,7 @@ def parse_aces_new(StateF, data: dict):
     if_geometry_is_loaded = False
     Line = StateF.readline()
     while Line:
-        # TODO: I do not understand the comment below. 
+        # TODO: I do not understand the comment below.
         # It comes from the previous version of the script. Pawel
 
         # in FREQ job only one such line. Check it if it will be from OPT job....
@@ -340,30 +348,29 @@ def parse_molpro_new(StateF, data: dict):
             StateF.readline()
             Line = StateF.readline()
             """
-             parse_molpro_old seraches for 'Bond lengths in Bohr (Angstrom)' 
+             parse_molpro_old seraches for 'Bond lengths in Bohr (Angstrom)'
              to detect the end of the atoms list.
              This section is missing in the 2015 version.
-             I have replaced it with a search for an empty line as a marker 
+             I have replaced it with a search for an empty line as a marker
              of the end of the atoms list. Pawel
              Aug 2021:
-             After a bug reported by Wensha, I added the section assuring 
-             that the first letter of a symbol is uppercase and the 
+             After a bug reported by Wensha, I added the section assuring
+             that the first letter of a symbol is uppercase and the
              second one is lowercase. Pawel
             """
             while not Line.rstrip() == '':
                 # atom name is the first (not zeroth) position in the line
                 atom_symbol = Line.split()[1].lower()
                 # assure that cases are correct
-                atom_symbol = Line.split()[1].lower()
                 atom_symbol = atom_symbol[0].upper() + atom_symbol[1:]
                 # display symbol as 3 characters long string (fill with spaces)
-                atom_symbol = f"{atom_symbol:3s}" 
+                atom_symbol = f"{atom_symbol:3s}"
                 data['NAtoms'] += 1
                 data['Geometry'] += "      " + atom_symbol + Line[19:]
                 data['atoms_list'] += atom_symbol
                 Line = StateF.readline()
             if_geometry_is_loaded = True
-            # create an empty list of coordinates for every atom in form 
+            # create an empty list of coordinates for every atom in form
             # "X_nm1 Y_nm1 Z_nm1 X_nm2 Y_nm2 Z_nm2 X_nm3..."
             for i in range(data['NAtoms']):
                 normal_coordinates.append([])
@@ -456,7 +463,7 @@ def parse_gamess(StateF, data: dict, run_type):
                 Line = StateF.readline()
             if_geometry_is_loaded = True
             data['NAtoms'] -= 1
-            # create an empty list of coordinates for every atom in form 
+            # create an empty list of coordinates for every atom in form
             # "X_nm1 Y_nm1 Z_nm1 X_nm2 Y_nm2 Z_nm2 X_nm3..."
             for i in range(data['NAtoms']):
                 normal_coordinates.append([])
@@ -589,9 +596,9 @@ def parse_orca(StateF, data: dict):
 
 
 def parse_orca_new(StateF, data: dict, run_type):
-    """ Parser of an ORCA output. 
+    """ Parser of an ORCA output.
     On Sep 8th 2021 users reported that optput of Orca 4.2.0
-    is not recognized by the script. This is a version of 
+    is not recognized by the script. This is a version of
     'parse_orca' function edited to match the new output format.
     """
 
@@ -608,7 +615,7 @@ def parse_orca_new(StateF, data: dict, run_type):
     #print(f"Orca version {version} detected")
 
     # load file with newline symbols ('\n') stripped
-    Lines = [line.rstrip() for line in StateF.readlines()]  
+    Lines = [line.rstrip() for line in StateF.readlines()]
 
     all_number_of_atoms = [x for x in Lines if x.startswith('Number of atoms')]
     # take the number of atoms from the last calculation
@@ -620,20 +627,20 @@ def parse_orca_new(StateF, data: dict, run_type):
             err = "Number of atoms changed during the calculation"
             raise RuntimeError(err)
     data['NAtoms'] = NAt
-    # TODO: Detect general linear molecule 
+    # TODO: Detect general linear molecule
     if NAt == 2:
-        data['ifLinear'] = True 
+        data['ifLinear'] = True
 
     # Parse geometry
     """
     ---------------------------------
     CARTESIAN COORDINATES (ANGSTROEM)
     ---------------------------------
-      <atom>     <x>    <y>  <z> 
+      <atom>     <x>    <y>  <z>
       ...
     """
     data['geometry_units'] = "angstr"
-    # find the last index of the geometry 
+    # find the last index of the geometry
     # (in case that the optimization precedes the frequencies)
     Lines.reverse()
     IndXYZ = Lines.index('CARTESIAN COORDINATES (ANGSTROEM)')
@@ -651,7 +658,7 @@ def parse_orca_new(StateF, data: dict, run_type):
         data['atoms_list'] += "   " + words[0] + " "
 
     # Parse frequencies in the ORCA format
-    """ 
+    """
     -----------------------
     VIBRATIONAL FREQUENCIES
     -----------------------
@@ -671,8 +678,8 @@ def parse_orca_new(StateF, data: dict, run_type):
     IndVibFreq = Lines.index('VIBRATIONAL FREQUENCIES')
     NVib = 3 * NAt
 
-    # TODO: Check if there is more to be done for linear molecules 
-    # other than changing number of normal modes from 3N - 6 to 3N - 5. 
+    # TODO: Check if there is more to be done for linear molecules
+    # other than changing number of normal modes from 3N - 6 to 3N - 5.
     range_start = 6
     if data['ifLinear']:
         range_start = 5
@@ -764,6 +771,143 @@ def parse_orca_new(StateF, data: dict, run_type):
         block += 1
 
     # END ORCA NEW
+    # =========================================================================
+
+
+def parse_NWChem(StateF, data: dict, run_type: str):
+    """ Parser of an NWChem 6.8 output. """
+    if run_type != "web":
+        print("\nWarning! All geometries from NWChem outputs treated as non-linear.")
+
+    geometry_header = 'Atom information'
+    nmodes_header = 'NORMAL MODE EIGENVECTORS IN CARTESIAN COORDINATES'
+
+    normal_coordinates = []
+    frequencies = []
+    n_normal_modes = 0
+    loaded_geometry = False
+    loaded_normal_modes = False
+
+    line = StateF.readline()
+    while line:
+        # parse geometry
+        if line.find(geometry_header) >= 0 and not loaded_geometry:
+            # skip decorations
+            StateF.readline()
+            StateF.readline()
+            line = StateF.readline()
+            end_of_geometry = '-' * 74
+            while not line.lstrip().rstrip() == end_of_geometry:
+                data['NAtoms'] += 1
+                # atom name is the zeroth position in the line
+                atom_symbol = line.split()[0].lower()
+                # assure that cases are correct
+                atom_symbol = atom_symbol[0].upper() + atom_symbol[1:]
+                # display symbol as 3 characters long string (fill with spaces)
+                atom_symbol = f"{atom_symbol:3s}"
+                data['atoms_list'] += atom_symbol
+                data['Geometry'] += " " * 6 + atom_symbol
+                # the cartesian coordinates from positions 2nd, 3rd and 4th
+                # TODO: what are the units
+                xyz = line.split()[2:5]
+                xyz = [fortran_to_float(i) for i in xyz]
+                for i in xyz:
+                    data['Geometry'] += f"{i:-13.6f}"
+                data['Geometry'] += "\n"
+                line = StateF.readline()
+            loaded_geometry = True
+            # NWChem prints out the zero frequency modes
+            # this parser deletes them after parsing is complete
+            n_normal_modes = data['NAtoms'] * 3
+            # create an empty list of coordinates for every mode
+            for _ in range(n_normal_modes):
+                normal_coordinates.append([])
+
+        # parse modes and frequencies
+        if line.find(nmodes_header) >= 0 and not loaded_normal_modes:
+            # skip decorations
+            StateF.readline()
+            StateF.readline()
+            while len(frequencies) != n_normal_modes:
+                # skip an empty line
+                StateF.readline()
+                line = StateF.readline()
+                # incides of normal modes
+                # NWChem starts at 1 , I prefer to start at 0
+                indices = [int(i) - 1 for i in line.split()]
+                # skip an empty line
+                StateF.readline()
+                line = StateF.readline()
+                # frequenices in cm -1
+                frequenices_batch = line.split()[1:]
+                frequencies += [float(f) for f in frequenices_batch]
+                # skip an empty line
+                StateF.readline()
+                # number of cartesian coordinates to read equals n_normal_modes
+                for _ in range(n_normal_modes):
+                    line = StateF.readline()
+                    values = line.split()[1:] # the first word in an index _
+                    values = [float(v) for v in values]
+                    for j, v in enumerate(values):
+                        # v is the _th coordinate of the normal mode No indices[j]
+                        normal_coordinates[indices[j]] += [v]
+            loaded_normal_modes = True
+        line = StateF.readline()
+
+    # Delete the zero-frequency modes
+    # TODO: Should a linear molecule detection be implemented, change this part
+    data['ifLinear'] = False
+    frequencies = frequencies[6:]
+    normal_coordinates = normal_coordinates[6:]
+    n_normal_modes -= 6
+    space_dim = data['NAtoms'] * 3
+
+    # create a q-chem format frequencies
+    printed_frequencies = 0
+    while True:
+        last_freq_idx = min(printed_frequencies + 3, n_normal_modes)
+        for freq in frequencies[printed_frequencies: last_freq_idx]:
+            data['Frequencies'] += " " * 4
+            data['Frequencies'] += f"{freq:8.2f}"
+        printed_frequencies = last_freq_idx
+        if printed_frequencies >= n_normal_modes:
+            break
+        data['Frequencies'] += "\n"
+
+    # create normal modes in q-chem format
+    # each batch prints 3 normal modes
+    # each normal mode is printed in three columns: x y z
+    printed_modes = 0
+    while True:
+        # idx of the last normal mode to print in this batch
+        last_mode = min(printed_modes + 3, n_normal_modes)
+        # full lines has to be printed space_dim // 3 times
+        # l labels output lines
+        for l in range(space_dim // 3):
+            # each lines starts with 9 spaces
+            # I put 6 here:
+            #   each value is preceded by a space
+            #   each normal mode column is preceeded by two spaces
+            data['NormalModes'] += " " * 6
+            # the mode range can be only one or up to three modes
+            for mode in range(printed_modes, last_mode):
+                # space between normal modes columns
+                data['NormalModes'] += " " * 2
+                # each lines contains a set of x y z coordinates
+                values = normal_coordinates[mode][l * 3:l * 3 + 3]
+                for v in values:
+                    data['NormalModes'] += " " + f"{v:-6.3f}"
+            data['NormalModes'] += "\n"
+        printed_modes = last_mode
+        if printed_modes >= n_normal_modes:
+            break
+        # an empty line separates blocks of normal modes
+        data['NormalModes'] += "\n"
+
+    data['if_normal_modes_weighted'] = True
+    data['geometry_units'] = "au"
+
+    # END NWChem
     # =========================================================================
 
 def parse_other(StateF, data: dict):
@@ -875,6 +1019,11 @@ def read_state(FileName, data: dict, run_type: str):
             parse_orca_new(StateF, data, run_type)
             break
 
+        if Line.find('Northwest Computational Chemistry Package (NWChem)') >= 0:
+            file_type_detected = True
+            parse_NWChem(StateF, data, run_type)
+            break
+
         if Line.find('RESTRICTED RIGHTS') >= 0:
             file_type_detected = True
             parse_other(StateF, data)
@@ -953,7 +1102,6 @@ def write_state_xml_file(xmlF, data: dict, which_state: str, run_type: str):
     xmlF.write(frequencies)
     xmlF.write('             ">\n')
     xmlF.write('  </frequencies>\n\n')
-
 
 def read_write_state(file_name, run_type: str, which_state: str, xmlF):
     """ Controls reading input and writing output. """

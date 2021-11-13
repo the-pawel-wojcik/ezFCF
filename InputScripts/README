@@ -20,6 +20,7 @@ h2o_qchem.*        Q-Chem
 h2o_aces_new.*     ACESII 2.5.0 version
 h2o_aces_old.*     ACESII 0.3 version
 h2o_molpro.*       Molpro
+h2o_nwchem.out     NWChem 6.8 (Note: linear molecules are not supported)
 h2o_gamess.*       GAMESS (Note: linear molecules are not supported)
 h2o_orca.out       ORCA version 4.2.0 (Note: linear molecules not tested)
 h2o_other.out      Gaussian (we can not guarantee it is fully supported, 
@@ -27,9 +28,7 @@ h2o_other.out      Gaussian (we can not guarantee it is fully supported,
 
 You can check the script with all supported types by running:
 
- make_xml.py test.xml h2o_qchem.out h2o_molpro.out h2o_aces_old.out \
-                     h2o_aces_new.out h2o_gamess.out h2o_gaussian.out \
-                     h2o_orca.out
+make_xml.py test.xml h2o_qchem.out h2o_molpro.out h2o_aces_old.out h2o_aces_new.out h2o_gamess.out h2o_gaussian.out h2o_orca.out h2o_nwchem.out
 (you may need to use ./make_xml.py or 'python ./make_xml.py ...')
 
 test.xml file will contain ab inito data extracted from the outputs
