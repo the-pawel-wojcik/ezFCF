@@ -28,7 +28,7 @@ h2o_other.out      Gaussian (we can not guarantee it is fully supported,
 
 You can check the script with all supported types by running:
 
-make_xml.py test.xml h2o_qchem.out h2o_molpro.out h2o_aces_old.out h2o_aces_new.out h2o_gamess.out h2o_gaussian.out h2o_orca.out h2o_nwchem.out
+make_xml.py test.xml h2o_qchem.out h2o_molpro.out h2o_aces_old.out h2o_aces_new.out h2o_gamess.out h2o_gaussian.out h2o_orca.out
 (you may need to use ./make_xml.py or 'python ./make_xml.py ...')
 
 test.xml file will contain ab inito data extracted from the outputs
@@ -50,3 +50,6 @@ make_xml.py formaldehyde.xml ch2o_neutral_orca.out ch2o_cation_orca.out
 will genenerate xml files that were used for Samples/formaldehyde.xml example
 (in which the normal modes were manually reordered to ensure maximmum overlap).
 The output spectra are inlcuded in Samples for comparisons. 
+
+The NWChem test sample uses different method and different geometry
+make_xml.py nwchem.xml h2o_nwchem.out h2o_qchem_for_nwchem.out

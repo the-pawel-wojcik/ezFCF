@@ -776,6 +776,10 @@ def parse_orca_new(StateF, data: dict, run_type):
 
 def parse_NWChem(StateF, data: dict, run_type: str):
     """ Parser of an NWChem 6.8 output. """
+    # TODO: confirm with the NWChem manual the units
+    # TODO: add recomendations for when to use the 'Projected' version
+    # TODO: add detection of linear molecules
+
     if run_type != "web":
         print("\nWarning! All geometries from NWChem outputs treated as non-linear.")
 
@@ -808,7 +812,6 @@ def parse_NWChem(StateF, data: dict, run_type: str):
                 data['atoms_list'] += atom_symbol
                 data['Geometry'] += " " * 6 + atom_symbol
                 # the cartesian coordinates from positions 2nd, 3rd and 4th
-                # TODO: what are the units
                 xyz = line.split()[2:5]
                 xyz = [fortran_to_float(i) for i in xyz]
                 for i in xyz:
@@ -825,6 +828,12 @@ def parse_NWChem(StateF, data: dict, run_type: str):
 
         # parse modes and frequencies
         if line.find(nmodes_header) >= 0 and not loaded_normal_modes:
+            """ Comment this part if you prefer not to use the 'Projected' version """
+            # skips to the 'Projected' version
+            line = StateF.readline()
+            while not line.find(nmodes_header) >= 0:
+                line = StateF.readline()
+            """ """
             # skip decorations
             StateF.readline()
             StateF.readline()
