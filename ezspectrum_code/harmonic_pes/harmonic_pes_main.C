@@ -8,7 +8,6 @@ void fillVibrState(My_istringstream& vibr_str, VibronicState& v_state, const int
 void harmonic_pes_parallel(xml_node& node_input, std::vector <MolState>& elStates, const char *InputFileName);
 void harmonic_pes_dushinksy(xml_node& node_input, std::vector <MolState>& elStates, const char *InputFileName);
 
-//xmlFilleName is needed only to make name for the output file.
 bool harmonic_pes_main (const char *InputFileName, xml_node& node_input, xml_node& node_amu_table)
 {
   //======= read "global" job variables  =====================================================
@@ -55,12 +54,13 @@ bool harmonic_pes_main (const char *InputFileName, xml_node& node_input, xml_nod
   }    
   std::cout << "Done reading states" << std::endl<<std::endl;
   
-  //Perform valious checks and transformations
+  //Perform various checks and transformations
   for (int state_i=0; state_i<elStates.size(); state_i++) {	
 
     //elStates[state_i].Print();
 
     //MMay be able to remove this:
+    // TODO: is this ready to be removed? Pawel Feb '22
     if ( elStates[state_i].ifNMReorderedManually() ) {
 
       ifAnyNormalModesReordered=true;
@@ -241,6 +241,7 @@ void harmonic_pes_parallel(xml_node& node_input, std::vector <MolState>& elState
     
     // check if print normal modes after transformations & overlap matrix
     //FIXIT: check if loc is correect
+    // TODO: Does this still require any work? Pawel, Feb '22
     bool if_print_fcfs= node_parallel_approx.read_flag_value("print_franck_condon_matrices");
 
     // read energy thresholds (if provided)
@@ -377,7 +378,7 @@ void harmonic_pes_parallel(xml_node& node_input, std::vector <MolState>& elState
 	// if nm is not in the do_not_excite set:
 	iter_set = do_not_excite_subspace.find(normal_modes_list[nm]);
 	if ( iter_set == do_not_excite_subspace.end( ) )
-	  //than copy it to the new list:
+	  // then copy it to the new list:
 	  new_normal_modes_list.push_back(normal_modes_list[nm]);
       }
       

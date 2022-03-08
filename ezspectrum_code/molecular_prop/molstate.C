@@ -444,7 +444,7 @@ else return false;
 
 //------------------------------ 
 /* Only this function needs to deal with input: 
- -  a node pointing out to initial_state or targeet_state section in the input
+ -  a node pointing out to initial_state or target_state section in the input
  -  a file where all masses are tabulated
 */
 bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
@@ -469,8 +469,8 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
     std::cout << "IP=" << energy << " eV " << std::endl;
   }
     
-  //------------ Read the Geometry --------------------------------------
 
+  //------------ Read the Geometry --------------------------------------
   xml_node node_geometry(node_state,"geometry",0);
   
   int tmp_nAtoms, tmp_nNormMds;
@@ -497,6 +497,7 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
     tmp_atom.Name() = tmp_atomName;
 
     //get coordinates & convert to a.u.
+    // TODO: `coeff` converts to Angstroms. The above comment is confusing. Pawel Feb '22
     tmp_atom.Coord(0)=geom_iStr.getNextDouble()*coeff;
     tmp_atom.Coord(1)=geom_iStr.getNextDouble()*coeff;
     tmp_atom.Coord(2)=geom_iStr.getNextDouble()*coeff;
@@ -577,11 +578,11 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
   
   // Now MolState is in a good shape, and some transformations can be performed
 
-  //------------ 1. Un-mass-weight normal modes----------------------------
+  //------------ 1. Un-mass-weight normal modes ----------------------------
   bool if_massweighted=node_nmodes.read_bool_value("if_mass_weighted");
 
 
-  //------------ 1. mass un-weight normal modes, if needed (QChem-->ACES format; )----------------
+  //------------ 1. mass un-weight normal modes, if needed (QChem-->ACES format;) ----------------
   // qchem if_massweighted="true"; aces if_massweighted="false";
   reduced_masses.Adjust(NNormModes(),1);
   reduced_masses.Set(1);
@@ -637,6 +638,115 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
 	    getNormMode(nm).getDisplacement().Elem1(a*CARTDIM+i)/=sqrt(reduced_masses[nm]);
 
     }
+  
+
+  
+  // ------------ 1.5 Find geometry from the vertial gradient if available ------------
+    
+  /* Notes on the gradient implementation:
+   * Detection of gradient node triggers use of gradient and changes meaning of nodes: geometry, normal modes, and frequncies. If a gradient node is present in an electronic state, the nodes listed before are assumed to descibe the initial state; normal modes and frequncies will be treated in parallel mode approximation without frequency shifts, while the state geometry will be calculated using vertial gradient method. 
+   * Pawel, Feb 2022
+   * */
+  if (node_state.find_subnode("gradient")) {
+    std::cout 
+      << "Gradient detected."
+      << " State geometry will be generated with a use of the vertical gradient method." 
+      << std::endl;
+    xml_node node_gradient(node_state, "gradient", 0);
+    // This version supports gradient only in atomic units, a.u., (Q-Chem opt output default)
+    std::string units = node_gradient.read_string_value("units");
+    if (units != "a.u.") {
+      std::cout 
+        << "\nError! Gradient reported in unsupported units: \"" 
+        << units 
+        << "\"\n  (this version of ezFCF supports only \"a.u.\")\n\n";
+      exit(1);
+    }
+    My_istringstream grad_iStr(node_gradient.read_string_value("text"));
+    // gradient is stored as a column, i.e, a 3N x 1 matrix 
+    gradient.Adjust(CARTDIM * NAtoms(), 1);
+    for (int i = 0; i < NAtoms(); i++) {
+      // Read the x, y, and z components of each vector
+      for (int j = 0; j < CARTDIM; j++) {
+        double cartesian_component = grad_iStr.getNextDouble();
+        if (grad_iStr.fail()) {
+          std::cout 
+            << "MolState::Read(): Error. Wrong format in gradient: [" 
+            << grad_iStr.str() 
+            << "]" 
+            << std::endl;
+          exit(1);
+        }
+        gradient.Elem1(CARTDIM * i + j) = cartesian_component;
+      }
+    }
+  }
+  /* End of parsing of the vertical gradient node. */
+  if (gradient.Size() > 0) {
+    std::cout << "Vertical Gradient calculations begin." << std::endl;
+    // $\Delta = \Omega ^{-2} D ^{-1} M ^{-1/2} g _{(2)} ^{(x)}$
+
+    /* $\Delta$ is a vector of displacement between the target state normal coordinates $q ^{(2)}$ and the initial state normal coordinates $q ^{(1)}$:
+     * $$ q ^{(2)} = q ^{(1)} + \Delta $$
+     * $\Omega$ is a diagonal matrix (3N - 5/6 x 3N - 5/6) of harmonic frequencies 
+     * $D$ has normal modes as its columns. $D$ is a rectangular matrix (3N x 3N - 5/6) diagonalizing the mass-weighted Hessian matrix:
+     * $$ H = D \Omega ^2 D ^{-1} $$
+     * One dimension of $D$ is shorter because the normal coordinates coresponding to zero frequency do not contribute to vibrational spectrum but descibe translations and rotations. 
+     * M is a diagonal matrix of dim 3N x 3N of atomic masses
+     * g _(2) ^{(x)} is the gradient of the target state energy surface calculated at the geometry of the initial state in cartesian (non-mass-weighted) coordinates. The number $(2)$ indicates that the values is for the second (target) state as contrasted with the one of the first (initial) state.
+     * 
+     * Additionally, to find $R _e ^(2)$ from $\Delta$
+     * $$ R _e ^(2) = R _e ^{(2)} - M ^{-1/2} D \Delta $$
+     * or in terms of a gradient
+     * $$ R _e ^(2) = R _e ^{(2)} - M ^{-1/2} D \Omega ^{-2} D ^{-1} M ^{-1/2} g _{(2)} ^{(x)} $$
+     *
+     * $M$ is in the $-1/2$ power in both cases as the right most is a transformation of the **gradient** from cartesian to mass-weighted coordinates, while the leftmost is a transfromation of **coordinates** from a mass-weighted vector to mass-un-weighed vector.
+     *
+     * $\Delta$ as well as the cartesian displacement ($M ^{-1/2} D \Delta$) are expressed in a.u. and are converted to Angstroms only just before addition to the geometry. For this reason both matrices ($\Omega$ and $M$) and the gradient vector have values corresponding to the the units of a.u.
+     */
+
+    KMatrix mass_matrix_minus_half(CARTDIM * NAtoms(), CARTDIM * NAtoms(), true);
+    for (int i = 0; i < NAtoms(); i++) {
+      double mass = atoms[i].Mass() * AMU_2_ELECTRONMASS;
+      double mass_inv = 1.0 / mass;
+      double sqrt_mass_inv = sqrt(mass_inv);
+      for (int j = 0; j < CARTDIM; j++) {
+        mass_matrix_minus_half.Elem2(CARTDIM * i + j, CARTDIM * i + j) = sqrt_mass_inv;
+      }
+    }
+
+    KMatrix d_matrix(CARTDIM * NAtoms(), NNormModes(), true);
+    KMatrix Omega_matrix_minus2(NNormModes(), NNormModes(), true);
+    for (int j = 0; j < NNormModes(); j++){
+      double freq = normModes[j].getFreq();
+      freq *= WAVENUMBERS2EV; // first to eV
+      freq *= EV2HARTREE; // then eV to a.u.
+      Omega_matrix_minus2.Elem2(j, j) = 1 / freq / freq;
+      for (int i = 0; i < CARTDIM * NAtoms(); i++){
+        d_matrix.Elem2(i, j) = normModes[j].getDisplacement()[i];
+      }
+    }
+    
+    KMatrix delta(gradient, true); // true initilizes values of delta with values of gradient
+    delta.LeftMult(mass_matrix_minus_half);
+    delta.LeftMult(d_matrix, true); // true transposes the matrix, D ^T = D ^{-1}
+    delta.LeftMult(Omega_matrix_minus2);
+
+    // R _e ^{(2)} = R _e ^{(1)} - M ^{-1/2} D \Delta
+    KMatrix geometry_shift(delta, true); // true for copying the data
+    geometry_shift.LeftMult(d_matrix);
+    geometry_shift.LeftMult(mass_matrix_minus_half);
+
+    geometry_shift *= AU2ANGSTROM;
+
+    for (int i = 0; i < NAtoms(); i++) {
+      for (int j = 0; j < CARTDIM; j++){
+        atoms[i].Coord(j) -= geometry_shift.Elem2(CARTDIM * i + j, 0);
+      }
+    }
+    std::cout << "Target state geometry calculated with vertical gradient method." << std::endl;
+    printGeometry();
+  }
 
 
   //------------ 2. Align geometry if requested ----------------------------
@@ -811,6 +921,7 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
 
   return true;
 }
+
 
 
 

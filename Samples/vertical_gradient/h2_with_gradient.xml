@@ -1,0 +1,166 @@
+<input
+  job = "harmonic_pes">
+
+<job_parameters
+        temperature                              = "300"
+        spectrum_intensity_threshold             = "0.001" >
+</job_parameters>
+
+<!--
+  ______________________________________________________________________
+
+    Tags which start with "OPT_" will be ignored.
+    To include these optional keywords please "uncomment" by removing
+    "OPT_" from the start and the corresponding end tag (if present)
+  ______________________________________________________________________
+
+ -->
+
+<parallel_approximation
+        max_vibr_excitations_in_initial_el_state = "1"
+        max_vibr_excitations_in_target_el_state  = "4"
+        combination_bands                        = "true"
+        use_normal_coordinates_of_target_states  = "true"
+ >
+
+  <OPT_do_not_excite_subspace size = "0" normal_modes = " " >
+  </OPT_do_not_excite_subspace>
+
+  <OPT_energy_thresholds  units="eV, K, cm-1">
+    <initial_state   units="K">      1000    </initial_state>
+    <target_state   units="eV">      0.25    </target_state>
+  </OPT_energy_thresholds>
+
+  <OPT_print_franck_condon_matrices flag="true">
+  </OPT_print_franck_condon_matrices>
+
+</parallel_approximation>
+
+<!--
+  ______________________________________________________________________
+
+ -->
+
+<OPT_dushinsky_rotations target_state="1"
+      max_vibr_excitations_in_initial_el_state = "1"
+      max_vibr_excitations_in_target_el_state  = "4"
+      >
+  <OPT_max_vibr_to_store  target_el_state="4">
+  </OPT_max_vibr_to_store>
+
+  <OPT_do_not_excite_subspace size = "2" normal_modes = "0 1">
+  </OPT_do_not_excite_subspace>
+
+  <OPT_energy_thresholds  units="eV, K, cm-1">
+    <initial_state   units="K">      1000    </initial_state>
+    <target_state   units="eV">      0.25    </target_state>
+  </OPT_energy_thresholds>
+
+  <OPT_single_excitation
+       ini="0"
+       targ="1v1">
+  </OPT_single_excitation>
+
+</OPT_dushinsky_rotations>
+
+<!--
+  ______________________________________________________________________
+
+ -->
+
+<initial_state>
+  <!-- THIS INITIAL STATE IS FROM "freq-ground.inp.out" FILE -->
+
+  <geometry
+    number_of_atoms = "2"
+    linear = "true"
+    units   = "angstr"
+    text   = "
+      H       0.0000000000     0.0000000000    -0.3716865000
+      H       0.0000000000     0.0000000000     0.3716865000
+             ">
+  </geometry>
+
+  <OPT_manual_atoms_reordering
+     new_order="0 1">
+  </OPT_manual_atoms_reordering>
+
+  <normal_modes
+    if_mass_weighted="True"
+    text = "
+          0.000  0.000 -0.707
+         -0.000 -0.000  0.707
+
+           "
+   atoms = "   H     H             ">
+  </normal_modes>
+
+  <frequencies
+    text = "
+       4395.49
+             ">
+  </frequencies>
+
+</initial_state>
+
+<!--
+  ______________________________________________________________________
+
+ -->
+
+<target_state>
+
+  <excitation_energy units="eV"> 1 </excitation_energy>
+
+  <!-- THIS TARGET STATE IS FROM "freq-ground.inp.out" FILE -->
+  <geometry
+    number_of_atoms = "2"
+    linear = "true"
+    units   = "angstr"
+    text   = "
+      H       0.0000000000     0.0000000000    -0.3716865000
+      H       0.0000000000     0.0000000000     0.3716865000
+             ">
+  </geometry>
+
+  <OPT_manual_atoms_reordering
+     new_order="0 1">
+  </OPT_manual_atoms_reordering>
+
+  <normal_modes
+    if_mass_weighted="True"
+    text = "
+          0.000  0.000 -0.707
+         -0.000 -0.000  0.707
+
+           "
+   atoms = "   H     H             ">
+  </normal_modes>
+
+  <OPT_manual_normal_modes_reordering
+     new_order="0">
+  </OPT_manual_normal_modes_reordering>
+
+  <frequencies
+    text = "
+       4395.49
+             ">
+  </frequencies>
+
+  <!-- To active the vertical gradient remove the 'OPT_' strings and fill in the text section -->
+  <gradient
+    units = "a.u."
+    text   = " 
+      0.000000 0.000000  0.16277344
+      0.000000 0.000000 -0.16277344
+    " >
+  </gradient>
+
+</target_state>
+
+<!--
+  ______________________________________________________________________
+
+ -->
+
+</input>

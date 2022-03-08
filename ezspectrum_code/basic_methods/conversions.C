@@ -18,4 +18,3 @@ bool covert_energy_to_eV(double& ene, const std::string& units) {
   }
   return all_is_good;
 }
-

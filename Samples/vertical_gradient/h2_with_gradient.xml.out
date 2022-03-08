@@ -1,0 +1,276 @@
+Job "../../ezspectrum_code/ezFCF_linux.exe h2_with_gradient.xml" has been started: Tue Mar  8 11:08:18 2022
+
+A copy of the "h2_with_gradient.xml" input:
+------------------------------------------------------------------------------
+Node input
+<input
+  job = "harmonic_pes">
+
+<job_parameters
+        temperature                              = "300"
+        spectrum_intensity_threshold             = "0.001" >
+</job_parameters>
+
+<!--
+  ______________________________________________________________________
+
+    Tags which start with "OPT_" will be ignored.
+    To include these optional keywords please "uncomment" by removing
+    "OPT_" from the start and the corresponding end tag (if present)
+  ______________________________________________________________________
+
+ -->
+
+<parallel_approximation
+        max_vibr_excitations_in_initial_el_state = "1"
+        max_vibr_excitations_in_target_el_state  = "4"
+        combination_bands                        = "true"
+        use_normal_coordinates_of_target_states  = "true"
+ >
+
+  <OPT_do_not_excite_subspace size = "0" normal_modes = " " >
+  </OPT_do_not_excite_subspace>
+
+  <OPT_energy_thresholds  units="eV, K, cm-1">
+    <initial_state   units="K">      1000    </initial_state>
+    <target_state   units="eV">      0.25    </target_state>
+  </OPT_energy_thresholds>
+
+  <OPT_print_franck_condon_matrices flag="true">
+  </OPT_print_franck_condon_matrices>
+
+</parallel_approximation>
+
+<!--
+  ______________________________________________________________________
+
+ -->
+
+<OPT_dushinsky_rotations target_state="1"
+      max_vibr_excitations_in_initial_el_state = "1"
+      max_vibr_excitations_in_target_el_state  = "4"
+      >
+  <OPT_max_vibr_to_store  target_el_state="4">
+  </OPT_max_vibr_to_store>
+
+  <OPT_do_not_excite_subspace size = "2" normal_modes = "0 1">
+  </OPT_do_not_excite_subspace>
+
+  <OPT_energy_thresholds  units="eV, K, cm-1">
+    <initial_state   units="K">      1000    </initial_state>
+    <target_state   units="eV">      0.25    </target_state>
+  </OPT_energy_thresholds>
+
+  <OPT_single_excitation
+       ini="0"
+       targ="1v1">
+  </OPT_single_excitation>
+
+</OPT_dushinsky_rotations>
+
+<!--
+  ______________________________________________________________________
+
+ -->
+
+<initial_state>
+  <!-- THIS INITIAL STATE IS FROM "freq-ground.inp.out" FILE -->
+
+  <geometry
+    number_of_atoms = "2"
+    linear = "true"
+    units   = "angstr"
+    text   = "
+      H       0.0000000000     0.0000000000    -0.3716865000
+      H       0.0000000000     0.0000000000     0.3716865000
+             ">
+  </geometry>
+
+  <OPT_manual_atoms_reordering
+     new_order="0 1">
+  </OPT_manual_atoms_reordering>
+
+  <normal_modes
+    if_mass_weighted="True"
+    text = "
+          0.000  0.000 -0.707
+         -0.000 -0.000  0.707
+
+           "
+   atoms = "   H     H             ">
+  </normal_modes>
+
+  <frequencies
+    text = "
+       4395.49
+             ">
+  </frequencies>
+
+</initial_state>
+
+<!--
+  ______________________________________________________________________
+
+ -->
+
+<target_state>
+
+  <excitation_energy units="eV"> 1 </excitation_energy>
+
+  <!-- THIS TARGET STATE IS FROM "freq-ground.inp.out" FILE -->
+  <geometry
+    number_of_atoms = "2"
+    linear = "true"
+    units   = "angstr"
+    text   = "
+      H       0.0000000000     0.0000000000    -0.3716865000
+      H       0.0000000000     0.0000000000     0.3716865000
+             ">
+  </geometry>
+
+  <OPT_manual_atoms_reordering
+     new_order="0 1">
+  </OPT_manual_atoms_reordering>
+
+  <normal_modes
+    if_mass_weighted="True"
+    text = "
+          0.000  0.000 -0.707
+         -0.000 -0.000  0.707
+
+           "
+   atoms = "   H     H             ">
+  </normal_modes>
+
+  <OPT_manual_normal_modes_reordering
+     new_order="0">
+  </OPT_manual_normal_modes_reordering>
+
+  <frequencies
+    text = "
+       4395.49
+             ">
+  </frequencies>
+
+  <!-- To active the vertical gradient remove the 'OPT_' strings and fill in the text section -->
+  <gradient
+    units = "a.u."
+    text   = " 
+      0.000000 0.000000  0.16277344
+      0.000000 0.000000 -0.16277344
+    " >
+  </gradient>
+
+</target_state>
+
+<!--
+  ______________________________________________________________________
+
+ -->
+
+</input>
+------------------------------------------------------------------------------
+ 
+
+====== Reading the initial state ======
+===== Reading the target state #0 =====
+IP=1.000000 eV
+IP=1.000000 eV 
+Gradient detected. State geometry will be generated with a use of the vertical gradient method.
+Vertical Gradient calculations begin.
+Target state geometry calculated with vertical gradient method.
+   H      0.0000       0.0000      -0.4886 
+   H      0.0000       0.0000       0.4886 
+Done reading states
+
+Coordinate axes were aligned with MOI principal axes; center mass was shifted to the origin.
+
+New molecular geometry:
+   H      0.0000       0.0000      -0.3717 
+   H      0.0000       0.0000       0.3717 
+
+MOI tensor:
+                0           1           2
+    0    0.278465    0.000000    0.000000
+    1    0.000000    0.278465    0.000000
+    2    0.000000    0.000000    0.000000
+
+
+Coordinate axes were aligned with MOI principal axes; center mass was shifted to the origin.
+Also rotated by 2/2*pi, 2/2*pi, and 3/2*pi CCW around x, y, and z.
+The norm of the geometry difference from the initial state is 0.1653
+
+New molecular geometry:
+   H      0.0000       0.0000      -0.4886 
+   H      0.0000       0.0000       0.4886 
+
+MOI tensor:
+                0           1           2
+    0    0.481157    0.000000    0.000000
+    1    0.000000    0.481157    0.000000
+    2    0.000000    0.000000    0.000000
+
+
+Done with the transformations
+------------------------------------------------------------------------------
+
+=== Reading the parallel approximation job parameters ===
+
+===== Overlap matrix of the target state #1 with the initial state =====
+The normal modes overlap matrix with the initial state is diagonal
+  (do_not_excite_subspace is excluded)
+
+------------------------------------------------------------------------------
+
+Photoelectron spectrum in the parallel approximation will be evaluated
+
+===== Target state #1 =====
+
+Difference (dQ) between the initial and the target state geometries.
+Angstrom*sqrt(amu):
+
+normal mode  dQ in initial  dQ in target   frequency   frequency   comments
+  number      state coord.  state coord.    initial      target
+
+       0       0.165957        0.165957      4395.49    4395.49
+
+
+TARGET state normal coordinates (displacements dQ) will be used.
+
+Maximum number of vibrational excitations: 1 and 4
+ in the initial and each target state, respectively.
+
+Maximum number of combination bands = 10
+   = 2 (# of vibrational states in the initial electronic state)
+   * 5 (# of vibrational states in the target electronic state)
+
+A set of initial vibrational states is being created...
+  energy threshold is not specified in the input
+  2 vibrational states below the energy threshold
+
+A set of target vibrational states is being created...
+  energy threshold is not specified in the input
+  5 vibrational states below the energy threshold
+
+Total number of combination bands with thresholds applied: 10
+
+Intensities of combination bands are being calculated...
+------------------------------------------------------------------------------
+           Stick photoelectron spectrum (parallel approximation)
+------------------------------------------------------------------------------
+
+Energy,eV    Intensity     FC factor         E",K   Transition
+
+ 1.0000      1.660747e-01  +4.075226e-01     0.000  0(0)->1(0)
+ 1.5450      2.981568e-01  -5.460374e-01     0.000  0(0)->1(1v0)
+ 2.0900      2.676431e-01  +5.173423e-01     0.000  0(0)->1(2v0)
+ 2.6349      1.601681e-01  -4.002101e-01     0.000  0(0)->1(3v0)
+ 3.1799      7.188816e-02  +2.681197e-01     0.000  0(0)->1(4v0)
+------------------------------------------------------------------------------
+
+Stick spectrum was also saved in "h2_with_gradient.xml.spectrum_parallel" file 
+------------------------------------------------------------------------------
+
+
+Job "../../ezspectrum_code/ezFCF_linux.exe h2_with_gradient.xml" has finished: Tue Mar  8 11:08:18 2022
+

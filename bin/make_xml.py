@@ -94,6 +94,18 @@ DEFAULT_JOB_PARAMETERS = """<input
 
  -->\n\n"""
 
+OPT_GRADIENT_SECTION = """  <!-- To active the vertical gradient remove the 'OPT_' strings and fill in the text section -->
+  <OPT_gradient
+    units = "a.u."
+    text   = " 
+    " >
+  </OPT_gradient>\n\n"""
+
+STATES_DELIMITER = """<!--
+  ______________________________________________________________________
+
+ -->\n\n"""
+
 WRONG_INPUT = """To create an XML file from ab initio outputs type:
 make_xml.py  <filename.xml> <initial_state.out> <target_state_1.out> <target_state_2.out> etc...
 """
@@ -1159,10 +1171,7 @@ def main(xml_filename, ai_filenames, run_type):
             sys.exit(2)
 
     xmlF.write('</initial_state>\n\n')
-    xmlF.write("""<!--
-  ______________________________________________________________________
-
- -->\n\n""")
+    xmlF.write(STATES_DELIMITER)
 
     state_n = 0
     for targetStateFileName in ai_filenames[1:]:
@@ -1181,11 +1190,10 @@ def main(xml_filename, ai_filenames, run_type):
                 print(e)
                 sys.exit(2)
 
+        xmlF.write(OPT_GRADIENT_SECTION)
         xmlF.write('</target_state>\n\n')
-        xmlF.write("""<!--
-  ______________________________________________________________________
+        xmlF.write(STATES_DELIMITER)
 
- -->\n\n""")
     xmlF.write('</input>\n')
     xmlF.close()
 

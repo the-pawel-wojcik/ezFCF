@@ -26,6 +26,8 @@ class MolState
   std::vector<NormalMode> normModes;
   //! Normal modes order (relative to the input file's order)
   std::vector<int> normModesOrder;
+  //! Gradient calculated in caresian (non-mass-weighted) coordinates in the order of the input (expected to match the order of geometry section) TODO: Pick a standard for units; TODO: hande the cases where gradient is available only in the mass-weighted coordinates, Pawel Feb '22 
+  KMatrix gradient;
   //! may be removed later
   bool ifLinear;
   //! IP

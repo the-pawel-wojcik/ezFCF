@@ -1,0 +1,4383 @@
+                  Welcome to Q-Chem
+     A Quantum Leap Into The Future Of Chemistry
+
+
+ Q-Chem 5.4 (devel), Q-Chem, Inc., Pleasanton, CA (2021)
+
+ E. Epifanovsky,  A. T. B. Gilbert,  Xintian Feng,  Joonho Lee,  Yuezhi Mao,  
+ N. Mardirossian,  P. Pokhilko,  A. White,  M. Wormit,  M. P. Coons,  
+ A. L. Dempwolff,  Zhengting Gan,  D. Hait,  P. R. Horn,  L. D. Jacobson,  
+ I. Kaliman,  J. Kussmann,  A. W. Lange,  Ka Un Lao,  D. S. Levine,  Jie Liu,  
+ S. C. McKenzie,  A. F. Morrison,  K. Nanda,  F. Plasser,  D. R. Rehn,  
+ M. L. Vidal,  Zhi-Qiang You,  Ying Zhu,  B. Alam,  B. Albrecht,  
+ A. Aldossary,  E. Alguire,  J. H. Andersen,  D. Barton,  K. Begam,  A. Behn,  
+ Y. A. Bernard,  E. J. Berquist,  H. Burton,  A. Carreras,  K. Carter-Fenk,  
+ R. Chakraborty,  A. D. Chien,  K. D. Closser,  V. Cofer-Shabica,  
+ S. Dasgupta,  Jia Deng,  M. de Wergifosse,  M. Diedenhofen,  Hainam Do,  
+ S. Ehlert,  Po-Tung Fang,  S. Fatehi,  Qingguo Feng,  T. Friedhoff,  
+ J. Gayvert,  Qinghui Ge,  G. Gidofalvi,  M. Goldey,  J. Gomes,  
+ C. Gonzalez-Espinoza,  S. Gulania,  A. Gunina,  M. W. D. Hanson-Heine,  
+ P. H. P. Harbach,  A. W. Hauser,  M. F. Herbst,  M. Hernandez Vera,  
+ M. Hodecker,  Z. C. Holden,  S. Houck,  Xunkun Huang,  Kerwin Hui,  
+ B. C. Huynh,  M. Ivanov,  Hyunjun Ji,  Hanjie Jiang,  B. Kaduk,  S. Kaehler,  
+ K. Khistyaev,  Jaehoon Kim,  P. Klunzinger,  Z. Koczor-Benda,  
+ Joong Hoon Koh,  D. Kosenkov,  L. Koulias,  T. Kowalczyk,  C. M. Krauter,  
+ K. Kue,  A. Kunitsa,  T. Kus,  A. Landau,  K. V. Lawler,  D. Lefrancois,  
+ S. Lehtola,  Rain Li,  Yi-Pei Li,  Jiashu Liang,  M. Liebenthal,  
+ Hung-Hsuan Lin,  You-Sheng Lin,  Fenglai Liu,  Kuan-Yu Liu,  
+ M. Loipersberger,  A. Luenser,  A. Manjanath,  P. Manohar,  E. Mansoor,  
+ S. F. Manzer,  Shan-Ping Mao,  A. V. Marenich,  T. Markovich,  S. Mason,  
+ S. A. Maurer,  P. F. McLaughlin,  M. F. S. J. Menger,  J.-M. Mewes,  
+ S. A. Mewes,  P. Morgante,  J. W. Mullinax,  K. J. Oosterbaan,  G. Paran,  
+ Alexander C. Paul,  Suranjan K. Paul,  F. Pavosevic,  Zheng Pei,  S. Prager,  
+ E. I. Proynov,  E. Ramos,  B. Rana,  A. E. Rask,  A. Rettig,  R. M. Richard,  
+ F. Rob,  E. Rossomme,  T. Scheele,  M. Scheurer,  M. Schneider,  
+ N. Sergueev,  S. M. Sharada,  W. Skomorowski,  D. W. Small,  C. J. Stein,  
+ Yu-Chuan Su,  E. J. Sundstrom,  Zhen Tao,  J. Thirman,  T. Tsuchimochi,  
+ N. M. Tubman,  S. P. Veccham,  O. Vydrov,  J. Wenzel,  J. Witte,  A. Yamada,  
+ Kun Yao,  S. Yeganeh,  S. R. Yost,  A. Zech,  Igor Ying Zhang,  Xing Zhang,  
+ Yu Zhang,  D. Zuev,  A. Aspuru-Guzik,  A. T. Bell,  N. A. Besley,  
+ K. B. Bravaya,  B. R. Brooks,  D. Casanova,  Jeng-Da Chai,  S. Coriani,  
+ C. J. Cramer,  A. E. DePrince, III,  R. A. DiStasio Jr.,  A. Dreuw,  
+ B. D. Dunietz,  T. R. Furlani,  W. A. Goddard III,  S. Grimme,  
+ S. Hammes-Schiffer,  T. Head-Gordon,  W. J. Hehre,  Chao-Ping Hsu,  
+ T.-C. Jagau,  Yousung Jung,  A. Klamt,  Jing Kong,  D. S. Lambrecht,  
+ WanZhen Liang,  N. J. Mayhall,  C. W. McCurdy,  J. B. Neaton,  
+ C. Ochsenfeld,  J. A. Parkhill,  R. Peverati,  V. A. Rassolov,  Yihan Shao,  
+ L. V. Slipchenko,  T. Stauch,  R. P. Steele,  J. E. Subotnik,  
+ A. J. W. Thom,  A. Tkatchenko,  D. G. Truhlar,  T. Van Voorhis,  
+ T. A. Wesolowski,  K. B. Whaley,  H. L. Woodcock III,  P. M. Zimmerman,  
+ S. Faraji,  P. M. W. Gill,  M. Head-Gordon,  J. M. Herbert,  A. I. Krylov
+
+ Additional authors for Version 5.4.1: 
+ S. Kotaru,  Shaozhi Li,  Xiangyuan Li,  F. Matz,  A. Molle,  Haisheng Ren,  
+ Yingli Su,  Hung-Yi Tsai,  C. Utku,  Fang Wang
+
+ Contributors to earlier versions of Q-Chem not listed above: 
+ R. D. Adamson,  B. Austin,  R. Baer,  J. Baker,  G. J. O. Beran,  
+ K. Brandhorst,  S. T. Brown,  E. F. C. Byrd,  A. K. Chakraborty,  
+ G. K. L. Chan,  Chun-Min Chang,  Yunqing Chen,  C.-L. Cheng,  
+ Siu Hung Chien,  D. M. Chipman,  D. L. Crittenden,  H. Dachsel,  
+ R. J. Doerksen,  A. D. Dutoi,  R. G. Edgar,  J. Fosso-Tande,  
+ L. Fusti-Molnar,  D. Ghosh,  A. Ghysels,  A. Golubeva-Zadorozhnaya,  
+ J. Gonthier,  M. S. Gordon,  S. R. Gwaltney,  G. Hawkins,  J. E. Herr,  
+ A. Heyden,  S. Hirata,  E. G. Hohenstein,  G. Kedziora,  F. J. Keil,  
+ C. Kelley,  Jihan Kim,  R. A. King,  R. Z. Khaliullin,  P. P. Korambath,  
+ W. Kurlancheek,  A. Laurent,  A. M. Lee,  M. S. Lee,  S. V. Levchenko,  
+ Ching Yeh Lin,  D. Liotard,  E. Livshits,  R. C. Lochan,  I. Lotan,  
+ L. A. Martinez-Martinez,  P. E. Maslen,  N. Nair,  D. P. O'Neill,  
+ D. Neuhauser,  E. Neuscamman,  C. M. Oana,  R. Olivares-Amaya,  R. Olson,  
+ T. M. Perrine,  B. Peters,  P. A. Pieniazek,  A. Prociuk,  Y. M. Rhee,  
+ J. Ritchie,  M. A. Rohrdanz,  E. Rosta,  N. J. Russ,  H. F. Schaefer III,  
+ M. W. Schmidt,  N. E. Schultz,  S. Sharma,  N. Shenvi,  C. D. Sherrill,  
+ A. C. Simmonett,  A. Sodt,  T. Stein,  D. Stuck,  K. S. Thanthiriwatte,  
+ V. Vanovschi,  L. Vogt,  Tao Wang,  A. Warshel,  M. A. Watson,  
+ C. F. Williams,  Q. Wu,  X. Xu,  Jun Yang,  W. Zhang,  Yan Zhao
+
+ Please cite Q-Chem as follows:
+ Y. Shao et al., Mol. Phys. 113, 184-215 (2015)
+ DOI: 10.1080/00268976.2014.952696
+
+ Q-Chem 5.4.1 for Intel X86 EM64T Linux
+
+ Parts of Q-Chem use Armadillo 9.900.5 (Nocturnal Misbehaviour).
+ http://arma.sourceforge.net/
+
+ Q-Chem begins on Tue Feb 15 18:14:40 2022  
+
+orc8
+ Host: 0
+
+     Scratch files written to /scratch/wojcik/qchem16454//
+ Processing $rem in /qcsoftware/qchem_latest/config/preferences:
+ Processing $rem in /home/users/wojcik/.qchemrc:
+ Core orbitals will be frozen
+
+
+!!********************************************.
+!!******************Warning*******************.
+!!Desired Analytical derivatives not available.
+!!Finite difference job might take a long time.
+!!********************************************.
+!!********************************************.
+
+
+ 2-order derivative to be evaluated numerically with 1-order analytical derivatives
+
+ Checking the input file for inconsistencies... 	...done.
+
+--------------------------------------------------------------
+User input:
+--------------------------------------------------------------
+$molecule
+0 1  ! charge = 0, multiplicty = 1
+  H 
+  H H r
+
+  r = 0.743373 ! Angstrom, from opt in ccsd/aug-cc-pVTZ
+$end
+
+$rem
+  jobtype = freq
+  method = ccsd
+  basis = aug-cc-pVTZ
+$end
+--------------------------------------------------------------
+ ----------------------------------------------------------------
+             Standard Nuclear Orientation (Angstroms)
+    I     Atom           X                Y                Z
+ ----------------------------------------------------------------
+    1      H       0.0000000000     0.0000000000    -0.3716865000
+    2      H       0.0000000000     0.0000000000     0.3716865000
+ ----------------------------------------------------------------
+ Molecular Point Group                 D*h   NOp =***
+ Largest Abelian Subgroup              D2h   NOp =  1
+ Nuclear Repulsion Energy =           0.71185961 hartrees
+ There are        1 alpha and        1 beta electrons
+ Requested basis set is aug-cc-pVTZ
+ There are 18 shells and 46 basis functions
+ Total memory of 2000 MB is distributed as follows: 
+   MEM_STATIC is set to 192 MB
+   QALLOC/CCMAN JOB total memory use is  1808 MB
+ Warning: actual memory use might exceed 2000 MB
+
+ Total QAlloc Memory Limit   2000 MB
+ Mega-Array Size       188 MB
+ MEM_STATIC part       192 MB
+
+                       Distance Matrix (Angstroms)
+             H (  1)
+   H (  2)  0.743373
+
+ A cutoff of  1.0D-14 yielded    171 shell pairs
+ There are      1139 function pairs (      1353 Cartesian)
+ Smallest overlap matrix eigenvalue = 5.49E-05
+ Guess from superposition of atomic densities
+ Warning:  Energy on first SCF cycle will be non-variational
+ SAD guess density has 2.000000 electrons
+
+ -----------------------------------------------------------------------
+  General SCF calculation program by
+  Eric Jon Sundstrom, Paul Horn, Yuezhi Mao, Dmitri Zuev, Alec White,
+  David Stuck, Shaama M.S., Shane Yost, Joonho Lee, David Small,
+  Daniel Levine, Susi Lehtola, Hugh Burton, Evgeny Epifanovsky,
+  Bang C. Huynh
+ -----------------------------------------------------------------------
+ Hartree-Fock
+ using 4 threads for integral computing
+ -------------------------------------------------------
+ OpenMP Integral computing Module                
+ Release: version 1.0, May 2013, Q-Chem Inc. Pittsburgh 
+ -------------------------------------------------------
+ A restricted SCF calculation will be
+ performed using DIIS
+ SCF converges when DIIS error is below 1.0e-08
+ ---------------------------------------
+  Cycle       Energy         DIIS error
+ ---------------------------------------
+    1      -0.8509367558      1.00e-02  
+    2      -1.1316706547      1.55e-03  
+    3      -1.1329854665      1.54e-04  
+    4      -1.1329992998      2.46e-05  
+    5      -1.1329997862      1.37e-06  
+    6      -1.1329997876      6.69e-08  
+    7      -1.1329997876      4.60e-09  Convergence criterion met
+ ---------------------------------------
+ SCF time:   CPU 1.46s  wall 1.00s 
+ SCF   energy in the final basis set =       -1.1329997876
+ Total energy in the final basis set =       -1.1329997876
+
+
+ ------------------------------------------------------------------------------
+
+   CCMAN2: suite of methods based on coupled cluster
+           and equation of motion theories.
+
+   Components:
+   * libvmm-1.3-trunk
+     by Evgeny Epifanovsky, Ilya Kaliman.
+   * libtensor-2.5-trunk
+     by Evgeny Epifanovsky, Michael Wormit, Dmitry Zuev, Sam Manzer, 
+        Ilya Kaliman.
+   * libcc-2.5-trunk
+     by Evgeny Epifanovsky, Arik Landau, Tomasz Kus, Kirill Khistyaev, 
+        Dmitry Zuev, Prashant Manohar, Xintian Feng, Anna Krylov, 
+        Matthew Goldey, Alec White, Thomas Jagau, Kaushik Nanda, 
+        Anastasia Gunina, Alexander Kunitsa, Joonho Lee.
+
+   CCMAN original authors:
+   Anna I. Krylov, C. David Sherrill, Steven R. Gwaltney,
+   Edward F. C. Byrd (2000)
+   Sergey V. Levchenko, Lyudmila V. Slipchenko, Tao Wang,
+   Ana-Maria C. Cristian (2003)
+   Piotr A. Pieniazek, C. Melania Oana, Evgeny Epifanovsky (2007)
+   Prashant Manohar (2009)
+
+ ------------------------------------------------------------------------------
+
+
+ Allocating and initializing 1808MB of RAM...
+ Calculation will run on 4 cores.
+
+
+ Alpha MOs, Restricted
+ -- Occupied --                  
+ -0.594
+  1 A                                                                          
+ -- Virtual --                   
+  0.053   0.053   0.190   0.209   0.209   0.285   0.297   0.297
+  2 A     3 A     4 A     5 A     6 A     7 A     8 A     9 A                  
+  0.418   0.420   0.738   0.791   0.791   0.884   0.884   0.903
+ 10 A    11 A    12 A    13 A    14 A    15 A    16 A    17 A                  
+  0.931   0.931   1.046   1.048   1.048   1.067   1.067   1.523
+ 18 A    19 A    20 A    21 A    22 A    23 A    24 A    25 A                  
+  1.937   1.937   2.131   2.592   2.935   3.616   3.616   3.633
+ 26 A    27 A    28 A    29 A    30 A    31 A    32 A    33 A                  
+  3.633   4.154   4.404   4.404   4.429   4.429   4.488   4.488
+ 34 A    35 A    36 A    37 A    38 A    39 A    40 A    41 A                  
+  5.182   5.777   5.777   5.978   7.109
+ 42 A    43 A    44 A    45 A    46 A                                          
+
+ Beta MOs, Restricted
+ -- Occupied --                  
+ -0.594
+  1 A                                                                          
+ -- Virtual --                   
+  0.053   0.053   0.190   0.209   0.209   0.285   0.297   0.297
+  2 A     3 A     4 A     5 A     6 A     7 A     8 A     9 A                  
+  0.418   0.420   0.738   0.791   0.791   0.884   0.884   0.903
+ 10 A    11 A    12 A    13 A    14 A    15 A    16 A    17 A                  
+  0.931   0.931   1.046   1.048   1.048   1.067   1.067   1.523
+ 18 A    19 A    20 A    21 A    22 A    23 A    24 A    25 A                  
+  1.937   1.937   2.131   2.592   2.935   3.616   3.616   3.633
+ 26 A    27 A    28 A    29 A    30 A    31 A    32 A    33 A                  
+  3.633   4.154   4.404   4.404   4.429   4.429   4.488   4.488
+ 34 A    35 A    36 A    37 A    38 A    39 A    40 A    41 A                  
+  5.182   5.777   5.777   5.978   7.109
+ 42 A    43 A    44 A    45 A    46 A                                          
+
+ Occupation and symmetry of molecular orbitals
+
+ Point group: D*h (1 irreducible representation).
+
+                           A     All 
+ -------------------------------------
+ All molecular orbitals:
+  - Alpha                  46    46  
+  - Beta                   46    46  
+ -------------------------------------
+ Alpha orbitals:
+  - Frozen occupied        0     0   
+  - Active occupied        1     1   
+  - Active virtual         45    45  
+  - Frozen virtual         0     0   
+ -------------------------------------
+ Beta orbitals:
+  - Frozen occupied        0     0   
+  - Active occupied        1     1   
+  - Active virtual         45    45  
+  - Frozen virtual         0     0   
+ -------------------------------------
+
+ Import integrals:   CPU 0.00 s  wall 0.00 s
+
+ Import integrals:   CPU 0.70 s  wall 0.26 s
+
+ MP2 amplitudes:   CPU 0.01 s  wall 0.01 s
+
+Running a double precision version
+           CCSD T amplitudes will be solved using DIIS.
+
+           Start     Size      MaxIter   EConv     TConv     
+           3         7         100       1.00e-07  1.00e-05  
+ ------------------------------------------------------------------------------
+           Energy (a.u.)   Ediff      Tdiff       Comment
+ ------------------------------------------------------------------------------
+            -1.16499891                           
+     1      -1.17022531   5.23e-03   1.54e-01     
+     2      -1.17181193   1.59e-03   3.21e-02     
+     3      -1.17233671   5.25e-04   1.09e-02     
+     4      -1.17263219   2.95e-04   6.13e-03     Switched to DIIS steps.
+     5      -1.17263557   3.37e-06   6.07e-04     
+     6      -1.17263547   9.95e-08   3.89e-05     
+     7      -1.17263546   2.30e-09   8.73e-06     
+ ------------------------------------------------------------------------------
+            -1.17263546                           CCSD T converged.
+
+End of double precision
+ SCF energy                 = -1.13299979
+ MP2 energy                 = -1.16499891
+ CCSD correlation energy    = -0.03963568
+ CCSD total energy          = -1.17263546
+
+ CCSD  T1^2 = 0.0001  T2^2 = 0.0183  Leading amplitudes:
+
+ Amplitude    Orbitals with energies
+  0.0054       1 (A) A                   ->    10 (A) A                   
+              -0.5936                          0.4176                     
+  0.0054       1 (A) B                   ->    10 (A) B                   
+              -0.5936                          0.4176                     
+  0.0032       1 (A) A                   ->    17 (A) A                   
+              -0.5936                          0.9028                     
+  0.0032       1 (A) B                   ->    17 (A) B                   
+              -0.5936                          0.9028                     
+
+ Amplitude    Orbitals with energies
+ -0.0324       1 (A) A       1 (A) B     ->    4 (A) A       4 (A) B      
+              -0.5936       -0.5936            0.1901        0.1901       
+  0.0324       1 (A) A       1 (A) B     ->    4 (A) B       4 (A) A      
+              -0.5936       -0.5936            0.1901        0.1901       
+  0.0324       1 (A) B       1 (A) A     ->    4 (A) A       4 (A) B      
+              -0.5936       -0.5936            0.1901        0.1901       
+ -0.0324       1 (A) B       1 (A) A     ->    4 (A) B       4 (A) A      
+              -0.5936       -0.5936            0.1901        0.1901       
+
+ Computing CCSD intermediates for later calculations in double precision
+ Finished.
+
+Running a double precision version
+           CCSD Lambda amplitudes will be solved using DIIS.
+           Start     Size      MaxIter   EConv     LConv     
+           3         7         100       1.00e-07  1.00e-05  
+ ------------------------------------------------------------------------------
+            Enorm      Ldiff       Comment
+ ------------------------------------------------------------------------------
+     1     3.80e-03   3.74e-03     
+     2     8.75e-04   7.90e-04     
+     3     3.10e-04   2.65e-04     
+     4     3.98e-05   1.40e-04     Switched to DIIS steps.
+     5     6.00e-06   1.07e-05     
+     6     9.91e-07   8.17e-07     
+     7     1.63e-07   5.35e-08     
+     8     3.78e-08   1.83e-08     
+ ------------------------------------------------------------------------------
+                                   CCSD Lambda converged.
+
+ Computing density matrices in double precision...
+           Orbital response amplitudes will be solved using DIIS.
+           Start     Size      MaxIter   EConv     LConv     
+           3         7         100       1.00e-06  1.00e-06  
+ ------------------------------------------------------------------------------
+            Enorm      Ldiff       Comment
+ ------------------------------------------------------------------------------
+     1     1.04e-06   2.57e-07     
+     2     1.01e-07   7.12e-08     
+ ------------------------------------------------------------------------------
+                                   Orbital response converged.
+
+ Computing density matrices... Done.
+ CCSD calculation:   CPU 13.59 s  wall 4.90 s
+
+ Adding separable TPDM in double precision
+ Transferring MO TPDM to AO TPDM
+ Transferring g2_o1o1o1o1
+ Transferring g2_o1o1o1v1
+ Transferring g2_o1o1v1v1
+ Transferring g2_o1v1o1v1
+ Transferring g2_o1v1v1v1
+ Transferring g2_v1v1v1v1
+ Computing TPDM gradient
+ --------------------------------------------------------
+ 2e gradient
+  Atom          X               Y               Z
+ --------------------------------------------------------
+    1         -0.000000        0.000000        0.324846  
+    2          0.000000       -0.000000       -0.324846  
+ --------------------------------------------------------
+ --------------------------------------------------------
+ Final gradient
+  Atom          X               Y               Z
+ --------------------------------------------------------
+    1         -0.000000        0.000000        0.324846  
+    2          0.000000       -0.000000       -0.324846  
+ --------------------------------------------------------
+ Analytic gradient from two-electron contribution:   CPU 5.11 s  wall 2.00 s
+
+ Total ccman2 time:   CPU 23.87 s  wall 8.55 s
+
+
+ --------------------------------------------------------------
+
+                    Orbital Energies (a.u.)
+ --------------------------------------------------------------
+
+ Alpha MOs
+ -- Occupied --
+ -0.5936
+ -- Virtual --
+  0.0525   0.0531   0.1901   0.2088   0.2088   0.2847   0.2974   0.2974
+  0.4176   0.4200   0.7379   0.7912   0.7912   0.8838   0.8838   0.9028
+  0.9312   0.9312   1.0461   1.0479   1.0479   1.0668   1.0668   1.5232
+  1.9372   1.9372   2.1310   2.5923   2.9347   3.6156   3.6156   3.6328
+  3.6328   4.1542   4.4038   4.4038   4.4287   4.4287   4.4881   4.4881
+  5.1824   5.7766   5.7766   5.9775   7.1095
+ --------------------------------------------------------------
+
+          Ground-State Mulliken Net Atomic Charges
+
+     Atom                 Charge (a.u.)
+  ----------------------------------------
+      1 H                     0.000000
+      2 H                    -0.000000
+  ----------------------------------------
+  Sum of atomic charges =     0.000000
+
+ -----------------------------------------------------------------
+                    Cartesian Multipole Moments
+ -----------------------------------------------------------------
+    Charge (ESU x 10^10)
+                 0.0000
+    Dipole Moment (Debye)
+         X       0.0000      Y       0.0000      Z      -0.0000
+       Tot       0.0000
+    Quadrupole Moments (Debye-Ang)
+        XX      -2.0646     XY       0.0000     YY      -2.0646
+        XZ       0.0000     YZ      -0.0000     ZZ      -1.4419
+    Octopole Moments (Debye-Ang^2)
+       XXX       0.0000    XXY       0.0000    XYY       0.0000
+       YYY       0.0000    XXZ      -0.0000    XYZ      -0.0000
+       YYZ      -0.0000    XZZ       0.0000    YZZ      -0.0000
+       ZZZ      -0.0000
+    Hexadecapole Moments (Debye-Ang^3)
+      XXXX      -2.0434   XXXY       0.0000   XXYY      -0.6811
+      XYYY       0.0000   YYYY      -2.0434   XXXZ       0.0000
+      XXYZ      -0.0000   XYYZ       0.0000   YYYZ      -0.0000
+      XXZZ      -0.8114   XYZZ       0.0000   YYZZ      -0.8114
+      XZZZ       0.0000   YZZZ      -0.0000   ZZZZ      -2.7017
+ -----------------------------------------------------------------
+ DrvMan completing analytic gradient of the correlated energy
+ Correlated dipole moment
+            1
+    1   0.0000000
+    2   0.0000000
+    3  -0.0000000
+ Energy read as -1.172635464
+ Full Analytical Gradient: (in a.u., or Hartree/Bohr)
+             1             2
+    1   -0.00000000    0.00000000
+    2   -0.00000000    0.00000000
+    3   -0.00027376    0.00027376
+ Gradient time:  CPU 0.29 s  wall 0.34 s
+ ######################################################
+ ######################################################
+ # Starting finite difference calculation for IDERIV  #
+ Finite diff step size:  1.88973e-03 a.u.
+ ----------------------------------------------------------------
+             Standard Nuclear Orientation (Angstroms)
+    I     Atom           X                Y                Z
+ ----------------------------------------------------------------
+    1      H       0.0010000000     0.0000000000    -0.3716865000
+    2      H       0.0000000000     0.0000000000     0.3716865000
+ ----------------------------------------------------------------
+ Nuclear Repulsion Energy =           0.71185896 hartrees
+ There are        1 alpha and        1 beta electrons
+
+                       Distance Matrix (Angstroms)
+             H (  1)
+   H (  2)  0.743374
+
+ Requested basis set is aug-cc-pVTZ
+ There are 18 shells and 46 basis functions
+ A cutoff of  1.0D-14 yielded    171 shell pairs
+ There are      1139 function pairs (      1353 Cartesian)
+ Smallest overlap matrix eigenvalue = 5.49E-05
+ Guess MOs from SCF MO coefficient file
+
+ -----------------------------------------------------------------------
+  General SCF calculation program by
+  Eric Jon Sundstrom, Paul Horn, Yuezhi Mao, Dmitri Zuev, Alec White,
+  David Stuck, Shaama M.S., Shane Yost, Joonho Lee, David Small,
+  Daniel Levine, Susi Lehtola, Hugh Burton, Evgeny Epifanovsky,
+  Bang C. Huynh
+ -----------------------------------------------------------------------
+ Hartree-Fock
+ A restricted SCF calculation will be
+ performed using DIIS
+ SCF converges when DIIS error is below 1.0e-08
+ ---------------------------------------
+  Cycle       Energy         DIIS error
+ ---------------------------------------
+    1      -1.1329997732      5.88e-06  
+    2      -1.1329997790      8.16e-07  
+    3      -1.1329997792      7.52e-08  
+    4      -1.1329997792      4.71e-09  Convergence criterion met
+ ---------------------------------------
+ SCF time:   CPU 0.85s  wall 1.00s 
+ SCF   energy in the final basis set =       -1.1329997792
+ Total energy in the final basis set =       -1.1329997792
+
+
+ ------------------------------------------------------------------------------
+
+   CCMAN2: suite of methods based on coupled cluster
+           and equation of motion theories.
+
+   Components:
+   * libvmm-1.3-trunk
+     by Evgeny Epifanovsky, Ilya Kaliman.
+   * libtensor-2.5-trunk
+     by Evgeny Epifanovsky, Michael Wormit, Dmitry Zuev, Sam Manzer, 
+        Ilya Kaliman.
+   * libcc-2.5-trunk
+     by Evgeny Epifanovsky, Arik Landau, Tomasz Kus, Kirill Khistyaev, 
+        Dmitry Zuev, Prashant Manohar, Xintian Feng, Anna Krylov, 
+        Matthew Goldey, Alec White, Thomas Jagau, Kaushik Nanda, 
+        Anastasia Gunina, Alexander Kunitsa, Joonho Lee.
+
+   CCMAN original authors:
+   Anna I. Krylov, C. David Sherrill, Steven R. Gwaltney,
+   Edward F. C. Byrd (2000)
+   Sergey V. Levchenko, Lyudmila V. Slipchenko, Tao Wang,
+   Ana-Maria C. Cristian (2003)
+   Piotr A. Pieniazek, C. Melania Oana, Evgeny Epifanovsky (2007)
+   Prashant Manohar (2009)
+
+ ------------------------------------------------------------------------------
+
+
+ Allocating and initializing 1808MB of RAM...
+ Calculation will run on 4 cores.
+
+
+ Alpha MOs, Restricted
+ -- Occupied --                  
+ -0.594
+  1 A                                                                          
+ -- Virtual --                   
+  0.053   0.053   0.190   0.209   0.209   0.285   0.297   0.297
+  2 A     3 A     4 A     5 A     6 A     7 A     8 A     9 A                  
+  0.418   0.420   0.738   0.791   0.791   0.884   0.884   0.903
+ 10 A    11 A    12 A    13 A    14 A    15 A    16 A    17 A                  
+  0.931   0.931   1.046   1.048   1.048   1.067   1.067   1.523
+ 18 A    19 A    20 A    21 A    22 A    23 A    24 A    25 A                  
+  1.937   1.937   2.131   2.592   2.935   3.616   3.616   3.633
+ 26 A    27 A    28 A    29 A    30 A    31 A    32 A    33 A                  
+  3.633   4.154   4.404   4.404   4.429   4.429   4.488   4.488
+ 34 A    35 A    36 A    37 A    38 A    39 A    40 A    41 A                  
+  5.182   5.777   5.777   5.978   7.109
+ 42 A    43 A    44 A    45 A    46 A                                          
+
+ Beta MOs, Restricted
+ -- Occupied --                  
+ -0.594
+  1 A                                                                          
+ -- Virtual --                   
+  0.053   0.053   0.190   0.209   0.209   0.285   0.297   0.297
+  2 A     3 A     4 A     5 A     6 A     7 A     8 A     9 A                  
+  0.418   0.420   0.738   0.791   0.791   0.884   0.884   0.903
+ 10 A    11 A    12 A    13 A    14 A    15 A    16 A    17 A                  
+  0.931   0.931   1.046   1.048   1.048   1.067   1.067   1.523
+ 18 A    19 A    20 A    21 A    22 A    23 A    24 A    25 A                  
+  1.937   1.937   2.131   2.592   2.935   3.616   3.616   3.633
+ 26 A    27 A    28 A    29 A    30 A    31 A    32 A    33 A                  
+  3.633   4.154   4.404   4.404   4.429   4.429   4.488   4.488
+ 34 A    35 A    36 A    37 A    38 A    39 A    40 A    41 A                  
+  5.182   5.777   5.777   5.978   7.109
+ 42 A    43 A    44 A    45 A    46 A                                          
+
+ Occupation and symmetry of molecular orbitals
+
+ Point group: C1 (1 irreducible representation).
+
+                           A     All 
+ -------------------------------------
+ All molecular orbitals:
+  - Alpha                  46    46  
+  - Beta                   46    46  
+ -------------------------------------
+ Alpha orbitals:
+  - Frozen occupied        0     0   
+  - Active occupied        1     1   
+  - Active virtual         45    45  
+  - Frozen virtual         0     0   
+ -------------------------------------
+ Beta orbitals:
+  - Frozen occupied        0     0   
+  - Active occupied        1     1   
+  - Active virtual         45    45  
+  - Frozen virtual         0     0   
+ -------------------------------------
+
+ Import integrals:   CPU 0.00 s  wall 0.00 s
+
+ Import integrals:   CPU 0.68 s  wall 0.25 s
+
+ MP2 amplitudes:   CPU 0.01 s  wall 0.01 s
+
+Running a double precision version
+           CCSD T amplitudes will be solved using DIIS.
+
+           Start     Size      MaxIter   EConv     TConv     
+           3         7         100       1.00e-07  1.00e-05  
+ ------------------------------------------------------------------------------
+           Energy (a.u.)   Ediff      Tdiff       Comment
+ ------------------------------------------------------------------------------
+            -1.16499891                           
+     1      -1.17022530   5.23e-03   1.54e-01     
+     2      -1.17181193   1.59e-03   3.21e-02     
+     3      -1.17233671   5.25e-04   1.09e-02     
+     4      -1.17263219   2.95e-04   6.13e-03     Switched to DIIS steps.
+     5      -1.17263556   3.37e-06   6.07e-04     
+     6      -1.17263546   9.95e-08   3.89e-05     
+     7      -1.17263546   2.30e-09   8.73e-06     
+ ------------------------------------------------------------------------------
+            -1.17263546                           CCSD T converged.
+
+End of double precision
+ SCF energy                 = -1.13299978
+ MP2 energy                 = -1.16499891
+ CCSD correlation energy    = -0.03963568
+ CCSD total energy          = -1.17263546
+
+ CCSD  T1^2 = 0.0001  T2^2 = 0.0183  Leading amplitudes:
+
+ Amplitude    Orbitals with energies
+ -0.0054       1 (A) A                   ->    10 (A) A                   
+              -0.5936                          0.4176                     
+ -0.0054       1 (A) B                   ->    10 (A) B                   
+              -0.5936                          0.4176                     
+  0.0032       1 (A) A                   ->    17 (A) A                   
+              -0.5936                          0.9028                     
+  0.0032       1 (A) B                   ->    17 (A) B                   
+              -0.5936                          0.9028                     
+
+ Amplitude    Orbitals with energies
+ -0.0324       1 (A) A       1 (A) B     ->    4 (A) A       4 (A) B      
+              -0.5936       -0.5936            0.1901        0.1901       
+  0.0324       1 (A) A       1 (A) B     ->    4 (A) B       4 (A) A      
+              -0.5936       -0.5936            0.1901        0.1901       
+  0.0324       1 (A) B       1 (A) A     ->    4 (A) A       4 (A) B      
+              -0.5936       -0.5936            0.1901        0.1901       
+ -0.0324       1 (A) B       1 (A) A     ->    4 (A) B       4 (A) A      
+              -0.5936       -0.5936            0.1901        0.1901       
+
+ Computing CCSD intermediates for later calculations in double precision
+ Finished.
+
+Running a double precision version
+           CCSD Lambda amplitudes will be solved using DIIS.
+           Start     Size      MaxIter   EConv     LConv     
+           3         7         100       1.00e-07  1.00e-05  
+ ------------------------------------------------------------------------------
+            Enorm      Ldiff       Comment
+ ------------------------------------------------------------------------------
+     1     3.80e-03   3.74e-03     
+     2     8.75e-04   7.90e-04     
+     3     3.10e-04   2.65e-04     
+     4     3.98e-05   1.40e-04     Switched to DIIS steps.
+     5     6.00e-06   1.07e-05     
+     6     9.91e-07   8.17e-07     
+     7     1.63e-07   5.35e-08     
+     8     3.78e-08   1.83e-08     
+ ------------------------------------------------------------------------------
+                                   CCSD Lambda converged.
+
+ Computing density matrices in double precision...
+           Orbital response amplitudes will be solved using DIIS.
+           Start     Size      MaxIter   EConv     LConv     
+           3         7         100       1.00e-06  1.00e-06  
+ ------------------------------------------------------------------------------
+            Enorm      Ldiff       Comment
+ ------------------------------------------------------------------------------
+     1     1.04e-06   2.57e-07     
+     2     1.01e-07   7.12e-08     
+ ------------------------------------------------------------------------------
+                                   Orbital response converged.
+
+ Computing density matrices... Done.
+ CCSD calculation:   CPU 12.62 s  wall 4.60 s
+
+ Adding separable TPDM in double precision
+ Transferring MO TPDM to AO TPDM
+ Transferring g2_o1o1o1o1
+ Transferring g2_o1o1o1v1
+ Transferring g2_o1o1v1v1
+ Transferring g2_o1v1o1v1
+ Transferring g2_o1v1v1v1
+ Transferring g2_v1v1v1v1
+ Computing TPDM gradient
+ --------------------------------------------------------
+ 2e gradient
+  Atom          X               Y               Z
+ --------------------------------------------------------
+    1         -0.000437        0.000000        0.324846  
+    2          0.000437       -0.000000       -0.324846  
+ --------------------------------------------------------
+ --------------------------------------------------------
+ Final gradient
+  Atom          X               Y               Z
+ --------------------------------------------------------
+    1         -0.000437        0.000000        0.324846  
+    2          0.000437       -0.000000       -0.324846  
+ --------------------------------------------------------
+ Analytic gradient from two-electron contribution:   CPU 4.99 s  wall 1.97 s
+
+ Total ccman2 time:   CPU 22.15 s  wall 8.05 s
+
+
+ --------------------------------------------------------------
+
+                    Orbital Energies (a.u.)
+ --------------------------------------------------------------
+
+ Alpha MOs
+ -- Occupied --
+ -0.5936
+ -- Virtual --
+  0.0525   0.0531   0.1901   0.2088   0.2088   0.2847   0.2974   0.2974
+  0.4176   0.4200   0.7379   0.7912   0.7912   0.8838   0.8838   0.9028
+  0.9312   0.9312   1.0461   1.0479   1.0479   1.0668   1.0668   1.5232
+  1.9372   1.9372   2.1310   2.5923   2.9347   3.6156   3.6156   3.6328
+  3.6328   4.1542   4.4038   4.4038   4.4287   4.4287   4.4881   4.4881
+  5.1824   5.7766   5.7766   5.9775   7.1095
+ --------------------------------------------------------------
+
+          Ground-State Mulliken Net Atomic Charges
+
+     Atom                 Charge (a.u.)
+  ----------------------------------------
+      1 H                     0.000000
+      2 H                    -0.000000
+  ----------------------------------------
+  Sum of atomic charges =     0.000000
+
+ -----------------------------------------------------------------
+                    Cartesian Multipole Moments
+ -----------------------------------------------------------------
+    Charge (ESU x 10^10)
+                 0.0000
+    Dipole Moment (Debye)
+         X      -0.0000      Y       0.0000      Z       0.0000
+       Tot       0.0000
+    Quadrupole Moments (Debye-Ang)
+        XX      -2.0646     XY       0.0000     YY      -2.0646
+        XZ      -0.0008     YZ      -0.0000     ZZ      -1.4419
+    Octopole Moments (Debye-Ang^2)
+       XXX      -0.0031    XXY       0.0000    XYY      -0.0010
+       YYY       0.0000    XXZ      -0.0000    XYZ       0.0000
+       YYZ       0.0000    XZZ      -0.0007    YZZ       0.0000
+       ZZZ       0.0000
+    Hexadecapole Moments (Debye-Ang^3)
+      XXXX      -2.0434   XXXY       0.0000   XXYY      -0.6811
+      XYYY       0.0000   YYYY      -2.0434   XXXZ       0.0005
+      XXYZ      -0.0000   XYYZ       0.0002   YYYZ      -0.0000
+      XXZZ      -0.8114   XYZZ       0.0000   YYZZ      -0.8114
+      XZZZ       0.0004   YZZZ      -0.0000   ZZZZ      -2.7017
+ -----------------------------------------------------------------
+ DrvMan completing analytic gradient of the correlated energy
+ Correlated dipole moment
+            1
+    1  -0.0000000
+    2   0.0000000
+    3   0.0000000
+ Energy read as -1.172635463
+ Full Analytical Gradient: (in a.u., or Hartree/Bohr)
+             1             2
+    1    0.00000037   -0.00000037
+    2    0.00000000   -0.00000000
+    3   -0.00027423    0.00027423
+ Gradient time:  CPU 0.28 s  wall 0.33 s
+ ----------------------------------------------------------------
+             Standard Nuclear Orientation (Angstroms)
+    I     Atom           X                Y                Z
+ ----------------------------------------------------------------
+    1      H      -0.0010000000     0.0000000000    -0.3716865000
+    2      H       0.0000000000     0.0000000000     0.3716865000
+ ----------------------------------------------------------------
+ Nuclear Repulsion Energy =           0.71185896 hartrees
+ There are        1 alpha and        1 beta electrons
+
+                       Distance Matrix (Angstroms)
+             H (  1)
+   H (  2)  0.743374
+
+ Requested basis set is aug-cc-pVTZ
+ There are 18 shells and 46 basis functions
+ A cutoff of  1.0D-14 yielded    171 shell pairs
+ There are      1139 function pairs (      1353 Cartesian)
+ Smallest overlap matrix eigenvalue = 5.49E-05
+ Guess MOs from SCF MO coefficient file
+
+ -----------------------------------------------------------------------
+  General SCF calculation program by
+  Eric Jon Sundstrom, Paul Horn, Yuezhi Mao, Dmitri Zuev, Alec White,
+  David Stuck, Shaama M.S., Shane Yost, Joonho Lee, David Small,
+  Daniel Levine, Susi Lehtola, Hugh Burton, Evgeny Epifanovsky,
+  Bang C. Huynh
+ -----------------------------------------------------------------------
+ Hartree-Fock
+ A restricted SCF calculation will be
+ performed using DIIS
+ SCF converges when DIIS error is below 1.0e-08
+ ---------------------------------------
+  Cycle       Energy         DIIS error
+ ---------------------------------------
+    1      -1.1329997553      1.18e-05  
+    2      -1.1329997785      1.63e-06  
+    3      -1.1329997792      1.50e-07  
+    4      -1.1329997792      9.42e-09  Convergence criterion met
+ ---------------------------------------
+ SCF time:   CPU 0.84s  wall 2.00s 
+ SCF   energy in the final basis set =       -1.1329997792
+ Total energy in the final basis set =       -1.1329997792
+
+
+ ------------------------------------------------------------------------------
+
+   CCMAN2: suite of methods based on coupled cluster
+           and equation of motion theories.
+
+   Components:
+   * libvmm-1.3-trunk
+     by Evgeny Epifanovsky, Ilya Kaliman.
+   * libtensor-2.5-trunk
+     by Evgeny Epifanovsky, Michael Wormit, Dmitry Zuev, Sam Manzer, 
+        Ilya Kaliman.
+   * libcc-2.5-trunk
+     by Evgeny Epifanovsky, Arik Landau, Tomasz Kus, Kirill Khistyaev, 
+        Dmitry Zuev, Prashant Manohar, Xintian Feng, Anna Krylov, 
+        Matthew Goldey, Alec White, Thomas Jagau, Kaushik Nanda, 
+        Anastasia Gunina, Alexander Kunitsa, Joonho Lee.
+
+   CCMAN original authors:
+   Anna I. Krylov, C. David Sherrill, Steven R. Gwaltney,
+   Edward F. C. Byrd (2000)
+   Sergey V. Levchenko, Lyudmila V. Slipchenko, Tao Wang,
+   Ana-Maria C. Cristian (2003)
+   Piotr A. Pieniazek, C. Melania Oana, Evgeny Epifanovsky (2007)
+   Prashant Manohar (2009)
+
+ ------------------------------------------------------------------------------
+
+
+ Allocating and initializing 1808MB of RAM...
+ Calculation will run on 4 cores.
+
+
+ Alpha MOs, Restricted
+ -- Occupied --                  
+ -0.594
+  1 A                                                                          
+ -- Virtual --                   
+  0.053   0.053   0.190   0.209   0.209   0.285   0.297   0.297
+  2 A     3 A     4 A     5 A     6 A     7 A     8 A     9 A                  
+  0.418   0.420   0.738   0.791   0.791   0.884   0.884   0.903
+ 10 A    11 A    12 A    13 A    14 A    15 A    16 A    17 A                  
+  0.931   0.931   1.046   1.048   1.048   1.067   1.067   1.523
+ 18 A    19 A    20 A    21 A    22 A    23 A    24 A    25 A                  
+  1.937   1.937   2.131   2.592   2.935   3.616   3.616   3.633
+ 26 A    27 A    28 A    29 A    30 A    31 A    32 A    33 A                  
+  3.633   4.154   4.404   4.404   4.429   4.429   4.488   4.488
+ 34 A    35 A    36 A    37 A    38 A    39 A    40 A    41 A                  
+  5.182   5.777   5.777   5.978   7.109
+ 42 A    43 A    44 A    45 A    46 A                                          
+
+ Beta MOs, Restricted
+ -- Occupied --                  
+ -0.594
+  1 A                                                                          
+ -- Virtual --                   
+  0.053   0.053   0.190   0.209   0.209   0.285   0.297   0.297
+  2 A     3 A     4 A     5 A     6 A     7 A     8 A     9 A                  
+  0.418   0.420   0.738   0.791   0.791   0.884   0.884   0.903
+ 10 A    11 A    12 A    13 A    14 A    15 A    16 A    17 A                  
+  0.931   0.931   1.046   1.048   1.048   1.067   1.067   1.523
+ 18 A    19 A    20 A    21 A    22 A    23 A    24 A    25 A                  
+  1.937   1.937   2.131   2.592   2.935   3.616   3.616   3.633
+ 26 A    27 A    28 A    29 A    30 A    31 A    32 A    33 A                  
+  3.633   4.154   4.404   4.404   4.429   4.429   4.488   4.488
+ 34 A    35 A    36 A    37 A    38 A    39 A    40 A    41 A                  
+  5.182   5.777   5.777   5.978   7.109
+ 42 A    43 A    44 A    45 A    46 A                                          
+
+ Occupation and symmetry of molecular orbitals
+
+ Point group: C1 (1 irreducible representation).
+
+                           A     All 
+ -------------------------------------
+ All molecular orbitals:
+  - Alpha                  46    46  
+  - Beta                   46    46  
+ -------------------------------------
+ Alpha orbitals:
+  - Frozen occupied        0     0   
+  - Active occupied        1     1   
+  - Active virtual         45    45  
+  - Frozen virtual         0     0   
+ -------------------------------------
+ Beta orbitals:
+  - Frozen occupied        0     0   
+  - Active occupied        1     1   
+  - Active virtual         45    45  
+  - Frozen virtual         0     0   
+ -------------------------------------
+
+ Import integrals:   CPU 0.00 s  wall 0.00 s
+
+ Import integrals:   CPU 0.68 s  wall 0.25 s
+
+ MP2 amplitudes:   CPU 0.01 s  wall 0.01 s
+
+Running a double precision version
+           CCSD T amplitudes will be solved using DIIS.
+
+           Start     Size      MaxIter   EConv     TConv     
+           3         7         100       1.00e-07  1.00e-05  
+ ------------------------------------------------------------------------------
+           Energy (a.u.)   Ediff      Tdiff       Comment
+ ------------------------------------------------------------------------------
+            -1.16499891                           
+     1      -1.17022530   5.23e-03   1.54e-01     
+     2      -1.17181193   1.59e-03   3.21e-02     
+     3      -1.17233671   5.25e-04   1.09e-02     
+     4      -1.17263219   2.95e-04   6.13e-03     Switched to DIIS steps.
+     5      -1.17263556   3.37e-06   6.07e-04     
+     6      -1.17263546   9.95e-08   3.89e-05     
+     7      -1.17263546   2.30e-09   8.73e-06     
+ ------------------------------------------------------------------------------
+            -1.17263546                           CCSD T converged.
+
+End of double precision
+ SCF energy                 = -1.13299978
+ MP2 energy                 = -1.16499891
+ CCSD correlation energy    = -0.03963568
+ CCSD total energy          = -1.17263546
+
+ CCSD  T1^2 = 0.0001  T2^2 = 0.0183  Leading amplitudes:
+
+ Amplitude    Orbitals with energies
+ -0.0054       1 (A) A                   ->    10 (A) A                   
+              -0.5936                          0.4176                     
+ -0.0054       1 (A) B                   ->    10 (A) B                   
+              -0.5936                          0.4176                     
+  0.0032       1 (A) A                   ->    17 (A) A                   
+              -0.5936                          0.9028                     
+  0.0032       1 (A) B                   ->    17 (A) B                   
+              -0.5936                          0.9028                     
+
+ Amplitude    Orbitals with energies
+ -0.0324       1 (A) A       1 (A) B     ->    4 (A) A       4 (A) B      
+              -0.5936       -0.5936            0.1901        0.1901       
+  0.0324       1 (A) A       1 (A) B     ->    4 (A) B       4 (A) A      
+              -0.5936       -0.5936            0.1901        0.1901       
+  0.0324       1 (A) B       1 (A) A     ->    4 (A) A       4 (A) B      
+              -0.5936       -0.5936            0.1901        0.1901       
+ -0.0324       1 (A) B       1 (A) A     ->    4 (A) B       4 (A) A      
+              -0.5936       -0.5936            0.1901        0.1901       
+
+ Computing CCSD intermediates for later calculations in double precision
+ Finished.
+
+Running a double precision version
+           CCSD Lambda amplitudes will be solved using DIIS.
+           Start     Size      MaxIter   EConv     LConv     
+           3         7         100       1.00e-07  1.00e-05  
+ ------------------------------------------------------------------------------
+            Enorm      Ldiff       Comment
+ ------------------------------------------------------------------------------
+     1     3.80e-03   3.74e-03     
+     2     8.75e-04   7.90e-04     
+     3     3.10e-04   2.65e-04     
+     4     3.98e-05   1.40e-04     Switched to DIIS steps.
+     5     6.00e-06   1.07e-05     
+     6     9.91e-07   8.17e-07     
+     7     1.63e-07   5.35e-08     
+     8     3.78e-08   1.83e-08     
+ ------------------------------------------------------------------------------
+                                   CCSD Lambda converged.
+
+ Computing density matrices in double precision...
+           Orbital response amplitudes will be solved using DIIS.
+           Start     Size      MaxIter   EConv     LConv     
+           3         7         100       1.00e-06  1.00e-06  
+ ------------------------------------------------------------------------------
+            Enorm      Ldiff       Comment
+ ------------------------------------------------------------------------------
+     1     1.04e-06   2.57e-07     
+     2     1.01e-07   7.12e-08     
+ ------------------------------------------------------------------------------
+                                   Orbital response converged.
+
+ Computing density matrices... Done.
+ CCSD calculation:   CPU 12.60 s  wall 4.62 s
+
+ Adding separable TPDM in double precision
+ Transferring MO TPDM to AO TPDM
+ Transferring g2_o1o1o1o1
+ Transferring g2_o1o1o1v1
+ Transferring g2_o1o1v1v1
+ Transferring g2_o1v1o1v1
+ Transferring g2_o1v1v1v1
+ Transferring g2_v1v1v1v1
+ Computing TPDM gradient
+ --------------------------------------------------------
+ 2e gradient
+  Atom          X               Y               Z
+ --------------------------------------------------------
+    1          0.000437        0.000000        0.324846  
+    2         -0.000437       -0.000000       -0.324846  
+ --------------------------------------------------------
+ --------------------------------------------------------
+ Final gradient
+  Atom          X               Y               Z
+ --------------------------------------------------------
+    1          0.000437        0.000000        0.324846  
+    2         -0.000437       -0.000000       -0.324846  
+ --------------------------------------------------------
+ Analytic gradient from two-electron contribution:   CPU 5.08 s  wall 1.98 s
+
+ Total ccman2 time:   CPU 22.67 s  wall 8.21 s
+
+
+ --------------------------------------------------------------
+
+                    Orbital Energies (a.u.)
+ --------------------------------------------------------------
+
+ Alpha MOs
+ -- Occupied --
+ -0.5936
+ -- Virtual --
+  0.0525   0.0531   0.1901   0.2088   0.2088   0.2847   0.2974   0.2974
+  0.4176   0.4200   0.7379   0.7912   0.7912   0.8838   0.8838   0.9028
+  0.9312   0.9312   1.0461   1.0479   1.0479   1.0668   1.0668   1.5232
+  1.9372   1.9372   2.1310   2.5923   2.9347   3.6156   3.6156   3.6328
+  3.6328   4.1542   4.4038   4.4038   4.4287   4.4287   4.4881   4.4881
+  5.1824   5.7766   5.7766   5.9775   7.1095
+ --------------------------------------------------------------
+
+          Ground-State Mulliken Net Atomic Charges
+
+     Atom                 Charge (a.u.)
+  ----------------------------------------
+      1 H                     0.000000
+      2 H                    -0.000000
+  ----------------------------------------
+  Sum of atomic charges =     0.000000
+
+ -----------------------------------------------------------------
+                    Cartesian Multipole Moments
+ -----------------------------------------------------------------
+    Charge (ESU x 10^10)
+                 0.0000
+    Dipole Moment (Debye)
+         X      -0.0000      Y       0.0000      Z      -0.0000
+       Tot       0.0000
+    Quadrupole Moments (Debye-Ang)
+        XX      -2.0646     XY       0.0000     YY      -2.0646
+        XZ       0.0008     YZ      -0.0000     ZZ      -1.4419
+    Octopole Moments (Debye-Ang^2)
+       XXX       0.0031    XXY       0.0000    XYY       0.0010
+       YYY       0.0000    XXZ      -0.0000    XYZ       0.0000
+       YYZ      -0.0000    XZZ       0.0007    YZZ       0.0000
+       ZZZ      -0.0000
+    Hexadecapole Moments (Debye-Ang^3)
+      XXXX      -2.0434   XXXY       0.0000   XXYY      -0.6811
+      XYYY       0.0000   YYYY      -2.0434   XXXZ      -0.0005
+      XXYZ       0.0000   XYYZ      -0.0002   YYYZ       0.0000
+      XXZZ      -0.8114   XYZZ       0.0000   YYZZ      -0.8114
+      XZZZ      -0.0004   YZZZ       0.0000   ZZZZ      -2.7017
+ -----------------------------------------------------------------
+ DrvMan completing analytic gradient of the correlated energy
+ Correlated dipole moment
+            1
+    1  -0.0000000
+    2   0.0000000
+    3  -0.0000000
+ Energy read as -1.172635463
+ Full Analytical Gradient: (in a.u., or Hartree/Bohr)
+             1             2
+    1   -0.00000037    0.00000037
+    2   -0.00000000    0.00000000
+    3   -0.00027423    0.00027423
+ Gradient time:  CPU 0.28 s  wall 0.34 s
+ ----------------------------------------------------------------
+             Standard Nuclear Orientation (Angstroms)
+    I     Atom           X                Y                Z
+ ----------------------------------------------------------------
+    1      H       0.0000000000     0.0010000000    -0.3716865000
+    2      H       0.0000000000     0.0000000000     0.3716865000
+ ----------------------------------------------------------------
+ Nuclear Repulsion Energy =           0.71185896 hartrees
+ There are        1 alpha and        1 beta electrons
+
+                       Distance Matrix (Angstroms)
+             H (  1)
+   H (  2)  0.743374
+
+ Requested basis set is aug-cc-pVTZ
+ There are 18 shells and 46 basis functions
+ A cutoff of  1.0D-14 yielded    171 shell pairs
+ There are      1139 function pairs (      1353 Cartesian)
+ Smallest overlap matrix eigenvalue = 5.49E-05
+ Guess MOs from SCF MO coefficient file
+
+ -----------------------------------------------------------------------
+  General SCF calculation program by
+  Eric Jon Sundstrom, Paul Horn, Yuezhi Mao, Dmitri Zuev, Alec White,
+  David Stuck, Shaama M.S., Shane Yost, Joonho Lee, David Small,
+  Daniel Levine, Susi Lehtola, Hugh Burton, Evgeny Epifanovsky,
+  Bang C. Huynh
+ -----------------------------------------------------------------------
+ Hartree-Fock
+ A restricted SCF calculation will be
+ performed using DIIS
+ SCF converges when DIIS error is below 1.0e-08
+ ---------------------------------------
+  Cycle       Energy         DIIS error
+ ---------------------------------------
+    1      -1.1329997673      8.32e-06  
+    2      -1.1329997788      1.15e-06  
+    3      -1.1329997792      1.06e-07  
+    4      -1.1329997792      6.66e-09  Convergence criterion met
+ ---------------------------------------
+ SCF time:   CPU 0.85s  wall 3.00s 
+ SCF   energy in the final basis set =       -1.1329997792
+ Total energy in the final basis set =       -1.1329997792
+
+
+ ------------------------------------------------------------------------------
+
+   CCMAN2: suite of methods based on coupled cluster
+           and equation of motion theories.
+
+   Components:
+   * libvmm-1.3-trunk
+     by Evgeny Epifanovsky, Ilya Kaliman.
+   * libtensor-2.5-trunk
+     by Evgeny Epifanovsky, Michael Wormit, Dmitry Zuev, Sam Manzer, 
+        Ilya Kaliman.
+   * libcc-2.5-trunk
+     by Evgeny Epifanovsky, Arik Landau, Tomasz Kus, Kirill Khistyaev, 
+        Dmitry Zuev, Prashant Manohar, Xintian Feng, Anna Krylov, 
+        Matthew Goldey, Alec White, Thomas Jagau, Kaushik Nanda, 
+        Anastasia Gunina, Alexander Kunitsa, Joonho Lee.
+
+   CCMAN original authors:
+   Anna I. Krylov, C. David Sherrill, Steven R. Gwaltney,
+   Edward F. C. Byrd (2000)
+   Sergey V. Levchenko, Lyudmila V. Slipchenko, Tao Wang,
+   Ana-Maria C. Cristian (2003)
+   Piotr A. Pieniazek, C. Melania Oana, Evgeny Epifanovsky (2007)
+   Prashant Manohar (2009)
+
+ ------------------------------------------------------------------------------
+
+
+ Allocating and initializing 1808MB of RAM...
+ Calculation will run on 4 cores.
+
+
+ Alpha MOs, Restricted
+ -- Occupied --                  
+ -0.594
+  1 A                                                                          
+ -- Virtual --                   
+  0.053   0.053   0.190   0.209   0.209   0.285   0.297   0.297
+  2 A     3 A     4 A     5 A     6 A     7 A     8 A     9 A                  
+  0.418   0.420   0.738   0.791   0.791   0.884   0.884   0.903
+ 10 A    11 A    12 A    13 A    14 A    15 A    16 A    17 A                  
+  0.931   0.931   1.046   1.048   1.048   1.067   1.067   1.523
+ 18 A    19 A    20 A    21 A    22 A    23 A    24 A    25 A                  
+  1.937   1.937   2.131   2.592   2.935   3.616   3.616   3.633
+ 26 A    27 A    28 A    29 A    30 A    31 A    32 A    33 A                  
+  3.633   4.154   4.404   4.404   4.429   4.429   4.488   4.488
+ 34 A    35 A    36 A    37 A    38 A    39 A    40 A    41 A                  
+  5.182   5.777   5.777   5.978   7.109
+ 42 A    43 A    44 A    45 A    46 A                                          
+
+ Beta MOs, Restricted
+ -- Occupied --                  
+ -0.594
+  1 A                                                                          
+ -- Virtual --                   
+  0.053   0.053   0.190   0.209   0.209   0.285   0.297   0.297
+  2 A     3 A     4 A     5 A     6 A     7 A     8 A     9 A                  
+  0.418   0.420   0.738   0.791   0.791   0.884   0.884   0.903
+ 10 A    11 A    12 A    13 A    14 A    15 A    16 A    17 A                  
+  0.931   0.931   1.046   1.048   1.048   1.067   1.067   1.523
+ 18 A    19 A    20 A    21 A    22 A    23 A    24 A    25 A                  
+  1.937   1.937   2.131   2.592   2.935   3.616   3.616   3.633
+ 26 A    27 A    28 A    29 A    30 A    31 A    32 A    33 A                  
+  3.633   4.154   4.404   4.404   4.429   4.429   4.488   4.488
+ 34 A    35 A    36 A    37 A    38 A    39 A    40 A    41 A                  
+  5.182   5.777   5.777   5.978   7.109
+ 42 A    43 A    44 A    45 A    46 A                                          
+
+ Occupation and symmetry of molecular orbitals
+
+ Point group: C1 (1 irreducible representation).
+
+                           A     All 
+ -------------------------------------
+ All molecular orbitals:
+  - Alpha                  46    46  
+  - Beta                   46    46  
+ -------------------------------------
+ Alpha orbitals:
+  - Frozen occupied        0     0   
+  - Active occupied        1     1   
+  - Active virtual         45    45  
+  - Frozen virtual         0     0   
+ -------------------------------------
+ Beta orbitals:
+  - Frozen occupied        0     0   
+  - Active occupied        1     1   
+  - Active virtual         45    45  
+  - Frozen virtual         0     0   
+ -------------------------------------
+
+ Import integrals:   CPU 0.00 s  wall 0.00 s
+
+ Import integrals:   CPU 0.68 s  wall 0.25 s
+
+ MP2 amplitudes:   CPU 0.01 s  wall 0.01 s
+
+Running a double precision version
+           CCSD T amplitudes will be solved using DIIS.
+
+           Start     Size      MaxIter   EConv     TConv     
+           3         7         100       1.00e-07  1.00e-05  
+ ------------------------------------------------------------------------------
+           Energy (a.u.)   Ediff      Tdiff       Comment
+ ------------------------------------------------------------------------------
+            -1.16499891                           
+     1      -1.17022530   5.23e-03   1.54e-01     
+     2      -1.17181193   1.59e-03   3.21e-02     
+     3      -1.17233671   5.25e-04   1.09e-02     
+     4      -1.17263219   2.95e-04   6.13e-03     Switched to DIIS steps.
+     5      -1.17263556   3.37e-06   6.07e-04     
+     6      -1.17263546   9.95e-08   3.89e-05     
+     7      -1.17263546   2.30e-09   8.73e-06     
+ ------------------------------------------------------------------------------
+            -1.17263546                           CCSD T converged.
+
+End of double precision
+ SCF energy                 = -1.13299978
+ MP2 energy                 = -1.16499891
+ CCSD correlation energy    = -0.03963568
+ CCSD total energy          = -1.17263546
+
+ CCSD  T1^2 = 0.0001  T2^2 = 0.0183  Leading amplitudes:
+
+ Amplitude    Orbitals with energies
+ -0.0054       1 (A) A                   ->    10 (A) A                   
+              -0.5936                          0.4176                     
+ -0.0054       1 (A) B                   ->    10 (A) B                   
+              -0.5936                          0.4176                     
+  0.0032       1 (A) A                   ->    17 (A) A                   
+              -0.5936                          0.9028                     
+  0.0032       1 (A) B                   ->    17 (A) B                   
+              -0.5936                          0.9028                     
+
+ Amplitude    Orbitals with energies
+ -0.0324       1 (A) A       1 (A) B     ->    4 (A) A       4 (A) B      
+              -0.5936       -0.5936            0.1901        0.1901       
+  0.0324       1 (A) A       1 (A) B     ->    4 (A) B       4 (A) A      
+              -0.5936       -0.5936            0.1901        0.1901       
+  0.0324       1 (A) B       1 (A) A     ->    4 (A) A       4 (A) B      
+              -0.5936       -0.5936            0.1901        0.1901       
+ -0.0324       1 (A) B       1 (A) A     ->    4 (A) B       4 (A) A      
+              -0.5936       -0.5936            0.1901        0.1901       
+
+ Computing CCSD intermediates for later calculations in double precision
+ Finished.
+
+Running a double precision version
+           CCSD Lambda amplitudes will be solved using DIIS.
+           Start     Size      MaxIter   EConv     LConv     
+           3         7         100       1.00e-07  1.00e-05  
+ ------------------------------------------------------------------------------
+            Enorm      Ldiff       Comment
+ ------------------------------------------------------------------------------
+     1     3.80e-03   3.74e-03     
+     2     8.75e-04   7.90e-04     
+     3     3.10e-04   2.65e-04     
+     4     3.98e-05   1.40e-04     Switched to DIIS steps.
+     5     6.00e-06   1.07e-05     
+     6     9.91e-07   8.17e-07     
+     7     1.63e-07   5.35e-08     
+     8     3.78e-08   1.83e-08     
+ ------------------------------------------------------------------------------
+                                   CCSD Lambda converged.
+
+ Computing density matrices in double precision...
+           Orbital response amplitudes will be solved using DIIS.
+           Start     Size      MaxIter   EConv     LConv     
+           3         7         100       1.00e-06  1.00e-06  
+ ------------------------------------------------------------------------------
+            Enorm      Ldiff       Comment
+ ------------------------------------------------------------------------------
+     1     1.04e-06   2.57e-07     
+     2     1.01e-07   7.12e-08     
+ ------------------------------------------------------------------------------
+                                   Orbital response converged.
+
+ Computing density matrices... Done.
+ CCSD calculation:   CPU 12.70 s  wall 4.59 s
+
+ Adding separable TPDM in double precision
+ Transferring MO TPDM to AO TPDM
+ Transferring g2_o1o1o1o1
+ Transferring g2_o1o1o1v1
+ Transferring g2_o1o1v1v1
+ Transferring g2_o1v1o1v1
+ Transferring g2_o1v1v1v1
+ Transferring g2_v1v1v1v1
+ Computing TPDM gradient
+ --------------------------------------------------------
+ 2e gradient
+  Atom          X               Y               Z
+ --------------------------------------------------------
+    1         -0.000000       -0.000437        0.324846  
+    2          0.000000        0.000437       -0.324846  
+ --------------------------------------------------------
+ --------------------------------------------------------
+ Final gradient
+  Atom          X               Y               Z
+ --------------------------------------------------------
+    1         -0.000000       -0.000437        0.324846  
+    2          0.000000        0.000437       -0.324846  
+ --------------------------------------------------------
+ Analytic gradient from two-electron contribution:   CPU 5.09 s  wall 1.99 s
+
+ Total ccman2 time:   CPU 22.05 s  wall 7.98 s
+
+
+ --------------------------------------------------------------
+
+                    Orbital Energies (a.u.)
+ --------------------------------------------------------------
+
+ Alpha MOs
+ -- Occupied --
+ -0.5936
+ -- Virtual --
+  0.0525   0.0531   0.1901   0.2088   0.2088   0.2847   0.2974   0.2974
+  0.4176   0.4200   0.7379   0.7912   0.7912   0.8838   0.8838   0.9028
+  0.9312   0.9312   1.0461   1.0479   1.0479   1.0668   1.0668   1.5232
+  1.9372   1.9372   2.1310   2.5923   2.9347   3.6156   3.6156   3.6328
+  3.6328   4.1542   4.4038   4.4038   4.4287   4.4287   4.4881   4.4881
+  5.1824   5.7766   5.7766   5.9775   7.1095
+ --------------------------------------------------------------
+
+          Ground-State Mulliken Net Atomic Charges
+
+     Atom                 Charge (a.u.)
+  ----------------------------------------
+      1 H                    -0.000000
+      2 H                     0.000000
+  ----------------------------------------
+  Sum of atomic charges =     0.000000
+
+ -----------------------------------------------------------------
+                    Cartesian Multipole Moments
+ -----------------------------------------------------------------
+    Charge (ESU x 10^10)
+                 0.0000
+    Dipole Moment (Debye)
+         X      -0.0000      Y      -0.0000      Z      -0.0000
+       Tot       0.0000
+    Quadrupole Moments (Debye-Ang)
+        XX      -2.0646     XY      -0.0000     YY      -2.0646
+        XZ       0.0000     YZ      -0.0008     ZZ      -1.4419
+    Octopole Moments (Debye-Ang^2)
+       XXX      -0.0000    XXY      -0.0010    XYY      -0.0000
+       YYY      -0.0031    XXZ      -0.0000    XYZ       0.0000
+       YYZ      -0.0000    XZZ      -0.0000    YZZ      -0.0007
+       ZZZ      -0.0000
+    Hexadecapole Moments (Debye-Ang^3)
+      XXXX      -2.0434   XXXY      -0.0000   XXYY      -0.6811
+      XYYY      -0.0000   YYYY      -2.0434   XXXZ       0.0000
+      XXYZ       0.0002   XYYZ       0.0000   YYYZ       0.0005
+      XXZZ      -0.8114   XYZZ      -0.0000   YYZZ      -0.8114
+      XZZZ       0.0000   YZZZ       0.0004   ZZZZ      -2.7017
+ -----------------------------------------------------------------
+ DrvMan completing analytic gradient of the correlated energy
+ Correlated dipole moment
+            1
+    1  -0.0000000
+    2  -0.0000000
+    3  -0.0000000
+ Energy read as -1.172635463
+ Full Analytical Gradient: (in a.u., or Hartree/Bohr)
+             1             2
+    1    0.00000000   -0.00000000
+    2    0.00000037   -0.00000037
+    3   -0.00027423    0.00027423
+ Gradient time:  CPU 0.28 s  wall 0.34 s
+ ----------------------------------------------------------------
+             Standard Nuclear Orientation (Angstroms)
+    I     Atom           X                Y                Z
+ ----------------------------------------------------------------
+    1      H       0.0000000000    -0.0010000000    -0.3716865000
+    2      H       0.0000000000     0.0000000000     0.3716865000
+ ----------------------------------------------------------------
+ Nuclear Repulsion Energy =           0.71185896 hartrees
+ There are        1 alpha and        1 beta electrons
+
+                       Distance Matrix (Angstroms)
+             H (  1)
+   H (  2)  0.743374
+
+ Requested basis set is aug-cc-pVTZ
+ There are 18 shells and 46 basis functions
+ A cutoff of  1.0D-14 yielded    171 shell pairs
+ There are      1139 function pairs (      1353 Cartesian)
+ Smallest overlap matrix eigenvalue = 5.49E-05
+ Guess MOs from SCF MO coefficient file
+
+ -----------------------------------------------------------------------
+  General SCF calculation program by
+  Eric Jon Sundstrom, Paul Horn, Yuezhi Mao, Dmitri Zuev, Alec White,
+  David Stuck, Shaama M.S., Shane Yost, Joonho Lee, David Small,
+  Daniel Levine, Susi Lehtola, Hugh Burton, Evgeny Epifanovsky,
+  Bang C. Huynh
+ -----------------------------------------------------------------------
+ Hartree-Fock
+ A restricted SCF calculation will be
+ performed using DIIS
+ SCF converges when DIIS error is below 1.0e-08
+ ---------------------------------------
+  Cycle       Energy         DIIS error
+ ---------------------------------------
+    1      -1.1329997553      1.18e-05  
+    2      -1.1329997785      1.63e-06  
+    3      -1.1329997792      1.50e-07  
+    4      -1.1329997792      9.42e-09  Convergence criterion met
+ ---------------------------------------
+ SCF time:   CPU 0.83s  wall 1.00s 
+ SCF   energy in the final basis set =       -1.1329997792
+ Total energy in the final basis set =       -1.1329997792
+
+
+ ------------------------------------------------------------------------------
+
+   CCMAN2: suite of methods based on coupled cluster
+           and equation of motion theories.
+
+   Components:
+   * libvmm-1.3-trunk
+     by Evgeny Epifanovsky, Ilya Kaliman.
+   * libtensor-2.5-trunk
+     by Evgeny Epifanovsky, Michael Wormit, Dmitry Zuev, Sam Manzer, 
+        Ilya Kaliman.
+   * libcc-2.5-trunk
+     by Evgeny Epifanovsky, Arik Landau, Tomasz Kus, Kirill Khistyaev, 
+        Dmitry Zuev, Prashant Manohar, Xintian Feng, Anna Krylov, 
+        Matthew Goldey, Alec White, Thomas Jagau, Kaushik Nanda, 
+        Anastasia Gunina, Alexander Kunitsa, Joonho Lee.
+
+   CCMAN original authors:
+   Anna I. Krylov, C. David Sherrill, Steven R. Gwaltney,
+   Edward F. C. Byrd (2000)
+   Sergey V. Levchenko, Lyudmila V. Slipchenko, Tao Wang,
+   Ana-Maria C. Cristian (2003)
+   Piotr A. Pieniazek, C. Melania Oana, Evgeny Epifanovsky (2007)
+   Prashant Manohar (2009)
+
+ ------------------------------------------------------------------------------
+
+
+ Allocating and initializing 1808MB of RAM...
+ Calculation will run on 4 cores.
+
+
+ Alpha MOs, Restricted
+ -- Occupied --                  
+ -0.594
+  1 A                                                                          
+ -- Virtual --                   
+  0.053   0.053   0.190   0.209   0.209   0.285   0.297   0.297
+  2 A     3 A     4 A     5 A     6 A     7 A     8 A     9 A                  
+  0.418   0.420   0.738   0.791   0.791   0.884   0.884   0.903
+ 10 A    11 A    12 A    13 A    14 A    15 A    16 A    17 A                  
+  0.931   0.931   1.046   1.048   1.048   1.067   1.067   1.523
+ 18 A    19 A    20 A    21 A    22 A    23 A    24 A    25 A                  
+  1.937   1.937   2.131   2.592   2.935   3.616   3.616   3.633
+ 26 A    27 A    28 A    29 A    30 A    31 A    32 A    33 A                  
+  3.633   4.154   4.404   4.404   4.429   4.429   4.488   4.488
+ 34 A    35 A    36 A    37 A    38 A    39 A    40 A    41 A                  
+  5.182   5.777   5.777   5.978   7.109
+ 42 A    43 A    44 A    45 A    46 A                                          
+
+ Beta MOs, Restricted
+ -- Occupied --                  
+ -0.594
+  1 A                                                                          
+ -- Virtual --                   
+  0.053   0.053   0.190   0.209   0.209   0.285   0.297   0.297
+  2 A     3 A     4 A     5 A     6 A     7 A     8 A     9 A                  
+  0.418   0.420   0.738   0.791   0.791   0.884   0.884   0.903
+ 10 A    11 A    12 A    13 A    14 A    15 A    16 A    17 A                  
+  0.931   0.931   1.046   1.048   1.048   1.067   1.067   1.523
+ 18 A    19 A    20 A    21 A    22 A    23 A    24 A    25 A                  
+  1.937   1.937   2.131   2.592   2.935   3.616   3.616   3.633
+ 26 A    27 A    28 A    29 A    30 A    31 A    32 A    33 A                  
+  3.633   4.154   4.404   4.404   4.429   4.429   4.488   4.488
+ 34 A    35 A    36 A    37 A    38 A    39 A    40 A    41 A                  
+  5.182   5.777   5.777   5.978   7.109
+ 42 A    43 A    44 A    45 A    46 A                                          
+
+ Occupation and symmetry of molecular orbitals
+
+ Point group: C1 (1 irreducible representation).
+
+                           A     All 
+ -------------------------------------
+ All molecular orbitals:
+  - Alpha                  46    46  
+  - Beta                   46    46  
+ -------------------------------------
+ Alpha orbitals:
+  - Frozen occupied        0     0   
+  - Active occupied        1     1   
+  - Active virtual         45    45  
+  - Frozen virtual         0     0   
+ -------------------------------------
+ Beta orbitals:
+  - Frozen occupied        0     0   
+  - Active occupied        1     1   
+  - Active virtual         45    45  
+  - Frozen virtual         0     0   
+ -------------------------------------
+
+ Import integrals:   CPU 0.00 s  wall 0.00 s
+
+ Import integrals:   CPU 0.69 s  wall 0.28 s
+
+ MP2 amplitudes:   CPU 0.01 s  wall 0.01 s
+
+Running a double precision version
+           CCSD T amplitudes will be solved using DIIS.
+
+           Start     Size      MaxIter   EConv     TConv     
+           3         7         100       1.00e-07  1.00e-05  
+ ------------------------------------------------------------------------------
+           Energy (a.u.)   Ediff      Tdiff       Comment
+ ------------------------------------------------------------------------------
+            -1.16499891                           
+     1      -1.17022530   5.23e-03   1.54e-01     
+     2      -1.17181193   1.59e-03   3.21e-02     
+     3      -1.17233671   5.25e-04   1.09e-02     
+     4      -1.17263219   2.95e-04   6.13e-03     Switched to DIIS steps.
+     5      -1.17263556   3.37e-06   6.07e-04     
+     6      -1.17263546   9.95e-08   3.89e-05     
+     7      -1.17263546   2.30e-09   8.73e-06     
+ ------------------------------------------------------------------------------
+            -1.17263546                           CCSD T converged.
+
+End of double precision
+ SCF energy                 = -1.13299978
+ MP2 energy                 = -1.16499891
+ CCSD correlation energy    = -0.03963568
+ CCSD total energy          = -1.17263546
+
+ CCSD  T1^2 = 0.0001  T2^2 = 0.0183  Leading amplitudes:
+
+ Amplitude    Orbitals with energies
+ -0.0054       1 (A) A                   ->    10 (A) A                   
+              -0.5936                          0.4176                     
+ -0.0054       1 (A) B                   ->    10 (A) B                   
+              -0.5936                          0.4176                     
+  0.0032       1 (A) A                   ->    17 (A) A                   
+              -0.5936                          0.9028                     
+  0.0032       1 (A) B                   ->    17 (A) B                   
+              -0.5936                          0.9028                     
+
+ Amplitude    Orbitals with energies
+ -0.0324       1 (A) A       1 (A) B     ->    4 (A) A       4 (A) B      
+              -0.5936       -0.5936            0.1901        0.1901       
+  0.0324       1 (A) A       1 (A) B     ->    4 (A) B       4 (A) A      
+              -0.5936       -0.5936            0.1901        0.1901       
+  0.0324       1 (A) B       1 (A) A     ->    4 (A) A       4 (A) B      
+              -0.5936       -0.5936            0.1901        0.1901       
+ -0.0324       1 (A) B       1 (A) A     ->    4 (A) B       4 (A) A      
+              -0.5936       -0.5936            0.1901        0.1901       
+
+ Computing CCSD intermediates for later calculations in double precision
+ Finished.
+
+Running a double precision version
+           CCSD Lambda amplitudes will be solved using DIIS.
+           Start     Size      MaxIter   EConv     LConv     
+           3         7         100       1.00e-07  1.00e-05  
+ ------------------------------------------------------------------------------
+            Enorm      Ldiff       Comment
+ ------------------------------------------------------------------------------
+     1     3.80e-03   3.74e-03     
+     2     8.75e-04   7.90e-04     
+     3     3.10e-04   2.65e-04     
+     4     3.98e-05   1.40e-04     Switched to DIIS steps.
+     5     6.00e-06   1.07e-05     
+     6     9.91e-07   8.17e-07     
+     7     1.63e-07   5.35e-08     
+     8     3.78e-08   1.83e-08     
+ ------------------------------------------------------------------------------
+                                   CCSD Lambda converged.
+
+ Computing density matrices in double precision...
+           Orbital response amplitudes will be solved using DIIS.
+           Start     Size      MaxIter   EConv     LConv     
+           3         7         100       1.00e-06  1.00e-06  
+ ------------------------------------------------------------------------------
+            Enorm      Ldiff       Comment
+ ------------------------------------------------------------------------------
+     1     1.04e-06   2.57e-07     
+     2     1.01e-07   7.12e-08     
+ ------------------------------------------------------------------------------
+                                   Orbital response converged.
+
+ Computing density matrices... Done.
+ CCSD calculation:   CPU 12.85 s  wall 4.63 s
+
+ Adding separable TPDM in double precision
+ Transferring MO TPDM to AO TPDM
+ Transferring g2_o1o1o1o1
+ Transferring g2_o1o1o1v1
+ Transferring g2_o1o1v1v1
+ Transferring g2_o1v1o1v1
+ Transferring g2_o1v1v1v1
+ Transferring g2_v1v1v1v1
+ Computing TPDM gradient
+ --------------------------------------------------------
+ 2e gradient
+  Atom          X               Y               Z
+ --------------------------------------------------------
+    1          0.000000        0.000437        0.324846  
+    2         -0.000000       -0.000437       -0.324846  
+ --------------------------------------------------------
+ --------------------------------------------------------
+ Final gradient
+  Atom          X               Y               Z
+ --------------------------------------------------------
+    1          0.000000        0.000437        0.324846  
+    2         -0.000000       -0.000437       -0.324846  
+ --------------------------------------------------------
+ Analytic gradient from two-electron contribution:   CPU 5.05 s  wall 1.99 s
+
+ Total ccman2 time:   CPU 22.87 s  wall 8.23 s
+
+
+ --------------------------------------------------------------
+
+                    Orbital Energies (a.u.)
+ --------------------------------------------------------------
+
+ Alpha MOs
+ -- Occupied --
+ -0.5936
+ -- Virtual --
+  0.0525   0.0531   0.1901   0.2088   0.2088   0.2847   0.2974   0.2974
+  0.4176   0.4200   0.7379   0.7912   0.7912   0.8838   0.8838   0.9028
+  0.9312   0.9312   1.0461   1.0479   1.0479   1.0668   1.0668   1.5232
+  1.9372   1.9372   2.1310   2.5923   2.9347   3.6156   3.6156   3.6328
+  3.6328   4.1542   4.4038   4.4038   4.4287   4.4287   4.4881   4.4881
+  5.1824   5.7766   5.7766   5.9775   7.1095
+ --------------------------------------------------------------
+
+          Ground-State Mulliken Net Atomic Charges
+
+     Atom                 Charge (a.u.)
+  ----------------------------------------
+      1 H                    -0.000000
+      2 H                     0.000000
+  ----------------------------------------
+  Sum of atomic charges =     0.000000
+
+ -----------------------------------------------------------------
+                    Cartesian Multipole Moments
+ -----------------------------------------------------------------
+    Charge (ESU x 10^10)
+                -0.0000
+    Dipole Moment (Debye)
+         X       0.0000      Y       0.0000      Z       0.0000
+       Tot       0.0000
+    Quadrupole Moments (Debye-Ang)
+        XX      -2.0646     XY      -0.0000     YY      -2.0646
+        XZ       0.0000     YZ       0.0008     ZZ      -1.4419
+    Octopole Moments (Debye-Ang^2)
+       XXX       0.0000    XXY       0.0010    XYY       0.0000
+       YYY       0.0031    XXZ       0.0000    XYZ      -0.0000
+       YYZ      -0.0000    XZZ       0.0000    YZZ       0.0007
+       ZZZ      -0.0000
+    Hexadecapole Moments (Debye-Ang^3)
+      XXXX      -2.0434   XXXY      -0.0000   XXYY      -0.6811
+      XYYY      -0.0000   YYYY      -2.0434   XXXZ       0.0000
+      XXYZ      -0.0002   XYYZ       0.0000   YYYZ      -0.0005
+      XXZZ      -0.8114   XYZZ      -0.0000   YYZZ      -0.8114
+      XZZZ       0.0000   YZZZ      -0.0004   ZZZZ      -2.7017
+ -----------------------------------------------------------------
+ DrvMan completing analytic gradient of the correlated energy
+ Correlated dipole moment
+            1
+    1   0.0000000
+    2   0.0000000
+    3   0.0000000
+ Energy read as -1.172635463
+ Full Analytical Gradient: (in a.u., or Hartree/Bohr)
+             1             2
+    1    0.00000000   -0.00000000
+    2   -0.00000037    0.00000037
+    3   -0.00027423    0.00027423
+ Gradient time:  CPU 0.28 s  wall 0.33 s
+ ----------------------------------------------------------------
+             Standard Nuclear Orientation (Angstroms)
+    I     Atom           X                Y                Z
+ ----------------------------------------------------------------
+    1      H       0.0000000000     0.0000000000    -0.3706865000
+    2      H       0.0000000000     0.0000000000     0.3716865000
+ ----------------------------------------------------------------
+ Nuclear Repulsion Energy =           0.71281850 hartrees
+ There are        1 alpha and        1 beta electrons
+
+                       Distance Matrix (Angstroms)
+             H (  1)
+   H (  2)  0.742373
+
+ Requested basis set is aug-cc-pVTZ
+ There are 18 shells and 46 basis functions
+ A cutoff of  1.0D-14 yielded    171 shell pairs
+ There are      1139 function pairs (      1353 Cartesian)
+ Smallest overlap matrix eigenvalue = 5.46E-05
+ Guess MOs from SCF MO coefficient file
+
+ -----------------------------------------------------------------------
+  General SCF calculation program by
+  Eric Jon Sundstrom, Paul Horn, Yuezhi Mao, Dmitri Zuev, Alec White,
+  David Stuck, Shaama M.S., Shane Yost, Joonho Lee, David Small,
+  Daniel Levine, Susi Lehtola, Hugh Burton, Evgeny Epifanovsky,
+  Bang C. Huynh
+ -----------------------------------------------------------------------
+ Hartree-Fock
+ A restricted SCF calculation will be
+ performed using DIIS
+ SCF converges when DIIS error is below 1.0e-08
+ ---------------------------------------
+  Cycle       Energy         DIIS error
+ ---------------------------------------
+    1      -1.1330113660      2.59e-05  
+    2      -1.1330115402      3.10e-06  
+    3      -1.1330115442      2.95e-07  
+    4      -1.1330115442      1.57e-08  
+    5      -1.1330115442      8.91e-10  Convergence criterion met
+ ---------------------------------------
+ SCF time:   CPU 1.04s  wall 1.00s 
+ SCF   energy in the final basis set =       -1.1330115442
+ Total energy in the final basis set =       -1.1330115442
+
+
+ ------------------------------------------------------------------------------
+
+   CCMAN2: suite of methods based on coupled cluster
+           and equation of motion theories.
+
+   Components:
+   * libvmm-1.3-trunk
+     by Evgeny Epifanovsky, Ilya Kaliman.
+   * libtensor-2.5-trunk
+     by Evgeny Epifanovsky, Michael Wormit, Dmitry Zuev, Sam Manzer, 
+        Ilya Kaliman.
+   * libcc-2.5-trunk
+     by Evgeny Epifanovsky, Arik Landau, Tomasz Kus, Kirill Khistyaev, 
+        Dmitry Zuev, Prashant Manohar, Xintian Feng, Anna Krylov, 
+        Matthew Goldey, Alec White, Thomas Jagau, Kaushik Nanda, 
+        Anastasia Gunina, Alexander Kunitsa, Joonho Lee.
+
+   CCMAN original authors:
+   Anna I. Krylov, C. David Sherrill, Steven R. Gwaltney,
+   Edward F. C. Byrd (2000)
+   Sergey V. Levchenko, Lyudmila V. Slipchenko, Tao Wang,
+   Ana-Maria C. Cristian (2003)
+   Piotr A. Pieniazek, C. Melania Oana, Evgeny Epifanovsky (2007)
+   Prashant Manohar (2009)
+
+ ------------------------------------------------------------------------------
+
+
+ Allocating and initializing 1808MB of RAM...
+ Calculation will run on 4 cores.
+
+
+ Alpha MOs, Restricted
+ -- Occupied --                  
+ -0.594
+  1 A                                                                          
+ -- Virtual --                   
+  0.053   0.053   0.190   0.209   0.209   0.285   0.297   0.297
+  2 A     3 A     4 A     5 A     6 A     7 A     8 A     9 A                  
+  0.418   0.420   0.738   0.791   0.791   0.884   0.884   0.903
+ 10 A    11 A    12 A    13 A    14 A    15 A    16 A    17 A                  
+  0.931   0.931   1.047   1.048   1.048   1.067   1.067   1.523
+ 18 A    19 A    20 A    21 A    22 A    23 A    24 A    25 A                  
+  1.938   1.938   2.129   2.594   2.935   3.616   3.616   3.633
+ 26 A    27 A    28 A    29 A    30 A    31 A    32 A    33 A                  
+  3.633   4.155   4.405   4.405   4.430   4.430   4.488   4.488
+ 34 A    35 A    36 A    37 A    38 A    39 A    40 A    41 A                  
+  5.186   5.780   5.780   5.983   7.115
+ 42 A    43 A    44 A    45 A    46 A                                          
+
+ Beta MOs, Restricted
+ -- Occupied --                  
+ -0.594
+  1 A                                                                          
+ -- Virtual --                   
+  0.053   0.053   0.190   0.209   0.209   0.285   0.297   0.297
+  2 A     3 A     4 A     5 A     6 A     7 A     8 A     9 A                  
+  0.418   0.420   0.738   0.791   0.791   0.884   0.884   0.903
+ 10 A    11 A    12 A    13 A    14 A    15 A    16 A    17 A                  
+  0.931   0.931   1.047   1.048   1.048   1.067   1.067   1.523
+ 18 A    19 A    20 A    21 A    22 A    23 A    24 A    25 A                  
+  1.938   1.938   2.129   2.594   2.935   3.616   3.616   3.633
+ 26 A    27 A    28 A    29 A    30 A    31 A    32 A    33 A                  
+  3.633   4.155   4.405   4.405   4.430   4.430   4.488   4.488
+ 34 A    35 A    36 A    37 A    38 A    39 A    40 A    41 A                  
+  5.186   5.780   5.780   5.983   7.115
+ 42 A    43 A    44 A    45 A    46 A                                          
+
+ Occupation and symmetry of molecular orbitals
+
+ Point group: C1 (1 irreducible representation).
+
+                           A     All 
+ -------------------------------------
+ All molecular orbitals:
+  - Alpha                  46    46  
+  - Beta                   46    46  
+ -------------------------------------
+ Alpha orbitals:
+  - Frozen occupied        0     0   
+  - Active occupied        1     1   
+  - Active virtual         45    45  
+  - Frozen virtual         0     0   
+ -------------------------------------
+ Beta orbitals:
+  - Frozen occupied        0     0   
+  - Active occupied        1     1   
+  - Active virtual         45    45  
+  - Frozen virtual         0     0   
+ -------------------------------------
+
+ Import integrals:   CPU 0.00 s  wall 0.00 s
+
+ Import integrals:   CPU 0.69 s  wall 0.25 s
+
+ MP2 amplitudes:   CPU 0.01 s  wall 0.01 s
+
+Running a double precision version
+           CCSD T amplitudes will be solved using DIIS.
+
+           Start     Size      MaxIter   EConv     TConv     
+           3         7         100       1.00e-07  1.00e-05  
+ ------------------------------------------------------------------------------
+           Energy (a.u.)   Ediff      Tdiff       Comment
+ ------------------------------------------------------------------------------
+            -1.16500633                           
+     1      -1.17022978   5.22e-03   1.53e-01     
+     2      -1.17181407   1.58e-03   3.21e-02     
+     3      -1.17233766   5.24e-04   1.09e-02     
+     4      -1.17263207   2.94e-04   6.11e-03     Switched to DIIS steps.
+     5      -1.17263542   3.35e-06   6.05e-04     
+     6      -1.17263532   1.00e-07   3.88e-05     
+     7      -1.17263532   2.31e-09   8.72e-06     
+ ------------------------------------------------------------------------------
+            -1.17263532                           CCSD T converged.
+
+End of double precision
+ SCF energy                 = -1.13301154
+ MP2 energy                 = -1.16500633
+ CCSD correlation energy    = -0.03962378
+ CCSD total energy          = -1.17263532
+
+ CCSD  T1^2 = 0.0001  T2^2 = 0.0183  Leading amplitudes:
+
+ Amplitude    Orbitals with energies
+  0.0054       1 (A) A                   ->    10 (A) A                   
+              -0.5939                          0.4175                     
+  0.0054       1 (A) B                   ->    10 (A) B                   
+              -0.5939                          0.4175                     
+ -0.0032       1 (A) A                   ->    17 (A) A                   
+              -0.5939                          0.9030                     
+ -0.0032       1 (A) B                   ->    17 (A) B                   
+              -0.5939                          0.9030                     
+
+ Amplitude    Orbitals with energies
+ -0.0323       1 (A) A       1 (A) B     ->    4 (A) A       4 (A) B      
+              -0.5939       -0.5939            0.1902        0.1902       
+  0.0323       1 (A) A       1 (A) B     ->    4 (A) B       4 (A) A      
+              -0.5939       -0.5939            0.1902        0.1902       
+  0.0323       1 (A) B       1 (A) A     ->    4 (A) A       4 (A) B      
+              -0.5939       -0.5939            0.1902        0.1902       
+ -0.0323       1 (A) B       1 (A) A     ->    4 (A) B       4 (A) A      
+              -0.5939       -0.5939            0.1902        0.1902       
+
+ Computing CCSD intermediates for later calculations in double precision
+ Finished.
+
+Running a double precision version
+           CCSD Lambda amplitudes will be solved using DIIS.
+           Start     Size      MaxIter   EConv     LConv     
+           3         7         100       1.00e-07  1.00e-05  
+ ------------------------------------------------------------------------------
+            Enorm      Ldiff       Comment
+ ------------------------------------------------------------------------------
+     1     3.79e-03   3.73e-03     
+     2     8.72e-04   7.87e-04     
+     3     3.09e-04   2.64e-04     
+     4     3.96e-05   1.39e-04     Switched to DIIS steps.
+     5     5.98e-06   1.06e-05     
+     6     9.87e-07   8.11e-07     
+     7     1.63e-07   5.33e-08     
+     8     3.77e-08   1.82e-08     
+ ------------------------------------------------------------------------------
+                                   CCSD Lambda converged.
+
+ Computing density matrices in double precision...
+           Orbital response amplitudes will be solved using DIIS.
+           Start     Size      MaxIter   EConv     LConv     
+           3         7         100       1.00e-06  1.00e-06  
+ ------------------------------------------------------------------------------
+            Enorm      Ldiff       Comment
+ ------------------------------------------------------------------------------
+     1     1.04e-06   2.57e-07     
+     2     1.01e-07   7.11e-08     
+ ------------------------------------------------------------------------------
+                                   Orbital response converged.
+
+ Computing density matrices... Done.
+ CCSD calculation:   CPU 12.57 s  wall 4.56 s
+
+ Adding separable TPDM in double precision
+ Transferring MO TPDM to AO TPDM
+ Transferring g2_o1o1o1o1
+ Transferring g2_o1o1o1v1
+ Transferring g2_o1o1v1v1
+ Transferring g2_o1v1o1v1
+ Transferring g2_o1v1v1v1
+ Transferring g2_v1v1v1v1
+ Computing TPDM gradient
+ --------------------------------------------------------
+ 2e gradient
+  Atom          X               Y               Z
+ --------------------------------------------------------
+    1         -0.000000       -0.000000        0.324974  
+    2          0.000000        0.000000       -0.324974  
+ --------------------------------------------------------
+ --------------------------------------------------------
+ Final gradient
+  Atom          X               Y               Z
+ --------------------------------------------------------
+    1         -0.000000       -0.000000        0.324974  
+    2          0.000000        0.000000       -0.324974  
+ --------------------------------------------------------
+ Analytic gradient from two-electron contribution:   CPU 5.10 s  wall 1.99 s
+
+ Total ccman2 time:   CPU 22.33 s  wall 8.13 s
+
+
+ --------------------------------------------------------------
+
+                    Orbital Energies (a.u.)
+ --------------------------------------------------------------
+
+ Alpha MOs
+ -- Occupied --
+ -0.5939
+ -- Virtual --
+  0.0525   0.0531   0.1902   0.2088   0.2088   0.2847   0.2974   0.2974
+  0.4175   0.4202   0.7377   0.7913   0.7913   0.8839   0.8839   0.9030
+  0.9313   0.9313   1.0466   1.0480   1.0480   1.0669   1.0669   1.5232
+  1.9377   1.9377   2.1286   2.5939   2.9352   3.6156   3.6156   3.6332
+  3.6332   4.1552   4.4048   4.4048   4.4296   4.4296   4.4882   4.4882
+  5.1857   5.7801   5.7801   5.9832   7.1145
+ --------------------------------------------------------------
+
+          Ground-State Mulliken Net Atomic Charges
+
+     Atom                 Charge (a.u.)
+  ----------------------------------------
+      1 H                    -0.000000
+      2 H                     0.000000
+  ----------------------------------------
+  Sum of atomic charges =     0.000000
+
+ -----------------------------------------------------------------
+                    Cartesian Multipole Moments
+ -----------------------------------------------------------------
+    Charge (ESU x 10^10)
+                 0.0000
+    Dipole Moment (Debye)
+         X       0.0000      Y      -0.0000      Z      -0.0000
+       Tot       0.0000
+    Quadrupole Moments (Debye-Ang)
+        XX      -2.0631     XY       0.0000     YY      -2.0631
+        XZ      -0.0000     YZ       0.0000     ZZ      -1.4418
+    Octopole Moments (Debye-Ang^2)
+       XXX       0.0000    XXY      -0.0000    XYY       0.0000
+       YYY      -0.0000    XXZ      -0.0010    XYZ      -0.0000
+       YYZ      -0.0010    XZZ       0.0000    YZZ       0.0000
+       ZZZ      -0.0022
+    Hexadecapole Moments (Debye-Ang^3)
+      XXXX      -2.0407   XXXY      -0.0000   XXYY      -0.6802
+      XYYY      -0.0000   YYYY      -2.0407   XXXZ      -0.0000
+      XXYZ       0.0000   XYYZ      -0.0000   YYYZ       0.0000
+      XXZZ      -0.8100   XYZZ      -0.0000   YYZZ      -0.8100
+      XZZZ      -0.0000   YZZZ       0.0000   ZZZZ      -2.6966
+ -----------------------------------------------------------------
+ DrvMan completing analytic gradient of the correlated energy
+ Correlated dipole moment
+            1
+    1   0.0000000
+    2  -0.0000000
+    3  -0.0000000
+ Energy read as -1.172635321
+ Full Analytical Gradient: (in a.u., or Hartree/Bohr)
+             1             2
+    1   -0.00000000    0.00000000
+    2    0.00000000   -0.00000000
+    3    0.00042476   -0.00042476
+ Gradient time:  CPU 0.28 s  wall 0.34 s
+ ----------------------------------------------------------------
+             Standard Nuclear Orientation (Angstroms)
+    I     Atom           X                Y                Z
+ ----------------------------------------------------------------
+    1      H       0.0000000000     0.0000000000    -0.3726865000
+    2      H       0.0000000000     0.0000000000     0.3716865000
+ ----------------------------------------------------------------
+ Nuclear Repulsion Energy =           0.71090328 hartrees
+ There are        1 alpha and        1 beta electrons
+
+                       Distance Matrix (Angstroms)
+             H (  1)
+   H (  2)  0.744373
+
+ Requested basis set is aug-cc-pVTZ
+ There are 18 shells and 46 basis functions
+ A cutoff of  1.0D-14 yielded    171 shell pairs
+ There are      1139 function pairs (      1353 Cartesian)
+ Smallest overlap matrix eigenvalue = 5.52E-05
+ Guess MOs from SCF MO coefficient file
+
+ -----------------------------------------------------------------------
+  General SCF calculation program by
+  Eric Jon Sundstrom, Paul Horn, Yuezhi Mao, Dmitri Zuev, Alec White,
+  David Stuck, Shaama M.S., Shane Yost, Joonho Lee, David Small,
+  Daniel Levine, Susi Lehtola, Hugh Burton, Evgeny Epifanovsky,
+  Bang C. Huynh
+ -----------------------------------------------------------------------
+ Hartree-Fock
+ A restricted SCF calculation will be
+ performed using DIIS
+ SCF converges when DIIS error is below 1.0e-08
+ ---------------------------------------
+  Cycle       Energy         DIIS error
+ ---------------------------------------
+    1      -1.1329859904      5.04e-05  
+    2      -1.1329866622      5.99e-06  
+    3      -1.1329866774      5.66e-07  
+    4      -1.1329866776      3.00e-08  
+    5      -1.1329866776      1.64e-09  Convergence criterion met
+ ---------------------------------------
+ SCF time:   CPU 1.06s  wall 1.00s 
+ SCF   energy in the final basis set =       -1.1329866776
+ Total energy in the final basis set =       -1.1329866776
+
+
+ ------------------------------------------------------------------------------
+
+   CCMAN2: suite of methods based on coupled cluster
+           and equation of motion theories.
+
+   Components:
+   * libvmm-1.3-trunk
+     by Evgeny Epifanovsky, Ilya Kaliman.
+   * libtensor-2.5-trunk
+     by Evgeny Epifanovsky, Michael Wormit, Dmitry Zuev, Sam Manzer, 
+        Ilya Kaliman.
+   * libcc-2.5-trunk
+     by Evgeny Epifanovsky, Arik Landau, Tomasz Kus, Kirill Khistyaev, 
+        Dmitry Zuev, Prashant Manohar, Xintian Feng, Anna Krylov, 
+        Matthew Goldey, Alec White, Thomas Jagau, Kaushik Nanda, 
+        Anastasia Gunina, Alexander Kunitsa, Joonho Lee.
+
+   CCMAN original authors:
+   Anna I. Krylov, C. David Sherrill, Steven R. Gwaltney,
+   Edward F. C. Byrd (2000)
+   Sergey V. Levchenko, Lyudmila V. Slipchenko, Tao Wang,
+   Ana-Maria C. Cristian (2003)
+   Piotr A. Pieniazek, C. Melania Oana, Evgeny Epifanovsky (2007)
+   Prashant Manohar (2009)
+
+ ------------------------------------------------------------------------------
+
+
+ Allocating and initializing 1808MB of RAM...
+ Calculation will run on 4 cores.
+
+
+ Alpha MOs, Restricted
+ -- Occupied --                  
+ -0.593
+  1 A                                                                          
+ -- Virtual --                   
+  0.053   0.053   0.190   0.209   0.209   0.285   0.297   0.297
+  2 A     3 A     4 A     5 A     6 A     7 A     8 A     9 A                  
+  0.418   0.420   0.738   0.791   0.791   0.884   0.884   0.903
+ 10 A    11 A    12 A    13 A    14 A    15 A    16 A    17 A                  
+  0.931   0.931   1.046   1.048   1.048   1.067   1.067   1.523
+ 18 A    19 A    20 A    21 A    22 A    23 A    24 A    25 A                  
+  1.937   1.937   2.133   2.591   2.934   3.616   3.616   3.632
+ 26 A    27 A    28 A    29 A    30 A    31 A    32 A    33 A                  
+  3.632   4.153   4.403   4.403   4.428   4.428   4.488   4.488
+ 34 A    35 A    36 A    37 A    38 A    39 A    40 A    41 A                  
+  5.179   5.773   5.773   5.972   7.105
+ 42 A    43 A    44 A    45 A    46 A                                          
+
+ Beta MOs, Restricted
+ -- Occupied --                  
+ -0.593
+  1 A                                                                          
+ -- Virtual --                   
+  0.053   0.053   0.190   0.209   0.209   0.285   0.297   0.297
+  2 A     3 A     4 A     5 A     6 A     7 A     8 A     9 A                  
+  0.418   0.420   0.738   0.791   0.791   0.884   0.884   0.903
+ 10 A    11 A    12 A    13 A    14 A    15 A    16 A    17 A                  
+  0.931   0.931   1.046   1.048   1.048   1.067   1.067   1.523
+ 18 A    19 A    20 A    21 A    22 A    23 A    24 A    25 A                  
+  1.937   1.937   2.133   2.591   2.934   3.616   3.616   3.632
+ 26 A    27 A    28 A    29 A    30 A    31 A    32 A    33 A                  
+  3.632   4.153   4.403   4.403   4.428   4.428   4.488   4.488
+ 34 A    35 A    36 A    37 A    38 A    39 A    40 A    41 A                  
+  5.179   5.773   5.773   5.972   7.105
+ 42 A    43 A    44 A    45 A    46 A                                          
+
+ Occupation and symmetry of molecular orbitals
+
+ Point group: C1 (1 irreducible representation).
+
+                           A     All 
+ -------------------------------------
+ All molecular orbitals:
+  - Alpha                  46    46  
+  - Beta                   46    46  
+ -------------------------------------
+ Alpha orbitals:
+  - Frozen occupied        0     0   
+  - Active occupied        1     1   
+  - Active virtual         45    45  
+  - Frozen virtual         0     0   
+ -------------------------------------
+ Beta orbitals:
+  - Frozen occupied        0     0   
+  - Active occupied        1     1   
+  - Active virtual         45    45  
+  - Frozen virtual         0     0   
+ -------------------------------------
+
+ Import integrals:   CPU 0.00 s  wall 0.00 s
+
+ Import integrals:   CPU 0.68 s  wall 0.25 s
+
+ MP2 amplitudes:   CPU 0.01 s  wall 0.01 s
+
+Running a double precision version
+           CCSD T amplitudes will be solved using DIIS.
+
+           Start     Size      MaxIter   EConv     TConv     
+           3         7         100       1.00e-07  1.00e-05  
+ ------------------------------------------------------------------------------
+           Energy (a.u.)   Ediff      Tdiff       Comment
+ ------------------------------------------------------------------------------
+            -1.16499015                           
+     1      -1.17021950   5.23e-03   1.54e-01     
+     2      -1.17180847   1.59e-03   3.22e-02     
+     3      -1.17233444   5.26e-04   1.09e-02     
+     4      -1.17263099   2.97e-04   6.15e-03     Switched to DIIS steps.
+     5      -1.17263439   3.40e-06   6.09e-04     
+     6      -1.17263429   9.88e-08   3.90e-05     
+     7      -1.17263429   2.30e-09   8.74e-06     
+ ------------------------------------------------------------------------------
+            -1.17263429                           CCSD T converged.
+
+End of double precision
+ SCF energy                 = -1.13298668
+ MP2 energy                 = -1.16499015
+ CCSD correlation energy    = -0.03964761
+ CCSD total energy          = -1.17263429
+
+ CCSD  T1^2 = 0.0001  T2^2 = 0.0184  Leading amplitudes:
+
+ Amplitude    Orbitals with energies
+ -0.0054       1 (A) A                   ->    10 (A) A                   
+              -0.5933                          0.4177                     
+ -0.0054       1 (A) B                   ->    10 (A) B                   
+              -0.5933                          0.4177                     
+  0.0032       1 (A) A                   ->    17 (A) A                   
+              -0.5933                          0.9026                     
+  0.0032       1 (A) B                   ->    17 (A) B                   
+              -0.5933                          0.9026                     
+
+ Amplitude    Orbitals with energies
+ -0.0325       1 (A) A       1 (A) B     ->    4 (A) A       4 (A) B      
+              -0.5933       -0.5933            0.1900        0.1900       
+  0.0325       1 (A) A       1 (A) B     ->    4 (A) B       4 (A) A      
+              -0.5933       -0.5933            0.1900        0.1900       
+  0.0325       1 (A) B       1 (A) A     ->    4 (A) A       4 (A) B      
+              -0.5933       -0.5933            0.1900        0.1900       
+ -0.0325       1 (A) B       1 (A) A     ->    4 (A) B       4 (A) A      
+              -0.5933       -0.5933            0.1900        0.1900       
+
+ Computing CCSD intermediates for later calculations in double precision
+ Finished.
+
+Running a double precision version
+           CCSD Lambda amplitudes will be solved using DIIS.
+           Start     Size      MaxIter   EConv     LConv     
+           3         7         100       1.00e-07  1.00e-05  
+ ------------------------------------------------------------------------------
+            Enorm      Ldiff       Comment
+ ------------------------------------------------------------------------------
+     1     3.81e-03   3.75e-03     
+     2     8.77e-04   7.92e-04     
+     3     3.11e-04   2.66e-04     
+     4     4.00e-05   1.41e-04     Switched to DIIS steps.
+     5     6.03e-06   1.08e-05     
+     6     9.95e-07   8.24e-07     
+     7     1.64e-07   5.36e-08     
+     8     3.79e-08   1.84e-08     
+ ------------------------------------------------------------------------------
+                                   CCSD Lambda converged.
+
+ Computing density matrices in double precision...
+           Orbital response amplitudes will be solved using DIIS.
+           Start     Size      MaxIter   EConv     LConv     
+           3         7         100       1.00e-06  1.00e-06  
+ ------------------------------------------------------------------------------
+            Enorm      Ldiff       Comment
+ ------------------------------------------------------------------------------
+     1     1.04e-06   2.58e-07     
+     2     1.01e-07   7.12e-08     
+ ------------------------------------------------------------------------------
+                                   Orbital response converged.
+
+ Computing density matrices... Done.
+ CCSD calculation:   CPU 12.98 s  wall 4.74 s
+
+ Adding separable TPDM in double precision
+ Transferring MO TPDM to AO TPDM
+ Transferring g2_o1o1o1o1
+ Transferring g2_o1o1o1v1
+ Transferring g2_o1o1v1v1
+ Transferring g2_o1v1o1v1
+ Transferring g2_o1v1v1v1
+ Transferring g2_v1v1v1v1
+ Computing TPDM gradient
+ --------------------------------------------------------
+ 2e gradient
+  Atom          X               Y               Z
+ --------------------------------------------------------
+    1          0.000000       -0.000000        0.324719  
+    2         -0.000000        0.000000       -0.324719  
+ --------------------------------------------------------
+ --------------------------------------------------------
+ Final gradient
+  Atom          X               Y               Z
+ --------------------------------------------------------
+    1          0.000000       -0.000000        0.324719  
+    2         -0.000000        0.000000       -0.324719  
+ --------------------------------------------------------
+ Analytic gradient from two-electron contribution:   CPU 5.11 s  wall 2.01 s
+
+ Total ccman2 time:   CPU 22.74 s  wall 8.25 s
+
+
+ --------------------------------------------------------------
+
+                    Orbital Energies (a.u.)
+ --------------------------------------------------------------
+
+ Alpha MOs
+ -- Occupied --
+ -0.5933
+ -- Virtual --
+  0.0525   0.0531   0.1900   0.2088   0.2088   0.2847   0.2974   0.2974
+  0.4177   0.4198   0.7381   0.7911   0.7911   0.8837   0.8837   0.9026
+  0.9311   0.9311   1.0457   1.0478   1.0478   1.0668   1.0668   1.5231
+  1.9366   1.9366   2.1334   2.5906   2.9342   3.6156   3.6156   3.6323
+  3.6323   4.1533   4.4028   4.4028   4.4277   4.4277   4.4880   4.4880
+  5.1791   5.7731   5.7731   5.9719   7.1045
+ --------------------------------------------------------------
+
+          Ground-State Mulliken Net Atomic Charges
+
+     Atom                 Charge (a.u.)
+  ----------------------------------------
+      1 H                     0.000000
+      2 H                    -0.000000
+  ----------------------------------------
+  Sum of atomic charges =     0.000000
+
+ -----------------------------------------------------------------
+                    Cartesian Multipole Moments
+ -----------------------------------------------------------------
+    Charge (ESU x 10^10)
+                 0.0000
+    Dipole Moment (Debye)
+         X      -0.0000      Y      -0.0000      Z      -0.0000
+       Tot       0.0000
+    Quadrupole Moments (Debye-Ang)
+        XX      -2.0660     XY       0.0000     YY      -2.0660
+        XZ      -0.0000     YZ       0.0000     ZZ      -1.4419
+    Octopole Moments (Debye-Ang^2)
+       XXX      -0.0000    XXY      -0.0000    XYY      -0.0000
+       YYY      -0.0000    XXZ       0.0010    XYZ       0.0000
+       YYZ       0.0010    XZZ      -0.0000    YZZ      -0.0000
+       ZZZ       0.0022
+    Hexadecapole Moments (Debye-Ang^3)
+      XXXX      -2.0461   XXXY       0.0000   XXYY      -0.6820
+      XYYY       0.0000   YYYY      -2.0461   XXXZ      -0.0000
+      XXYZ       0.0000   XYYZ      -0.0000   YYYZ       0.0000
+      XXZZ      -0.8128   XYZZ       0.0000   YYZZ      -0.8128
+      XZZZ      -0.0000   YZZZ       0.0000   ZZZZ      -2.7069
+ -----------------------------------------------------------------
+ DrvMan completing analytic gradient of the correlated energy
+ Correlated dipole moment
+            1
+    1  -0.0000000
+    2  -0.0000000
+    3  -0.0000000
+ Energy read as -1.172634289
+ Full Analytical Gradient: (in a.u., or Hartree/Bohr)
+             1             2
+    1   -0.00000000    0.00000000
+    2    0.00000000   -0.00000000
+    3   -0.00096772    0.00096772
+ Gradient time:  CPU 0.28 s  wall 1.36 s
+ ----------------------------------------------------------------
+             Standard Nuclear Orientation (Angstroms)
+    I     Atom           X                Y                Z
+ ----------------------------------------------------------------
+    1      H       0.0000000000     0.0000000000    -0.3716865000
+    2      H       0.0010000000     0.0000000000     0.3716865000
+ ----------------------------------------------------------------
+ Nuclear Repulsion Energy =           0.71185896 hartrees
+ There are        1 alpha and        1 beta electrons
+
+                       Distance Matrix (Angstroms)
+             H (  1)
+   H (  2)  0.743374
+
+ Requested basis set is aug-cc-pVTZ
+ There are 18 shells and 46 basis functions
+ A cutoff of  1.0D-14 yielded    171 shell pairs
+ There are      1139 function pairs (      1353 Cartesian)
+ Smallest overlap matrix eigenvalue = 5.49E-05
+ Guess MOs from SCF MO coefficient file
+
+ -----------------------------------------------------------------------
+  General SCF calculation program by
+  Eric Jon Sundstrom, Paul Horn, Yuezhi Mao, Dmitri Zuev, Alec White,
+  David Stuck, Shaama M.S., Shane Yost, Joonho Lee, David Small,
+  Daniel Levine, Susi Lehtola, Hugh Burton, Evgeny Epifanovsky,
+  Bang C. Huynh
+ -----------------------------------------------------------------------
+ Hartree-Fock
+ A restricted SCF calculation will be
+ performed using DIIS
+ SCF converges when DIIS error is below 1.0e-08
+ ---------------------------------------
+  Cycle       Energy         DIIS error
+ ---------------------------------------
+    1      -1.1329996019      2.59e-05  
+    2      -1.1329997752      3.10e-06  
+    3      -1.1329997792      2.94e-07  
+    4      -1.1329997792      1.57e-08  
+    5      -1.1329997792      8.91e-10  Convergence criterion met
+ ---------------------------------------
+ SCF time:   CPU 1.04s  wall 1.00s 
+ SCF   energy in the final basis set =       -1.1329997792
+ Total energy in the final basis set =       -1.1329997792
+
+
+ ------------------------------------------------------------------------------
+
+   CCMAN2: suite of methods based on coupled cluster
+           and equation of motion theories.
+
+   Components:
+   * libvmm-1.3-trunk
+     by Evgeny Epifanovsky, Ilya Kaliman.
+   * libtensor-2.5-trunk
+     by Evgeny Epifanovsky, Michael Wormit, Dmitry Zuev, Sam Manzer, 
+        Ilya Kaliman.
+   * libcc-2.5-trunk
+     by Evgeny Epifanovsky, Arik Landau, Tomasz Kus, Kirill Khistyaev, 
+        Dmitry Zuev, Prashant Manohar, Xintian Feng, Anna Krylov, 
+        Matthew Goldey, Alec White, Thomas Jagau, Kaushik Nanda, 
+        Anastasia Gunina, Alexander Kunitsa, Joonho Lee.
+
+   CCMAN original authors:
+   Anna I. Krylov, C. David Sherrill, Steven R. Gwaltney,
+   Edward F. C. Byrd (2000)
+   Sergey V. Levchenko, Lyudmila V. Slipchenko, Tao Wang,
+   Ana-Maria C. Cristian (2003)
+   Piotr A. Pieniazek, C. Melania Oana, Evgeny Epifanovsky (2007)
+   Prashant Manohar (2009)
+
+ ------------------------------------------------------------------------------
+
+
+ Allocating and initializing 1808MB of RAM...
+ Calculation will run on 4 cores.
+
+
+ Alpha MOs, Restricted
+ -- Occupied --                  
+ -0.594
+  1 A                                                                          
+ -- Virtual --                   
+  0.053   0.053   0.190   0.209   0.209   0.285   0.297   0.297
+  2 A     3 A     4 A     5 A     6 A     7 A     8 A     9 A                  
+  0.418   0.420   0.738   0.791   0.791   0.884   0.884   0.903
+ 10 A    11 A    12 A    13 A    14 A    15 A    16 A    17 A                  
+  0.931   0.931   1.046   1.048   1.048   1.067   1.067   1.523
+ 18 A    19 A    20 A    21 A    22 A    23 A    24 A    25 A                  
+  1.937   1.937   2.131   2.592   2.935   3.616   3.616   3.633
+ 26 A    27 A    28 A    29 A    30 A    31 A    32 A    33 A                  
+  3.633   4.154   4.404   4.404   4.429   4.429   4.488   4.488
+ 34 A    35 A    36 A    37 A    38 A    39 A    40 A    41 A                  
+  5.182   5.777   5.777   5.978   7.109
+ 42 A    43 A    44 A    45 A    46 A                                          
+
+ Beta MOs, Restricted
+ -- Occupied --                  
+ -0.594
+  1 A                                                                          
+ -- Virtual --                   
+  0.053   0.053   0.190   0.209   0.209   0.285   0.297   0.297
+  2 A     3 A     4 A     5 A     6 A     7 A     8 A     9 A                  
+  0.418   0.420   0.738   0.791   0.791   0.884   0.884   0.903
+ 10 A    11 A    12 A    13 A    14 A    15 A    16 A    17 A                  
+  0.931   0.931   1.046   1.048   1.048   1.067   1.067   1.523
+ 18 A    19 A    20 A    21 A    22 A    23 A    24 A    25 A                  
+  1.937   1.937   2.131   2.592   2.935   3.616   3.616   3.633
+ 26 A    27 A    28 A    29 A    30 A    31 A    32 A    33 A                  
+  3.633   4.154   4.404   4.404   4.429   4.429   4.488   4.488
+ 34 A    35 A    36 A    37 A    38 A    39 A    40 A    41 A                  
+  5.182   5.777   5.777   5.978   7.109
+ 42 A    43 A    44 A    45 A    46 A                                          
+
+ Occupation and symmetry of molecular orbitals
+
+ Point group: C1 (1 irreducible representation).
+
+                           A     All 
+ -------------------------------------
+ All molecular orbitals:
+  - Alpha                  46    46  
+  - Beta                   46    46  
+ -------------------------------------
+ Alpha orbitals:
+  - Frozen occupied        0     0   
+  - Active occupied        1     1   
+  - Active virtual         45    45  
+  - Frozen virtual         0     0   
+ -------------------------------------
+ Beta orbitals:
+  - Frozen occupied        0     0   
+  - Active occupied        1     1   
+  - Active virtual         45    45  
+  - Frozen virtual         0     0   
+ -------------------------------------
+
+ Import integrals:   CPU 0.00 s  wall 0.00 s
+
+ Import integrals:   CPU 0.68 s  wall 0.25 s
+
+ MP2 amplitudes:   CPU 0.01 s  wall 0.01 s
+
+Running a double precision version
+           CCSD T amplitudes will be solved using DIIS.
+
+           Start     Size      MaxIter   EConv     TConv     
+           3         7         100       1.00e-07  1.00e-05  
+ ------------------------------------------------------------------------------
+           Energy (a.u.)   Ediff      Tdiff       Comment
+ ------------------------------------------------------------------------------
+            -1.16499891                           
+     1      -1.17022530   5.23e-03   1.54e-01     
+     2      -1.17181193   1.59e-03   3.21e-02     
+     3      -1.17233671   5.25e-04   1.09e-02     
+     4      -1.17263219   2.95e-04   6.13e-03     Switched to DIIS steps.
+     5      -1.17263556   3.37e-06   6.07e-04     
+     6      -1.17263546   9.95e-08   3.89e-05     
+     7      -1.17263546   2.30e-09   8.73e-06     
+ ------------------------------------------------------------------------------
+            -1.17263546                           CCSD T converged.
+
+End of double precision
+ SCF energy                 = -1.13299978
+ MP2 energy                 = -1.16499891
+ CCSD correlation energy    = -0.03963568
+ CCSD total energy          = -1.17263546
+
+ CCSD  T1^2 = 0.0001  T2^2 = 0.0183  Leading amplitudes:
+
+ Amplitude    Orbitals with energies
+ -0.0054       1 (A) A                   ->    10 (A) A                   
+              -0.5936                          0.4176                     
+ -0.0054       1 (A) B                   ->    10 (A) B                   
+              -0.5936                          0.4176                     
+  0.0032       1 (A) A                   ->    17 (A) A                   
+              -0.5936                          0.9028                     
+  0.0032       1 (A) B                   ->    17 (A) B                   
+              -0.5936                          0.9028                     
+
+ Amplitude    Orbitals with energies
+ -0.0324       1 (A) A       1 (A) B     ->    4 (A) A       4 (A) B      
+              -0.5936       -0.5936            0.1901        0.1901       
+  0.0324       1 (A) A       1 (A) B     ->    4 (A) B       4 (A) A      
+              -0.5936       -0.5936            0.1901        0.1901       
+  0.0324       1 (A) B       1 (A) A     ->    4 (A) A       4 (A) B      
+              -0.5936       -0.5936            0.1901        0.1901       
+ -0.0324       1 (A) B       1 (A) A     ->    4 (A) B       4 (A) A      
+              -0.5936       -0.5936            0.1901        0.1901       
+
+ Computing CCSD intermediates for later calculations in double precision
+ Finished.
+
+Running a double precision version
+           CCSD Lambda amplitudes will be solved using DIIS.
+           Start     Size      MaxIter   EConv     LConv     
+           3         7         100       1.00e-07  1.00e-05  
+ ------------------------------------------------------------------------------
+            Enorm      Ldiff       Comment
+ ------------------------------------------------------------------------------
+     1     3.80e-03   3.74e-03     
+     2     8.75e-04   7.90e-04     
+     3     3.10e-04   2.65e-04     
+     4     3.98e-05   1.40e-04     Switched to DIIS steps.
+     5     6.00e-06   1.07e-05     
+     6     9.91e-07   8.17e-07     
+     7     1.63e-07   5.35e-08     
+     8     3.78e-08   1.83e-08     
+ ------------------------------------------------------------------------------
+                                   CCSD Lambda converged.
+
+ Computing density matrices in double precision...
+           Orbital response amplitudes will be solved using DIIS.
+           Start     Size      MaxIter   EConv     LConv     
+           3         7         100       1.00e-06  1.00e-06  
+ ------------------------------------------------------------------------------
+            Enorm      Ldiff       Comment
+ ------------------------------------------------------------------------------
+     1     1.04e-06   2.57e-07     
+     2     1.01e-07   7.12e-08     
+ ------------------------------------------------------------------------------
+                                   Orbital response converged.
+
+ Computing density matrices... Done.
+ CCSD calculation:   CPU 13.14 s  wall 4.68 s
+
+ Adding separable TPDM in double precision
+ Transferring MO TPDM to AO TPDM
+ Transferring g2_o1o1o1o1
+ Transferring g2_o1o1o1v1
+ Transferring g2_o1o1v1v1
+ Transferring g2_o1v1o1v1
+ Transferring g2_o1v1v1v1
+ Transferring g2_v1v1v1v1
+ Computing TPDM gradient
+ --------------------------------------------------------
+ 2e gradient
+  Atom          X               Y               Z
+ --------------------------------------------------------
+    1          0.000437       -0.000000        0.324846  
+    2         -0.000437        0.000000       -0.324846  
+ --------------------------------------------------------
+ --------------------------------------------------------
+ Final gradient
+  Atom          X               Y               Z
+ --------------------------------------------------------
+    1          0.000437       -0.000000        0.324846  
+    2         -0.000437        0.000000       -0.324846  
+ --------------------------------------------------------
+ Analytic gradient from two-electron contribution:   CPU 4.99 s  wall 1.96 s
+
+ Total ccman2 time:   CPU 23.27 s  wall 8.29 s
+
+
+ --------------------------------------------------------------
+
+                    Orbital Energies (a.u.)
+ --------------------------------------------------------------
+
+ Alpha MOs
+ -- Occupied --
+ -0.5936
+ -- Virtual --
+  0.0525   0.0531   0.1901   0.2088   0.2088   0.2847   0.2974   0.2974
+  0.4176   0.4200   0.7379   0.7912   0.7912   0.8838   0.8838   0.9028
+  0.9312   0.9312   1.0461   1.0479   1.0479   1.0668   1.0668   1.5232
+  1.9372   1.9372   2.1310   2.5923   2.9347   3.6156   3.6156   3.6328
+  3.6328   4.1542   4.4038   4.4038   4.4287   4.4287   4.4881   4.4881
+  5.1824   5.7766   5.7766   5.9775   7.1095
+ --------------------------------------------------------------
+
+          Ground-State Mulliken Net Atomic Charges
+
+     Atom                 Charge (a.u.)
+  ----------------------------------------
+      1 H                    -0.000000
+      2 H                     0.000000
+  ----------------------------------------
+  Sum of atomic charges =     0.000000
+
+ -----------------------------------------------------------------
+                    Cartesian Multipole Moments
+ -----------------------------------------------------------------
+    Charge (ESU x 10^10)
+                 0.0000
+    Dipole Moment (Debye)
+         X      -0.0000      Y      -0.0000      Z       0.0000
+       Tot       0.0000
+    Quadrupole Moments (Debye-Ang)
+        XX      -2.0646     XY      -0.0000     YY      -2.0646
+        XZ       0.0008     YZ       0.0000     ZZ      -1.4419
+    Octopole Moments (Debye-Ang^2)
+       XXX      -0.0031    XXY      -0.0000    XYY      -0.0010
+       YYY      -0.0000    XXZ       0.0000    XYZ       0.0000
+       YYZ      -0.0000    XZZ      -0.0007    YZZ      -0.0000
+       ZZZ      -0.0000
+    Hexadecapole Moments (Debye-Ang^3)
+      XXXX      -2.0434   XXXY      -0.0000   XXYY      -0.6811
+      XYYY      -0.0000   YYYY      -2.0434   XXXZ      -0.0005
+      XXYZ       0.0000   XYYZ      -0.0002   YYYZ       0.0000
+      XXZZ      -0.8114   XYZZ      -0.0000   YYZZ      -0.8114
+      XZZZ      -0.0004   YZZZ       0.0000   ZZZZ      -2.7017
+ -----------------------------------------------------------------
+ DrvMan completing analytic gradient of the correlated energy
+ Correlated dipole moment
+            1
+    1  -0.0000000
+    2  -0.0000000
+    3   0.0000000
+ Energy read as -1.172635463
+ Full Analytical Gradient: (in a.u., or Hartree/Bohr)
+             1             2
+    1   -0.00000037    0.00000037
+    2   -0.00000000    0.00000000
+    3   -0.00027423    0.00027423
+ Gradient time:  CPU 0.28 s  wall 0.33 s
+ ----------------------------------------------------------------
+             Standard Nuclear Orientation (Angstroms)
+    I     Atom           X                Y                Z
+ ----------------------------------------------------------------
+    1      H       0.0000000000     0.0000000000    -0.3716865000
+    2      H      -0.0010000000     0.0000000000     0.3716865000
+ ----------------------------------------------------------------
+ Nuclear Repulsion Energy =           0.71185896 hartrees
+ There are        1 alpha and        1 beta electrons
+
+                       Distance Matrix (Angstroms)
+             H (  1)
+   H (  2)  0.743374
+
+ Requested basis set is aug-cc-pVTZ
+ There are 18 shells and 46 basis functions
+ A cutoff of  1.0D-14 yielded    171 shell pairs
+ There are      1139 function pairs (      1353 Cartesian)
+ Smallest overlap matrix eigenvalue = 5.49E-05
+ Guess MOs from SCF MO coefficient file
+
+ -----------------------------------------------------------------------
+  General SCF calculation program by
+  Eric Jon Sundstrom, Paul Horn, Yuezhi Mao, Dmitri Zuev, Alec White,
+  David Stuck, Shaama M.S., Shane Yost, Joonho Lee, David Small,
+  Daniel Levine, Susi Lehtola, Hugh Burton, Evgeny Epifanovsky,
+  Bang C. Huynh
+ -----------------------------------------------------------------------
+ Hartree-Fock
+ A restricted SCF calculation will be
+ performed using DIIS
+ SCF converges when DIIS error is below 1.0e-08
+ ---------------------------------------
+  Cycle       Energy         DIIS error
+ ---------------------------------------
+    1      -1.1329997553      1.18e-05  
+    2      -1.1329997785      1.63e-06  
+    3      -1.1329997792      1.50e-07  
+    4      -1.1329997792      9.42e-09  Convergence criterion met
+ ---------------------------------------
+ SCF time:   CPU 0.84s  wall 1.00s 
+ SCF   energy in the final basis set =       -1.1329997792
+ Total energy in the final basis set =       -1.1329997792
+
+
+ ------------------------------------------------------------------------------
+
+   CCMAN2: suite of methods based on coupled cluster
+           and equation of motion theories.
+
+   Components:
+   * libvmm-1.3-trunk
+     by Evgeny Epifanovsky, Ilya Kaliman.
+   * libtensor-2.5-trunk
+     by Evgeny Epifanovsky, Michael Wormit, Dmitry Zuev, Sam Manzer, 
+        Ilya Kaliman.
+   * libcc-2.5-trunk
+     by Evgeny Epifanovsky, Arik Landau, Tomasz Kus, Kirill Khistyaev, 
+        Dmitry Zuev, Prashant Manohar, Xintian Feng, Anna Krylov, 
+        Matthew Goldey, Alec White, Thomas Jagau, Kaushik Nanda, 
+        Anastasia Gunina, Alexander Kunitsa, Joonho Lee.
+
+   CCMAN original authors:
+   Anna I. Krylov, C. David Sherrill, Steven R. Gwaltney,
+   Edward F. C. Byrd (2000)
+   Sergey V. Levchenko, Lyudmila V. Slipchenko, Tao Wang,
+   Ana-Maria C. Cristian (2003)
+   Piotr A. Pieniazek, C. Melania Oana, Evgeny Epifanovsky (2007)
+   Prashant Manohar (2009)
+
+ ------------------------------------------------------------------------------
+
+
+ Allocating and initializing 1808MB of RAM...
+ Calculation will run on 4 cores.
+
+
+ Alpha MOs, Restricted
+ -- Occupied --                  
+ -0.594
+  1 A                                                                          
+ -- Virtual --                   
+  0.053   0.053   0.190   0.209   0.209   0.285   0.297   0.297
+  2 A     3 A     4 A     5 A     6 A     7 A     8 A     9 A                  
+  0.418   0.420   0.738   0.791   0.791   0.884   0.884   0.903
+ 10 A    11 A    12 A    13 A    14 A    15 A    16 A    17 A                  
+  0.931   0.931   1.046   1.048   1.048   1.067   1.067   1.523
+ 18 A    19 A    20 A    21 A    22 A    23 A    24 A    25 A                  
+  1.937   1.937   2.131   2.592   2.935   3.616   3.616   3.633
+ 26 A    27 A    28 A    29 A    30 A    31 A    32 A    33 A                  
+  3.633   4.154   4.404   4.404   4.429   4.429   4.488   4.488
+ 34 A    35 A    36 A    37 A    38 A    39 A    40 A    41 A                  
+  5.182   5.777   5.777   5.978   7.109
+ 42 A    43 A    44 A    45 A    46 A                                          
+
+ Beta MOs, Restricted
+ -- Occupied --                  
+ -0.594
+  1 A                                                                          
+ -- Virtual --                   
+  0.053   0.053   0.190   0.209   0.209   0.285   0.297   0.297
+  2 A     3 A     4 A     5 A     6 A     7 A     8 A     9 A                  
+  0.418   0.420   0.738   0.791   0.791   0.884   0.884   0.903
+ 10 A    11 A    12 A    13 A    14 A    15 A    16 A    17 A                  
+  0.931   0.931   1.046   1.048   1.048   1.067   1.067   1.523
+ 18 A    19 A    20 A    21 A    22 A    23 A    24 A    25 A                  
+  1.937   1.937   2.131   2.592   2.935   3.616   3.616   3.633
+ 26 A    27 A    28 A    29 A    30 A    31 A    32 A    33 A                  
+  3.633   4.154   4.404   4.404   4.429   4.429   4.488   4.488
+ 34 A    35 A    36 A    37 A    38 A    39 A    40 A    41 A                  
+  5.182   5.777   5.777   5.978   7.109
+ 42 A    43 A    44 A    45 A    46 A                                          
+
+ Occupation and symmetry of molecular orbitals
+
+ Point group: C1 (1 irreducible representation).
+
+                           A     All 
+ -------------------------------------
+ All molecular orbitals:
+  - Alpha                  46    46  
+  - Beta                   46    46  
+ -------------------------------------
+ Alpha orbitals:
+  - Frozen occupied        0     0   
+  - Active occupied        1     1   
+  - Active virtual         45    45  
+  - Frozen virtual         0     0   
+ -------------------------------------
+ Beta orbitals:
+  - Frozen occupied        0     0   
+  - Active occupied        1     1   
+  - Active virtual         45    45  
+  - Frozen virtual         0     0   
+ -------------------------------------
+
+ Import integrals:   CPU 0.00 s  wall 0.00 s
+
+ Import integrals:   CPU 0.68 s  wall 0.27 s
+
+ MP2 amplitudes:   CPU 0.01 s  wall 0.01 s
+
+Running a double precision version
+           CCSD T amplitudes will be solved using DIIS.
+
+           Start     Size      MaxIter   EConv     TConv     
+           3         7         100       1.00e-07  1.00e-05  
+ ------------------------------------------------------------------------------
+           Energy (a.u.)   Ediff      Tdiff       Comment
+ ------------------------------------------------------------------------------
+            -1.16499891                           
+     1      -1.17022530   5.23e-03   1.54e-01     
+     2      -1.17181193   1.59e-03   3.21e-02     
+     3      -1.17233671   5.25e-04   1.09e-02     
+     4      -1.17263219   2.95e-04   6.13e-03     Switched to DIIS steps.
+     5      -1.17263556   3.37e-06   6.07e-04     
+     6      -1.17263546   9.95e-08   3.89e-05     
+     7      -1.17263546   2.30e-09   8.73e-06     
+ ------------------------------------------------------------------------------
+            -1.17263546                           CCSD T converged.
+
+End of double precision
+ SCF energy                 = -1.13299978
+ MP2 energy                 = -1.16499891
+ CCSD correlation energy    = -0.03963568
+ CCSD total energy          = -1.17263546
+
+ CCSD  T1^2 = 0.0001  T2^2 = 0.0183  Leading amplitudes:
+
+ Amplitude    Orbitals with energies
+ -0.0054       1 (A) A                   ->    10 (A) A                   
+              -0.5936                          0.4176                     
+ -0.0054       1 (A) B                   ->    10 (A) B                   
+              -0.5936                          0.4176                     
+  0.0032       1 (A) A                   ->    17 (A) A                   
+              -0.5936                          0.9028                     
+  0.0032       1 (A) B                   ->    17 (A) B                   
+              -0.5936                          0.9028                     
+
+ Amplitude    Orbitals with energies
+ -0.0324       1 (A) A       1 (A) B     ->    4 (A) A       4 (A) B      
+              -0.5936       -0.5936            0.1901        0.1901       
+  0.0324       1 (A) A       1 (A) B     ->    4 (A) B       4 (A) A      
+              -0.5936       -0.5936            0.1901        0.1901       
+  0.0324       1 (A) B       1 (A) A     ->    4 (A) A       4 (A) B      
+              -0.5936       -0.5936            0.1901        0.1901       
+ -0.0324       1 (A) B       1 (A) A     ->    4 (A) B       4 (A) A      
+              -0.5936       -0.5936            0.1901        0.1901       
+
+ Computing CCSD intermediates for later calculations in double precision
+ Finished.
+
+Running a double precision version
+           CCSD Lambda amplitudes will be solved using DIIS.
+           Start     Size      MaxIter   EConv     LConv     
+           3         7         100       1.00e-07  1.00e-05  
+ ------------------------------------------------------------------------------
+            Enorm      Ldiff       Comment
+ ------------------------------------------------------------------------------
+     1     3.80e-03   3.74e-03     
+     2     8.75e-04   7.90e-04     
+     3     3.10e-04   2.65e-04     
+     4     3.98e-05   1.40e-04     Switched to DIIS steps.
+     5     6.00e-06   1.07e-05     
+     6     9.91e-07   8.17e-07     
+     7     1.63e-07   5.35e-08     
+     8     3.78e-08   1.83e-08     
+ ------------------------------------------------------------------------------
+                                   CCSD Lambda converged.
+
+ Computing density matrices in double precision...
+           Orbital response amplitudes will be solved using DIIS.
+           Start     Size      MaxIter   EConv     LConv     
+           3         7         100       1.00e-06  1.00e-06  
+ ------------------------------------------------------------------------------
+            Enorm      Ldiff       Comment
+ ------------------------------------------------------------------------------
+     1     1.04e-06   2.57e-07     
+     2     1.01e-07   7.12e-08     
+ ------------------------------------------------------------------------------
+                                   Orbital response converged.
+
+ Computing density matrices... Done.
+ CCSD calculation:   CPU 12.47 s  wall 4.49 s
+
+ Adding separable TPDM in double precision
+ Transferring MO TPDM to AO TPDM
+ Transferring g2_o1o1o1o1
+ Transferring g2_o1o1o1v1
+ Transferring g2_o1o1v1v1
+ Transferring g2_o1v1o1v1
+ Transferring g2_o1v1v1v1
+ Transferring g2_v1v1v1v1
+ Computing TPDM gradient
+ --------------------------------------------------------
+ 2e gradient
+  Atom          X               Y               Z
+ --------------------------------------------------------
+    1         -0.000437       -0.000000        0.324846  
+    2          0.000437        0.000000       -0.324846  
+ --------------------------------------------------------
+ --------------------------------------------------------
+ Final gradient
+  Atom          X               Y               Z
+ --------------------------------------------------------
+    1         -0.000437       -0.000000        0.324846  
+    2          0.000437        0.000000       -0.324846  
+ --------------------------------------------------------
+ Analytic gradient from two-electron contribution:   CPU 5.02 s  wall 1.99 s
+
+ Total ccman2 time:   CPU 22.64 s  wall 8.16 s
+
+
+ --------------------------------------------------------------
+
+                    Orbital Energies (a.u.)
+ --------------------------------------------------------------
+
+ Alpha MOs
+ -- Occupied --
+ -0.5936
+ -- Virtual --
+  0.0525   0.0531   0.1901   0.2088   0.2088   0.2847   0.2974   0.2974
+  0.4176   0.4200   0.7379   0.7912   0.7912   0.8838   0.8838   0.9028
+  0.9312   0.9312   1.0461   1.0479   1.0479   1.0668   1.0668   1.5232
+  1.9372   1.9372   2.1310   2.5923   2.9347   3.6156   3.6156   3.6328
+  3.6328   4.1542   4.4038   4.4038   4.4287   4.4287   4.4881   4.4881
+  5.1824   5.7766   5.7766   5.9775   7.1095
+ --------------------------------------------------------------
+
+          Ground-State Mulliken Net Atomic Charges
+
+     Atom                 Charge (a.u.)
+  ----------------------------------------
+      1 H                     0.000000
+      2 H                    -0.000000
+  ----------------------------------------
+  Sum of atomic charges =     0.000000
+
+ -----------------------------------------------------------------
+                    Cartesian Multipole Moments
+ -----------------------------------------------------------------
+    Charge (ESU x 10^10)
+                -0.0000
+    Dipole Moment (Debye)
+         X      -0.0000      Y       0.0000      Z       0.0000
+       Tot       0.0000
+    Quadrupole Moments (Debye-Ang)
+        XX      -2.0646     XY       0.0000     YY      -2.0646
+        XZ      -0.0008     YZ      -0.0000     ZZ      -1.4419
+    Octopole Moments (Debye-Ang^2)
+       XXX       0.0031    XXY       0.0000    XYY       0.0010
+       YYY       0.0000    XXZ       0.0000    XYZ       0.0000
+       YYZ       0.0000    XZZ       0.0007    YZZ       0.0000
+       ZZZ       0.0000
+    Hexadecapole Moments (Debye-Ang^3)
+      XXXX      -2.0434   XXXY       0.0000   XXYY      -0.6811
+      XYYY       0.0000   YYYY      -2.0434   XXXZ       0.0005
+      XXYZ      -0.0000   XYYZ       0.0002   YYYZ      -0.0000
+      XXZZ      -0.8114   XYZZ       0.0000   YYZZ      -0.8114
+      XZZZ       0.0004   YZZZ      -0.0000   ZZZZ      -2.7017
+ -----------------------------------------------------------------
+ DrvMan completing analytic gradient of the correlated energy
+ Correlated dipole moment
+            1
+    1  -0.0000000
+    2   0.0000000
+    3   0.0000000
+ Energy read as -1.172635463
+ Full Analytical Gradient: (in a.u., or Hartree/Bohr)
+             1             2
+    1    0.00000037   -0.00000037
+    2    0.00000000   -0.00000000
+    3   -0.00027423    0.00027423
+ Gradient time:  CPU 0.28 s  wall 0.34 s
+ ----------------------------------------------------------------
+             Standard Nuclear Orientation (Angstroms)
+    I     Atom           X                Y                Z
+ ----------------------------------------------------------------
+    1      H       0.0000000000     0.0000000000    -0.3716865000
+    2      H       0.0000000000     0.0010000000     0.3716865000
+ ----------------------------------------------------------------
+ Nuclear Repulsion Energy =           0.71185896 hartrees
+ There are        1 alpha and        1 beta electrons
+
+                       Distance Matrix (Angstroms)
+             H (  1)
+   H (  2)  0.743374
+
+ Requested basis set is aug-cc-pVTZ
+ There are 18 shells and 46 basis functions
+ A cutoff of  1.0D-14 yielded    171 shell pairs
+ There are      1139 function pairs (      1353 Cartesian)
+ Smallest overlap matrix eigenvalue = 5.49E-05
+ Guess MOs from SCF MO coefficient file
+
+ -----------------------------------------------------------------------
+  General SCF calculation program by
+  Eric Jon Sundstrom, Paul Horn, Yuezhi Mao, Dmitri Zuev, Alec White,
+  David Stuck, Shaama M.S., Shane Yost, Joonho Lee, David Small,
+  Daniel Levine, Susi Lehtola, Hugh Burton, Evgeny Epifanovsky,
+  Bang C. Huynh
+ -----------------------------------------------------------------------
+ Hartree-Fock
+ A restricted SCF calculation will be
+ performed using DIIS
+ SCF converges when DIIS error is below 1.0e-08
+ ---------------------------------------
+  Cycle       Energy         DIIS error
+ ---------------------------------------
+    1      -1.1329997673      8.32e-06  
+    2      -1.1329997788      1.15e-06  
+    3      -1.1329997792      1.06e-07  
+    4      -1.1329997792      6.66e-09  Convergence criterion met
+ ---------------------------------------
+ SCF time:   CPU 0.84s  wall 0.00s 
+ SCF   energy in the final basis set =       -1.1329997792
+ Total energy in the final basis set =       -1.1329997792
+
+
+ ------------------------------------------------------------------------------
+
+   CCMAN2: suite of methods based on coupled cluster
+           and equation of motion theories.
+
+   Components:
+   * libvmm-1.3-trunk
+     by Evgeny Epifanovsky, Ilya Kaliman.
+   * libtensor-2.5-trunk
+     by Evgeny Epifanovsky, Michael Wormit, Dmitry Zuev, Sam Manzer, 
+        Ilya Kaliman.
+   * libcc-2.5-trunk
+     by Evgeny Epifanovsky, Arik Landau, Tomasz Kus, Kirill Khistyaev, 
+        Dmitry Zuev, Prashant Manohar, Xintian Feng, Anna Krylov, 
+        Matthew Goldey, Alec White, Thomas Jagau, Kaushik Nanda, 
+        Anastasia Gunina, Alexander Kunitsa, Joonho Lee.
+
+   CCMAN original authors:
+   Anna I. Krylov, C. David Sherrill, Steven R. Gwaltney,
+   Edward F. C. Byrd (2000)
+   Sergey V. Levchenko, Lyudmila V. Slipchenko, Tao Wang,
+   Ana-Maria C. Cristian (2003)
+   Piotr A. Pieniazek, C. Melania Oana, Evgeny Epifanovsky (2007)
+   Prashant Manohar (2009)
+
+ ------------------------------------------------------------------------------
+
+
+ Allocating and initializing 1808MB of RAM...
+ Calculation will run on 4 cores.
+
+
+ Alpha MOs, Restricted
+ -- Occupied --                  
+ -0.594
+  1 A                                                                          
+ -- Virtual --                   
+  0.053   0.053   0.190   0.209   0.209   0.285   0.297   0.297
+  2 A     3 A     4 A     5 A     6 A     7 A     8 A     9 A                  
+  0.418   0.420   0.738   0.791   0.791   0.884   0.884   0.903
+ 10 A    11 A    12 A    13 A    14 A    15 A    16 A    17 A                  
+  0.931   0.931   1.046   1.048   1.048   1.067   1.067   1.523
+ 18 A    19 A    20 A    21 A    22 A    23 A    24 A    25 A                  
+  1.937   1.937   2.131   2.592   2.935   3.616   3.616   3.633
+ 26 A    27 A    28 A    29 A    30 A    31 A    32 A    33 A                  
+  3.633   4.154   4.404   4.404   4.429   4.429   4.488   4.488
+ 34 A    35 A    36 A    37 A    38 A    39 A    40 A    41 A                  
+  5.182   5.777   5.777   5.978   7.109
+ 42 A    43 A    44 A    45 A    46 A                                          
+
+ Beta MOs, Restricted
+ -- Occupied --                  
+ -0.594
+  1 A                                                                          
+ -- Virtual --                   
+  0.053   0.053   0.190   0.209   0.209   0.285   0.297   0.297
+  2 A     3 A     4 A     5 A     6 A     7 A     8 A     9 A                  
+  0.418   0.420   0.738   0.791   0.791   0.884   0.884   0.903
+ 10 A    11 A    12 A    13 A    14 A    15 A    16 A    17 A                  
+  0.931   0.931   1.046   1.048   1.048   1.067   1.067   1.523
+ 18 A    19 A    20 A    21 A    22 A    23 A    24 A    25 A                  
+  1.937   1.937   2.131   2.592   2.935   3.616   3.616   3.633
+ 26 A    27 A    28 A    29 A    30 A    31 A    32 A    33 A                  
+  3.633   4.154   4.404   4.404   4.429   4.429   4.488   4.488
+ 34 A    35 A    36 A    37 A    38 A    39 A    40 A    41 A                  
+  5.182   5.777   5.777   5.978   7.109
+ 42 A    43 A    44 A    45 A    46 A                                          
+
+ Occupation and symmetry of molecular orbitals
+
+ Point group: C1 (1 irreducible representation).
+
+                           A     All 
+ -------------------------------------
+ All molecular orbitals:
+  - Alpha                  46    46  
+  - Beta                   46    46  
+ -------------------------------------
+ Alpha orbitals:
+  - Frozen occupied        0     0   
+  - Active occupied        1     1   
+  - Active virtual         45    45  
+  - Frozen virtual         0     0   
+ -------------------------------------
+ Beta orbitals:
+  - Frozen occupied        0     0   
+  - Active occupied        1     1   
+  - Active virtual         45    45  
+  - Frozen virtual         0     0   
+ -------------------------------------
+
+ Import integrals:   CPU 0.00 s  wall 0.00 s
+
+ Import integrals:   CPU 0.68 s  wall 0.28 s
+
+ MP2 amplitudes:   CPU 0.02 s  wall 0.01 s
+
+Running a double precision version
+           CCSD T amplitudes will be solved using DIIS.
+
+           Start     Size      MaxIter   EConv     TConv     
+           3         7         100       1.00e-07  1.00e-05  
+ ------------------------------------------------------------------------------
+           Energy (a.u.)   Ediff      Tdiff       Comment
+ ------------------------------------------------------------------------------
+            -1.16499891                           
+     1      -1.17022530   5.23e-03   1.54e-01     
+     2      -1.17181193   1.59e-03   3.21e-02     
+     3      -1.17233671   5.25e-04   1.09e-02     
+     4      -1.17263219   2.95e-04   6.13e-03     Switched to DIIS steps.
+     5      -1.17263556   3.37e-06   6.07e-04     
+     6      -1.17263546   9.95e-08   3.89e-05     
+     7      -1.17263546   2.30e-09   8.73e-06     
+ ------------------------------------------------------------------------------
+            -1.17263546                           CCSD T converged.
+
+End of double precision
+ SCF energy                 = -1.13299978
+ MP2 energy                 = -1.16499891
+ CCSD correlation energy    = -0.03963568
+ CCSD total energy          = -1.17263546
+
+ CCSD  T1^2 = 0.0001  T2^2 = 0.0183  Leading amplitudes:
+
+ Amplitude    Orbitals with energies
+ -0.0054       1 (A) A                   ->    10 (A) A                   
+              -0.5936                          0.4176                     
+ -0.0054       1 (A) B                   ->    10 (A) B                   
+              -0.5936                          0.4176                     
+  0.0032       1 (A) A                   ->    17 (A) A                   
+              -0.5936                          0.9028                     
+  0.0032       1 (A) B                   ->    17 (A) B                   
+              -0.5936                          0.9028                     
+
+ Amplitude    Orbitals with energies
+ -0.0324       1 (A) A       1 (A) B     ->    4 (A) A       4 (A) B      
+              -0.5936       -0.5936            0.1901        0.1901       
+  0.0324       1 (A) A       1 (A) B     ->    4 (A) B       4 (A) A      
+              -0.5936       -0.5936            0.1901        0.1901       
+  0.0324       1 (A) B       1 (A) A     ->    4 (A) A       4 (A) B      
+              -0.5936       -0.5936            0.1901        0.1901       
+ -0.0324       1 (A) B       1 (A) A     ->    4 (A) B       4 (A) A      
+              -0.5936       -0.5936            0.1901        0.1901       
+
+ Computing CCSD intermediates for later calculations in double precision
+ Finished.
+
+Running a double precision version
+           CCSD Lambda amplitudes will be solved using DIIS.
+           Start     Size      MaxIter   EConv     LConv     
+           3         7         100       1.00e-07  1.00e-05  
+ ------------------------------------------------------------------------------
+            Enorm      Ldiff       Comment
+ ------------------------------------------------------------------------------
+     1     3.80e-03   3.74e-03     
+     2     8.75e-04   7.90e-04     
+     3     3.10e-04   2.65e-04     
+     4     3.98e-05   1.40e-04     Switched to DIIS steps.
+     5     6.00e-06   1.07e-05     
+     6     9.91e-07   8.17e-07     
+     7     1.63e-07   5.35e-08     
+     8     3.78e-08   1.83e-08     
+ ------------------------------------------------------------------------------
+                                   CCSD Lambda converged.
+
+ Computing density matrices in double precision...
+           Orbital response amplitudes will be solved using DIIS.
+           Start     Size      MaxIter   EConv     LConv     
+           3         7         100       1.00e-06  1.00e-06  
+ ------------------------------------------------------------------------------
+            Enorm      Ldiff       Comment
+ ------------------------------------------------------------------------------
+     1     1.04e-06   2.57e-07     
+     2     1.01e-07   7.12e-08     
+ ------------------------------------------------------------------------------
+                                   Orbital response converged.
+
+ Computing density matrices... Done.
+ CCSD calculation:   CPU 12.46 s  wall 4.54 s
+
+ Adding separable TPDM in double precision
+ Transferring MO TPDM to AO TPDM
+ Transferring g2_o1o1o1o1
+ Transferring g2_o1o1o1v1
+ Transferring g2_o1o1v1v1
+ Transferring g2_o1v1o1v1
+ Transferring g2_o1v1v1v1
+ Transferring g2_v1v1v1v1
+ Computing TPDM gradient
+ --------------------------------------------------------
+ 2e gradient
+  Atom          X               Y               Z
+ --------------------------------------------------------
+    1          0.000000        0.000437        0.324846  
+    2         -0.000000       -0.000437       -0.324846  
+ --------------------------------------------------------
+ --------------------------------------------------------
+ Final gradient
+  Atom          X               Y               Z
+ --------------------------------------------------------
+    1          0.000000        0.000437        0.324846  
+    2         -0.000000       -0.000437       -0.324846  
+ --------------------------------------------------------
+ Analytic gradient from two-electron contribution:   CPU 5.05 s  wall 1.99 s
+
+ Total ccman2 time:   CPU 22.28 s  wall 8.10 s
+
+
+ --------------------------------------------------------------
+
+                    Orbital Energies (a.u.)
+ --------------------------------------------------------------
+
+ Alpha MOs
+ -- Occupied --
+ -0.5936
+ -- Virtual --
+  0.0525   0.0531   0.1901   0.2088   0.2088   0.2847   0.2974   0.2974
+  0.4176   0.4200   0.7379   0.7912   0.7912   0.8838   0.8838   0.9028
+  0.9312   0.9312   1.0461   1.0479   1.0479   1.0668   1.0668   1.5232
+  1.9372   1.9372   2.1310   2.5923   2.9347   3.6156   3.6156   3.6328
+  3.6328   4.1542   4.4038   4.4038   4.4287   4.4287   4.4881   4.4881
+  5.1824   5.7766   5.7766   5.9775   7.1095
+ --------------------------------------------------------------
+
+          Ground-State Mulliken Net Atomic Charges
+
+     Atom                 Charge (a.u.)
+  ----------------------------------------
+      1 H                    -0.000000
+      2 H                     0.000000
+  ----------------------------------------
+  Sum of atomic charges =     0.000000
+
+ -----------------------------------------------------------------
+                    Cartesian Multipole Moments
+ -----------------------------------------------------------------
+    Charge (ESU x 10^10)
+                 0.0000
+    Dipole Moment (Debye)
+         X       0.0000      Y      -0.0000      Z      -0.0000
+       Tot       0.0000
+    Quadrupole Moments (Debye-Ang)
+        XX      -2.0646     XY      -0.0000     YY      -2.0646
+        XZ      -0.0000     YZ       0.0008     ZZ      -1.4419
+    Octopole Moments (Debye-Ang^2)
+       XXX       0.0000    XXY      -0.0010    XYY      -0.0000
+       YYY      -0.0031    XXZ      -0.0000    XYZ      -0.0000
+       YYZ       0.0000    XZZ       0.0000    YZZ      -0.0007
+       ZZZ      -0.0000
+    Hexadecapole Moments (Debye-Ang^3)
+      XXXX      -2.0434   XXXY      -0.0000   XXYY      -0.6811
+      XYYY      -0.0000   YYYY      -2.0434   XXXZ      -0.0000
+      XXYZ      -0.0002   XYYZ      -0.0000   YYYZ      -0.0005
+      XXZZ      -0.8114   XYZZ      -0.0000   YYZZ      -0.8114
+      XZZZ      -0.0000   YZZZ      -0.0004   ZZZZ      -2.7017
+ -----------------------------------------------------------------
+ DrvMan completing analytic gradient of the correlated energy
+ Correlated dipole moment
+            1
+    1   0.0000000
+    2  -0.0000000
+    3  -0.0000000
+ Energy read as -1.172635463
+ Full Analytical Gradient: (in a.u., or Hartree/Bohr)
+             1             2
+    1   -0.00000000    0.00000000
+    2   -0.00000037    0.00000037
+    3   -0.00027423    0.00027423
+ Gradient time:  CPU 0.28 s  wall 0.34 s
+ ----------------------------------------------------------------
+             Standard Nuclear Orientation (Angstroms)
+    I     Atom           X                Y                Z
+ ----------------------------------------------------------------
+    1      H       0.0000000000     0.0000000000    -0.3716865000
+    2      H       0.0000000000    -0.0010000000     0.3716865000
+ ----------------------------------------------------------------
+ Nuclear Repulsion Energy =           0.71185896 hartrees
+ There are        1 alpha and        1 beta electrons
+
+                       Distance Matrix (Angstroms)
+             H (  1)
+   H (  2)  0.743374
+
+ Requested basis set is aug-cc-pVTZ
+ There are 18 shells and 46 basis functions
+ A cutoff of  1.0D-14 yielded    171 shell pairs
+ There are      1139 function pairs (      1353 Cartesian)
+ Smallest overlap matrix eigenvalue = 5.49E-05
+ Guess MOs from SCF MO coefficient file
+
+ -----------------------------------------------------------------------
+  General SCF calculation program by
+  Eric Jon Sundstrom, Paul Horn, Yuezhi Mao, Dmitri Zuev, Alec White,
+  David Stuck, Shaama M.S., Shane Yost, Joonho Lee, David Small,
+  Daniel Levine, Susi Lehtola, Hugh Burton, Evgeny Epifanovsky,
+  Bang C. Huynh
+ -----------------------------------------------------------------------
+ Hartree-Fock
+ A restricted SCF calculation will be
+ performed using DIIS
+ SCF converges when DIIS error is below 1.0e-08
+ ---------------------------------------
+  Cycle       Energy         DIIS error
+ ---------------------------------------
+    1      -1.1329997553      1.18e-05  
+    2      -1.1329997785      1.63e-06  
+    3      -1.1329997792      1.50e-07  
+    4      -1.1329997792      9.42e-09  Convergence criterion met
+ ---------------------------------------
+ SCF time:   CPU 0.86s  wall 5.00s 
+ SCF   energy in the final basis set =       -1.1329997792
+ Total energy in the final basis set =       -1.1329997792
+
+
+ ------------------------------------------------------------------------------
+
+   CCMAN2: suite of methods based on coupled cluster
+           and equation of motion theories.
+
+   Components:
+   * libvmm-1.3-trunk
+     by Evgeny Epifanovsky, Ilya Kaliman.
+   * libtensor-2.5-trunk
+     by Evgeny Epifanovsky, Michael Wormit, Dmitry Zuev, Sam Manzer, 
+        Ilya Kaliman.
+   * libcc-2.5-trunk
+     by Evgeny Epifanovsky, Arik Landau, Tomasz Kus, Kirill Khistyaev, 
+        Dmitry Zuev, Prashant Manohar, Xintian Feng, Anna Krylov, 
+        Matthew Goldey, Alec White, Thomas Jagau, Kaushik Nanda, 
+        Anastasia Gunina, Alexander Kunitsa, Joonho Lee.
+
+   CCMAN original authors:
+   Anna I. Krylov, C. David Sherrill, Steven R. Gwaltney,
+   Edward F. C. Byrd (2000)
+   Sergey V. Levchenko, Lyudmila V. Slipchenko, Tao Wang,
+   Ana-Maria C. Cristian (2003)
+   Piotr A. Pieniazek, C. Melania Oana, Evgeny Epifanovsky (2007)
+   Prashant Manohar (2009)
+
+ ------------------------------------------------------------------------------
+
+
+ Allocating and initializing 1808MB of RAM...
+ Calculation will run on 4 cores.
+
+
+ Alpha MOs, Restricted
+ -- Occupied --                  
+ -0.594
+  1 A                                                                          
+ -- Virtual --                   
+  0.053   0.053   0.190   0.209   0.209   0.285   0.297   0.297
+  2 A     3 A     4 A     5 A     6 A     7 A     8 A     9 A                  
+  0.418   0.420   0.738   0.791   0.791   0.884   0.884   0.903
+ 10 A    11 A    12 A    13 A    14 A    15 A    16 A    17 A                  
+  0.931   0.931   1.046   1.048   1.048   1.067   1.067   1.523
+ 18 A    19 A    20 A    21 A    22 A    23 A    24 A    25 A                  
+  1.937   1.937   2.131   2.592   2.935   3.616   3.616   3.633
+ 26 A    27 A    28 A    29 A    30 A    31 A    32 A    33 A                  
+  3.633   4.154   4.404   4.404   4.429   4.429   4.488   4.488
+ 34 A    35 A    36 A    37 A    38 A    39 A    40 A    41 A                  
+  5.182   5.777   5.777   5.978   7.109
+ 42 A    43 A    44 A    45 A    46 A                                          
+
+ Beta MOs, Restricted
+ -- Occupied --                  
+ -0.594
+  1 A                                                                          
+ -- Virtual --                   
+  0.053   0.053   0.190   0.209   0.209   0.285   0.297   0.297
+  2 A     3 A     4 A     5 A     6 A     7 A     8 A     9 A                  
+  0.418   0.420   0.738   0.791   0.791   0.884   0.884   0.903
+ 10 A    11 A    12 A    13 A    14 A    15 A    16 A    17 A                  
+  0.931   0.931   1.046   1.048   1.048   1.067   1.067   1.523
+ 18 A    19 A    20 A    21 A    22 A    23 A    24 A    25 A                  
+  1.937   1.937   2.131   2.592   2.935   3.616   3.616   3.633
+ 26 A    27 A    28 A    29 A    30 A    31 A    32 A    33 A                  
+  3.633   4.154   4.404   4.404   4.429   4.429   4.488   4.488
+ 34 A    35 A    36 A    37 A    38 A    39 A    40 A    41 A                  
+  5.182   5.777   5.777   5.978   7.109
+ 42 A    43 A    44 A    45 A    46 A                                          
+
+ Occupation and symmetry of molecular orbitals
+
+ Point group: C1 (1 irreducible representation).
+
+                           A     All 
+ -------------------------------------
+ All molecular orbitals:
+  - Alpha                  46    46  
+  - Beta                   46    46  
+ -------------------------------------
+ Alpha orbitals:
+  - Frozen occupied        0     0   
+  - Active occupied        1     1   
+  - Active virtual         45    45  
+  - Frozen virtual         0     0   
+ -------------------------------------
+ Beta orbitals:
+  - Frozen occupied        0     0   
+  - Active occupied        1     1   
+  - Active virtual         45    45  
+  - Frozen virtual         0     0   
+ -------------------------------------
+
+ Import integrals:   CPU 0.00 s  wall 0.00 s
+
+ Import integrals:   CPU 0.68 s  wall 0.25 s
+
+ MP2 amplitudes:   CPU 0.01 s  wall 0.01 s
+
+Running a double precision version
+           CCSD T amplitudes will be solved using DIIS.
+
+           Start     Size      MaxIter   EConv     TConv     
+           3         7         100       1.00e-07  1.00e-05  
+ ------------------------------------------------------------------------------
+           Energy (a.u.)   Ediff      Tdiff       Comment
+ ------------------------------------------------------------------------------
+            -1.16499891                           
+     1      -1.17022530   5.23e-03   1.54e-01     
+     2      -1.17181193   1.59e-03   3.21e-02     
+     3      -1.17233671   5.25e-04   1.09e-02     
+     4      -1.17263219   2.95e-04   6.13e-03     Switched to DIIS steps.
+     5      -1.17263556   3.37e-06   6.07e-04     
+     6      -1.17263546   9.95e-08   3.89e-05     
+     7      -1.17263546   2.30e-09   8.73e-06     
+ ------------------------------------------------------------------------------
+            -1.17263546                           CCSD T converged.
+
+End of double precision
+ SCF energy                 = -1.13299978
+ MP2 energy                 = -1.16499891
+ CCSD correlation energy    = -0.03963568
+ CCSD total energy          = -1.17263546
+
+ CCSD  T1^2 = 0.0001  T2^2 = 0.0183  Leading amplitudes:
+
+ Amplitude    Orbitals with energies
+ -0.0054       1 (A) A                   ->    10 (A) A                   
+              -0.5936                          0.4176                     
+ -0.0054       1 (A) B                   ->    10 (A) B                   
+              -0.5936                          0.4176                     
+  0.0032       1 (A) A                   ->    17 (A) A                   
+              -0.5936                          0.9028                     
+  0.0032       1 (A) B                   ->    17 (A) B                   
+              -0.5936                          0.9028                     
+
+ Amplitude    Orbitals with energies
+ -0.0324       1 (A) A       1 (A) B     ->    4 (A) A       4 (A) B      
+              -0.5936       -0.5936            0.1901        0.1901       
+  0.0324       1 (A) A       1 (A) B     ->    4 (A) B       4 (A) A      
+              -0.5936       -0.5936            0.1901        0.1901       
+  0.0324       1 (A) B       1 (A) A     ->    4 (A) A       4 (A) B      
+              -0.5936       -0.5936            0.1901        0.1901       
+ -0.0324       1 (A) B       1 (A) A     ->    4 (A) B       4 (A) A      
+              -0.5936       -0.5936            0.1901        0.1901       
+
+ Computing CCSD intermediates for later calculations in double precision
+ Finished.
+
+Running a double precision version
+           CCSD Lambda amplitudes will be solved using DIIS.
+           Start     Size      MaxIter   EConv     LConv     
+           3         7         100       1.00e-07  1.00e-05  
+ ------------------------------------------------------------------------------
+            Enorm      Ldiff       Comment
+ ------------------------------------------------------------------------------
+     1     3.80e-03   3.74e-03     
+     2     8.75e-04   7.90e-04     
+     3     3.10e-04   2.65e-04     
+     4     3.98e-05   1.40e-04     Switched to DIIS steps.
+     5     6.00e-06   1.07e-05     
+     6     9.91e-07   8.17e-07     
+     7     1.63e-07   5.35e-08     
+     8     3.78e-08   1.83e-08     
+ ------------------------------------------------------------------------------
+                                   CCSD Lambda converged.
+
+ Computing density matrices in double precision...
+           Orbital response amplitudes will be solved using DIIS.
+           Start     Size      MaxIter   EConv     LConv     
+           3         7         100       1.00e-06  1.00e-06  
+ ------------------------------------------------------------------------------
+            Enorm      Ldiff       Comment
+ ------------------------------------------------------------------------------
+     1     1.04e-06   2.57e-07     
+     2     1.01e-07   7.12e-08     
+ ------------------------------------------------------------------------------
+                                   Orbital response converged.
+
+ Computing density matrices... Done.
+ CCSD calculation:   CPU 13.10 s  wall 4.71 s
+
+ Adding separable TPDM in double precision
+ Transferring MO TPDM to AO TPDM
+ Transferring g2_o1o1o1o1
+ Transferring g2_o1o1o1v1
+ Transferring g2_o1o1v1v1
+ Transferring g2_o1v1o1v1
+ Transferring g2_o1v1v1v1
+ Transferring g2_v1v1v1v1
+ Computing TPDM gradient
+ --------------------------------------------------------
+ 2e gradient
+  Atom          X               Y               Z
+ --------------------------------------------------------
+    1         -0.000000       -0.000437        0.324846  
+    2          0.000000        0.000437       -0.324846  
+ --------------------------------------------------------
+ --------------------------------------------------------
+ Final gradient
+  Atom          X               Y               Z
+ --------------------------------------------------------
+    1         -0.000000       -0.000437        0.324846  
+    2          0.000000        0.000437       -0.324846  
+ --------------------------------------------------------
+ Analytic gradient from two-electron contribution:   CPU 5.16 s  wall 2.44 s
+
+ Total ccman2 time:   CPU 23.23 s  wall 8.75 s
+
+
+ --------------------------------------------------------------
+
+                    Orbital Energies (a.u.)
+ --------------------------------------------------------------
+
+ Alpha MOs
+ -- Occupied --
+ -0.5936
+ -- Virtual --
+  0.0525   0.0531   0.1901   0.2088   0.2088   0.2847   0.2974   0.2974
+  0.4176   0.4200   0.7379   0.7912   0.7912   0.8838   0.8838   0.9028
+  0.9312   0.9312   1.0461   1.0479   1.0479   1.0668   1.0668   1.5232
+  1.9372   1.9372   2.1310   2.5923   2.9347   3.6156   3.6156   3.6328
+  3.6328   4.1542   4.4038   4.4038   4.4287   4.4287   4.4881   4.4881
+  5.1824   5.7766   5.7766   5.9775   7.1095
+ --------------------------------------------------------------
+
+          Ground-State Mulliken Net Atomic Charges
+
+     Atom                 Charge (a.u.)
+  ----------------------------------------
+      1 H                     0.000000
+      2 H                    -0.000000
+  ----------------------------------------
+  Sum of atomic charges =     0.000000
+
+ -----------------------------------------------------------------
+                    Cartesian Multipole Moments
+ -----------------------------------------------------------------
+    Charge (ESU x 10^10)
+                 0.0000
+    Dipole Moment (Debye)
+         X      -0.0000      Y       0.0000      Z      -0.0000
+       Tot       0.0000
+    Quadrupole Moments (Debye-Ang)
+        XX      -2.0646     XY      -0.0000     YY      -2.0646
+        XZ      -0.0000     YZ      -0.0008     ZZ      -1.4419
+    Octopole Moments (Debye-Ang^2)
+       XXX      -0.0000    XXY       0.0010    XYY      -0.0000
+       YYY       0.0031    XXZ      -0.0000    XYZ       0.0000
+       YYZ       0.0000    XZZ      -0.0000    YZZ       0.0007
+       ZZZ       0.0000
+    Hexadecapole Moments (Debye-Ang^3)
+      XXXX      -2.0434   XXXY      -0.0000   XXYY      -0.6811
+      XYYY      -0.0000   YYYY      -2.0434   XXXZ      -0.0000
+      XXYZ       0.0002   XYYZ      -0.0000   YYYZ       0.0005
+      XXZZ      -0.8114   XYZZ      -0.0000   YYZZ      -0.8114
+      XZZZ      -0.0000   YZZZ       0.0004   ZZZZ      -2.7017
+ -----------------------------------------------------------------
+ DrvMan completing analytic gradient of the correlated energy
+ Correlated dipole moment
+            1
+    1  -0.0000000
+    2   0.0000000
+    3  -0.0000000
+ Energy read as -1.172635463
+ Full Analytical Gradient: (in a.u., or Hartree/Bohr)
+             1             2
+    1   -0.00000000    0.00000000
+    2    0.00000037   -0.00000037
+    3   -0.00027423    0.00027423
+ Gradient time:  CPU 0.28 s  wall 1.68 s
+ ----------------------------------------------------------------
+             Standard Nuclear Orientation (Angstroms)
+    I     Atom           X                Y                Z
+ ----------------------------------------------------------------
+    1      H       0.0000000000     0.0000000000    -0.3716865000
+    2      H       0.0000000000     0.0000000000     0.3726865000
+ ----------------------------------------------------------------
+ Nuclear Repulsion Energy =           0.71090328 hartrees
+ There are        1 alpha and        1 beta electrons
+
+                       Distance Matrix (Angstroms)
+             H (  1)
+   H (  2)  0.744373
+
+ Requested basis set is aug-cc-pVTZ
+ There are 18 shells and 46 basis functions
+ A cutoff of  1.0D-14 yielded    171 shell pairs
+ There are      1139 function pairs (      1353 Cartesian)
+ Smallest overlap matrix eigenvalue = 5.52E-05
+ Guess MOs from SCF MO coefficient file
+
+ -----------------------------------------------------------------------
+  General SCF calculation program by
+  Eric Jon Sundstrom, Paul Horn, Yuezhi Mao, Dmitri Zuev, Alec White,
+  David Stuck, Shaama M.S., Shane Yost, Joonho Lee, David Small,
+  Daniel Levine, Susi Lehtola, Hugh Burton, Evgeny Epifanovsky,
+  Bang C. Huynh
+ -----------------------------------------------------------------------
+ Hartree-Fock
+ A restricted SCF calculation will be
+ performed using DIIS
+ SCF converges when DIIS error is below 1.0e-08
+ ---------------------------------------
+  Cycle       Energy         DIIS error
+ ---------------------------------------
+    1      -1.1329865003      2.59e-05  
+    2      -1.1329866736      3.10e-06  
+    3      -1.1329866776      2.94e-07  
+    4      -1.1329866776      1.57e-08  
+    5      -1.1329866776      8.93e-10  Convergence criterion met
+ ---------------------------------------
+ SCF time:   CPU 1.04s  wall 1.00s 
+ SCF   energy in the final basis set =       -1.1329866776
+ Total energy in the final basis set =       -1.1329866776
+
+
+ ------------------------------------------------------------------------------
+
+   CCMAN2: suite of methods based on coupled cluster
+           and equation of motion theories.
+
+   Components:
+   * libvmm-1.3-trunk
+     by Evgeny Epifanovsky, Ilya Kaliman.
+   * libtensor-2.5-trunk
+     by Evgeny Epifanovsky, Michael Wormit, Dmitry Zuev, Sam Manzer, 
+        Ilya Kaliman.
+   * libcc-2.5-trunk
+     by Evgeny Epifanovsky, Arik Landau, Tomasz Kus, Kirill Khistyaev, 
+        Dmitry Zuev, Prashant Manohar, Xintian Feng, Anna Krylov, 
+        Matthew Goldey, Alec White, Thomas Jagau, Kaushik Nanda, 
+        Anastasia Gunina, Alexander Kunitsa, Joonho Lee.
+
+   CCMAN original authors:
+   Anna I. Krylov, C. David Sherrill, Steven R. Gwaltney,
+   Edward F. C. Byrd (2000)
+   Sergey V. Levchenko, Lyudmila V. Slipchenko, Tao Wang,
+   Ana-Maria C. Cristian (2003)
+   Piotr A. Pieniazek, C. Melania Oana, Evgeny Epifanovsky (2007)
+   Prashant Manohar (2009)
+
+ ------------------------------------------------------------------------------
+
+
+ Allocating and initializing 1808MB of RAM...
+ Calculation will run on 4 cores.
+
+
+ Alpha MOs, Restricted
+ -- Occupied --                  
+ -0.593
+  1 A                                                                          
+ -- Virtual --                   
+  0.053   0.053   0.190   0.209   0.209   0.285   0.297   0.297
+  2 A     3 A     4 A     5 A     6 A     7 A     8 A     9 A                  
+  0.418   0.420   0.738   0.791   0.791   0.884   0.884   0.903
+ 10 A    11 A    12 A    13 A    14 A    15 A    16 A    17 A                  
+  0.931   0.931   1.046   1.048   1.048   1.067   1.067   1.523
+ 18 A    19 A    20 A    21 A    22 A    23 A    24 A    25 A                  
+  1.937   1.937   2.133   2.591   2.934   3.616   3.616   3.632
+ 26 A    27 A    28 A    29 A    30 A    31 A    32 A    33 A                  
+  3.632   4.153   4.403   4.403   4.428   4.428   4.488   4.488
+ 34 A    35 A    36 A    37 A    38 A    39 A    40 A    41 A                  
+  5.179   5.773   5.773   5.972   7.105
+ 42 A    43 A    44 A    45 A    46 A                                          
+
+ Beta MOs, Restricted
+ -- Occupied --                  
+ -0.593
+  1 A                                                                          
+ -- Virtual --                   
+  0.053   0.053   0.190   0.209   0.209   0.285   0.297   0.297
+  2 A     3 A     4 A     5 A     6 A     7 A     8 A     9 A                  
+  0.418   0.420   0.738   0.791   0.791   0.884   0.884   0.903
+ 10 A    11 A    12 A    13 A    14 A    15 A    16 A    17 A                  
+  0.931   0.931   1.046   1.048   1.048   1.067   1.067   1.523
+ 18 A    19 A    20 A    21 A    22 A    23 A    24 A    25 A                  
+  1.937   1.937   2.133   2.591   2.934   3.616   3.616   3.632
+ 26 A    27 A    28 A    29 A    30 A    31 A    32 A    33 A                  
+  3.632   4.153   4.403   4.403   4.428   4.428   4.488   4.488
+ 34 A    35 A    36 A    37 A    38 A    39 A    40 A    41 A                  
+  5.179   5.773   5.773   5.972   7.105
+ 42 A    43 A    44 A    45 A    46 A                                          
+
+ Occupation and symmetry of molecular orbitals
+
+ Point group: C1 (1 irreducible representation).
+
+                           A     All 
+ -------------------------------------
+ All molecular orbitals:
+  - Alpha                  46    46  
+  - Beta                   46    46  
+ -------------------------------------
+ Alpha orbitals:
+  - Frozen occupied        0     0   
+  - Active occupied        1     1   
+  - Active virtual         45    45  
+  - Frozen virtual         0     0   
+ -------------------------------------
+ Beta orbitals:
+  - Frozen occupied        0     0   
+  - Active occupied        1     1   
+  - Active virtual         45    45  
+  - Frozen virtual         0     0   
+ -------------------------------------
+
+ Import integrals:   CPU 0.00 s  wall 0.00 s
+
+ Import integrals:   CPU 0.70 s  wall 0.30 s
+
+ MP2 amplitudes:   CPU 0.01 s  wall 0.01 s
+
+Running a double precision version
+           CCSD T amplitudes will be solved using DIIS.
+
+           Start     Size      MaxIter   EConv     TConv     
+           3         7         100       1.00e-07  1.00e-05  
+ ------------------------------------------------------------------------------
+           Energy (a.u.)   Ediff      Tdiff       Comment
+ ------------------------------------------------------------------------------
+            -1.16499015                           
+     1      -1.17021950   5.23e-03   1.54e-01     
+     2      -1.17180847   1.59e-03   3.22e-02     
+     3      -1.17233444   5.26e-04   1.09e-02     
+     4      -1.17263099   2.97e-04   6.15e-03     Switched to DIIS steps.
+     5      -1.17263439   3.40e-06   6.09e-04     
+     6      -1.17263429   9.88e-08   3.90e-05     
+     7      -1.17263429   2.30e-09   8.74e-06     
+ ------------------------------------------------------------------------------
+            -1.17263429                           CCSD T converged.
+
+End of double precision
+ SCF energy                 = -1.13298668
+ MP2 energy                 = -1.16499015
+ CCSD correlation energy    = -0.03964761
+ CCSD total energy          = -1.17263429
+
+ CCSD  T1^2 = 0.0001  T2^2 = 0.0184  Leading amplitudes:
+
+ Amplitude    Orbitals with energies
+  0.0054       1 (A) A                   ->    10 (A) A                   
+              -0.5933                          0.4177                     
+  0.0054       1 (A) B                   ->    10 (A) B                   
+              -0.5933                          0.4177                     
+ -0.0032       1 (A) A                   ->    17 (A) A                   
+              -0.5933                          0.9026                     
+ -0.0032       1 (A) B                   ->    17 (A) B                   
+              -0.5933                          0.9026                     
+
+ Amplitude    Orbitals with energies
+ -0.0325       1 (A) A       1 (A) B     ->    4 (A) A       4 (A) B      
+              -0.5933       -0.5933            0.1900        0.1900       
+  0.0325       1 (A) A       1 (A) B     ->    4 (A) B       4 (A) A      
+              -0.5933       -0.5933            0.1900        0.1900       
+  0.0325       1 (A) B       1 (A) A     ->    4 (A) A       4 (A) B      
+              -0.5933       -0.5933            0.1900        0.1900       
+ -0.0325       1 (A) B       1 (A) A     ->    4 (A) B       4 (A) A      
+              -0.5933       -0.5933            0.1900        0.1900       
+
+ Computing CCSD intermediates for later calculations in double precision
+ Finished.
+
+Running a double precision version
+           CCSD Lambda amplitudes will be solved using DIIS.
+           Start     Size      MaxIter   EConv     LConv     
+           3         7         100       1.00e-07  1.00e-05  
+ ------------------------------------------------------------------------------
+            Enorm      Ldiff       Comment
+ ------------------------------------------------------------------------------
+     1     3.81e-03   3.75e-03     
+     2     8.77e-04   7.92e-04     
+     3     3.11e-04   2.66e-04     
+     4     4.00e-05   1.41e-04     Switched to DIIS steps.
+     5     6.03e-06   1.08e-05     
+     6     9.95e-07   8.24e-07     
+     7     1.64e-07   5.36e-08     
+     8     3.79e-08   1.84e-08     
+ ------------------------------------------------------------------------------
+                                   CCSD Lambda converged.
+
+ Computing density matrices in double precision...
+           Orbital response amplitudes will be solved using DIIS.
+           Start     Size      MaxIter   EConv     LConv     
+           3         7         100       1.00e-06  1.00e-06  
+ ------------------------------------------------------------------------------
+            Enorm      Ldiff       Comment
+ ------------------------------------------------------------------------------
+     1     1.04e-06   2.58e-07     
+     2     1.01e-07   7.12e-08     
+ ------------------------------------------------------------------------------
+                                   Orbital response converged.
+
+ Computing density matrices... Done.
+ CCSD calculation:   CPU 12.88 s  wall 4.64 s
+
+ Adding separable TPDM in double precision
+ Transferring MO TPDM to AO TPDM
+ Transferring g2_o1o1o1o1
+ Transferring g2_o1o1o1v1
+ Transferring g2_o1o1v1v1
+ Transferring g2_o1v1o1v1
+ Transferring g2_o1v1v1v1
+ Transferring g2_v1v1v1v1
+ Computing TPDM gradient
+ --------------------------------------------------------
+ 2e gradient
+  Atom          X               Y               Z
+ --------------------------------------------------------
+    1         -0.000000        0.000000        0.324719  
+    2          0.000000       -0.000000       -0.324719  
+ --------------------------------------------------------
+ --------------------------------------------------------
+ Final gradient
+  Atom          X               Y               Z
+ --------------------------------------------------------
+    1         -0.000000        0.000000        0.324719  
+    2          0.000000       -0.000000       -0.324719  
+ --------------------------------------------------------
+ Analytic gradient from two-electron contribution:   CPU 5.05 s  wall 1.99 s
+
+ Total ccman2 time:   CPU 23.19 s  wall 8.36 s
+
+
+ --------------------------------------------------------------
+
+                    Orbital Energies (a.u.)
+ --------------------------------------------------------------
+
+ Alpha MOs
+ -- Occupied --
+ -0.5933
+ -- Virtual --
+  0.0525   0.0531   0.1900   0.2088   0.2088   0.2847   0.2974   0.2974
+  0.4177   0.4198   0.7381   0.7911   0.7911   0.8837   0.8837   0.9026
+  0.9311   0.9311   1.0457   1.0478   1.0478   1.0668   1.0668   1.5231
+  1.9366   1.9366   2.1334   2.5906   2.9342   3.6156   3.6156   3.6323
+  3.6323   4.1533   4.4028   4.4028   4.4277   4.4277   4.4880   4.4880
+  5.1791   5.7731   5.7731   5.9719   7.1045
+ --------------------------------------------------------------
+
+          Ground-State Mulliken Net Atomic Charges
+
+     Atom                 Charge (a.u.)
+  ----------------------------------------
+      1 H                     0.000000
+      2 H                    -0.000000
+  ----------------------------------------
+  Sum of atomic charges =     0.000000
+
+ -----------------------------------------------------------------
+                    Cartesian Multipole Moments
+ -----------------------------------------------------------------
+    Charge (ESU x 10^10)
+                 0.0000
+    Dipole Moment (Debye)
+         X       0.0000      Y       0.0000      Z      -0.0000
+       Tot       0.0000
+    Quadrupole Moments (Debye-Ang)
+        XX      -2.0660     XY       0.0000     YY      -2.0660
+        XZ       0.0000     YZ      -0.0000     ZZ      -1.4419
+    Octopole Moments (Debye-Ang^2)
+       XXX       0.0000    XXY       0.0000    XYY       0.0000
+       YYY       0.0000    XXZ      -0.0010    XYZ       0.0000
+       YYZ      -0.0010    XZZ       0.0000    YZZ      -0.0000
+       ZZZ      -0.0022
+    Hexadecapole Moments (Debye-Ang^3)
+      XXXX      -2.0461   XXXY       0.0000   XXYY      -0.6820
+      XYYY       0.0000   YYYY      -2.0461   XXXZ       0.0000
+      XXYZ      -0.0000   XYYZ       0.0000   YYYZ      -0.0000
+      XXZZ      -0.8128   XYZZ       0.0000   YYZZ      -0.8128
+      XZZZ       0.0000   YZZZ      -0.0000   ZZZZ      -2.7069
+ -----------------------------------------------------------------
+ DrvMan completing analytic gradient of the correlated energy
+ Correlated dipole moment
+            1
+    1   0.0000000
+    2   0.0000000
+    3  -0.0000000
+ Energy read as -1.172634289
+ Full Analytical Gradient: (in a.u., or Hartree/Bohr)
+             1             2
+    1   -0.00000000    0.00000000
+    2   -0.00000000    0.00000000
+    3   -0.00096772    0.00096772
+ Gradient time:  CPU 0.28 s  wall 0.35 s
+ ----------------------------------------------------------------
+             Standard Nuclear Orientation (Angstroms)
+    I     Atom           X                Y                Z
+ ----------------------------------------------------------------
+    1      H       0.0000000000     0.0000000000    -0.3716865000
+    2      H       0.0000000000     0.0000000000     0.3706865000
+ ----------------------------------------------------------------
+ Nuclear Repulsion Energy =           0.71281850 hartrees
+ There are        1 alpha and        1 beta electrons
+
+                       Distance Matrix (Angstroms)
+             H (  1)
+   H (  2)  0.742373
+
+ Requested basis set is aug-cc-pVTZ
+ There are 18 shells and 46 basis functions
+ A cutoff of  1.0D-14 yielded    171 shell pairs
+ There are      1139 function pairs (      1353 Cartesian)
+ Smallest overlap matrix eigenvalue = 5.46E-05
+ Guess MOs from SCF MO coefficient file
+
+ -----------------------------------------------------------------------
+  General SCF calculation program by
+  Eric Jon Sundstrom, Paul Horn, Yuezhi Mao, Dmitri Zuev, Alec White,
+  David Stuck, Shaama M.S., Shane Yost, Joonho Lee, David Small,
+  Daniel Levine, Susi Lehtola, Hugh Burton, Evgeny Epifanovsky,
+  Bang C. Huynh
+ -----------------------------------------------------------------------
+ Hartree-Fock
+ A restricted SCF calculation will be
+ performed using DIIS
+ SCF converges when DIIS error is below 1.0e-08
+ ---------------------------------------
+  Cycle       Energy         DIIS error
+ ---------------------------------------
+    1      -1.1330108569      5.04e-05  
+    2      -1.1330115288      5.98e-06  
+    3      -1.1330115440      5.66e-07  
+    4      -1.1330115442      3.00e-08  
+    5      -1.1330115442      1.64e-09  Convergence criterion met
+ ---------------------------------------
+ SCF time:   CPU 1.06s  wall 2.00s 
+ SCF   energy in the final basis set =       -1.1330115442
+ Total energy in the final basis set =       -1.1330115442
+
+
+ ------------------------------------------------------------------------------
+
+   CCMAN2: suite of methods based on coupled cluster
+           and equation of motion theories.
+
+   Components:
+   * libvmm-1.3-trunk
+     by Evgeny Epifanovsky, Ilya Kaliman.
+   * libtensor-2.5-trunk
+     by Evgeny Epifanovsky, Michael Wormit, Dmitry Zuev, Sam Manzer, 
+        Ilya Kaliman.
+   * libcc-2.5-trunk
+     by Evgeny Epifanovsky, Arik Landau, Tomasz Kus, Kirill Khistyaev, 
+        Dmitry Zuev, Prashant Manohar, Xintian Feng, Anna Krylov, 
+        Matthew Goldey, Alec White, Thomas Jagau, Kaushik Nanda, 
+        Anastasia Gunina, Alexander Kunitsa, Joonho Lee.
+
+   CCMAN original authors:
+   Anna I. Krylov, C. David Sherrill, Steven R. Gwaltney,
+   Edward F. C. Byrd (2000)
+   Sergey V. Levchenko, Lyudmila V. Slipchenko, Tao Wang,
+   Ana-Maria C. Cristian (2003)
+   Piotr A. Pieniazek, C. Melania Oana, Evgeny Epifanovsky (2007)
+   Prashant Manohar (2009)
+
+ ------------------------------------------------------------------------------
+
+
+ Allocating and initializing 1808MB of RAM...
+ Calculation will run on 4 cores.
+
+
+ Alpha MOs, Restricted
+ -- Occupied --                  
+ -0.594
+  1 A                                                                          
+ -- Virtual --                   
+  0.053   0.053   0.190   0.209   0.209   0.285   0.297   0.297
+  2 A     3 A     4 A     5 A     6 A     7 A     8 A     9 A                  
+  0.418   0.420   0.738   0.791   0.791   0.884   0.884   0.903
+ 10 A    11 A    12 A    13 A    14 A    15 A    16 A    17 A                  
+  0.931   0.931   1.047   1.048   1.048   1.067   1.067   1.523
+ 18 A    19 A    20 A    21 A    22 A    23 A    24 A    25 A                  
+  1.938   1.938   2.129   2.594   2.935   3.616   3.616   3.633
+ 26 A    27 A    28 A    29 A    30 A    31 A    32 A    33 A                  
+  3.633   4.155   4.405   4.405   4.430   4.430   4.488   4.488
+ 34 A    35 A    36 A    37 A    38 A    39 A    40 A    41 A                  
+  5.186   5.780   5.780   5.983   7.115
+ 42 A    43 A    44 A    45 A    46 A                                          
+
+ Beta MOs, Restricted
+ -- Occupied --                  
+ -0.594
+  1 A                                                                          
+ -- Virtual --                   
+  0.053   0.053   0.190   0.209   0.209   0.285   0.297   0.297
+  2 A     3 A     4 A     5 A     6 A     7 A     8 A     9 A                  
+  0.418   0.420   0.738   0.791   0.791   0.884   0.884   0.903
+ 10 A    11 A    12 A    13 A    14 A    15 A    16 A    17 A                  
+  0.931   0.931   1.047   1.048   1.048   1.067   1.067   1.523
+ 18 A    19 A    20 A    21 A    22 A    23 A    24 A    25 A                  
+  1.938   1.938   2.129   2.594   2.935   3.616   3.616   3.633
+ 26 A    27 A    28 A    29 A    30 A    31 A    32 A    33 A                  
+  3.633   4.155   4.405   4.405   4.430   4.430   4.488   4.488
+ 34 A    35 A    36 A    37 A    38 A    39 A    40 A    41 A                  
+  5.186   5.780   5.780   5.983   7.115
+ 42 A    43 A    44 A    45 A    46 A                                          
+
+ Occupation and symmetry of molecular orbitals
+
+ Point group: C1 (1 irreducible representation).
+
+                           A     All 
+ -------------------------------------
+ All molecular orbitals:
+  - Alpha                  46    46  
+  - Beta                   46    46  
+ -------------------------------------
+ Alpha orbitals:
+  - Frozen occupied        0     0   
+  - Active occupied        1     1   
+  - Active virtual         45    45  
+  - Frozen virtual         0     0   
+ -------------------------------------
+ Beta orbitals:
+  - Frozen occupied        0     0   
+  - Active occupied        1     1   
+  - Active virtual         45    45  
+  - Frozen virtual         0     0   
+ -------------------------------------
+
+ Import integrals:   CPU 0.00 s  wall 0.00 s
+
+ Import integrals:   CPU 0.67 s  wall 0.28 s
+
+ MP2 amplitudes:   CPU 0.01 s  wall 0.01 s
+
+Running a double precision version
+           CCSD T amplitudes will be solved using DIIS.
+
+           Start     Size      MaxIter   EConv     TConv     
+           3         7         100       1.00e-07  1.00e-05  
+ ------------------------------------------------------------------------------
+           Energy (a.u.)   Ediff      Tdiff       Comment
+ ------------------------------------------------------------------------------
+            -1.16500633                           
+     1      -1.17022978   5.22e-03   1.53e-01     
+     2      -1.17181407   1.58e-03   3.21e-02     
+     3      -1.17233766   5.24e-04   1.09e-02     
+     4      -1.17263207   2.94e-04   6.11e-03     Switched to DIIS steps.
+     5      -1.17263542   3.35e-06   6.05e-04     
+     6      -1.17263532   1.00e-07   3.88e-05     
+     7      -1.17263532   2.31e-09   8.72e-06     
+ ------------------------------------------------------------------------------
+            -1.17263532                           CCSD T converged.
+
+End of double precision
+ SCF energy                 = -1.13301154
+ MP2 energy                 = -1.16500633
+ CCSD correlation energy    = -0.03962378
+ CCSD total energy          = -1.17263532
+
+ CCSD  T1^2 = 0.0001  T2^2 = 0.0183  Leading amplitudes:
+
+ Amplitude    Orbitals with energies
+  0.0054       1 (A) A                   ->    10 (A) A                   
+              -0.5939                          0.4175                     
+  0.0054       1 (A) B                   ->    10 (A) B                   
+              -0.5939                          0.4175                     
+  0.0032       1 (A) A                   ->    17 (A) A                   
+              -0.5939                          0.9030                     
+  0.0032       1 (A) B                   ->    17 (A) B                   
+              -0.5939                          0.9030                     
+
+ Amplitude    Orbitals with energies
+ -0.0323       1 (A) A       1 (A) B     ->    4 (A) A       4 (A) B      
+              -0.5939       -0.5939            0.1902        0.1902       
+  0.0323       1 (A) A       1 (A) B     ->    4 (A) B       4 (A) A      
+              -0.5939       -0.5939            0.1902        0.1902       
+  0.0323       1 (A) B       1 (A) A     ->    4 (A) A       4 (A) B      
+              -0.5939       -0.5939            0.1902        0.1902       
+ -0.0323       1 (A) B       1 (A) A     ->    4 (A) B       4 (A) A      
+              -0.5939       -0.5939            0.1902        0.1902       
+
+ Computing CCSD intermediates for later calculations in double precision
+ Finished.
+
+Running a double precision version
+           CCSD Lambda amplitudes will be solved using DIIS.
+           Start     Size      MaxIter   EConv     LConv     
+           3         7         100       1.00e-07  1.00e-05  
+ ------------------------------------------------------------------------------
+            Enorm      Ldiff       Comment
+ ------------------------------------------------------------------------------
+     1     3.79e-03   3.73e-03     
+     2     8.72e-04   7.87e-04     
+     3     3.09e-04   2.64e-04     
+     4     3.96e-05   1.39e-04     Switched to DIIS steps.
+     5     5.98e-06   1.06e-05     
+     6     9.87e-07   8.11e-07     
+     7     1.63e-07   5.33e-08     
+     8     3.77e-08   1.82e-08     
+ ------------------------------------------------------------------------------
+                                   CCSD Lambda converged.
+
+ Computing density matrices in double precision...
+           Orbital response amplitudes will be solved using DIIS.
+           Start     Size      MaxIter   EConv     LConv     
+           3         7         100       1.00e-06  1.00e-06  
+ ------------------------------------------------------------------------------
+            Enorm      Ldiff       Comment
+ ------------------------------------------------------------------------------
+     1     1.04e-06   2.57e-07     
+     2     1.01e-07   7.11e-08     
+ ------------------------------------------------------------------------------
+                                   Orbital response converged.
+
+ Computing density matrices... Done.
+ CCSD calculation:   CPU 13.11 s  wall 4.67 s
+
+ Adding separable TPDM in double precision
+ Transferring MO TPDM to AO TPDM
+ Transferring g2_o1o1o1o1
+ Transferring g2_o1o1o1v1
+ Transferring g2_o1o1v1v1
+ Transferring g2_o1v1o1v1
+ Transferring g2_o1v1v1v1
+ Transferring g2_v1v1v1v1
+ Computing TPDM gradient
+ --------------------------------------------------------
+ 2e gradient
+  Atom          X               Y               Z
+ --------------------------------------------------------
+    1          0.000000        0.000000        0.324974  
+    2         -0.000000       -0.000000       -0.324974  
+ --------------------------------------------------------
+ --------------------------------------------------------
+ Final gradient
+  Atom          X               Y               Z
+ --------------------------------------------------------
+    1          0.000000        0.000000        0.324974  
+    2         -0.000000       -0.000000       -0.324974  
+ --------------------------------------------------------
+ Analytic gradient from two-electron contribution:   CPU 5.02 s  wall 1.97 s
+
+ Total ccman2 time:   CPU 23.06 s  wall 8.24 s
+
+
+ --------------------------------------------------------------
+
+                    Orbital Energies (a.u.)
+ --------------------------------------------------------------
+
+ Alpha MOs
+ -- Occupied --
+ -0.5939
+ -- Virtual --
+  0.0525   0.0531   0.1902   0.2088   0.2088   0.2847   0.2974   0.2974
+  0.4175   0.4202   0.7377   0.7913   0.7913   0.8839   0.8839   0.9030
+  0.9313   0.9313   1.0466   1.0480   1.0480   1.0669   1.0669   1.5232
+  1.9377   1.9377   2.1286   2.5939   2.9352   3.6156   3.6156   3.6332
+  3.6332   4.1552   4.4048   4.4048   4.4296   4.4296   4.4882   4.4882
+  5.1857   5.7801   5.7801   5.9832   7.1145
+ --------------------------------------------------------------
+
+          Ground-State Mulliken Net Atomic Charges
+
+     Atom                 Charge (a.u.)
+  ----------------------------------------
+      1 H                    -0.000000
+      2 H                     0.000000
+  ----------------------------------------
+  Sum of atomic charges =     0.000000
+
+ -----------------------------------------------------------------
+                    Cartesian Multipole Moments
+ -----------------------------------------------------------------
+    Charge (ESU x 10^10)
+                -0.0000
+    Dipole Moment (Debye)
+         X       0.0000      Y       0.0000      Z       0.0000
+       Tot       0.0000
+    Quadrupole Moments (Debye-Ang)
+        XX      -2.0631     XY      -0.0000     YY      -2.0631
+        XZ      -0.0000     YZ      -0.0000     ZZ      -1.4418
+    Octopole Moments (Debye-Ang^2)
+       XXX       0.0000    XXY       0.0000    XYY       0.0000
+       YYY       0.0000    XXZ       0.0010    XYZ      -0.0000
+       YYZ       0.0010    XZZ       0.0000    YZZ       0.0000
+       ZZZ       0.0022
+    Hexadecapole Moments (Debye-Ang^3)
+      XXXX      -2.0407   XXXY      -0.0000   XXYY      -0.6802
+      XYYY      -0.0000   YYYY      -2.0407   XXXZ      -0.0000
+      XXYZ      -0.0000   XYYZ      -0.0000   YYYZ      -0.0000
+      XXZZ      -0.8100   XYZZ      -0.0000   YYZZ      -0.8100
+      XZZZ      -0.0000   YZZZ      -0.0000   ZZZZ      -2.6966
+ -----------------------------------------------------------------
+ DrvMan completing analytic gradient of the correlated energy
+ Correlated dipole moment
+            1
+    1   0.0000000
+    2   0.0000000
+    3   0.0000000
+ Energy read as -1.172635321
+ Full Analytical Gradient: (in a.u., or Hartree/Bohr)
+             1             2
+    1    0.00000000   -0.00000000
+    2   -0.00000000    0.00000000
+    3    0.00042476   -0.00042476
+ Gradient time:  CPU 0.28 s  wall 0.34 s
+Dipole drv :
+gprntSymmMtrx error report: 
+ Final Hessian.
+            1           2           3           4           5           6
+    1   0.0001952   0.0000000   0.0000000  -0.0001952   0.0000000   0.0000000
+    2   0.0000000   0.0001952   0.0000000   0.0000000  -0.0001952   0.0000000
+    3   0.0000000   0.0000000   0.3684349  -0.0000000   0.0000000  -0.3684348
+    4  -0.0001952   0.0000000  -0.0000000   0.0001952   0.0000000   0.0000000
+    5   0.0000000  -0.0001952   0.0000000   0.0000000   0.0001952   0.0000000
+    6   0.0000000   0.0000000  -0.3684348   0.0000000   0.0000000   0.3684348
+ ----------------------------------------------------------------
+             Standard Nuclear Orientation (Angstroms)
+    I     Atom           X                Y                Z
+ ----------------------------------------------------------------
+    1      H       0.0000000000     0.0000000000    -0.3716865000
+    2      H       0.0000000000     0.0000000000     0.3716865000
+ ----------------------------------------------------------------
+ Nuclear Repulsion Energy =           0.71185961 hartrees
+ There are        1 alpha and        1 beta electrons
+ old dipole drv.
+            1           2           3           4           5           6
+    1   0.0000000  -0.0000000   0.0000000   0.0000000   0.0000000  -0.0000000
+    2   0.0000000  -0.0000000  -0.0000000  -0.0000000  -0.0000000  -0.0000000
+    3   0.0000000  -0.0000000  -0.0000000  -0.0000000  -0.0000000  -0.0000000
+ New transposed dipole drv.
+            1           2           3
+    1   0.0000000   0.0000000   0.0000000
+    2  -0.0000000  -0.0000000  -0.0000000
+    3   0.0000000  -0.0000000  -0.0000000
+    4   0.0000000  -0.0000000  -0.0000000
+    5   0.0000000  -0.0000000  -0.0000000
+    6  -0.0000000  -0.0000000  -0.0000000
+FINAL TENSOR RESULT:
+Order 2, Length 6
+    Atom      X          Y          Z
+     1 Order 1, Length 6
+    Atom      X          Y          Z
+     1    1.952252315647433e-04   0.000000000000000e+00   0.000000000000000e+00
+     2   -1.952253394968196e-04   0.000000000000000e+00   0.000000000000000e+00
+
+Order 1, Length 6
+    Atom      X          Y          Z
+     1    0.000000000000000e+00   1.952252369782494e-04   0.000000000000000e+00
+     2    0.000000000000000e+00  -1.952252369704896e-04   0.000000000000000e+00
+
+Order 1, Length 6
+    Atom      X          Y          Z
+     1    0.000000000000000e+00   0.000000000000000e+00   3.684348515317656e-01
+     2   -2.042144765951416e-08   0.000000000000000e+00  -3.684348451213253e-01
+
+
+     2 Order 1, Length 6
+    Atom      X          Y          Z
+     1   -1.952253394968196e-04   0.000000000000000e+00  -2.042144765951416e-08
+     2    1.952254474278488e-04   0.000000000000000e+00   0.000000000000000e+00
+
+Order 1, Length 6
+    Atom      X          Y          Z
+     1    0.000000000000000e+00  -1.952252369704896e-04   0.000000000000000e+00
+     2    0.000000000000000e+00   1.952252369519867e-04   0.000000000000000e+00
+
+Order 1, Length 6
+    Atom      X          Y          Z
+     1    0.000000000000000e+00   0.000000000000000e+00  -3.684348451213253e-01
+     2    0.000000000000000e+00   0.000000000000000e+00   3.684348387126916e-01
+
+
+
+
+ # Finishing finite difference calculation for IDERIV #
+ ######################################################
+ ######################################################
+ Requested basis set is aug-cc-pVTZ
+ There are 18 shells and 46 basis functions
+ **********************************************************************
+ **                                                                  **
+ **                       VIBRATIONAL ANALYSIS                       **
+ **                       --------------------                       **
+ **                                                                  **
+ **        VIBRATIONAL FREQUENCIES (CM**-1) AND NORMAL MODES         **
+ **     FORCE CONSTANTS (mDYN/ANGSTROM) AND REDUCED MASSES (AMU)     **
+ **                  INFRARED INTENSITIES (KM/MOL)                   **
+ **                                                                  **
+ **********************************************************************
+
+
+ Mode:                 1
+ Frequency:      4395.49
+ Force Cnst:     11.4723
+ Red. Mass:       1.0078
+ IR Active:          YES
+ IR Intens:        0.000
+ Raman Active:       YES
+               X      Y      Z        X      Y      Z        X      Y      Z
+ H          0.000  0.000 -0.707
+ H         -0.000 -0.000  0.707
+ TransDip  -0.000  0.000 -0.000
+
+ STANDARD THERMODYNAMIC QUANTITIES AT   298.15 K  AND     1.00 ATM
+
+   This Molecule has  0 Imaginary Frequencies
+   Zero point vibrational energy:        6.284 kcal/mol
+
+   Atom    1 Element H  Has Mass    1.00783
+   Atom    2 Element H  Has Mass    1.00783
+   Molecular Mass:     2.015660 amu
+   Principal axes and moments of inertia in amu*Bohr^2:
+                             1           2           3
+    Eigenvalues --        0.00000     0.99442     0.99442
+          X               0.00000     0.00000     1.00000
+          Y               0.00000     1.00000     0.00000
+          Z               1.00000     0.00000     0.00000
+   Rotational Symmetry Number is   2
+   The Molecule is a Symmetric Top
+   Translational Enthalpy:        0.889 kcal/mol
+   Rotational Enthalpy:           0.592 kcal/mol
+   Vibrational Enthalpy:          6.284 kcal/mol
+   gas constant (RT):             0.592 kcal/mol
+   Translational Entropy:        28.080  cal/mol.K
+   Rotational Entropy:            3.055  cal/mol.K
+   Vibrational Entropy:           0.000  cal/mol.K
+
+   Total Enthalpy:                8.357 kcal/mol
+   Total Entropy:                31.135  cal/mol.K
+ Total job time:  150.85s(wall), 330.23s(cpu) 
+ Tue Feb 15 18:17:11 2022
+
+        *************************************************************
+        *                                                           *
+        *  Thank you very much for using Q-Chem.  Have a nice day.  *
+        *                                                           *
+        *************************************************************
+
+

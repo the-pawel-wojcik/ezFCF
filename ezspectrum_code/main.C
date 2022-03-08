@@ -43,12 +43,12 @@ int main(int argc, char* argv[])
   bool done = false;
   if (job == "harmonic_pes")
     //done=harmonic_pes_main(arg.c_str());
-    done=harmonic_pes_main(arg.c_str(), node_input,node_amu_table);
+    done=harmonic_pes_main(arg.c_str(), node_input, node_amu_table);
   
   if ( !done )
-    std::cout << "Method \"" << job <<"\" is unknown, or it has been failed. \n";
+    std::cout << "Method \"" << job <<"\" is unknown, or it has failed. \n";
   
-  std::cout << '\n' << "Job \"" << argv[0] << ' ' << argv[1] << "\" has been finished: " <<  GetTime() << '\n';
+  std::cout << '\n' << "Job \"" << argv[0] << ' ' << argv[1] << "\" has finished: " <<  GetTime() << '\n';
 
   return EXIT_SUCCESS;
 }

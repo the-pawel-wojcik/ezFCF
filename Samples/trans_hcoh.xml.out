@@ -1,4 +1,4 @@
-Job "../bin/ezFCF_mac.exe trans_hcoh.xml" has been started: Fri Mar  5 02:55:50 2021
+Job "../bin/ezFCF_linux.exe trans_hcoh.xml" has been started: Tue Mar  8 11:27:49 2022
 
 A copy of the "trans_hcoh.xml" input:
 ------------------------------------------------------------------------------
@@ -438,5 +438,5 @@ Stick spectrum was also saved in "trans_hcoh.xml.spectrum_parallel" file
 ------------------------------------------------------------------------------
 
 
-Job "../bin/ezFCF_mac.exe trans_hcoh.xml" has been finished: Fri Mar  5 02:55:50 2021
+Job "../bin/ezFCF_linux.exe trans_hcoh.xml" has finished: Tue Mar  8 11:27:49 2022
 

@@ -61,7 +61,7 @@ public:
   }
   
  public:
-  //! Empty constractor, no allocation
+  //! Empty constructor, no allocation
   /*! Need it for tensors and tensors lists */
   KMatrix(): dim1(0), dim2(0), size(0), matrix(NULL) {}
   KMatrix(int dim1, int dim2,bool if_set=FALSE);

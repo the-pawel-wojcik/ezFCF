@@ -5,7 +5,8 @@
 <job_parameters 
    spectrum_intensity_threshold = "0.001" 
    temperature                  = "600" 
-/>
+>
+</job_parameters>
 
 
 <dushinsky_rotations 
@@ -14,9 +15,11 @@
       max_vibr_excitations_in_target_el_state  = "6"
       > 
 
-  <max_vibr_to_store  target_el_state="4"/>
+  <max_vibr_to_store  target_el_state="4">
+  </max_vibr_to_store>
 
-  <do_not_excite_subspace size = "13" normal_modes = " 13 14 18 20 21 26 28 33 34 35 36 37 38 " />
+  <do_not_excite_subspace size = "13" normal_modes = " 13 14 18 20 21 26 28 33 34 35 36 37 38 " >
+  </do_not_excite_subspace>
 
   <energy_thresholds  units="eV, K, cm-1">
     <initial_state   units="K">      1000    </initial_state>
@@ -48,9 +51,8 @@
       H      -2.865021     1.792297     0.000491
       H      -3.102547     0.258206    -0.880728
       H      -3.102804     0.257178     0.879893
-
-             "
-        />
+             " >
+  </geometry>
 
   <normal_modes
     comment = "Unitis: in Q-Chem and MOLPRO are Angstr/sqrt(amu), in ACES are Angstr"
@@ -279,7 +281,8 @@
 
              "
    atoms = "   N     H     C     O     N     H     C     H     C     C     O     C     H     H     H  "
-        />
+        >
+  </normal_modes>
 
   <frequencies
     text = "
@@ -297,7 +300,8 @@
        3024.20                3103.66                3108.43
        3203.58                3638.42                3677.62
              "
-        />
+        >
+  </frequencies>
 
 </initial_state>
 
@@ -326,7 +330,8 @@
       H      -3.066069     0.231583    -0.869693
       H      -3.066224     0.231019     0.869438
              "
-        />
+        >
+  </geometry>
 
   <normal_modes
     if_mass_weighted="true"
@@ -541,7 +546,8 @@
 
              "
    atoms = "   N     H     C     O     N     H     C     H     C     C     O     C     H     H     H  "
-        />
+        >
+  </normal_modes>
 
   <frequencies
     text = "
@@ -559,7 +565,8 @@
        3037.27                3096.18                3178.55
        3225.91                3576.82                3602.43
              "
-        />
+        >
+  </frequencies>
 
 </target_state>
 

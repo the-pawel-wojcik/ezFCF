@@ -24,7 +24,7 @@ class Vector3D
 
   double getNorm();
 
-  // coord should be const..., as whel as 'other':
+  // coord should be const..., as well as 'other':
   Vector3D& operator=(const Vector3D& other);
   Vector3D& operator+=(Vector3D& other);
   Vector3D& operator-=(Vector3D& other);

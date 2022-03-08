@@ -1,4 +1,4 @@
-Job "../bin/ezFCF_mac.exe formaldehyde.xml" has been started: Fri Mar  5 03:08:51 2021
+Job "../bin/ezFCF_linux.exe formaldehyde.xml" has been started: Tue Mar  8 11:18:53 2022
 
 A copy of the "formaldehyde.xml" input:
 ------------------------------------------------------------------------------
@@ -423,5 +423,5 @@ Stick spectrum was also saved in "formaldehyde.xml.spectrum_dushinsky" file
 
 
 
-Job "../bin/ezFCF_mac.exe formaldehyde.xml" has been finished: Fri Mar  5 03:08:51 2021
+Job "../bin/ezFCF_linux.exe formaldehyde.xml" has finished: Tue Mar  8 11:18:53 2022
 
