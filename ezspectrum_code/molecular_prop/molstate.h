@@ -26,7 +26,7 @@ class MolState
   std::vector<NormalMode> normModes;
   //! Normal modes order (relative to the input file's order)
   std::vector<int> normModesOrder;
-  //! Gradient calculated in caresian (non-mass-weighted) coordinates in the order of the input (expected to match the order of geometry section) TODO: Pick a standard for units; TODO: hande the cases where gradient is available only in the mass-weighted coordinates, Pawel Feb '22 
+  //! Gradient calculated in the caresian (non-mass-weighted) coordinates, a 3N x 1 matrix TODO: hande the cases where gradient is available only in the mass-weighted coordinates
   KMatrix gradient;
   //! may be removed later
   bool ifLinear;
@@ -51,14 +51,15 @@ class MolState
   MolState ();
   MolState (const MolState& other);
   //  ~MolState();
-
   MolState& operator=(const MolState& other);
+  // TODO: the rule of three
 
   //! Read the state data from file
   bool Read(xml_node& node_state, xml_node& node_amu_table);
   void Print(); 
   void printGeometry(); 
   void printNormalModes(); 
+  void printGradient(); 
   // returns true if the overlap matrix is diagonal; makes a list of normal modes which form a non-diagonal minor.
   bool getNormalModeOverlapWithOtherState(MolState& other, KMatrix& overlap, std::vector<int>& normal_modes_list);
 
@@ -78,6 +79,8 @@ class MolState
   int NAtoms() const { return atoms.size(); }
   //! Returns number of normal modes
   int NNormModes() const { return normModes.size(); }
+  //! returns True if vertical gradient was used
+  bool IfGradient() const { return static_cast<bool>(gradient.Size()); }
 
   //--- alignment ------------- ------------------------------------
   //! align each state: center of mass in the coordinates origin, moment of ineretia principal axes along the coordinate axes:

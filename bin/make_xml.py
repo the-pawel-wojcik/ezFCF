@@ -94,7 +94,9 @@ DEFAULT_JOB_PARAMETERS = """<input
 
  -->\n\n"""
 
-OPT_GRADIENT_SECTION = """  <!-- To active the vertical gradient remove the 'OPT_' strings and fill in the text section -->
+OPT_GRADIENT_SECTION = """  <!-- To active the vertical gradient method (a.k.a. linear
+coupling method (LCM))
+       remove the 'OPT_' strings and fill in the 'text' node -->
   <OPT_gradient
     units = "a.u."
     text   = " 

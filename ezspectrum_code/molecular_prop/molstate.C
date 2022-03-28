@@ -21,6 +21,7 @@ MolState::MolState (const MolState& other) {
 
   atoms=other.atoms;
   normModes=other.normModes;
+  gradient=other.gradient;
   ifLinear=other.ifLinear;
   energy=other.energy;
   centerOfMass = other.centerOfMass;
@@ -37,6 +38,7 @@ MolState& MolState::operator=(const MolState& other) {
     
     atoms=other.atoms;
     normModes=other.normModes;
+    gradient=other.gradient;
     ifLinear=other.ifLinear;
     energy=other.energy;
     centerOfMass = other.centerOfMass;
@@ -430,6 +432,18 @@ void MolState::printNormalModes()
 
 }
 
+void MolState::printGradient()
+{
+  for (int i=0; i<NAtoms(); i++)
+    {
+      std::cout << std::setw(4) << std::right  << getAtom(i).Name();
+      for (int k=0; k<CARTDIM; k++)
+	std::cout << std::setw(12) << std::right << std::fixed << std::setprecision(4) << std::showpoint << gradient.Elem2(i * CARTDIM + k, 0) << ' '; 
+      std::cout << '\n';
+    }
+}
+
+
 
 //------------------------------
 bool MolState::ifLetterOrNumber(char Ch)
@@ -459,14 +473,14 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
     std::string units=node_ip.read_string_value("units");
     energy=node_ip.read_node_double_value();
     std::cout << std::fixed << std::setprecision(6); //  <<  std::setw(6);
-    std::cout << "IP=" << energy << " " << units << std::endl;
+    std::cout << "Adiabatic excitation energy = " << energy << " " << units << std::endl;
     
     if ( !covert_energy_to_eV(energy,units) ) {
       std::cout << "\nError! Unknow units of the IP: \"" << units <<"\"\n  (should be equal to \"eV\", \"K\", or \"cm-1\")\n\n";
       exit(1);
     }
 
-    std::cout << "IP=" << energy << " eV " << std::endl;
+    std::cout << "Adiabatic excitation energy = " << energy << " eV " << std::endl;
   }
     
 
@@ -649,8 +663,7 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
    * */
   if (node_state.find_subnode("gradient")) {
     std::cout 
-      << "Gradient detected."
-      << " State geometry will be generated with a use of the vertical gradient method." 
+      << " State geometry will be calculated with the vertical gradient (VG) method." 
       << std::endl;
     xml_node node_gradient(node_state, "gradient", 0);
     // This version supports gradient only in atomic units, a.u., (Q-Chem opt output default)
@@ -683,7 +696,6 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
   }
   /* End of parsing of the vertical gradient node. */
   if (gradient.Size() > 0) {
-    std::cout << "Vertical Gradient calculations begin." << std::endl;
     // $\Delta = \Omega ^{-2} D ^{-1} M ^{-1/2} g _{(2)} ^{(x)}$
 
     /* $\Delta$ is a vector of displacement between the target state normal coordinates $q ^{(2)}$ and the initial state normal coordinates $q ^{(1)}$:
@@ -744,7 +756,7 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
         atoms[i].Coord(j) -= geometry_shift.Elem2(CARTDIM * i + j, 0);
       }
     }
-    std::cout << "Target state geometry calculated with vertical gradient method." << std::endl;
+    std::cout << "Target state geometry calculated with VG:" << std::endl;
     printGeometry();
   }
 
@@ -917,11 +929,5 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
     std::cout << "Atoms were reordered accordingly.\n";
   }
 
-  
-
   return true;
 }
-
-
-
-

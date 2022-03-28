@@ -55,11 +55,22 @@ bool harmonic_pes_main (const char *InputFileName, xml_node& node_input, xml_nod
   std::cout << "Done reading states" << std::endl<<std::endl;
   
   //Perform various checks and transformations
+  
+  if (elStates.size() <= 1) {
+    std::cout << "\nError! No target states found in the input.\n\n";
+    exit(2);
+  }
+
+  if (elStates[0].IfGradient()) {
+    std::cout << "\nError! Vertical gradient is allowed only in target states.\n\n";
+    exit(2);
+  }
+  
   for (int state_i=0; state_i<elStates.size(); state_i++) {	
 
     //elStates[state_i].Print();
 
-    //MMay be able to remove this:
+    // May be able to remove this:
     // TODO: is this ready to be removed? Pawel Feb '22
     if ( elStates[state_i].ifNMReorderedManually() ) {
 
@@ -70,12 +81,27 @@ bool harmonic_pes_main (const char *InputFileName, xml_node& node_input, xml_nod
       }
     }
 
-    // check that states are similar (same number of atoms, same order of the atomic names, same "linearity")
-    if (state_i>0)
+    // ifSimilar checks:
+    // - same number of atoms, 
+    // - same order of the atomic names, 
+    // - same "linearity"
+    // Additional check for a consistent use of the vertical gradient method
+    if (state_i>0) {
       if ( not(elStates[state_i].ifSimilar(elStates[0])) ) {
-	std::cout << "Error: excited state #" << state_i << " is different from the initial state\n\n";
-	exit(2);
+        std::cout << "Error: target state #" 
+          << state_i 
+          << " is different from the initial state\n\n";
+        exit(2);
       }
+      // ^ is a binary XOR: returns True if the two bools are different
+      bool gradient_used_in_the_first_target = elStates[1].IfGradient();
+      if (elStates[state_i].IfGradient() ^ gradient_used_in_the_first_target) {
+        std::cout << "Error: target state #" 
+          << state_i 
+          << " breaks a consistent use of the VG method through all target states.\n\n";
+        exit(2);
+      }
+    }
 
     // apply automatic transformations to the last loaded state (if no manual were requested):
     if ( not(elStates[state_i].ifAlignedManually()) ) {
@@ -235,12 +261,12 @@ void harmonic_pes_parallel(xml_node& node_input, std::vector <MolState>& elState
     bool if_use_target_nm = node_parallel_approx.read_bool_value("use_normal_coordinates_of_target_states");
 
     if(temperature==0) {
-    max_n_initial = 0 ;
-    std::cout << "\nSince temperature=0, \"max_vibr_excitations_in_initial_el_state\" has been set to 0.\n"<< std::flush;
+      max_n_initial = 0 ;
+      std::cout << "\nSince temperature=0, \"max_vibr_excitations_in_initial_el_state\" has been set to 0.\n"<< std::flush;
     }
     
     // check if print normal modes after transformations & overlap matrix
-    //FIXIT: check if loc is correect
+    //FIXIT: check if loc is correct
     // TODO: Does this still require any work? Pawel, Feb '22
     bool if_print_fcfs= node_parallel_approx.read_flag_value("print_franck_condon_matrices");
 

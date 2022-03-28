@@ -79,7 +79,7 @@
 
 <target_state>
 
-  <excitation_energy> 8.79 </excitation_energy>
+  <excitation_energy units="eV" > 8.79 </excitation_energy>
 
   <!-- THIS TARGET STATE IS FROM "aces-cis-cat.out" FILE -->
 
