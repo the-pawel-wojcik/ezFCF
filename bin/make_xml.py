@@ -94,8 +94,8 @@ DEFAULT_JOB_PARAMETERS = """<input
 
  -->\n\n"""
 
-OPT_GRADIENT_SECTION = """  <!-- To active the vertical gradient method (a.k.a. linear
-coupling method (LCM))
+OPT_GRADIENT_SECTION = """  <!-- To active the vertical gradient method (aka linear
+coupling method)
        remove the 'OPT_' strings and fill in the 'text' node -->
   <OPT_gradient
     units = "a.u."
@@ -1192,7 +1192,7 @@ def main(xml_filename, ai_filenames, run_type):
                 print(e)
                 sys.exit(2)
 
-        xmlF.write(OPT_GRADIENT_SECTION)
+        # xmlF.write(OPT_GRADIENT_SECTION)
         xmlF.write('</target_state>\n\n')
         xmlF.write(STATES_DELIMITER)
 

@@ -22,6 +22,7 @@
 
 #include "genincludes.h"
 #include <vector>
+#include <queue>
 #include <set>
 
 #include "molstate.h"

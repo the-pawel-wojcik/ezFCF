@@ -18,7 +18,7 @@ class VibronicState
   int elStateIndex; 
   //! Vibrational state quantum numbers, e.g. (0,2,1) for three normal modes
   std::vector<int> vibrQuanta;
-  //! nombers of normal modes; e.g. if the "excite subspace" is {v3,v7,v12}, than (0,2,1) excitaion will be (2v7, 1v12) in the full space
+  //! numbers of normal modes; e.g. if the "excite subspace" is {v3,v7,v12}, then (0,2,1) excitaion will be (2v7, 1v12) in the full space
   std::vector<int> excite_subspace;
 
  public:

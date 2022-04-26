@@ -7,8 +7,10 @@ bool enumerateVibrStates(int norm_modes, int max_excitations, std::vector <int>&
   //
   // Example:
   // norm_modes=5, max_excitations=7;  "state"=[2,1,3,0,1] ("see stars and bars" problem)
-  // "state" contains number of "stars" (excitations for each normal mode) in each bin [2,1,3,0,1]: **|*|***||*
-  // "combination" contains position of the "bars" (in modified set -- plus one star in each bin) [2,4,8,9]:***|**|****|*|**
+  // "state" contains number of "stars" (excitations for each normal mode) in each bin 
+  // [2,1,3,0,1]: **|*|***||*
+  // "combination" contains position of the "bars" (in modified set -- plus one star in each bin) 
+  // [2,4,8,9]: ***|**|****|*|**
   // this util. (1)converts "state"->"combination" 
   //            (2)calculates the next "combination" using enumerateCombinations(n,k,comb) (ennumerates combinations, total number = C_n^k)
   //            (3)converts "combination"->"state"

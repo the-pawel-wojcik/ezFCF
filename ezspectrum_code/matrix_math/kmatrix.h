@@ -64,8 +64,8 @@ public:
   //! Empty constructor, no allocation
   /*! Need it for tensors and tensors lists */
   KMatrix(): dim1(0), dim2(0), size(0), matrix(NULL) {}
-  KMatrix(int dim1, int dim2,bool if_set=FALSE);
-  KMatrix(const KMatrix& other,bool if_copy_data=TRUE);
+  KMatrix(int dim1, int dim2,bool if_set=false);
+  KMatrix(const KMatrix& other,bool if_copy_data=true);
   ~KMatrix();
   
   int Size() const { return size;}
@@ -121,33 +121,33 @@ public:
   //! *this+=coeff*other
   KMatrix& Add(const KMatrix& other, double coeff=1.);
   KMatrix& AddTwo(const KMatrix& A, const KMatrix& B,double coeffa=1.,
-		 double coeffb=1., bool if_add=FALSE);
+		 double coeffb=1., bool if_add=false);
   //! Regular matrix mult (on rt)
   KMatrix& operator*=(const KMatrix& other);   
   //! Regular matrix mult (on lt): A=other*A (if_perm==TRUE) use other^T
-  KMatrix& LeftMult(const KMatrix& other, bool if_perm=FALSE);
+  KMatrix& LeftMult(const KMatrix& other, bool if_perm=false);
   //! c=coeff*a*b
   KMatrix& Multiply(const KMatrix& A, const KMatrix& B, double coeff=1.,
-		   bool if_add=FALSE);
+		   bool if_add=false);
   //! c=coeff*a(T)*b(T)
   KMatrix& Multiply(const KMatrix& A, bool trans_a, const KMatrix& B,
-                   bool trans_b, double coeff=1., bool if_add=FALSE);  
+                   bool trans_b, double coeff=1., bool if_add=false);  
   //! c=coeff*a*b^+
   KMatrix& Contract(const KMatrix& A, const KMatrix& B, double coeff=1.,
-		   bool if_add=FALSE);
+		   bool if_add=false);
   //! c=a(T)*B^+(T)
   KMatrix& Contract(const KMatrix& A, bool trans_a, const KMatrix& B,
-                   bool trans_b, double coeff=1., bool if_add=FALSE);
+                   bool trans_b, double coeff=1., bool if_add=false);
   //! c_ij=coeff*a_ij*b_ij
   KMatrix& VectorMultiply(const KMatrix& one, const KMatrix& two,
-                   double coeff=1., bool if_add=FALSE); 
+                   double coeff=1., bool if_add=false); 
   //! c_i*=coeff*other_i
   KMatrix& VectorMultiply(const KMatrix& other, double coeff=1.);
   //! c_ij=sqrt(c_ij)
   KMatrix& Sqrt(); 
   
   //! c=b^T*a*b
-  KMatrix& Transform(const KMatrix& A,const KMatrix& B, bool backtr=FALSE); 
+  KMatrix& Transform(const KMatrix& A,const KMatrix& B, bool backtr=false); 
   KMatrix& operator/=(const KMatrix& other);
   KMatrix& VectorDivide(const KMatrix& other, double shift=0.);
   KMatrix& operator*=(double);
@@ -171,7 +171,7 @@ public:
   KMatrix& applyThreshold(const double threshold); 
   //! matrix[i]=to_set
   void Set(double to_set) const; 
-  void SetDiagonal(double d=1., bool if_set=TRUE) const;
+  void SetDiagonal(double d=1., bool if_set=true) const;
   void SetDiagonal(double d, int from, int to) const;
   void AddDiagonal(double d, int from, int to) const;
   void SetDiagonal(double d, int n) const ;
@@ -185,7 +185,7 @@ public:
    or above threshold (if_filter_max=TRUE) = to_repl
    if_filter_neg: TRUE -- filter negative values as well.
    Returns if any elements were filtered. */
-  bool Filter(double thresh, double to_repl, bool if_filter_neg=TRUE,
+  bool Filter(double thresh, double to_repl, bool if_filter_neg=true,
 	      bool if_filter_max=FALSE) const;
   //! Calculate number of negative elements.
   int NNegative() const;

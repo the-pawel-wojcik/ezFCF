@@ -10,6 +10,7 @@ void harmonic_FCf(KMatrix& FCf, double Mass, double dQ,
   double tmpProduct;
   
   // alpha and delta in the (E.Hutchisson,1930) paper
+  // x'' = a x' + d
   double a, d;
 
   dQ *= 1E-8;  // convert from Angstroms/XXX to centimiters/XXX

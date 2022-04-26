@@ -42,7 +42,6 @@ int main(int argc, char* argv[])
   
   bool done = false;
   if (job == "harmonic_pes")
-    //done=harmonic_pes_main(arg.c_str());
     done=harmonic_pes_main(arg.c_str(), node_input, node_amu_table);
   
   if ( !done )

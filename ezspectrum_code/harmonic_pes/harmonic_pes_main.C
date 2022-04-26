@@ -12,27 +12,12 @@ bool harmonic_pes_main (const char *InputFileName, xml_node& node_input, xml_nod
 {
   //======= read "global" job variables  =====================================================
   xml_node node_jobparams(node_input,"job_parameters",0);
-  //node_jobparams.print(std::cout);
-  
-  // read
-  double temperature;
-  temperature=node_jobparams.read_double_value("temperature");
-  
-  // fcf threshold (from the <job_parameters> tag)
-  double fcf_threshold=sqrt(node_jobparams.read_double_value("spectrum_intensity_threshold"));
-
   // check if print normal modes after transformations & overlap matrix
-  bool if_print_normal_modes=node_input.read_flag_value("print_normal_modes");
- 
-  // check if the web version format of the output (do not print the input file & create a ".nmoverlap" file)
-  bool if_web_version=node_input.read_flag_value("if_web_version");
-  
+  bool if_print_normal_modes=node_input.read_flag_value("print_normal_modes"); // . Paweł Apr'22
   
   //===========================================================================================
   //Read initial state and N target states; i.e. (N+1) electronic states total
   std::vector <MolState> elStates;
-
-  bool ifAnyNormalModesReordered=false;
 
   xml_node node_istate(node_input,"initial_state",0);
   MolState elSt;
@@ -45,47 +30,31 @@ bool harmonic_pes_main (const char *InputFileName, xml_node& node_input, xml_nod
   size_t n_target_states=node_input.find_subnode("target_state");
 
   for (int state_i=0; state_i<n_target_states; state_i++) {
-
     MolState elSt_t;
     xml_node node_t_state(node_input,"target_state",state_i);
     std::cout << "===== Reading the target state #" << state_i << " =====\n";
     elSt_t.Read(node_t_state,node_amu_table);
     elStates.push_back(elSt_t);
   }    
-  std::cout << "Done reading states" << std::endl<<std::endl;
+  std::cout << "Done reading states" << std::endl << std::endl;
   
-  //Perform various checks and transformations
-  
+  // Perform various checks and transformations
   if (elStates.size() <= 1) {
     std::cout << "\nError! No target states found in the input.\n\n";
     exit(2);
   }
 
   if (elStates[0].IfGradient()) {
-    std::cout << "\nError! Vertical gradient is allowed only in target states.\n\n";
+    std::cout << "\nError! Use of the vertical gradient method is allowed only in target states.\n\n";
     exit(2);
   }
   
-  for (int state_i=0; state_i<elStates.size(); state_i++) {	
-
-    //elStates[state_i].Print();
-
-    // May be able to remove this:
-    // TODO: is this ready to be removed? Pawel Feb '22
-    if ( elStates[state_i].ifNMReorderedManually() ) {
-
-      ifAnyNormalModesReordered=true;
-      if (state_i==0) {
-	std::cout<<"\nError! Manual reordering of the normal modes is not allowed for the initial state\n\n";
-	exit(2);
-      }
-    }
-
+  for (int state_i=0; state_i<elStates.size(); state_i++) {
     // ifSimilar checks:
     // - same number of atoms, 
     // - same order of the atomic names, 
     // - same "linearity"
-    // Additional check for a consistent use of the vertical gradient method
+    // Check for a consistent use of the vertical gradient method
     if (state_i>0) {
       if ( not(elStates[state_i].ifSimilar(elStates[0])) ) {
         std::cout << "Error: target state #" 
@@ -98,7 +67,8 @@ bool harmonic_pes_main (const char *InputFileName, xml_node& node_input, xml_nod
       if (elStates[state_i].IfGradient() ^ gradient_used_in_the_first_target) {
         std::cout << "Error: target state #" 
           << state_i 
-          << " breaks a consistent use of the VG method through all target states.\n\n";
+          << " breaks the consistent use of the VG method in target states.\n\n"
+          << " Make sure to use vertical gradient in all target states.\n\n";
         exit(2);
       }
     }
@@ -111,7 +81,7 @@ bool harmonic_pes_main (const char *InputFileName, xml_node& node_input, xml_nod
 
       // align each target state with the initial one
       if (state_i>0)
-	elStates[state_i].align(elStates[0]);
+        elStates[state_i].align(elStates[0]);
 
       // get clean zeros
       elStates[state_i].applyCoordinateThreshold(COORDINATE_THRESHOLD);
@@ -120,7 +90,7 @@ bool harmonic_pes_main (const char *InputFileName, xml_node& node_input, xml_nod
     std::cout << "\nNew molecular geometry:\n";
     elStates[state_i].printGeometry();
     // centerOfMass=elStates[i].getCenterOfMass().applyThreshold(COORDINATE_THRESHOLD).print("Center of mass: ");
-    elStates[state_i].getMomentOfInertiaTensor().Print("\nMOI tensor:");
+    elStates[state_i].getMomentOfInertiaTensor().Print((char *)("\nMOI tensor:"));
 
     if (if_print_normal_modes) {
       std::cout << "Normal modes after the geometry transformations:\n\n";
@@ -187,7 +157,7 @@ void get_qnt_nm(std::string& ex_str, int& qnt, int& nm ) {
 //! converts string of type "1v1,1v2,1v3,3v19" into a vibrational state (i.e. vector of integers)
 void fillVibrState(My_istringstream& vibr_str, VibronicState& v_state, const int nm_max) {
 
-  // quanta & normal mode number (for parcing strings like "3v19", where qnt=3 and nm=19)
+  // quanta & normal mode number (for parsing strings like "3v19", where qnt=3 and nm=19)
   int qnt=0, nm=0;
   // string like 3v19"
   std::string ex_str;
@@ -199,324 +169,393 @@ void fillVibrState(My_istringstream& vibr_str, VibronicState& v_state, const int
   // reset vibrational state
   for (int i=0; i<v_state.getVibrQuantaSize(); i++)
     v_state.setVibrQuanta(i,0);
-  // fill vibrational state (if ==0 -- nothing to do)
+  // fill vibrational state (if == 0 -- nothing to do)
   if (ex_str!="0") {
+    get_qnt_nm(ex_str, qnt, nm);
+
+    if (nm>nm_max) {
+      std::cout << "\nError! Normal mode "<< nm <<" (in ["<< qnt<<'v'<<nm <<"] excitation) is out of range.\n\n";
+      exit(1);
+    }
+
+    v_state.setVibrQuanta(nm,qnt);
+    while (not(vibr_str.fail())) {
+      vibr_str.getNextWord(ex_str);
       get_qnt_nm(ex_str, qnt, nm);
-
-      if (nm>nm_max) {
-	  std::cout << "\nError! Normal mode "<< nm <<" (in ["<< qnt<<'v'<<nm <<"] excitation) is out of range.\n\n";
-	  exit(1);
-      }
-
       v_state.setVibrQuanta(nm,qnt);
-      while (not(vibr_str.fail())) {
-	vibr_str.getNextWord(ex_str);
-	get_qnt_nm(ex_str, qnt, nm);
-	v_state.setVibrQuanta(nm,qnt);
-      }
+    }
   }
 }
 
 
 void harmonic_pes_parallel(xml_node& node_input, std::vector <MolState>& elStates, const char *InputFileName) {
 
-    xml_node node_parallel_approx(node_input,"parallel_approximation",0);
-    xml_node node_jobparams(node_input,"job_parameters",0);
-  
-    // read global paramters
-    double temperature=node_jobparams.read_double_value("temperature");
-    // fcf threshold (from the <job_parameters> tag)
-    double fcf_threshold=sqrt(node_jobparams.read_double_value("spectrum_intensity_threshold"));
-    // check if print normal modes after transformations & overlap matrix
-    bool if_print_normal_modes=node_input.read_flag_value("print_normal_modes");
-    // check if the web version format of the output (do not print the input file & create a ".nmoverlap" file)
-    bool if_web_version=node_input.read_flag_value("if_web_version");
-  
+  xml_node node_parallel_approx(node_input,"parallel_approximation",0);
+  xml_node node_jobparams(node_input,"job_parameters",0);
 
-    //Now get some information from the states passed:
-    bool ifAnyNormalModesReordered=false;
+  // read global paramters
+  double temperature=node_jobparams.read_double_value("temperature");
+  // fcf threshold (from the <job_parameters> tag)
+  double fcf_threshold=sqrt(node_jobparams.read_double_value("spectrum_intensity_threshold"));
+  // check if print normal modes after transformations & overlap matrix
+  bool if_print_normal_modes=node_input.read_flag_value("print_normal_modes");
+  // check if the web version format of the output (do not print the input file & create a ".nmoverlap" file)
+  bool if_web_version=node_input.read_flag_value("if_web_version");
 
-    for (int state_i=0; state_i<elStates.size(); state_i++) {	
-
-      if ( elStates[state_i].ifNMReorderedManually() ) {
-	
-	ifAnyNormalModesReordered=true;
-	if (state_i==0) {
-	  std::cout<<"\nError! Manual reordering of the normal modes is not allowed for the initial state\n\n";
-	  exit(2);
-	}
+  bool ifAnyNormalModesReordered=false;
+  for (int state_i=0; state_i<elStates.size(); state_i++) {
+    if ( elStates[state_i].ifNMReorderedManually() ) {
+      ifAnyNormalModesReordered=true;
+      if (state_i==0) {
+        std::cout<<"\nError! Manual reordering of the normal modes is not allowed for the initial state\n\n";
+        exit(2);
       }
     }
-    // total number of the normal modes (in the initial state)
-    int n_norm_modes = elStates[0].NNormModes();
-    //Done, can proceed to do parallel-mode calculations
-      
-    std::cout << "\n=== Reading the parallel approximation job parameters ===\n"<< std::flush;
+  }
 
-    // Maximum number of vibrational levels to take:
-    int max_n_initial, max_n_target;  //maximum number of vibrational levels for initial and target state
-    max_n_initial = node_parallel_approx.read_int_value("max_vibr_excitations_in_initial_el_state"); // i.e. =2 <=> three vibr. states GS and two excited states
-    max_n_target  = node_parallel_approx.read_int_value("max_vibr_excitations_in_target_el_state");
-    bool if_comb_bands = node_parallel_approx.read_bool_value("combination_bands");
-    bool if_use_target_nm = node_parallel_approx.read_bool_value("use_normal_coordinates_of_target_states");
+  // TODO: continue here
+  // total number of the normal modes (in the initial state)
+  int n_norm_modes = elStates[0].NNormModes();
 
-    if(temperature==0) {
-      max_n_initial = 0 ;
-      std::cout << "\nSince temperature=0, \"max_vibr_excitations_in_initial_el_state\" has been set to 0.\n"<< std::flush;
-    }
-    
-    // check if print normal modes after transformations & overlap matrix
-    //FIXIT: check if loc is correct
-    // TODO: Does this still require any work? Pawel, Feb '22
-    bool if_print_fcfs= node_parallel_approx.read_flag_value("print_franck_condon_matrices");
+  std::cout << "\n=== Reading the parallel approximation job parameters ===\n"<< std::flush;
 
-    // read energy thresholds (if provided)
-    double energy_threshold_initial = DBL_MAX;//eV
-    double energy_threshold_target = DBL_MAX; //eV
+  // Maximum number of vibrational levels to take:
+  int max_n_initial, max_n_target;  //maximum number of vibrational levels for initial and target state
+  max_n_initial = node_parallel_approx.read_int_value("max_vibr_excitations_in_initial_el_state"); // i.e. =2 <=> three vibr. states GS and two excited states
+  max_n_target  = node_parallel_approx.read_int_value("max_vibr_excitations_in_target_el_state");
+  bool if_comb_bands = node_parallel_approx.read_bool_value("combination_bands");
+  bool if_use_target_nm = node_parallel_approx.read_bool_value("use_normal_coordinates_of_target_states");
 
-    
-    if(node_parallel_approx.find_subnode("energy_thresholds")) {
- 
-      xml_node node_energy_thresholds(node_parallel_approx,"energy_thresholds",0);
-      
-      if( node_energy_thresholds.find_subnode("initial_state")) {
+  if(temperature==0) {
+    max_n_initial = 0 ;
+    std::cout << "\nSince temperature=0, \"max_vibr_excitations_in_initial_el_state\" has been set to 0.\n"<< std::flush;
+  }
 
-	std::cout << "Reading energy thresholds .. " <<  std::endl;
-	xml_node node_istate(node_energy_thresholds,"initial_state",0);
-	
-	std::string units=node_istate.read_string_value("units");
-	energy_threshold_initial=node_istate.read_node_double_value();
-	//std::cout << "Thresh=" << energy_threshold_initial << " " << units << std::endl;
-	if ( !covert_energy_to_eV(energy_threshold_initial,units) ) {
-	  std::cout << "\nError! Unknown units of the initial state threshold: \"" << units <<"\"\n  (should be equal to \"eV\", \"K\", or \"cm-1\")\n\n";
-	  exit(1);
-	}
-      }
+  // check if print normal modes after transformations & overlap matrix
+  //FIXIT: check if loc is correct
+  // TODO: Does this still require any work? Pawel, Feb '22
+  bool if_print_fcfs= node_parallel_approx.read_flag_value("print_franck_condon_matrices");
 
-      if( node_energy_thresholds.find_subnode("target_state")) {
-	
-	xml_node node_tstate(node_energy_thresholds,"target_state",0);
-	
-	std::string units=node_tstate.read_string_value("units");
-	energy_threshold_target=node_tstate.read_node_double_value();
-	//std::cout << "Thresh=" << energy_threshold_target << " " << units << std::endl;
-	if ( !covert_energy_to_eV(energy_threshold_target,units) ) {
-	  std::cout << "\nError! Unknown units of the target state threshold: \"" << units <<"\"\n  (should be equal to \"eV\", \"K\", or \"cm-1\")\n\n";
-	  exit(1);
-	}
+  // read energy thresholds (if provided)
+  double energy_threshold_initial = DBL_MAX;//eV
+  double energy_threshold_target = DBL_MAX; //eV
+  // TODO: the next two ifs should be two functions;
+  if(node_parallel_approx.find_subnode("energy_thresholds")) {
+
+    xml_node node_energy_thresholds(node_parallel_approx,"energy_thresholds",0);
+
+    if( node_energy_thresholds.find_subnode("initial_state")) {
+
+      std::cout << "Reading energy thresholds. " <<  std::endl;
+      xml_node node_istate(node_energy_thresholds,"initial_state",0);
+
+      std::string units=node_istate.read_string_value("units");
+      energy_threshold_initial=node_istate.read_node_double_value();
+      //std::cout << "Thresh=" << energy_threshold_initial << " " << units << std::endl;
+      if ( !covert_energy_to_eV(energy_threshold_initial,units) ) {
+        std::cout << "\nError! Unknown units of the initial state threshold: \"" << units <<"\"\n  (should be equal to \"eV\", \"K\", or \"cm-1\")\n\n";
+        exit(1);
       }
     }
 
-    // read normal modes do_not_excite subspace (for parallel approximation only):
-    std::set<int> do_not_excite_subspace;
-    bool if_use_do_not_excite_subspace=false;
-    int do_not_excite_subspace_size=0;
-    int do_not_excite_subspace_max=0; // maximum value in lists -- error check later (dirty)
+    if( node_energy_thresholds.find_subnode("target_state")) {
 
-    if(node_parallel_approx.find_subnode("do_not_excite_subspace")) {
- 
-      xml_node node_do_not_excite_subspace(node_parallel_approx,"do_not_excite_subspace",0);
-      
-      if_use_do_not_excite_subspace=true;
-      do_not_excite_subspace_size=node_do_not_excite_subspace.read_int_value("size");
-      std::istringstream tmp_iStr(node_do_not_excite_subspace.read_string_value("normal_modes"));
-      
-      int tmpInt;
+      xml_node node_tstate(node_energy_thresholds,"target_state",0);
 
-      for (int nm=0; nm<do_not_excite_subspace_size; nm++)  {
-	tmp_iStr >> tmpInt;
-	//input error check:
-	if (tmp_iStr.fail()) {
-	  std::cout << "\nFormat error in \"input\"->\"do_not_excite_subspace\"->\"normal_modes\"\n"
-		    << "(non numeric symbol or less entries then specified by the \"size\" value)\n\n";
-	  exit(1);
-	}
-	if (tmpInt<0) {
-	  std::cout << "\nFormat error in \"input\"->\"do_not_excite_subspace\"->\"normal_modes\"\n"
-		    << "Entry ["<< tmpInt<<"] is negative.\n\n";
-	  exit(1);
-	}
-	// keep the maximum value of the list
-	if (tmpInt>do_not_excite_subspace_max)
-	  do_not_excite_subspace_max=tmpInt;
-	      
-	//check if tmpInt is already in the set:
-	std::set<int>::const_iterator intSet_iter;
-	intSet_iter = do_not_excite_subspace.find(tmpInt);
-	if ( intSet_iter != do_not_excite_subspace.end() ) {
-	  std::cout << "\nFormat error in \"input\"->\"do_not_excite_subspace\"->\"normal_modes\"\n"
-		    << "Entry ["<< tmpInt<<"] is not unique.\n\n";
-	  exit(1);
-	}
-	do_not_excite_subspace.insert(tmpInt);
-      }
-
-      if (do_not_excite_subspace.size()!=0) {
-
-	if(ifAnyNormalModesReordered)
-	  std::cout <<"WARNING! The normal modes of the target state were reordered!\n"
-		    <<"         New order is used for the \"do_not_excite_subspace\".\n\n";
-	
-	std::cout << "The following normal modes will have no vibrational excitations:\n";
-	
-	for (std::set<int>::const_iterator intSet_iter=do_not_excite_subspace.begin(); intSet_iter!=do_not_excite_subspace.end(); intSet_iter++)
-	  std::cout << *intSet_iter << ' ';
-	std::cout<<"\n";
+      std::string units=node_tstate.read_string_value("units");
+      energy_threshold_target=node_tstate.read_node_double_value();
+      //std::cout << "Thresh=" << energy_threshold_target << " " << units << std::endl;
+      if ( !covert_energy_to_eV(energy_threshold_target,units) ) {
+        std::cout << "\nError! Unknown units of the target state threshold: \"" << units <<"\"\n  (should be equal to \"eV\", \"K\", or \"cm-1\")\n\n";
+        exit(1);
       }
     }
+  }
 
-    //check that numbers in do_not_excite_subspace are less than the number_of_normal_modes
-    if ((do_not_excite_subspace_max >= n_norm_modes)and(if_use_do_not_excite_subspace==true)) {
-      std::cout << "\nError! Maximum normal mode number in \"do_not_excite_subspace\" is ["<< do_not_excite_subspace_max<<"],\n"
-		<< "  which is greater than (number_of_normal_modes-1)="<< n_norm_modes-1 <<"\n\n";
-      exit(2);
-    }
+  // read normal modes do_not_excite subspace (for parallel approximation only):
+  std::set<int> do_not_excite_subspace;
+  bool if_use_do_not_excite_subspace=false;
+  int do_not_excite_subspace_size=0;
+  int do_not_excite_subspace_max=0; // maximum value in lists -- error check later (dirty)
 
-    //create nms_parallel -- "excite subspace" (full_space-do_not_excite_subspace)
-    std::vector<int> nms_parallel;
-    for (int nm=0; nm<n_norm_modes; nm++) {
+  if(node_parallel_approx.find_subnode("do_not_excite_subspace")) {
+
+    xml_node node_do_not_excite_subspace(node_parallel_approx,"do_not_excite_subspace",0);
+
+    if_use_do_not_excite_subspace=true;
+    do_not_excite_subspace_size=node_do_not_excite_subspace.read_int_value("size");
+    std::istringstream tmp_iStr(node_do_not_excite_subspace.read_string_value("normal_modes"));
+
+    int tmpInt;
+
+    for (int nm=0; nm<do_not_excite_subspace_size; nm++)  {
+      tmp_iStr >> tmpInt;
+      //input error check:
+      if (tmp_iStr.fail()) {
+        std::cout << "\nFormat error in \"input\"->\"do_not_excite_subspace\"->\"normal_modes\"\n"
+          << "(non numeric symbol or less entries then specified by the \"size\" value)\n\n";
+        exit(1);
+      }
+      if (tmpInt<0) {
+        std::cout << "\nFormat error in \"input\"->\"do_not_excite_subspace\"->\"normal_modes\"\n"
+          << "Entry ["<< tmpInt<<"] is negative.\n\n";
+        exit(1);
+      }
+      // keep the maximum value of the list
+      if (tmpInt>do_not_excite_subspace_max)
+        do_not_excite_subspace_max=tmpInt;
+
+      //check if tmpInt is already in the set:
       std::set<int>::const_iterator intSet_iter;
-      intSet_iter = do_not_excite_subspace.find(nm);
-      if ( intSet_iter == do_not_excite_subspace.end( ) )
-	nms_parallel.push_back(nm);
+      intSet_iter = do_not_excite_subspace.find(tmpInt);
+      if ( intSet_iter != do_not_excite_subspace.end() ) {
+        std::cout << "\nFormat error in \"input\"->\"do_not_excite_subspace\"->\"normal_modes\"\n"
+          << "Entry ["<< tmpInt<<"] is not unique.\n\n";
+        exit(1);
+      }
+      do_not_excite_subspace.insert(tmpInt);
     }
 
-    
-    //================================================================================
-    // print the overlap matrix with the initial state for each target states:
-    
-    for (int state=1; state<elStates.size(); state++) {
-      std::cout << "\n===== Overlap matrix of the target state #" << state << " with the initial state =====\n";
-      
-      std::vector <int> normal_modes_list;
-      KMatrix NMoverlap;  //normal modes overlap matric (for each target state the same matrix is used)
-      bool if_overlap_diagonal;
-      
-      // select nondiagonal submatrix of the overlap matrix:
-      if_overlap_diagonal=elStates[state].getNormalModeOverlapWithOtherState(elStates[0], NMoverlap, normal_modes_list);
-      // rows -- norm modes of the target state; colums norm modes of the initial state;
-      
-      // remove normal modes from normal_modes_list that are in the do_not_excite_subspace:
-      std::set<int>::iterator iter_set;
-      std::vector<int> new_normal_modes_list; 
-      
-      for (int nm=0; nm<normal_modes_list.size(); nm++) {
-	// if nm is not in the do_not_excite set:
-	iter_set = do_not_excite_subspace.find(normal_modes_list[nm]);
-	if ( iter_set == do_not_excite_subspace.end( ) )
-	  // then copy it to the new list:
-	  new_normal_modes_list.push_back(normal_modes_list[nm]);
-      }
-      
-      //Create an overlap submatrix:
-      if ((if_overlap_diagonal) or (new_normal_modes_list.size()<=1)) {
-	std::cout << "The normal modes overlap matrix with the initial state is diagonal\n";
-	if (new_normal_modes_list.size()<=1)
-	  std::cout<<"  (do_not_excite_subspace is excluded)\n";
-	std::cout<<"\n";
-      }
-      else {        
-	std::cout << "WARNING! The normal modes overlap matrix with the initial state\n"
-		  << "         is non-diagonal! Consider reordering the normal modes.\n\n";
-	// create a normal mode submatrix:
-	KMatrix overlap_submatrix(new_normal_modes_list.size(),new_normal_modes_list.size());
-	overlap_submatrix.Set(0.0);
-	for (int nm1=0; nm1<new_normal_modes_list.size(); nm1++)
-	  for (int nm2=0; nm2<new_normal_modes_list.size(); nm2++)
-	    overlap_submatrix.Elem2(nm1,nm2)=NMoverlap.Elem2(new_normal_modes_list[nm1],new_normal_modes_list[nm2]);
-	
-	//print the overlap_submatrix (with correct column/row labbels):
-	std::cout << "  The non-diagonal part of the normal modes overlap matrix (do_not_excite_subspace is excluded):";
-	std::cout << "\n     ";
-	
-	for (int j=0; j<new_normal_modes_list.size(); j++)
-	  std::cout << std::fixed << std::setprecision(0) << std::setw(8) << new_normal_modes_list[j];
-	for (int i=0; i<new_normal_modes_list.size(); i++) {
-	  std::cout << "\n  "<< std::fixed << std::setprecision(0) << std::setw(3) << new_normal_modes_list[i];
-	  for (int j=0; j<new_normal_modes_list.size(); j++)
-	    if (fabs(overlap_submatrix.Elem2(i,j)) >= 0.001)
-	      std::cout << std::fixed << std::setprecision(3) << std::setw(8) << overlap_submatrix.Elem2(i,j);
-	    else
-	      std::cout << "      --";
-	}
-	std::cout <<"\n\n";
-      }
-      
-      // print in a "fit 80 chars wide termial" form
-      if(if_print_normal_modes)
-	NMoverlap.Print("Normal modes overlap matrix with the initial state \n(if significantly non diagonal, please consider normal modes reordering)");
+    if (do_not_excite_subspace.size()!=0) {
+
+      if(ifAnyNormalModesReordered)
+        std::cout <<"WARNING! The normal modes of the target state were reordered!\n"
+          <<"         New order is used for the \"do_not_excite_subspace\".\n\n";
+
+      std::cout << "The following normal modes will have no vibrational excitations:\n";
+
+      for (std::set<int>::const_iterator intSet_iter=do_not_excite_subspace.begin(); intSet_iter!=do_not_excite_subspace.end(); intSet_iter++)
+        std::cout << *intSet_iter << ' ';
+      std::cout<<"\n";
     }
-    
-    // for the web version: save the overlap matrix (with displacements) in an xml file
-    std::stringstream nmoverlapFName; 
-    nmoverlapFName << InputFileName << ".nmoverlap";
-    
-    
-    std::cout << "------------------------------------------------------------------------------\n\n";
-    std::cout << "Photoelectron spectrum in the parallel approximation will be evaluated\n\n"<< std::flush;
-    
-    //================================================================================
-    //================================================================================
-    //================================================================================
-    //================================================================================
-    
-    // create a new parallel approximation object (evaluates and stores FCFs in the harmonic approximation)
-    Parallel* parallel_ptr = new Parallel(elStates, nms_parallel, 
-					  fcf_threshold, temperature, 
-					  max_n_initial, max_n_target, 
-					  if_comb_bands, if_use_target_nm, if_print_fcfs, if_web_version,
-					  nmoverlapFName.str().c_str(),  
-					  energy_threshold_initial,  energy_threshold_target);
-    
-    //================================================================================
-    //================================================================================
-    //================================================================================
-    //================================================================================
-    
-    
-    //--------------------------------------------------------------------------------
-    // Print the updated spectrum:
-    (*parallel_ptr).getSpectrum().Sort();
-    std::cout << "------------------------------------------------------------------------------\n";
-    std::cout << "           Stick photoelectron spectrum (parallel approximation)\n";
-    std::cout << "------------------------------------------------------------------------------\n";
+  }
+
+  //check that numbers in do_not_excite_subspace are less than the number_of_normal_modes
+  if ((do_not_excite_subspace_max >= n_norm_modes)and(if_use_do_not_excite_subspace==true)) {
+    std::cout << "\nError! Maximum normal mode number in \"do_not_excite_subspace\" is ["<< do_not_excite_subspace_max<<"],\n"
+      << "  which is greater than (number_of_normal_modes-1)="<< n_norm_modes-1 <<"\n\n";
+    exit(2);
+  }
+
+  //create nms_parallel -- "excite subspace" (full_space-do_not_excite_subspace)
+  std::vector<int> nms_parallel;
+  for (int nm=0; nm<n_norm_modes; nm++) {
+    std::set<int>::const_iterator intSet_iter;
+    intSet_iter = do_not_excite_subspace.find(nm);
+    if ( intSet_iter == do_not_excite_subspace.end( ) )
+      nms_parallel.push_back(nm);
+  }
+
+
+  //================================================================================
+  // print the overlap matrix with the initial state for each target states:
+
+  for (int state=1; state<elStates.size(); state++) {
+    std::cout << "\n===== Overlap matrix of the target state #" << state << " with the initial state =====\n";
+
+    std::vector <int> normal_modes_list;
+    KMatrix NMoverlap;  //normal modes overlap matric (for each target state the same matrix is used)
+    bool if_overlap_diagonal;
+
+    // select nondiagonal submatrix of the overlap matrix:
+    if_overlap_diagonal=elStates[state].getNormalModeOverlapWithOtherState(elStates[0], NMoverlap, normal_modes_list);
+    // rows -- norm modes of the target state; colums norm modes of the initial state;
+
+    // remove normal modes from normal_modes_list that are in the do_not_excite_subspace:
+    std::set<int>::iterator iter_set;
+    std::vector<int> new_normal_modes_list; 
+
+    for (int nm=0; nm<normal_modes_list.size(); nm++) {
+      // if nm is not in the do_not_excite set:
+      iter_set = do_not_excite_subspace.find(normal_modes_list[nm]);
+      if ( iter_set == do_not_excite_subspace.end( ) )
+        // then copy it to the new list:
+        new_normal_modes_list.push_back(normal_modes_list[nm]);
+    }
+
+    //Create an overlap submatrix:
+    if ((if_overlap_diagonal) or (new_normal_modes_list.size()<=1)) {
+      std::cout << "The normal modes overlap matrix with the initial state is diagonal\n";
+      if (new_normal_modes_list.size()<=1)
+        std::cout<<"  (do_not_excite_subspace is excluded)\n";
+      std::cout<<"\n";
+    }
+    else {        
+      std::cout << "WARNING! The normal modes overlap matrix with the initial state\n"
+        << "         is non-diagonal! Consider reordering the normal modes.\n\n";
+      // create a normal mode submatrix:
+      KMatrix overlap_submatrix(new_normal_modes_list.size(),new_normal_modes_list.size());
+      overlap_submatrix.Set(0.0);
+      for (int nm1=0; nm1<new_normal_modes_list.size(); nm1++)
+        for (int nm2=0; nm2<new_normal_modes_list.size(); nm2++)
+          overlap_submatrix.Elem2(nm1,nm2)=NMoverlap.Elem2(new_normal_modes_list[nm1],new_normal_modes_list[nm2]);
+
+      //print the overlap_submatrix (with correct column/row labbels):
+      std::cout << "  The non-diagonal part of the normal modes overlap matrix (do_not_excite_subspace is excluded):";
+      std::cout << "\n     ";
+
+      for (int j=0; j<new_normal_modes_list.size(); j++)
+        std::cout << std::fixed << std::setprecision(0) << std::setw(8) << new_normal_modes_list[j];
+      for (int i=0; i<new_normal_modes_list.size(); i++) {
+        std::cout << "\n  "<< std::fixed << std::setprecision(0) << std::setw(3) << new_normal_modes_list[i];
+        for (int j=0; j<new_normal_modes_list.size(); j++)
+          if (fabs(overlap_submatrix.Elem2(i,j)) >= 0.001)
+            std::cout << std::fixed << std::setprecision(3) << std::setw(8) << overlap_submatrix.Elem2(i,j);
+          else
+            std::cout << "      --";
+      }
+      std::cout <<"\n\n";
+    }
+
+    // print in a "fit 80 chars wide termial" form
+    if(if_print_normal_modes)
+      NMoverlap.Print((char *)("Normal modes overlap matrix with the initial state \n(if significantly non diagonal, please consider normal modes reordering)"));
+  }
+
+  // for the web version: save the overlap matrix (with displacements) in an xml file
+  std::stringstream nmoverlapFName; 
+  nmoverlapFName << InputFileName << ".nmoverlap";
+
+
+  std::cout << "------------------------------------------------------------------------------\n\n";
+  std::cout << "Photoelectron spectrum in the parallel approximation will be evaluated\n\n"<< std::flush;
+
+  //================================================================================
+  //================================================================================
+  //================================================================================
+  //================================================================================
+
+  // create a new parallel approximation object (evaluates and stores FCFs in the harmonic approximation)
+  Parallel* parallel_ptr;
+  
+  if (node_parallel_approx.find_subnode("the_only_initial_state")) {
+    xml_node node_the_only_initial_state(node_parallel_approx, "the_only_initial_state", 0);
+    std::string text = node_the_only_initial_state.read_string_value("text");
+    if (text.empty()) {
+      std::cout << "Error in processing the_only_initial_state." 
+        << std::endl
+        << " The selected state must have at least one excitation." 
+        << std::endl;
+      exit(1);
+    }
+    std::queue<std::string> non_zero_modes;
+
+    std::string non_zero_mode;
+    size_t pos = text.find(",");
+    while (true) {
+      non_zero_mode = text.substr(0, pos);
+      non_zero_modes.push(non_zero_mode);
+      if (pos == std::string::npos) 
+        break;
+      text.erase(0, pos + 1);
+      pos = text.find(",");
+    } 
+
+    // container for the only initial state
+    // initialized as a state which has every mode with zero excitations 
+    std::vector<int> the_only_initial_state(n_norm_modes, 0); 
+
+    while (non_zero_modes.size()) {
+      std::string excitation = non_zero_modes.front();
+      non_zero_modes.pop();
+      int no_of_quanta = -1;
+      int mode_number = -1;
+      get_qnt_nm(excitation, no_of_quanta, mode_number);
+
+      if (mode_number >= n_norm_modes || mode_number < 0) {
+        std::cout << "Error in processing the_only_initial_state." 
+          << std::endl
+          << " Please pick normal mode from the range 0 to " 
+          << n_norm_modes - 1 
+          << "." 
+          << std::endl;
+        exit(1);
+      }
+      if (no_of_quanta < 0) {
+        std::cout << "Error in processing the_only_initial_state." 
+          << std::endl
+          << " Please pick a positive number of vibrational quanta in all excited modes."
+          << std::endl;
+        exit(1);
+      }
+      if (the_only_initial_state[mode_number] != 0) {
+        std::cout << "Error in processing the_only_initial_state." 
+          << std::endl
+          << " The number of vibrational quanta in mode #"
+          << mode_number
+          << " is defined more than once."
+          << std::endl
+          << " Please define each normal mode excitations only once."
+          << std::endl;
+        exit(1);
+      }
+      the_only_initial_state[mode_number] = no_of_quanta;
+    }
+
+    parallel_ptr = new Parallel(elStates, nms_parallel, 
+        fcf_threshold, temperature, 
+        the_only_initial_state, max_n_target, 
+        if_comb_bands, if_use_target_nm, if_print_fcfs, if_web_version, 
+        nmoverlapFName.str().c_str(),
+        energy_threshold_target);
+  }
+  else {
+    parallel_ptr = new Parallel(elStates, nms_parallel, 
+        fcf_threshold, temperature, 
+        max_n_initial, max_n_target, 
+        if_comb_bands, if_use_target_nm, if_print_fcfs, if_web_version,
+        nmoverlapFName.str().c_str(),  
+        energy_threshold_initial,  energy_threshold_target);
+  }
+
+  //================================================================================
+  //================================================================================
+  //================================================================================
+  //================================================================================
+
+
+  //--------------------------------------------------------------------------------
+  // Print the updated spectrum:
+  (*parallel_ptr).getSpectrum().Sort();
+  std::cout << "------------------------------------------------------------------------------\n";
+  std::cout << "           Stick photoelectron spectrum (parallel approximation)\n";
+  std::cout << "------------------------------------------------------------------------------\n";
+  if (ifAnyNormalModesReordered)
+    std::cout <<"\nWARNING! The normal modes of one of the target states were reordered!\n"
+      <<"         New order is used for the target state assignment.\n";
+  if( nms_parallel.size()!=n_norm_modes )
+  {
+    std::cout << "\nNOTE: only the following normal modes were excited: (\"excite subspace\"):\n  ";
+    for (int nm=0; nm< nms_parallel.size(); nm++)
+      std::cout << nms_parallel[nm] << ' ';
+    std::cout << "\n";
     if (ifAnyNormalModesReordered)
       std::cout <<"\nWARNING! The normal modes of one of the target states were reordered!\n"
-		<<"         New order is used for the target state assignment.\n";
-    if( nms_parallel.size()!=n_norm_modes )
-      {
-	std::cout << "\nNOTE: only the following normal modes were excited: (\"excite subspace\"):\n  ";
-	for (int nm=0; nm< nms_parallel.size(); nm++)
-	  std::cout << nms_parallel[nm] << ' ';
-	std::cout << "\n";
-	if (ifAnyNormalModesReordered)
-	  std::cout <<"\nWARNING! The normal modes of one of the target states were reordered!\n"
-		    <<"         New order is used for the \"excite subspace\"\n";
-	
-      }
-    std::cout << "\n";
-    if ( (*parallel_ptr).getSpectrum().getNSpectralPoints()>0)
-      (*parallel_ptr).getSpectrum().PrintStickTable();
-    else                
-      std::cout << "\n\n\n"
-		<<"WARNING! The spectrum is empty.\n\n"
-		<<"         Plese refer to \"My spectrum is empty!\" in the\n"
-		<<"         \"Common problems\" section of the manual\n\n\n\n";
-    
-    std::cout << "------------------------------------------------------------------------------\n";
-    
-    // save this spectrum to the file
-    std::stringstream spectrumFName; 
-    spectrumFName << InputFileName << ".spectrum_parallel";
-    (*parallel_ptr).getSpectrum().PrintStickTable(spectrumFName.str().c_str());
-    std::cout << "\nStick spectrum was also saved in \"" << spectrumFName.str() << "\" file \n";
-    if(if_use_do_not_excite_subspace)
-      std::cout << " (Full list of the normal modes was used for assigning transitions)\n";
-    
-    std::cout << "------------------------------------------------------------------------------\n\n";
-    
-    delete parallel_ptr;
+        <<"         New order is used for the \"excite subspace\"\n";
 
+  }
+  std::cout << "\n";
+  if ( (*parallel_ptr).getSpectrum().getNSpectralPoints()>0)
+    (*parallel_ptr).getSpectrum().PrintStickTable();
+  else                
+    std::cout << "\n\n\n"
+      <<"WARNING! The spectrum is empty.\n\n"
+      <<"         Plese refer to \"My spectrum is empty!\" in the\n"
+      <<"         \"Common problems\" section of the manual\n\n\n\n";
+
+  std::cout << "------------------------------------------------------------------------------\n";
+
+  // save this spectrum to the file
+  std::stringstream spectrumFName; 
+  spectrumFName << InputFileName << ".spectrum_parallel";
+  (*parallel_ptr).getSpectrum().PrintStickTable(spectrumFName.str().c_str());
+  std::cout << "\nStick spectrum was also saved in \"" << spectrumFName.str() << "\" file \n";
+  if(if_use_do_not_excite_subspace)
+    std::cout << " (Full list of the normal modes was used for assigning transitions)\n";
+
+  std::cout << "------------------------------------------------------------------------------\n\n";
+
+  delete parallel_ptr;
 }
 
 

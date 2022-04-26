@@ -577,17 +577,17 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
   My_istringstream freq_iStr(node_freq.read_string_value("text"));
   
   for (i=0; i < tmp_nNormMds; i++)
-    {
-      getNormMode(i).getFreq()=freq_iStr.getNextDouble();
-      if (freq_iStr.fail()) {
-	std::cout << "\nError: format error at frequency #"<<i<< " or less than " << tmp_nNormMds <<" frequencies found\n";
-	exit(1);
-      }
-      if (getNormMode(i).getFreq()<=0) {
-	  std::cout <<"\nError. The frequency ["<<getNormMode(i).getFreq() <<"] is negative\n";
-	  exit(1);
-	}
+  {
+    getNormMode(i).getFreq()=freq_iStr.getNextDouble();
+    if (freq_iStr.fail()) {
+      std::cout << "\nError: format error at frequency #"<<i<< " or less than " << tmp_nNormMds <<" frequencies found\n";
+      exit(1);
     }
+    if (getNormMode(i).getFreq()<=0) {
+      std::cout <<"\nError. The frequency ["<<getNormMode(i).getFreq() <<"] is negative\n";
+      exit(1);
+    }
+  }
   //std::cout << "Read frequences: DONE\n" ;
   
   // Now MolState is in a good shape, and some transformations can be performed
@@ -700,19 +700,20 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
 
     /* $\Delta$ is a vector of displacement between the target state normal coordinates $q ^{(2)}$ and the initial state normal coordinates $q ^{(1)}$:
      * $$ q ^{(2)} = q ^{(1)} + \Delta $$
+     * (in parallel approximation without frequency shifts)
      * $\Omega$ is a diagonal matrix (3N - 5/6 x 3N - 5/6) of harmonic frequencies 
      * $D$ has normal modes as its columns. $D$ is a rectangular matrix (3N x 3N - 5/6) diagonalizing the mass-weighted Hessian matrix:
      * $$ H = D \Omega ^2 D ^{-1} $$
-     * One dimension of $D$ is shorter because the normal coordinates coresponding to zero frequency do not contribute to vibrational spectrum but descibe translations and rotations. 
+     * One dimension of $D$ is shorter because the normal coordinates coresponding to zero frequency modes do not contribute to vibrational spectrum but descibe translations and rotations. 
      * M is a diagonal matrix of dim 3N x 3N of atomic masses
-     * g _(2) ^{(x)} is the gradient of the target state energy surface calculated at the geometry of the initial state in cartesian (non-mass-weighted) coordinates. The number $(2)$ indicates that the values is for the second (target) state as contrasted with the one of the first (initial) state.
+     * g _(2) ^{(x)} is the gradient of the target state energy surface calculated at the geometry of the initial state in cartesian (non-mass-weighted) coordinates (${}^{(x)}$). The number ${}_(2)$ indicates that the value was calculated at the second (target) state.
      * 
-     * Additionally, to find $R _e ^(2)$ from $\Delta$
-     * $$ R _e ^(2) = R _e ^{(2)} - M ^{-1/2} D \Delta $$
+     * Additionally, to find $R _e ^(2)$ (the equilibrium geometry of the second (target) state) from $\Delta$
+     * $$ R _e ^(2) = R _e ^{(1)} - M ^{-1/2} D \Delta $$
      * or in terms of a gradient
-     * $$ R _e ^(2) = R _e ^{(2)} - M ^{-1/2} D \Omega ^{-2} D ^{-1} M ^{-1/2} g _{(2)} ^{(x)} $$
+     * $$ R _e ^(2) = R _e ^{(1)} - M ^{-1/2} D \Omega ^{-2} D ^{-1} M ^{-1/2} g _{(2)} ^{(x)} $$
      *
-     * $M$ is in the $-1/2$ power in both cases as the right most is a transformation of the **gradient** from cartesian to mass-weighted coordinates, while the leftmost is a transfromation of **coordinates** from a mass-weighted vector to mass-un-weighed vector.
+     * $M$ is in the $-1/2$ power in both cases as the right most is a transformation of the **gradient** from cartesian to mass-weighted coordinates, while the leftmost is a transfromation of **coordinates** from a mass-weighted vector to a mass-un-weighed vector.
      *
      * $\Delta$ as well as the cartesian displacement ($M ^{-1/2} D \Delta$) are expressed in a.u. and are converted to Angstroms only just before addition to the geometry. For this reason both matrices ($\Omega$ and $M$) and the gradient vector have values corresponding to the the units of a.u.
      */
@@ -758,6 +759,14 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
     }
     std::cout << "Target state geometry calculated with VG:" << std::endl;
     printGeometry();
+
+    for (int i = 0; i < NNormModes(); i++) {
+      energy -= 0.5 * delta.Elem1(i) * delta.Elem1(i) / Omega_matrix_minus2.Elem2(i,i);
+    }
+
+    std::cout 
+      << "Target state adiabatic excitation energy corrected with VG = " 
+      << energy << " eV " << std::endl;
   }
 
 

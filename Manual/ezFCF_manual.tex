@@ -33,7 +33,7 @@ backgroundcolor=\color{code_background},
 \title{ezFCF v1.1}
 \author{{\em Franck-Condon factors in the harmonic approximation}\\ 
   \vspace{20mm}\\
-  Samer Gozem, Pawel Wojcik, Vadim Mozhayskiy, and Anna I. Krylov\\ \vspace{20mm}}
+Samer Gozem, Pawe\l{} W{\'o}jcik, Vadim Mozhayskiy, and Anna I. Krylov\\ \vspace{20mm}}
 \date{\today}
 \maketitle
 
@@ -567,6 +567,42 @@ In particular the new order of the normal modes is used in:
 the transition assignments of the final spectrum printout and 
 in the {\tt do not excite subspace} element of the input.
 
+%----------------------------------------------------------------------
+\subsubsection{Additional state}
+\label{sec:para:subspace:single_state}
+The reduced dimensionlaity calculations sometimes exclude a state that has an important contribution to the spectrum. The keyword {\tt{}the\_only\_initial\_state} allows to generate the missing contribution. To use this feature add an xml node to the {\tt{}parallel\_approximation} node 
+\begin{lstlisting}[frame=single,framerule=0pt]
+<the_only_initial_state text = "1v0,1v2" >
+</the_only_initial_state>
+\end{lstlisting}
+The argument of {\tt{}text} contains a string representing one initial vibrational state. The state representation uses the regular convention: a normal mode {\tt{}nm} with {\tt{}q} excitations should be listed as {\tt{}qvnm}, if more than one mode is excited use comma as a separator. 
+
+
+%----------------------------------------------------------------------
+\subsection{The vertical gradient method}
+\label{sec:para:vertical_gradient}
+A full spectrum can be generated from a single point calculations if one assumes that the harmonic potentials are a valid representation of the potential energy surface in what is called the vertical gradient method also known as the linear coupling model. The single point calculations at the minimum of the ground state potential require frequency calculations for the initial state and gradient calculations for all target states.
+
+The calculations are triggered by including the {\tt{}gradient} node inside the {\tt{}target\_state} node. If the {\tt{}gradient} node is present, the {\tt{}geometry} node is interpreted as the single point calculations geometry (the initial state geometry). The normal modes and frequency are also excitation to be the ones of the ground state, just as expected in the parallel mode approximation without frequency shifts. The meaning of the {\tt{}excitation\_energy} node also changes, as it is expected to represent the vertical excitation energy. The gradient must be expressed in atomic units {\tt{}a.u.} (Hartree/Bohr).
+
+The Cartesian geometry of the target state within the vertical gradient method is given by
+\begin{equation}
+    \label{eq:VG_geometry}
+    \vec{x _0 '}
+    =
+    \vec{x _0 ''}
+    -
+    T ^{-\frac{1}{2}} L 
+    \Omega ^{-2} 
+    L ^{-1} T ^{-\frac{1}{2}} 
+    \vec{g} ^{(2)}.
+\end{equation}
+where $\Omega$ is an $N \times N$ diagonal matrix of harmonic frequencies, while the other symbols are explained in Sec.~\ref{sec:dhush:overview}. The adiabatic excitation energy (bottom to bottom) is given by
+\begin{equation}
+    \label{eq:VG_energy}
+    E _\text{ad} = E _\text{vert} - \frac{1}{2} \sum _{i = 1} ^N \omega _i ^2 d _i ^2,
+\end{equation}
+where $\omega _i$ is the $i$th harmonic frequency and $d _i$ is the $i$th element of the displacement vector from Eq.~\eqref{eq:displacement_vec}.
 
 %----------------------------------------------------------------------
 \section{Duschinsky rotations}
@@ -595,9 +631,10 @@ where the normal modes rotational matrix $S$ $[N\times N]$ is:
 S=L'^TL''&\nonumber
 \end{align}
 and the vector of displacements $\overrightarrow{d}$ $[N]$ along the normal coordinates is:
-\begin{align}
-\overrightarrow{d}=L'^T\sqrt{T}(\overrightarrow{x_0''}-\overrightarrow{x_0'})&\nonumber
-\end{align}
+\begin{equation}
+\label{eq:displacement_vec}
+\overrightarrow{d}=L'^T\sqrt{T}(\overrightarrow{x_0''}-\overrightarrow{x_0'})
+\end{equation}
 where $L''$ $[N\times 3K]$ and $L'$ $[N\times 3K]$ are rectangular matrices composed of $N$ mass-weighted normal vectors
 (in Cartesian coordinates) of the initial and the target electronic states respectively;
 $\overrightarrow{x_0''}$ $[3K]$ and $\overrightarrow{x_0'}$ $[3K]$ are the Cartesian geometries vectors

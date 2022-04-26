@@ -75,11 +75,11 @@ KMatrix::KMatrix(int d1, int d2, bool if_set) : dim1(d1), dim2(d2),
 size(dim1*dim2),matrix(NULL)
 {
   if(size>0)
-    {
-      matrix=new double[size];
-      if(if_set)
-	Set();
-    }
+  {
+    matrix=new double[size];
+    if(if_set)
+      Set();
+  }
 }
 
 KMatrix::KMatrix(const KMatrix& other,bool if_data) : dim1(other.dim1),

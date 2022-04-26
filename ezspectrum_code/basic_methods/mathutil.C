@@ -24,7 +24,7 @@ unsigned long FactorialInt(const int N)
   unsigned long tmp=abs(N);
   
   if(tmp==0)
-    return 1.0;
+    return 1;
   
   for(int j=abs(N)-1;j>1;j--)
     tmp*=j;
@@ -53,15 +53,11 @@ unsigned long FactorialRatioInt(const int n1, const int n2)
 }
 
 
-//! Combination function
-//long Combination(const int n, const int k)
-//{
-//  return  long(Factorial(n)/(Factorial(k)*Factorial(n-k)));
-//}
-
 //! Combination function (both parts should be less than max-unsigned-int)
+// Combination(n, k) gives the binomial coeff
+// $$ \binom{n}{k} = \frac{n!}{k!(n-k)!} $$
+// This implementation avoids division of large numbers
 unsigned long Combination(const int n, const int k)
-//  return  long(Factorial(n)/(Factorial(k)*Factorial(n-k)));
 {
   if (k>(n-k))
       return  FactorialRatioInt(n,k)/FactorialInt(n-k);
