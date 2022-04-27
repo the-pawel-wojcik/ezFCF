@@ -1,0 +1,235 @@
+Job "../../bin/ezFCF_linux.exe good_test_hcoh3.xml" has been started: Wed Apr 27 14:53:36 2022
+
+A copy of the "good_test_hcoh3.xml" input:
+------------------------------------------------------------------------------
+Node input
+<input
+    job = "harmonic_pes" >
+
+<job_parameters 
+    spectrum_intensity_threshold = "0.0001" 
+    temperature                  = "3000">
+</job_parameters>
+
+
+<parallel_approximation
+    max_vibr_excitations_in_initial_el_state = "3"
+    max_vibr_excitations_in_target_el_state  = "4"
+    combination_bands                        = "true"
+    use_normal_coordinates_of_target_states  = "true" 
+    >
+
+<energy_thresholds  units="eV, K, cm-1">
+    <initial_state   units="K">      8000    </initial_state>
+    <target_state   units="eV">      1.20    </target_state>
+</energy_thresholds> 
+
+<the_only_initial_state text = "1v3,1v4,1v5" >
+</the_only_initial_state>
+
+</parallel_approximation>
+
+
+<initial_state>
+    <!-- THIS INITIAL STATE IS FROM "aces-cis-neut.out" FILE -->
+
+    <geometry
+        number_of_atoms = "4"
+        linear = "false"
+        units   ="au"
+        text   = "
+        C        1.40532059     0.15759481     0.00000000
+        O       -1.07218877     0.09830247     0.00000000
+        H        2.05763204    -1.84281323     0.00000000
+        H       -1.77413458    -1.59377227     0.00000000
+        ">
+</geometry>
+
+<normal_modes
+    atoms = "C   O   H   H   "
+    if_mass_weighted="false"
+    text = "
+    0.000 0.0000  0.2744    0.2414 -0.0009  0.0000    0.6961  0.0016  0.0000
+    0.000 0.0000 -0.2678   -0.2845  0.1139  0.0000   -0.6035 -0.0193  0.0000
+    0.000 0.0000 -0.5903   -0.4395 -0.1718  0.0000    0.2733  0.0278  0.0000
+    0.000 0.0000  0.7103    0.7398 -0.2791  0.0000   -0.2710  0.0435  0.0000
+
+    0.211 0.3271  0.0000    0.0856 -0.2637  0.0000    0.0046  0.0120  0.0000
+    0.106-0.2726  0.0000    0.0040  0.0076  0.0000    0.0876  0.2252  0.0000
+    -0.738-0.1684  0.0000   -0.3030  0.9111  0.0000   -0.0086 -0.0366  0.0000
+    -0.415 0.1259  0.0000   -0.0082 -0.0316  0.0000   -0.3563 -0.9017  0.0000
+    ">
+        </normal_modes>
+
+        <frequencies
+            text = "
+            1027.59                   1237.54                   1345.00 
+            1491.40                   2794.17                   3661.57 
+            ">
+    </frequencies>
+
+</initial_state>
+
+<target_state>
+
+    <excitation_energy units="eV" > 8.79 </excitation_energy>
+
+    <!-- THIS TARGET STATE IS FROM "aces-cis-cat.out" FILE -->
+
+    <geometry
+        number_of_atoms = "4"
+        linear = "false"
+        units   ="au"
+        text   = "
+        C        1.28368876      .13509689      .00000000
+        O       -1.01273572      .08329864      .00000000
+        H        2.69659188    -1.37216418      .00000000
+        H       -1.90840788    -1.55842089      .00000000
+        ">
+</geometry>
+
+<normal_modes
+    atoms = "C   O   H   H   "
+    if_mass_weighted="false"
+    text = "
+    .000  .0000   .3663     .0301   .0929   .0000     .0056   .4004   .0000
+    .000  .0000  -.3091    -.0845   .1132   .0000     .2417  -.3027   .0000
+    .000  .0000  -.6366    -.4512  -.4101   .0000    -.5343  -.3944   .0000
+    .000  .0000   .6042     .6842  -.3614   .0000    -.4480   .2186   .0000
+
+    .733  .1110   .0000     .2391  -.1934   .0000     .0070  -.0083   .0000
+    -.618 -.0498   .0000    -.0376  -.0010   .0000    -.1236  -.2091   .0000
+    .095 -.1710   .0000    -.6569   .6869   .0000    -.0050   .0150   .0000
+    -.162 -.0135   .0000    -.0183  -.0154   .0000     .4731   .8466   .0000
+    ">
+   </normal_modes>
+
+   <manual_normal_modes_reordering
+       new_order="0 1 3 2 4 5" >
+    </manual_normal_modes_reordering>
+
+    <frequencies
+        text = "
+        935.00                    987.54                   1170.79 
+        1733.16                   3085.30                   3463.98 
+        ">
+</frequencies>
+
+</target_state>
+
+</input>
+------------------------------------------------------------------------------
+ 
+
+====== Reading the initial state ======
+===== Reading the target state #0 =====
+Adiabatic excitation energy = 8.790000 eV
+Adiabatic excitation energy = 8.790000 eV 
+New normal modes order was requested:
+0 1 3 2 4 5
+Normal modes were reordered accordingly.
+Done reading states
+
+Coordinate axes were aligned with MOI principal axes; center mass was shifted to the origin.
+
+New molecular geometry:
+   C      0.0834       0.0000      -0.7437 
+   O      0.0520       0.0000       0.5674 
+   H     -0.9752       0.0000      -1.0889 
+   H     -0.8434       0.0000       0.9388 
+
+MOI tensor:
+                0           1           2
+    0   13.868805    0.000000    0.000000
+    1    0.000000   15.670849    0.000000
+    2    0.000000    0.000000    1.802044
+
+
+Coordinate axes were aligned with MOI principal axes; center mass was shifted to the origin.
+Also rotated by 2/2*pi, 2/2*pi, and 2/2*pi CCW around x, y, and z.
+The norm of the geometry difference from the initial state is 0.4325
+
+New molecular geometry:
+   C      0.0715       0.0000      -0.6793 
+   O      0.0441       0.0000       0.5359 
+   H     -0.7261       0.0000      -1.4270 
+   H     -0.8247       0.0000       1.0099 
+
+MOI tensor:
+                0           1           2
+    0   13.211404    0.000000   -0.000000
+    1    0.000000   14.520626    0.000000
+    2   -0.000000    0.000000    1.309222
+
+
+Done with the transformations
+------------------------------------------------------------------------------
+
+=== Reading the parallel approximation job parameters ===
+Reading energy thresholds. 
+
+===== Overlap matrix of the target state #1 with the initial state =====
+The normal modes overlap matrix with the initial state is diagonal
+  (do_not_excite_subspace is excluded)
+
+------------------------------------------------------------------------------
+
+Photoelectron spectrum in the parallel approximation will be evaluated
+
+===== Target state #1 =====
+
+Difference (dQ) between the initial and the target state geometries.
+Angstrom*sqrt(amu):
+
+normal mode  dQ in initial  dQ in target   frequency   frequency   comments
+  number      state coord.  state coord.    initial      target
+
+       0       0.000000        0.000000      1027.59     935.00
+       1      -0.343356       -0.336058      1237.54     987.54
+       2      -0.110727       -0.243397      1345.00    1733.16
+       3      -0.299192       -0.221654      1491.40    1170.79
+       4       0.116994       -0.100254      2794.17    3085.30
+       5      -0.001238       -0.025925      3661.57    3463.98
+
+
+TARGET state normal coordinates (displacements dQ) will be used.
+
+Maximum number of vibrational excitations in each target state: 4.
+
+Maximum number of combination bands = 210
+   =  (# of vibrational states in the target electronic state)
+
+The SINGLE initial vibrational state is read from the input.
+A set of target vibrational states is being created...
+  energy threshold = 1.20 eV (9678.57 cm-1)
+  184 vibrational states below the energy threshold
+
+Total number of combination bands with thresholds applied: 184
+
+Intensities of combination bands are being calculated...
+------------------------------------------------------------------------------
+           Stick photoelectron spectrum (parallel approximation)
+------------------------------------------------------------------------------
+
+WARNING! The normal modes of one of the target states were reordered!
+         New order is used for the target state assignment.
+
+Energy,eV    Intensity     FC factor         E",K   Transition
+
+ 8.3566      1.593586e-04  +8.488383e-02 11434.231  0(1v3,1v4,1v5)->1(1v1,1v5)
+ 8.4790      1.456512e-04  +8.115108e-02 11434.231  0(1v3,1v4,1v5)->1(2v1,1v5)
+ 8.5715      1.853154e-04  +9.153621e-02 11434.231  0(1v3,1v4,1v5)->1(1v1,1v2,1v5)
+ 8.6469      1.326779e-04  -7.745270e-02 11434.231  0(1v3,1v4,1v5)->1(1v1,2v3,1v5)
+ 8.6939      1.693753e-04  +8.751093e-02 11434.231  0(1v3,1v4,1v5)->1(2v1,1v2,1v5)
+ 8.7391      1.097944e-04  -7.045751e-02 11434.231  0(1v3,1v4,1v5)->1(1v1,1v4,1v5)
+ 8.7864      1.323855e-04  +7.736732e-02 11434.231  0(1v3,1v4,1v5)->1(1v1,2v2,1v5)
+ 8.8616      1.003503e-04  -6.735916e-02 11434.231  0(1v3,1v4,1v5)->1(2v1,1v4,1v5)
+ 8.9540      1.276780e-04  -7.597930e-02 11434.231  0(1v3,1v4,1v5)->1(1v1,1v2,1v4,1v5)
+------------------------------------------------------------------------------
+
+Stick spectrum was also saved in "good_test_hcoh3.xml.spectrum_parallel" file 
+------------------------------------------------------------------------------
+
+
+Job "../../bin/ezFCF_linux.exe good_test_hcoh3.xml" has finished: Wed Apr 27 14:53:36 2022
+

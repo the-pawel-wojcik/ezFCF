@@ -1,0 +1,115 @@
+<input
+    job = "harmonic_pes" >
+
+<job_parameters 
+    spectrum_intensity_threshold = "0.0001" 
+    temperature                  = "2000">
+</job_parameters>
+
+
+<parallel_approximation
+    max_vibr_excitations_in_initial_el_state = "3"
+    max_vibr_excitations_in_target_el_state  = "4"
+    combination_bands                        = "true"
+    use_normal_coordinates_of_target_states  = "true" 
+    >
+
+<energy_thresholds  units="eV, K, cm-1">
+    <initial_state   units="K">      8000    </initial_state>
+    <target_state   units="eV">      1.20    </target_state>
+</energy_thresholds> 
+
+<the_only_initial_state text = "3v2" >
+</the_only_initial_state>
+
+</parallel_approximation>
+
+
+<initial_state>
+    <!-- THIS INITIAL STATE IS FROM "aces-cis-neut.out" FILE -->
+
+    <geometry
+        number_of_atoms = "4"
+        linear = "false"
+        units   ="au"
+        text   = "
+        C        1.40532059     0.15759481     0.00000000
+        O       -1.07218877     0.09830247     0.00000000
+        H        2.05763204    -1.84281323     0.00000000
+        H       -1.77413458    -1.59377227     0.00000000
+        ">
+</geometry>
+
+<normal_modes
+    atoms = "C   O   H   H   "
+    if_mass_weighted="false"
+    text = "
+    0.000 0.0000  0.2744    0.2414 -0.0009  0.0000    0.6961  0.0016  0.0000
+    0.000 0.0000 -0.2678   -0.2845  0.1139  0.0000   -0.6035 -0.0193  0.0000
+    0.000 0.0000 -0.5903   -0.4395 -0.1718  0.0000    0.2733  0.0278  0.0000
+    0.000 0.0000  0.7103    0.7398 -0.2791  0.0000   -0.2710  0.0435  0.0000
+
+    0.211 0.3271  0.0000    0.0856 -0.2637  0.0000    0.0046  0.0120  0.0000
+    0.106-0.2726  0.0000    0.0040  0.0076  0.0000    0.0876  0.2252  0.0000
+    -0.738-0.1684  0.0000   -0.3030  0.9111  0.0000   -0.0086 -0.0366  0.0000
+    -0.415 0.1259  0.0000   -0.0082 -0.0316  0.0000   -0.3563 -0.9017  0.0000
+    ">
+        </normal_modes>
+
+        <frequencies
+            text = "
+            1027.59                   1237.54                   1345.00 
+            1491.40                   2794.17                   3661.57 
+            ">
+    </frequencies>
+
+</initial_state>
+
+<target_state>
+
+    <excitation_energy units="eV" > 8.79 </excitation_energy>
+
+    <!-- THIS TARGET STATE IS FROM "aces-cis-cat.out" FILE -->
+
+    <geometry
+        number_of_atoms = "4"
+        linear = "false"
+        units   ="au"
+        text   = "
+        C        1.28368876      .13509689      .00000000
+        O       -1.01273572      .08329864      .00000000
+        H        2.69659188    -1.37216418      .00000000
+        H       -1.90840788    -1.55842089      .00000000
+        ">
+</geometry>
+
+<normal_modes
+    atoms = "C   O   H   H   "
+    if_mass_weighted="false"
+    text = "
+    .000  .0000   .3663     .0301   .0929   .0000     .0056   .4004   .0000
+    .000  .0000  -.3091    -.0845   .1132   .0000     .2417  -.3027   .0000
+    .000  .0000  -.6366    -.4512  -.4101   .0000    -.5343  -.3944   .0000
+    .000  .0000   .6042     .6842  -.3614   .0000    -.4480   .2186   .0000
+
+    .733  .1110   .0000     .2391  -.1934   .0000     .0070  -.0083   .0000
+    -.618 -.0498   .0000    -.0376  -.0010   .0000    -.1236  -.2091   .0000
+    .095 -.1710   .0000    -.6569   .6869   .0000    -.0050   .0150   .0000
+    -.162 -.0135   .0000    -.0183  -.0154   .0000     .4731   .8466   .0000
+    ">
+   </normal_modes>
+
+   <manual_normal_modes_reordering
+       new_order="0 1 3 2 4 5" >
+    </manual_normal_modes_reordering>
+
+    <frequencies
+        text = "
+        935.00                    987.54                   1170.79 
+        1733.16                   3085.30                   3463.98 
+        ">
+</frequencies>
+
+</target_state>
+
+</input>
