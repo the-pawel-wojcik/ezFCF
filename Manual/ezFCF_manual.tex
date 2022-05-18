@@ -583,7 +583,7 @@ The argument of {\tt{}text} contains a string representing one initial vibration
 \label{sec:para:vertical_gradient}
 A full spectrum can be generated from a single point calculations if one assumes that the harmonic potentials are a valid representation of the potential energy surface in what is called the vertical gradient method also known as the linear coupling model. The single point calculations at the minimum of the ground state potential require frequency calculations for the initial state and gradient calculations for all target states.
 
-The calculations are triggered by including the {\tt{}gradient} node inside the {\tt{}target\_state} node. If the {\tt{}gradient} node is present, the {\tt{}geometry} node is interpreted as the single point calculations geometry (the initial state geometry). The normal modes and frequency are also excitation to be the ones of the ground state, just as expected in the parallel mode approximation without frequency shifts. The meaning of the {\tt{}excitation\_energy} node also changes, as it is expected to represent the vertical excitation energy. The gradient must be expressed in atomic units {\tt{}a.u.} (Hartree/Bohr).
+The calculations are triggered by including the {\tt{}gradient} node inside the {\tt{}target\_state} node. If the {\tt{}gradient} node is present, the {\tt{}geometry} node is interpreted as the single point calculations geometry (the initial state geometry). The {\tt{}normal\_modes} and {\tt{}frequencies} nodes must also correspond to the ground state, just as expected in the parallel mode approximation without frequency shifts. The meaning of the {\tt{}excitation\_energy} node changes as well, it now represents the vertical excitation energy. The gradient must be expressed in atomic units {\tt{}a.u.} (Hartree/Bohr).
 
 The Cartesian geometry of the target state within the vertical gradient method is given by
 \begin{equation}
@@ -595,9 +595,9 @@ The Cartesian geometry of the target state within the vertical gradient method i
     T ^{-\frac{1}{2}} L 
     \Omega ^{-2} 
     L ^{-1} T ^{-\frac{1}{2}} 
-    \vec{g} ^{(2)}.
+    \vec{g}.
 \end{equation}
-where $\Omega$ is an $N \times N$ diagonal matrix of harmonic frequencies, while the other symbols are explained in Sec.~\ref{sec:dhush:overview}. The adiabatic excitation energy (bottom to bottom) is given by
+where $\Omega$ is an $N \times N$ diagonal matrix of harmonic frequencies, $\vec{g}$ is the gradient calculated on the potential energy surface of the target state in Cartesian coordinates at the geometry of the ground state. The other symbols are explained in Sec.~\ref{sec:dhush:overview}. The adiabatic excitation energy (bottom to bottom) is given by
 \begin{equation}
     \label{eq:VG_energy}
     E _\text{ad} = E _\text{vert} - \frac{1}{2} \sum _{i = 1} ^N \omega _i ^2 d _i ^2,
