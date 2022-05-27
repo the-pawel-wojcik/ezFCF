@@ -3,6 +3,7 @@
 \usepackage{listings}
 \usepackage{color}
 \usepackage{amsmath}
+\usepackage[shortlabels]{enumitem} % for a list with entries labeled with letters
 
 \begin{document}
 
@@ -936,10 +937,13 @@ should be the ZPE-corrected (0-0) adiabatic energy (i.e. the energy difference b
 initial and target electronic states). \ul{make}{xml.py} script fills the \ul{excitation}{energy} elements with a default value
 of 1.0 eV for the first target state.
 
-The optional elements of the electronic state element are:\\
-(a) {\tt manual\underline{~}atoms\underline{~}reordering} (Sec.~\ref{sec:geometry});\\
-(b) {\tt manual\underline{~}coordinates\underline{~}transformation} (Sec.~\ref{sec:alignment}); and\\
-(c) {\tt manual\underline{~}normal\underline{~}modes\underline{~}reordering} (Sec.~\ref{sec:nmodes}).
+The optional elements of the electronic state element are:
+\begin{enumerate}[(a)]
+\item {\tt manual\underline{~}atoms\underline{~}reordering} (Sec.~\ref{sec:geometry});
+\item {\tt manual\underline{~}coordinates\underline{~}transformation} (Sec.~\ref{sec:alignment});
+\item {\tt manual\underline{~}normal\underline{~}modes\underline{~}reordering} (Sec.~\ref{sec:nmodes});
+\item (only in target state) {\tt gradient} (Sec.~\ref{sec:para:vertical_gradient}).
+\end{enumerate}
 
 %----------------------------------------------------------------------
 \subsection{\texttt{geometry} element}

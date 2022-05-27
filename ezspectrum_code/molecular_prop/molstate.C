@@ -468,8 +468,8 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
   //------------ Read IP (if provided) ----------------------------------
   energy = 0.0; //units are eV
   if(node_state.find_subnode("excitation_energy")) {
-
-    xml_node node_ip(node_state,"excitation_energy",0);
+    // TODO: change the adiabatic to vertical when VG is used
+    xml_node node_ip(node_state, "excitation_energy", 0);
     std::string units=node_ip.read_string_value("units");
     energy=node_ip.read_node_double_value();
     std::cout << std::fixed << std::setprecision(6); //  <<  std::setw(6);
@@ -658,8 +658,8 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
   // ------------ 1.5 Find geometry from the vertial gradient if available ------------
     
   /* Notes on the gradient implementation:
-   * Detection of gradient node triggers use of gradient and changes meaning of nodes: geometry, normal modes, and frequncies. If a gradient node is present in an electronic state, the nodes listed before are assumed to descibe the initial state; normal modes and frequncies will be treated in parallel mode approximation without frequency shifts, while the state geometry will be calculated using vertial gradient method. 
-   * Pawel, Feb 2022
+   * Detection of gradient node triggers use of gradient and changes meaning of nodes: geometry, normal modes, frequncies, and excitation_energy. If a gradient node is present in an electronic state, the geometry, normal modes, and frequncies nodes are expected to descibe the initial state. The input excitation energy has to be the vertial excitation energy at the initial state geometry. The target state geometry and adiabatic excitation energy will be calculated using the vertial gradient method.
+   * Pawel, May 2022
    * */
   if (node_state.find_subnode("gradient")) {
     std::cout 
@@ -700,7 +700,7 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
 
     /* $\Delta$ is a vector of displacement between the target state normal coordinates $q ^{(2)}$ and the initial state normal coordinates $q ^{(1)}$:
      * $$ q ^{(2)} = q ^{(1)} + \Delta $$
-     * (in parallel approximation without frequency shifts)
+     * (in parallel approximation without frequency shifts there is no Duschinsky matrix in the last equation, and as the two sets of normal modes are parallel, $\Delta$ is also the shift between the two geometries in the normal mode coordinates)
      * $\Omega$ is a diagonal matrix (3N - 5/6 x 3N - 5/6) of harmonic frequencies 
      * $D$ has normal modes as its columns. $D$ is a rectangular matrix (3N x 3N - 5/6) diagonalizing the mass-weighted Hessian matrix:
      * $$ H = D \Omega ^2 D ^{-1} $$
@@ -761,7 +761,7 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
     printGeometry();
 
     for (int i = 0; i < NNormModes(); i++) {
-      energy -= 0.5 * delta.Elem1(i) * delta.Elem1(i) / Omega_matrix_minus2.Elem2(i,i);
+      energy -= 0.5 * delta.Elem1(i) * delta.Elem1(i) / Omega_matrix_minus2.Elem2(i,i) / EV2HARTREE; 
     }
 
     std::cout 
