@@ -765,7 +765,7 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
     }
 
     std::cout 
-      << "Target state adiabatic excitation energy corrected with VG = " 
+      << "Adiabatic excitation energy (within VG) = "
       << energy << " eV " << std::endl;
   }
 
