@@ -1,4 +1,4 @@
-Job "../../ezspectrum_code/ezFCF_linux.exe h2_with_gradient.xml" has been started: Tue Apr 26 16:11:38 2022
+Job "../../bin/ezFCF_linux.exe h2_with_gradient.xml" has been started: Mon May 30 11:35:14 2022
 
 A copy of the "h2_with_gradient.xml" input:
 ------------------------------------------------------------------------------
@@ -25,7 +25,7 @@ Node input
  -->
 
 <initial_state>
-  <!-- THIS INITIAL STATE IS FROM "freq-ground.inp.out" FILE -->
+    <!-- THIS INITIAL STATE IS FROM "h2_force.inp.out" FILE -->
 
   <geometry
     number_of_atoms = "2"
@@ -62,9 +62,12 @@ Node input
 
 <target_state>
 
-  <excitation_energy units="eV"> 1 </excitation_energy>
+  <!-- THIS TARGET STATE IS FROM "h2_freq_ground.inp.out" FILE -->
 
-  <!-- THIS TARGET STATE IS FROM "freq-ground.inp.out" FILE -->
+  <!-- The excitation_energy and gradient nodes were manualy adjusted 
+  based on the "h2_force.inp.out" file -->
+  <excitation_energy units="eV"> 12.7144 </excitation_energy>
+
   <geometry
     number_of_atoms = "2"
     linear = "true"
@@ -81,7 +84,6 @@ Node input
     text = "
           0.000  0.000 -0.707
          -0.000 -0.000  0.707
-
            "
    atoms = "   H     H             ">
   </normal_modes>
@@ -95,8 +97,12 @@ Node input
   <gradient
     units = "a.u."
     text   = " 
-      0.000000 0.000000  0.16277344
-      0.000000 0.000000 -0.16277344
+      0.000000 
+      0.000000  
+      0.16277344
+      0.000000 
+      0.000000 
+      -0.16277344
     " >
   </gradient>
 
@@ -113,13 +119,13 @@ Node input
 
 ====== Reading the initial state ======
 ===== Reading the target state #0 =====
-Adiabatic excitation energy = 1.000000 eV
-Adiabatic excitation energy = 1.000000 eV 
+Adiabatic excitation energy = 12.714400 eV
+Adiabatic excitation energy = 12.714400 eV 
  State geometry will be calculated with the vertical gradient (VG) method.
 Target state geometry calculated with VG:
    H      0.0000       0.0000      -0.4886 
    H      0.0000       0.0000       0.4886 
-Target state adiabatic excitation energy corrected with VG = 0.9640 eV 
+Target state adiabatic excitation energy corrected with VG = 11.7360 eV 
 Done reading states
 
 Coordinate axes were aligned with MOI principal axes; center mass was shifted to the origin.
@@ -200,16 +206,16 @@ Intensities of combination bands are being calculated...
 
 Energy,eV    Intensity     FC factor         E",K   Transition
 
- 0.9640      1.660747e-01  +4.075226e-01     0.000  0(0)->1(0)
- 1.5090      2.981568e-01  -5.460374e-01     0.000  0(0)->1(1v0)
- 2.0540      2.676431e-01  +5.173423e-01     0.000  0(0)->1(2v0)
- 2.5990      1.601681e-01  -4.002101e-01     0.000  0(0)->1(3v0)
- 3.1439      7.188816e-02  +2.681197e-01     0.000  0(0)->1(4v0)
+11.7360      1.660747e-01  +4.075226e-01     0.000  0(0)->1(0)
+12.2810      2.981568e-01  -5.460374e-01     0.000  0(0)->1(1v0)
+12.8259      2.676431e-01  +5.173423e-01     0.000  0(0)->1(2v0)
+13.3709      1.601681e-01  -4.002101e-01     0.000  0(0)->1(3v0)
+13.9159      7.188816e-02  +2.681197e-01     0.000  0(0)->1(4v0)
 ------------------------------------------------------------------------------
 
 Stick spectrum was also saved in "h2_with_gradient.xml.spectrum_parallel" file 
 ------------------------------------------------------------------------------
 
 
-Job "../../ezspectrum_code/ezFCF_linux.exe h2_with_gradient.xml" has finished: Tue Apr 26 16:11:38 2022
+Job "../../bin/ezFCF_linux.exe h2_with_gradient.xml" has finished: Mon May 30 11:35:14 2022
 

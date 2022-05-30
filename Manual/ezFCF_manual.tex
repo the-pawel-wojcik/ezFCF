@@ -605,6 +605,28 @@ where $\Omega$ is an $N \times N$ diagonal matrix of harmonic frequencies, $\vec
 \end{equation}
 where $\omega _i$ is the $i$th harmonic frequency and $d _i$ is the $i$th element of the displacement vector from Eq.~\eqref{eq:displacement_vec}.
 
+An example of the {\tt{}gradient} node
+\begin{lstlisting}[frame=single,framerule=0pt]
+  <gradient
+      units = "a.u."
+      text = "
+        -0.00000000  
+         0.00000000  
+        -0.13653498  
+         0.00148260  
+        -0.00000000  
+         0.00362732  
+        -0.00148260  
+         0.00000000  
+         0.00362732  
+         0.00000000
+        -0.00000000
+         0.12928034
+      " />
+  </gradient>
+\end{lstlisting}
+The {\tt{}text} argument contains 3N lines with the gradient components, for each atom (in the same order as they appear in the {\tt{}geometry} node) the listing shows the $x$, $y$, and $z$ components.
+
 %----------------------------------------------------------------------
 \section{Duschinsky rotations}
 \label{sec:dushinsky}

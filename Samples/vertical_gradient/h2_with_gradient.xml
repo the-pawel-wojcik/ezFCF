@@ -20,7 +20,7 @@
  -->
 
 <initial_state>
-  <!-- THIS INITIAL STATE IS FROM "freq-ground.inp.out" FILE -->
+    <!-- THIS INITIAL STATE IS FROM "h2_force.inp.out" FILE -->
 
   <geometry
     number_of_atoms = "2"
@@ -57,9 +57,12 @@
 
 <target_state>
 
-  <excitation_energy units="eV"> 1 </excitation_energy>
+  <!-- THIS TARGET STATE IS FROM "h2_freq_ground.inp.out" FILE -->
 
-  <!-- THIS TARGET STATE IS FROM "freq-ground.inp.out" FILE -->
+  <!-- The excitation_energy and gradient nodes were manualy adjusted 
+  based on the "h2_force.inp.out" file -->
+  <excitation_energy units="eV"> 12.7144 </excitation_energy>
+
   <geometry
     number_of_atoms = "2"
     linear = "true"
@@ -76,7 +79,6 @@
     text = "
           0.000  0.000 -0.707
          -0.000 -0.000  0.707
-
            "
    atoms = "   H     H             ">
   </normal_modes>
@@ -90,8 +92,12 @@
   <gradient
     units = "a.u."
     text   = " 
-      0.000000 0.000000  0.16277344
-      0.000000 0.000000 -0.16277344
+      0.000000 
+      0.000000  
+      0.16277344
+      0.000000 
+      0.000000 
+      -0.16277344
     " >
   </gradient>
 
