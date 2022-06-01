@@ -1,6 +1,6 @@
 #include "vibrational_indexing.h"
 
-//! get a next vibrational state (norm_modes -- number of normal modes, max_excitations -- totoal max number of vibr quanta in all normal modes)
+//! get a next vibrational state (norm_modes -- number of normal modes, max_excitations -- total max number of vibr quanta in all normal modes)
 bool enumerateVibrStates(int norm_modes, int max_excitations, std::vector <int>& state, const bool if_comb_bands)
 
   // (to initialize (generate first population of the vibrational states) make state[0] negative)

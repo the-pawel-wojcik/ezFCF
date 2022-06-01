@@ -127,7 +127,7 @@ class My_istringstream
   };
   
   std::string str() { return iStr.str(); };
-  bool fail() { return iStr.fail(); } //|| iStr.eof(); }; //AIK added eof
+  bool fail() { return iStr.fail(); } 
   
   int getNextInt() {
     int next;
@@ -163,17 +163,17 @@ class My_istringstream
       //read the word:
       next="";
       if (not(iStr.fail())) // and not(iStr.eof()))
-	do {
-	  //std::cout << "Next= "<< next << std::endl;
-	  next+=tmp_char;
-	  //std::cout << "New next= "<< next << std::endl;
-	  iStr.get(tmp_char);
-	  //std::cout << "tmpcha=" << tmp_char << std::endl;
-	} while(ifLetterOrNumber(tmp_char) && not(iStr.eof()));
-      
+        do {
+          //std::cout << "Next= "<< next << std::endl;
+          next+=tmp_char;
+          //std::cout << "New next= "<< next << std::endl;
+          iStr.get(tmp_char);
+          //std::cout << "tmpcha=" << tmp_char << std::endl;
+        } while(ifLetterOrNumber(tmp_char) && not(iStr.eof()));
+
       //std::cout << "NEXT=" << next << std::endl;
       return !(iStr.fail()); //returns true for normal execution
-    };
+  };
 };
 
 #endif

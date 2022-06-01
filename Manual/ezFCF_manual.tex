@@ -799,11 +799,10 @@ In particular the new order of the normal modes is used in:
 \begin{itemize}
 \item transition assignments of the final spectrum printout (energies and intensities of the 
 Duschinsky rotation spectrum are obviously unaffected by any normal modes reordering);
-\item single \ul{excitation}{element}-s of the input (see Sec.~\ref{sec:dush:single_ex});
 \item {\tt do\underline{~}not\underline{~}excite\underline{~}subspace} element of the input (see Sec.~\ref{sec:dush:subspace}).
+\item single \ul{excitation}{element}-s of the input (see Sec.~\ref{sec:dush:single_ex});
+\item {\tt the\_only\_initial\_state} node  (see Sec.~\ref{sec:dush:the_only_initial_state}).
 \end{itemize}
-
-
 
 %----------------------------------------------------------------------
 \subsection{Reduced dimensionality calculations}
@@ -854,7 +853,18 @@ However only transitions with an intensity above the requested threshold are add
 
 You can also include excitations to normal modes from the \ul{do}{not}\ul{excite}{subspace}.
 
+%----------------------------------------------------------------------
+\subsection{Additional state}
+\label{sec:dush:the_only_initial_state}
 
+If one is interested in viewing all transitions from a selected initial state, manual addition of the {\tt{}single\_excitation} nodes can become too tedious. The keyword {\tt{}the\_only\_initial\_state} is available also for Duschinsky calculations (see Sec.~\ref{sec:para:subspace:single_state} for the equivalent keyword in the parallel approximation).
+
+The keyword {\tt{}the\_only\_initial\_state} allows to generate transitions originating from selected initial state. To use this feature add an xml node to the {\tt{}dushinsky\_rotations} node 
+\begin{lstlisting}[frame=single,framerule=0pt]
+<the_only_initial_state text = "1v0,1v2" >
+</the_only_initial_state>
+\end{lstlisting}
+The argument of {\tt{}text} contains a string representing one initial vibrational state. The state representation uses the regular convention: a normal mode {\tt{}nm} with {\tt{}q} excitations should be listed as {\tt{}qvnm}, if more than one mode is excited use comma as a separator. 
 
 %----------------------------------------------------------------------
 \subsection{Other keywords: CPU and memory use}

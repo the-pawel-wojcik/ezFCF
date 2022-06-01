@@ -76,6 +76,11 @@ class Dushinsky
   //! K'=0 is zero_zero; so it starts with K'=1 and increments Kp_max; Also updates the spectrum and returns number of points below the threahold added;
   int evalNextLayer(const bool if_save=true);
 
+  //! Just like evalNextLayer, but the initial state comes from the_only_initial_state node. Start with Kp = 0 and increment to Kp_max; Also updates the spectrum and returns number of points below the threashold added;
+  int add_the_only_intial_state_transitions(const int Kp, VibronicState & the_only_initial_state);
+  //! It's needed to start over the iterations over layers in "the_only_initial_state"
+  void reset_Kp_max() {Kp_max = 0;}
+
   //! add hot bands to the spectrum
   int addHotBands(std::vector <MolState>& molStates, std::vector<int>& nm_list, 
 		   double fcf_threshold, double temperature, 

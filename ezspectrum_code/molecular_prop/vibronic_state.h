@@ -22,7 +22,7 @@ class VibronicState
   std::vector<int> excite_subspace;
 
  public:
-  VibronicState() {elStateIndex=0; vibrQuanta.clear(); };
+  VibronicState() {elStateIndex=0; vibrQuanta.clear();};
 
   //??
   void reset() {elStateIndex=0; vibrQuanta.assign(vibrQuanta.size(),0);};

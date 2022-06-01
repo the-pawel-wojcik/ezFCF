@@ -66,7 +66,7 @@ Dushinsky::Dushinsky(std::vector <MolState>& molStates, std::vector<int>& nm_lis
   S*=L;
   //S.Print("S");
 
-  // get d displacements ; [N]; d= Lp^T*aqrt(T)*(x-xp); x & xp -- cartesian geometries of to states;
+  // get d displacements ; [N]; d= Lp^T*sqrt(T)*(x-xp); x & xp -- cartesian geometries of two states;
   // displacement of the target geometry in normal coordinates  d[angstr*sqrt(amu)] *ANGSTROM2AU*sqrt(AMU_2_ELECTRONMASS) ); 
   // mass weighted -- so m=1amu everywhere;
   KMatrix d;
@@ -163,10 +163,10 @@ Dushinsky::Dushinsky(std::vector <MolState>& molStates, std::vector<int>& nm_lis
   double detS=S.Determinant();
   std::cout << "Determinant of the normal modes rotation matrix: |Det(S)| =" << std::fixed << std::setw(12) << std::setprecision(8) << fabs(detS)<<"\n";
   if (fabs(detS)<0.5)
-    {   
-      std::cout << "\nError: |Det(S)| is too small (<0.5). Please see \"|Det(S)| is less than one\n   (or even zero)\" in the \"Common problems\" section of the manual\n\n";
-      exit(2);
-    }
+  {   
+    std::cout << "\nError: |Det(S)| is too small (<0.5). Please see \"|Det(S)| is less than one\n   (or even zero)\" in the \"Common problems\" section of the manual\n\n";
+    exit(2);
+  }
   
 
   //--------------------------------------------------------------------------------
@@ -229,36 +229,36 @@ Dushinsky::Dushinsky(std::vector <MolState>& molStates, std::vector<int>& nm_lis
   // shrink the space to the nm_list space
 
   if (N!=nm_list.size())
-    {
-      N = nm_list.size();
-      
-      // shrink "frequently used matrices"
-      ompd.Adjust(N,1);
-      tpmo.Adjust(N,N);
-      rd.Adjust(N,1);
-      tqmo.Adjust(N,N);
-      tr.Adjust(N,N);
+  {
+    N = nm_list.size();
 
-      for (int nm1=0; nm1<N; nm1++)
-	{
-	  ompd[nm1]=ompd_full[ nm_list[nm1] ];
-	  rd[nm1]=rd[ nm_list[nm1] ];
-	  for (int nm2=0; nm2<N; nm2++)
-	    {
-	      tpmo.Elem2(nm1,nm2)=tpmo_full.Elem2(nm_list[nm1],nm_list[nm2]);
-	      tqmo.Elem2(nm1,nm2)=tqmo_full.Elem2(nm_list[nm1],nm_list[nm2]);
-	      tr.Elem2(nm1,nm2)=tr_full.Elem2(nm_list[nm1],nm_list[nm2]);
-	    }
-	}
-    }
-  else
+    // shrink "frequently used matrices"
+    ompd.Adjust(N,1);
+    tpmo.Adjust(N,N);
+    rd.Adjust(N,1);
+    tqmo.Adjust(N,N);
+    tr.Adjust(N,N);
+
+    for (int nm1=0; nm1<N; nm1++)
     {
-      ompd=ompd_full;
-      tpmo=tpmo_full;
-      rd=rd_full;
-      tqmo=tqmo_full;
-      tr=tr_full;
+      ompd[nm1]=ompd_full[ nm_list[nm1] ];
+      rd[nm1]=rd[ nm_list[nm1] ];
+      for (int nm2=0; nm2<N; nm2++)
+      {
+        tpmo.Elem2(nm1,nm2)=tpmo_full.Elem2(nm_list[nm1],nm_list[nm2]);
+        tqmo.Elem2(nm1,nm2)=tqmo_full.Elem2(nm_list[nm1],nm_list[nm2]);
+        tr.Elem2(nm1,nm2)=tr_full.Elem2(nm_list[nm1],nm_list[nm2]);
+      }
     }
+  }
+  else
+  {
+    ompd=ompd_full;
+    tpmo=tpmo_full;
+    rd=rd_full;
+    tqmo=tqmo_full;
+    tr=tr_full;
+  }
  
 
   //----------------------------------------------------------------------
@@ -282,7 +282,7 @@ Dushinsky::Dushinsky(std::vector <MolState>& molStates, std::vector<int>& nm_lis
   layers.push_back(layer_ptr);
   if (fabs(zero_zero) > fcf_threshold)
     // set energies later (for now 0.0):
-    addSpectralPoint(zero_zero, state0, state  );
+    addSpectralPoint(zero_zero, state0, state);
 
 
   // fill matrix C with combinations C(n,k)=C_n^k=n!/(k!*(n-k)!); 
@@ -322,92 +322,143 @@ Dushinsky::~Dushinsky()
 }
 
 
-
-
 int Dushinsky::evalNextLayer(const bool if_save)
 {
   // debug check:
   if (if_save and (Kp_max)!=(Kp_max_saved))
-    {
-      std::cerr << "\nDebug Error!: Layer " << Kp_max+1 << " can not be saved. The number of already saved layers is " 
-		<< Kp_max_saved << " but should be " << Kp_max << "\n\n";
-      exit(2);
-    }
+  {
+    std::cerr << "\nDebug Error!: Layer " << Kp_max+1 << " can not be saved. The number of already saved layers is " 
+      << Kp_max_saved << " but should be " << Kp_max << "\n\n";
+    exit(2);
+  }
 
   // points above the threshold
   int points_added=0;
 
   // reset the target state
-  for (int i=0; i<N; i++)
+  for (int i=0; i<N; i++) {
     state.getV()[i]=-1;
-  
+  }
+
   //create a new layer
   std::vector<double>* layer_ptr= new std::vector<double>;
 
   //check the memory avaliability (dirty):
   if (if_save)
+  {
+    unsigned long total_combs = Combination(  (Kp_max+1 + state.getVibrQuantaSize() - 1), (state.getVibrQuantaSize() - 1)  );
+    double * buffer = (double*) malloc (total_combs*sizeof(double));
+    if (buffer==NULL)
     {
-      unsigned long total_combs = Combination(  (Kp_max+1 + state.getVibrQuantaSize() - 1), (state.getVibrQuantaSize() - 1)  );
-      double * buffer = (double*) malloc (total_combs*sizeof(double));
-      if (buffer==NULL)
-	{
-	  std::cout << "\n\nError: not enough memory available to store layer K'="<<Kp_max_saved+1<<"\n\n"
-		    << "Please reduce \"max_vibr_to_store\" value to limit the memory use.\n"
-		    <<" You also can reduce \"max_vibr_excitations_in_target_el_state\" value,\n"
-		    << "and/or use \"single_excitation\" elements to add higher excitations.\n";
-	  exit(2);
-	}
-      free (buffer);
+      std::cout << "\n\nError: not enough memory available to store layer K'="<<Kp_max_saved+1<<"\n\n"
+        << "Please reduce \"max_vibr_to_store\" value to limit the memory use.\n"
+        <<" You also can reduce \"max_vibr_excitations_in_target_el_state\" value,\n"
+        << "and/or use \"single_excitation\" elements to add higher excitations.\n";
+      exit(2);
     }
-  
+    free (buffer);
+  }
+
   unsigned long index_counter=0;
   while (enumerateVibrStates(state.getVibrQuantaSize(), Kp_max+1, state.getV(), true))
+  {
+
+    // ZZZ 4/11/2012 removed, and the combinations are calculated now on the fly
+    // unsigned long index_rev=convVibrState2Index(state.getV(), N, C, Kp_max+1);
+    unsigned long index_rev=convVibrState2Index(state.getV(), N, Kp_max+1);
+
+    // check if the reverse index is ok
+    if (index_rev!=index_counter) 
     {
-
-      // ZZZ 4/11/2012 removed, and the combinations are calculated now on the fly
-      // unsigned long index_rev=convVibrState2Index(state.getV(), N, C, Kp_max+1);
-      unsigned long index_rev=convVibrState2Index(state.getV(), N, Kp_max+1);
-      
-      // check if the reverse index is ok
-      if (index_rev!=index_counter) 
-	{
-	  // if numbers are too large, factorials in Combination() fanction will be out of "unsigned long" range ...
-	  std::cout << "\n Error!\n[Debug info: reverse index function convVibrState2Index(state.getV()) for the state:\n";
-	  state.print();
-	  std::cout <<"\n"<<"returns index=" << index_rev<< "; should be index="<< index_counter<<"]\n\n"
-		    << "Layer #" << Kp_max << " is the maximum layer which can be handled for this system.\n"
-		    << "Please reduce \"max_vibr_excitations_in_target_el_state\" value to "<<Kp_max<<".\n" 
-		    << "You can also use \"single_excitation\" elements to add higher excitations manually.\n";
-	  exit(2);
-	}
-      
-
-      double fcf=evalSingleFCF(state0, 0, state, Kp_max+1);
-
-      if (if_save)
-	(*layer_ptr).push_back(fcf);
-
-      if (fabs(fcf) > fcf_threshold)
-	{
-	  points_added++;
-	  addSpectralPoint(fcf,state0, state );
-	} 
-
-      index_counter++;
+      // if numbers are too large, factorials in Combination() fanction will be out of "unsigned long" range ...
+      std::cout << "\n Error!\n[Debug info: reverse index function convVibrState2Index(state.getV()) for the state:\n";
+      state.print();
+      std::cout <<"\n"<<"returns index=" << index_rev<< "; should be index="<< index_counter<<"]\n\n"
+        << "Layer #" << Kp_max << " is the maximum layer which can be handled for this system.\n"
+        << "Please reduce \"max_vibr_excitations_in_target_el_state\" value to "<<Kp_max<<".\n" 
+        << "You can also use \"single_excitation\" elements to add higher excitations manually.\n";
+      exit(2);
     }
+
+
+    double fcf=evalSingleFCF(state0, 0, state, Kp_max+1);
+
+    if (if_save)
+      (*layer_ptr).push_back(fcf);
+
+    if (fabs(fcf) > fcf_threshold)
+    {
+      points_added++;
+      addSpectralPoint(fcf,state0, state );
+    } 
+
+    index_counter++;
+  }
 
   Kp_max++;
   // save the layer
   if (if_save)
-    {
-      layers.push_back(layer_ptr);
-      Kp_max_saved++;
-    }
+  {
+    layers.push_back(layer_ptr);
+    Kp_max_saved++;
+  }
 
   return points_added;
 }
 
 
+int Dushinsky::add_the_only_intial_state_transitions(const int Kp, VibronicState & the_only_initial_state)
+{
+  // This is basically a slightly eddited version of Duschinsky::evalNextLayer()
+
+  // points above the threshold
+  int points_added=0;
+
+  // reset the target state
+  for (int i=0; i<N; i++) {
+    state.getV()[i]=-1;
+  }
+
+  // create a new layer
+  std::vector<double>* layer_ptr= new std::vector<double>;
+
+  unsigned long index_counter=0;
+  while (enumerateVibrStates(state.getVibrQuantaSize(), Kp_max, state.getV(), true))
+  {
+    unsigned long index_rev = convVibrState2Index(state.getV(), N, Kp_max);
+
+    // check if the reverse index is ok
+    if (index_rev!=index_counter) 
+    {
+      // if numbers are too large, factorials in Combination() fanction will be out of "unsigned long" range ...
+      std::cout << "\n Error!\n[Debug info: reverse index function convVibrState2Index(state.getV()) for the state:\n";
+      state.print();
+      std::cout <<"\n"<<"returns index=" << index_rev<< "; should be index="<< index_counter<<"]\n\n"
+        << "Layer #" << Kp_max << " is the maximum layer which can be handled for this system.\n"
+        << "Please reduce \"max_vibr_excitations_in_target_el_state\" value to "<<Kp_max<<".\n" 
+        << "You can also use \"single_excitation\" elements to add higher excitations manually.\n";
+      exit(2);
+    }
+
+    // evaluate FCF for each transition and add to the spectrum:
+    int K = the_only_initial_state.getTotalQuantaCount();
+    int Kp = state.getTotalQuantaCount();
+      
+    double fcf = evalSingleFCF_full_space(the_only_initial_state, K, state, Kp);
+
+    if (fabs(fcf) > fcf_threshold)
+    {
+      points_added++;
+      addSpectralPoint(fcf, the_only_initial_state, state);
+    } 
+
+    index_counter++;
+  }
+
+  Kp_max++;
+
+  return points_added;
+}
 
 
 

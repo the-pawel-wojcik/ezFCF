@@ -164,26 +164,32 @@ void fillVibrState(My_istringstream& vibr_str, VibronicState& v_state, const int
   // string like "1v1,1v2,1v3,3v19"
   //std::cout << "fillVibrState: vibr_str= " << vibr_str.str() << std::endl;
   bool if_read=vibr_str.getNextWord(ex_str);
-  //std::cout << "fillVibrState: if_read=" << if_read << "  ex_str= " << ex_str << std::endl;
+  /* std::cout << "fillVibrState: if_read=" << if_read << "  ex_str= " << ex_str << std::endl; */
   
   // reset vibrational state
   for (int i=0; i<v_state.getVibrQuantaSize(); i++)
     v_state.setVibrQuanta(i,0);
+
   // fill vibrational state (if == 0 -- nothing to do)
   if (ex_str!="0") {
     get_qnt_nm(ex_str, qnt, nm);
+    /* std::cout << "The word " << ex_str << " was read as qnt = " << qnt << " nm = " << nm << std::endl; */
+
+    /* std::cout << "nm_max = " << nm_max << std::endl; */
 
     if (nm>nm_max) {
-      std::cout << "\nError! Normal mode "<< nm <<" (in ["<< qnt<<'v'<<nm <<"] excitation) is out of range.\n\n";
+      std::cout << "\nError! Normal mode " << nm 
+        << " (in [" << qnt << 'v' << nm << "] excitation) is out of range.\n\n";
       exit(1);
     }
 
-    v_state.setVibrQuanta(nm,qnt);
+    v_state.setVibrQuanta(nm, qnt);
     while (not(vibr_str.fail())) {
       vibr_str.getNextWord(ex_str);
       get_qnt_nm(ex_str, qnt, nm);
       v_state.setVibrQuanta(nm,qnt);
     }
+
   }
 }
 
@@ -407,7 +413,7 @@ void harmonic_pes_parallel(xml_node& node_input, std::vector <MolState>& elState
       std::cout <<"\n\n";
     }
 
-    // print in a "fit 80 chars wide termial" form
+    // print in a "fit 80 chars wide terminal" form
     if(if_print_normal_modes)
       NMoverlap.Print((char *)("Normal modes overlap matrix with the initial state \n(if significantly non diagonal, please consider normal modes reordering)"));
   }
@@ -563,6 +569,9 @@ void harmonic_pes_dushinksy(xml_node& node_input, std::vector <MolState>& elStat
 
   xml_node node_dushinsky_rotations(node_input,"dushinsky_rotations",0);
   xml_node node_jobparams(node_input,"job_parameters",0);
+
+
+  // TODO: this piece of code is repeated in the harmonic_pes_parallel. Paweł June '22
   
   // read global paramters
   double temperature=node_jobparams.read_double_value("temperature");
@@ -573,7 +582,6 @@ void harmonic_pes_dushinksy(xml_node& node_input, std::vector <MolState>& elStat
   // check if the web version format of the output (do not print the input file & create a ".nmoverlap" file)
   bool if_web_version=node_input.read_flag_value("if_web_version");
   
-  //Now get some information from the states passed:
   bool ifAnyNormalModesReordered=false;
   
   for (int state_i=0; state_i<elStates.size(); state_i++) {	
@@ -595,6 +603,7 @@ void harmonic_pes_dushinksy(xml_node& node_input, std::vector <MolState>& elStat
   //----------------------------------------------------------------------
   // load parameters 
   
+  // HINT: target_state is exclusively used in Duschinsky node. Paweł June '22
   // indexes of the initial and target electronic states:
   int iniN=0;
   int targN=node_dushinsky_rotations.read_int_value("target_state"); 
@@ -605,6 +614,7 @@ void harmonic_pes_dushinksy(xml_node& node_input, std::vector <MolState>& elStat
   }
   std::cout<<"Target state number "<<targN<<" from the input will be used\n\n";
   
+  // TODO: This is a continuation of the copy of code from harmonic_pes_parallel. Paweł June '22
   // maximum number of quanta to store:     
   int max_quanta_ini = node_dushinsky_rotations.read_int_value("max_vibr_excitations_in_initial_el_state");
   int max_quanta_targ = node_dushinsky_rotations.read_int_value("max_vibr_excitations_in_target_el_state");
@@ -614,6 +624,7 @@ void harmonic_pes_dushinksy(xml_node& node_input, std::vector <MolState>& elStat
   std::cout << "\nSince temperature=0, \"max_vibr_excitations_in_initial_el_state\" has been set to 0.\n"<< std::flush;
   }
   
+  // HINT: Back to the Duschinsky-exclusive part of the code
   int Kp_max_to_save=32000;
   if(node_dushinsky_rotations.find_subnode("max_vibr_to_store")) {
     
@@ -621,10 +632,12 @@ void harmonic_pes_dushinksy(xml_node& node_input, std::vector <MolState>& elStat
     Kp_max_to_save=node_max_vibr_to_store.read_int_value("target_el_state");
   }
   
+  // TODO: do_not_excite_subspace is also processed in the harmonic_pes_parallel 
+  // but the code below is slightly different . Paweł June '22
   // read "do not excite subspace"
   std::set<int> do_not_excite_subspace;
   
-  if(node_dushinsky_rotations.find_subnode("do_not_excite_subspace")) {
+  if (node_dushinsky_rotations.find_subnode("do_not_excite_subspace")) {
     
     xml_node node_do_not_excite_subspace(node_dushinsky_rotations,"do_not_excite_subspace",0);
     int ss_size=node_do_not_excite_subspace.read_int_value("size");
@@ -633,34 +646,34 @@ void harmonic_pes_dushinksy(xml_node& node_input, std::vector <MolState>& elStat
       exit(1);
     }
     if (ss_size>0) {
-      
+
       if (elStates[targN].ifNMReorderedManually())
-	std::cout <<"WARNING! The normal modes of the target state were reordered!\n"
-		  <<"         New order is used for the \"do_not_excite_subspace\".\n\n";
-      
+        std::cout <<"WARNING! The normal modes of the target state were reordered!\n"
+          <<"         New order is used for the \"do_not_excite_subspace\".\n\n";
+
       std::istringstream tmp_iStr(node_do_not_excite_subspace.read_string_value("normal_modes"));
       int tmpInt;
-      
+
       for (int nm=0; nm<ss_size; nm++)  {
-	tmp_iStr >> tmpInt;
-	//input error check:
-	if (tmp_iStr.fail()) {
-	  std::cout << "\nError: non-numeric symbol or fewer entries than specified by the \"size\" value\n\n";
-	  exit(1);
-	}
-	if ((tmpInt<0)or(tmpInt>n_norm_modes-1)) {
-	  std::cout << "\nError: Entry ["<< tmpInt<<"] is out of range.\n\n";
-	  exit(1);
-	}
-	
-	//check if tmpInt is already in the set:
-	std::set<int>::const_iterator intSet_iter;
-	intSet_iter = do_not_excite_subspace.find(tmpInt);
-	if ( intSet_iter != do_not_excite_subspace.end( ) ) {
-	  std::cout << "\nEntry ["<< tmpInt<<"] is not unique.\n\n";
-	  exit(1);
-	}
-	do_not_excite_subspace.insert(tmpInt);
+        tmp_iStr >> tmpInt;
+        //input error check:
+        if (tmp_iStr.fail()) {
+          std::cout << "\nError: non-numeric symbol or fewer entries than specified by the \"size\" value\n\n";
+          exit(1);
+        }
+        if ((tmpInt<0)or(tmpInt>n_norm_modes-1)) {
+          std::cout << "\nError: Entry ["<< tmpInt<<"] is out of range.\n\n";
+          exit(1);
+        }
+
+        //check if tmpInt is already in the set:
+        std::set<int>::const_iterator intSet_iter;
+        intSet_iter = do_not_excite_subspace.find(tmpInt);
+        if ( intSet_iter != do_not_excite_subspace.end( ) ) {
+          std::cout << "\nEntry ["<< tmpInt<<"] is not unique.\n\n";
+          exit(1);
+        }
+        do_not_excite_subspace.insert(tmpInt);
       }
     }
   }
@@ -671,10 +684,12 @@ void harmonic_pes_dushinksy(xml_node& node_input, std::vector <MolState>& elStat
   for (int nm=0; nm<n_norm_modes;nm++) {
     std::set<int>::const_iterator intSet_iter;
     intSet_iter = do_not_excite_subspace.find(nm);
-    if ( intSet_iter == do_not_excite_subspace.end( ) )
+    if ( intSet_iter == do_not_excite_subspace.end() )
       nms_dushinsky.push_back(nm);
   }
   
+  // HINT: This if section is absent in the harmonic_pes_parallel but wouldn't be bad to
+  // have it there as well. Paweł June '22
   if (nms_dushinsky.size()<n_norm_modes) {
     std::cout << "The following normal will be excited\n(for both states the order is same as in the input):\n ";
     for (int nm=0; nm<nms_dushinsky.size(); nm++)
@@ -683,6 +698,8 @@ void harmonic_pes_dushinksy(xml_node& node_input, std::vector <MolState>& elStat
   }
   else
     std::cout << "All normal modes modes will be excited\n\n";
+
+  // HINT: in the harmonic_pes_parallel now comes a section which prints the normal modes overalp. Paweł June '22
   
   std::cout << "=== Photoelectron spectrum with the Dushinsky rotations will be evaluated ==== \n\n"<< std::flush;
   
@@ -693,7 +710,7 @@ void harmonic_pes_dushinksy(xml_node& node_input, std::vector <MolState>& elStat
   
   // create a new dushinsky object for a given set of normal modes
   // All matrices and zero-zero integral are evaluated for the full space;
-  // than excitations are only added to the normal modes from "nms_dushinsky"
+  // then excitations are only added to the normal modes from "nms_dushinsky"
   Dushinsky* dushinsky_ptr = new Dushinsky(elStates, nms_dushinsky, fcf_threshold, targN, max_quanta_targ, max_quanta_ini);
   
   //================================================================================
@@ -710,20 +727,24 @@ void harmonic_pes_dushinksy(xml_node& node_input, std::vector <MolState>& elStat
   
   // go over all layers and add points to the spectrum:
   for (int Kp=1; Kp<=max_quanta_targ; Kp++)
-    {
-      if ( Kp<=Kp_max_to_save )
-	std:: cout << "Layer K'="<< Kp <<" is being evaluated (will be saved in memory)... " << std::flush;
-      else
-	std:: cout << "Layer K'="<< Kp <<" is being evaluated... " << std::flush;
-      
-      int n_fresh_points=(*dushinsky_ptr).evalNextLayer( Kp<=Kp_max_to_save );
-      
-      std:: cout << "Done\n";
-      if (n_fresh_points>0)            
-	std:: cout << n_fresh_points <<" points above the intensity threhold were added to the spectrum\n\n" << std::flush;
-      else
-	std:: cout << "No points above the intensity threhold were found in this layer\n\n" << std::flush;
+  {
+    if ( Kp<=Kp_max_to_save ) {
+      std:: cout << "Layer K'="<< Kp <<" is being evaluated (will be saved in memory)... " << std::flush;
     }
+    else {
+      std:: cout << "Layer K'="<< Kp <<" is being evaluated... " << std::flush;
+    }
+
+    int n_fresh_points=(*dushinsky_ptr).evalNextLayer( Kp<=Kp_max_to_save );
+
+    std:: cout << "Done\n";
+    if (n_fresh_points>0) {
+      std:: cout << n_fresh_points <<" points above the intensity threhold were added to the spectrum\n\n" << std::flush;
+    }
+    else {
+      std:: cout << "No points above the intensity threhold were found in this layer\n\n" << std::flush;
+    }
+  }
   
   //----------------------------------------------------------------------
   // add the hot bands if requested
@@ -732,32 +753,31 @@ void harmonic_pes_dushinksy(xml_node& node_input, std::vector <MolState>& elStat
   double energy_threshold_target = DBL_MAX; //eV
   if(max_quanta_ini!=0) {
     
-    if(node_dushinsky_rotations.find_subnode("energy_thresholds")) {
+    if (node_dushinsky_rotations.find_subnode("energy_thresholds")) {
       
       xml_node node_energy_thresholds(node_dushinsky_rotations,"energy_thresholds",0);
       // read the energy thresholds (if provided)
       
       if ( node_energy_thresholds.find_subnode("initial_state")) {
-	
-	xml_node node_istate(node_energy_thresholds,"initial_state",0);
-	std::string units=node_istate.read_string_value("units");
-	energy_threshold_initial=node_istate.read_node_double_value();
-	if ( !covert_energy_to_eV(energy_threshold_initial,units) ) {
-	  std::cout << "\nError! Unknown units of the initial state threshold: \"" << units <<"\"\n  (should be equal to \"eV\", \"K\", or \"cm-1\")\n\n";
-	  exit(1);
-	}
-	
+        xml_node node_istate(node_energy_thresholds,"initial_state",0);
+        std::string units=node_istate.read_string_value("units");
+        energy_threshold_initial=node_istate.read_node_double_value();
+        if ( !covert_energy_to_eV(energy_threshold_initial,units) ) {
+          std::cout << "\nError! Unknown units of the initial state threshold: \"" << units <<"\"\n  (should be equal to \"eV\", \"K\", or \"cm-1\")\n\n";
+          exit(1);
+        }
+
       }
       
       if ( node_energy_thresholds.find_subnode("target_state")) {
-	
-	xml_node node_tstate(node_energy_thresholds,"target_state",0);
-	std::string units=node_tstate.read_string_value("units");
-	energy_threshold_target=node_tstate.read_node_double_value();
-	if ( !covert_energy_to_eV(energy_threshold_target,units) ) {
-	  std::cout << "\nError! Unknown units of the target state threshold: \"" << units <<"\"\n  (should be equal to \"eV\", \"K\", or \"cm-1\")\n\n";
-	  exit(1);
-	}
+
+        xml_node node_tstate(node_energy_thresholds,"target_state",0);
+        std::string units=node_tstate.read_string_value("units");
+        energy_threshold_target=node_tstate.read_node_double_value();
+        if ( !covert_energy_to_eV(energy_threshold_target,units) ) {
+          std::cout << "\nError! Unknown units of the target state threshold: \"" << units <<"\"\n  (should be equal to \"eV\", \"K\", or \"cm-1\")\n\n";
+          exit(1);
+        }
       }
     }
     
@@ -771,11 +791,50 @@ void harmonic_pes_dushinksy(xml_node& node_input, std::vector <MolState>& elStat
    std:: cout << n_hot_bands <<" hot bands were added to the spectrum\n"
 	      <<"Note: the Boltzmann distribution will be applied later\n\n" << std::flush;
   }
+
+  //----------------------------------------------------------------------
+  // If the_only_initial_state node is present in the xml input.
+  // Hide the already calculated spectrum. Add transitions from the_only_initial_state. 
+  // No finesse. 
+  // the_only_initial_state is in the "full space"; 
+  // do_not_excite_subspace does not apply;
   
-  
+  size_t do_the_only_initial_state = node_dushinsky_rotations.find_subnode("the_only_initial_state");
+  if (do_the_only_initial_state) {
+    if (do_the_only_initial_state != 1) {
+      std::cout << "Error! Only one the_only_initial_state node is allowed." << std::endl;
+      exit(1);
+    }
+
+    // Don't show all the other points as this is expected to be the_only_initial_state
+    for (int pt=0; pt<(*dushinsky_ptr).getSpectrum().getNSpectralPoints(); pt++) {
+      (*dushinsky_ptr).getSpectrum().getSpectralPoint(pt).setIfPrint(false);
+    }
+
+    std::cout << "Clearing the spectrum is ready" << std::endl;
+
+    xml_node node_the_only_initial_state(node_dushinsky_rotations, "the_only_initial_state", 0);
+    std::string text = node_the_only_initial_state.read_string_value("text");
+    My_istringstream ini_str(text);
+    VibronicState the_only_initial_state;
+    for (int nm = 0; nm < n_norm_modes; nm++) {
+      the_only_initial_state.addVibrQuanta(0, nm);
+    }
+    fillVibrState(ini_str, the_only_initial_state, n_norm_modes);
+
+    std::cout << "The initial state is ready." << std::endl;
+    
+    // go over all layers and add points to the spectrum:
+    dushinsky_ptr->reset_Kp_max();
+    for (int Kp=0; Kp<=max_quanta_targ; Kp++)
+    {
+      dushinsky_ptr->add_the_only_intial_state_transitions(Kp, the_only_initial_state);
+    }
+  }
+
   //----------------------------------------------------------------------
   // now load the list of single transitions to evaluate FCFs recursively
-  // single_transition is in the "full space"; do_not_excite_subspace does not applies;
+  // single_transition is in the "full space"; do_not_excite_subspace does not apply;
   SpectralPoint single_transition;
   for (int nm=0; nm<elStates[iniN].NNormModes(); nm++) {
     single_transition.getVibrState1().addVibrQuanta(0, nm);
@@ -787,8 +846,10 @@ void harmonic_pes_dushinksy(xml_node& node_input, std::vector <MolState>& elStat
   size_t n_single_ex = node_dushinsky_rotations.find_subnode("single_excitation");
   if ( n_single_ex ) {
     if (elStates[targN].ifNMReorderedManually())
+    {
       std::cout <<"WARNING! The normal modes of the target state were reordered!\n"
-		<<"         New order is used for the single transitions.\n\n";
+        <<"         New order is used for the single transitions.\n\n";
+    }
     
     std::cout << "The following single transitions were added to the spectrum:\n" << std::flush;
     
@@ -813,7 +874,7 @@ void harmonic_pes_dushinksy(xml_node& node_input, std::vector <MolState>& elStat
       int Kp=single_transition.getVibrState2().getTotalQuantaCount();
       //std::cout << "K=" << K << " Kp=" << Kp << std::endl;
       
-      double s_fcf=(*dushinsky_ptr).evalSingleFCF_full_space(single_transition.getVibrState1(), K, single_transition.getVibrState2(),Kp);
+      double s_fcf=(*dushinsky_ptr).evalSingleFCF_full_space(single_transition.getVibrState1(), K, single_transition.getVibrState2(), Kp);
       (*dushinsky_ptr).addSpectralPoint(s_fcf, single_transition.getVibrState1(), single_transition.getVibrState2()); 
       
       std::cout << "FCF=" << std::scientific << std::setprecision(6) << s_fcf << " ";
@@ -845,33 +906,32 @@ void harmonic_pes_dushinksy(xml_node& node_input, std::vector <MolState>& elStat
     double IExponent;
     if (temperature==0)
       if (E_prime_prime==0)
-	IExponent=0;   // intensity unchanged 
+        IExponent=0;   // intensity unchanged 
       else
-	IExponent=100; //(intensity < 10e-44 for non ground states
+        IExponent=100; //(intensity < 10e-44 for non ground states
     else
-      {
-	IExponent= E_prime_prime / (temperature * KELVINS2EV );
-	if (IExponent > 100) 
-	  IExponent=100; // keep the intensity >= 10e-44 == exp(-100)
-      }
+    {
+      IExponent= E_prime_prime / (temperature * KELVINS2EV );
+      if (IExponent > 100) 
+        IExponent=100; // keep the intensity >= 10e-44 == exp(-100)
+    }
     (*dushinsky_ptr).getSpectrum().getSpectralPoint(pt).getIntensity() *= exp ( -IExponent); 
-    
     
     (*dushinsky_ptr).getSpectrum().getSpectralPoint(pt).getEnergy()=energy;
     (*dushinsky_ptr).getSpectrum().getSpectralPoint(pt).getE_prime_prime()=E_prime_prime;
     
     // if intensity below the fcf_threshold^2 or energy above the threshold -- do not print
     if (
-	( (*dushinsky_ptr).getSpectrum().getSpectralPoint(pt).getIntensity() < fcf_threshold*fcf_threshold ) 
-	or 
-	( -(energy-E_prime_prime+elStates[targN].Energy()) > energy_threshold_target ) 
-	or 
-	( E_prime_prime > energy_threshold_initial )
-	)
-      {
-	(*dushinsky_ptr).getSpectrum().getSpectralPoint(pt).setIfPrint(false);
-	points_removed++;
-      }
+        ( (*dushinsky_ptr).getSpectrum().getSpectralPoint(pt).getIntensity() < fcf_threshold*fcf_threshold ) 
+        or 
+        ( -(energy-E_prime_prime+elStates[targN].Energy()) > energy_threshold_target ) 
+        or 
+        ( E_prime_prime > energy_threshold_initial )
+       )
+    {
+      (*dushinsky_ptr).getSpectrum().getSpectralPoint(pt).setIfPrint(false);
+      points_removed++;
+    }
   }
   std:: cout << "Done\n" << std::flush;
   
@@ -882,26 +942,28 @@ void harmonic_pes_dushinksy(xml_node& node_input, std::vector <MolState>& elStat
       std::cout << "All hot bands are above the intensity threshold\n";
     std::cout << "\n" << std::flush;
   }
-  
+
   //--------------------------------------------------------------------------------
   // Print the updated spectrum:
   (*dushinsky_ptr).getSpectrum().Sort();
   std::cout << "------------------------------------------------------------------------------\n";
   std::cout << "        Stick photoelectron spectrum (with Dushinsky rotations) \n";
   std::cout << "------------------------------------------------------------------------------\n";
-  if (elStates[targN].ifNMReorderedManually())
+  if (elStates[targN].ifNMReorderedManually()) {
     std::cout <<"\nWARNING! The normal modes of the target state were reordered!\n"
-	      <<"         New order is used for the target state assignment.\n";
+      <<"         New order is used for the target state assignment.\n";
+  }
   if(nms_dushinsky.size()!=n_norm_modes)
-    {
-      std::cout << "\nNOTE: only the following normal modes were excited (\"excite subspace\"):\n  ";
-      for (int nm=0; nm<nms_dushinsky.size();nm++)
-	std::cout <<nms_dushinsky[nm]<< ' ';
-      std::cout << "\n";
-      if (elStates[targN].ifNMReorderedManually())
-	std::cout <<"\nWARNING! The normal modes of the target state were reordered!\n"
-		  <<"         New order is used for the \"excite subspace\"\n";
+  {
+    std::cout << "\nNOTE: only the following normal modes were excited (\"excite subspace\"):\n  ";
+    for (int nm=0; nm<nms_dushinsky.size();nm++)
+      std::cout <<nms_dushinsky[nm]<< ' ';
+    std::cout << "\n";
+    if (elStates[targN].ifNMReorderedManually()) {
+      std::cout <<"\nWARNING! The normal modes of the target state were reordered!\n"
+        <<"         New order is used for the \"excite subspace\"\n";
     }
+  }
   std::cout << "\n";
   (*dushinsky_ptr).getSpectrum().PrintStickTable();
   std::cout << "------------------------------------------------------------------------------\n";

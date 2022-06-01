@@ -1,6 +1,5 @@
 #include "spectrum.h"
 
-
 void Spectrum::PrintStickTable()
 {
   std::cout << "Energy,eV    Intensity     FC factor         E\",K   Transition\n\n" ;
@@ -8,7 +7,6 @@ void Spectrum::PrintStickTable()
     if ( spectralPoints[i].getIfPrint() )
       getSpectralPoint(i).print();
 }
-
 
 void Spectrum::PrintStickTable( const char* spectrumFileName )
 {
