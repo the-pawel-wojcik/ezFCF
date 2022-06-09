@@ -129,8 +129,9 @@ def parse_qchem(StateF, data: dict):
     while Line:
         if (Line.find('Standard Nuclear Orientation') >= 0):
             if if_geometry_is_loaded is True:
-                print("Warning!")
-                print("Multiple Geometries detected.")
+                print("Warning!"
+                      " Multiple 'StateF Nuclear Orientation'-s detected." 
+                      " The last one will be used.")
                 data['NAtoms'] = 0
                 data['Geometry'] = ''
                 data['atoms_list'] = ''
