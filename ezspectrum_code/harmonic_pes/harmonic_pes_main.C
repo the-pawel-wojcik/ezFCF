@@ -101,8 +101,7 @@ bool harmonic_pes_main (const char *InputFileName, xml_node& node_input, xml_nod
   std::cout << "Done with the transformations" << std::endl;
   std::cout << "------------------------------------------------------------------------------\n";
 
-
-  // total number of the normal modes (in the initial state)
+  // total number of normal modes (in the initial state)
   int n_norm_modes = elStates[0].NNormModes();
 
   // if parallel or dushinsky
@@ -219,7 +218,6 @@ void harmonic_pes_parallel(xml_node& node_input, std::vector <MolState>& elState
     }
   }
 
-  // TODO: continue here
   // total number of the normal modes (in the initial state)
   int n_norm_modes = elStates[0].NNormModes();
 

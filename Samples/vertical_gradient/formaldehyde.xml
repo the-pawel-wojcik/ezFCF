@@ -20,7 +20,7 @@
  -->
 
 <initial_state>
-  <!-- THIS INITIAL STATE IS FROM "formaldehyde.out" FILE -->
+  <!-- THIS INITIAL STATE IS FROM "formaldehyde.inp.out" FILE -->
 
   <geometry
     number_of_atoms = "4"
@@ -66,9 +66,11 @@
 
 <target_state>
 
-  <!-- THIS TARGET STATE IS FROM "formaldehyde.out" FILE -->
+  <!-- THIS TARGET STATE IS FROM "formaldehyde.inp.out" FILE -->
 
-  <!-- excitation_energy and gradinet nodes were manually adjusted -->
+  <!-- This state is a copy of the initial state with two manual adjustments:-->
+  <!-- excitation_energy node is the vertical excitation energy to the second excited state  -->
+  <!-- gradient node contains the energy gradient of the second excited state -->
   <excitation_energy units="eV"> 7.9376 </excitation_energy>
 
   <geometry

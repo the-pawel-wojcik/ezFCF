@@ -57,6 +57,9 @@ void MolState::align()
 {
   // Shift center of mass to the origin:
   shiftCoordinates( getCenterOfMass() );
+  /* const char * center_of_mass_name = "Center of mass: "; */
+  /* getCenterOfMass().print(center_of_mass_name); */
+
 
   // Aligh moment of inertia principal axes:
   KMatrix MOI_tensor(3,3), MOI_eigenValues(3,1), MOI_eigenVectors(3,3);
@@ -74,7 +77,6 @@ void MolState::align()
     MOI_eigenVectors.SwapRows(0,1);
 
   transformCoordinates(MOI_eigenVectors); // rotate coordinates using matrix of the MOI eigen vectors 
-
   std::cout << "Coordinate axes were aligned with MOI principal axes; center mass was shifted to the origin.\n";
 }
 
@@ -92,32 +94,32 @@ void MolState::align(MolState& other)
   // x_rot, y_rot, z_rot = {0, pi/2, pi, 3pi/2} rotation angle around x, y, and z axes ;
   // rotation in 3D is not commutative, so first rotate around X, than Y, than Z:
   for (int z_rot=0;  z_rot<4; z_rot++)
+  {
+    for (int y_rot=0;  y_rot<4; y_rot++)
     {
-      for (int y_rot=0;  y_rot<4; y_rot++)
-	{
-	  for (int x_rot=0;  x_rot<4; x_rot++)
-	    {
-	      double diff=getGeomDifference(other);
-	      if (diff<=min_diff)
-		{
-		  min_diff=diff;
-		  min_x_rot=x_rot;
-		  min_y_rot=y_rot;
-		  min_z_rot=z_rot;
-		}
-	      rotateX_90deg(); // after 4 rotations by pi/2, it gets the "0" rotation geometry and starts over.
-	    }
-	  rotateY_90deg(); // after 4 rotations by pi/2, it gets the "0" rotation geometry and starts over.
-	}
-      rotateZ_90deg(); // after 4 rotations by pi/2, it gets the "0" rotation geometry.
-    }// at the end the molecule rotated by 4*pi/2 around x and y, i.e. it is non-rotated
+      for (int x_rot=0;  x_rot<4; x_rot++)
+      {
+        double diff=getGeomDifference(other);
+        if (diff<=min_diff)
+        {
+          min_diff=diff;
+          min_x_rot=x_rot;
+          min_y_rot=y_rot;
+          min_z_rot=z_rot;
+        }
+        rotateX_90deg(); // after 4 rotations by pi/2, it gets the "0" rotation geometry and starts over.
+      }
+      rotateY_90deg(); // after 4 rotations by pi/2, it gets the "0" rotation geometry and starts over.
+    }
+    rotateZ_90deg(); // after 4 rotations by pi/2, it gets the "0" rotation geometry.
+  }// at the end the molecule rotated by 4*pi/2 around x and y, i.e. it is non-rotated
   
   // rotate to the angles with the min norm of the deltaRi differences (min_x_rot, min_y_rot, min_z_rot):
   
-  rotate(min_x_rot*PI/2, min_y_rot*PI/2, min_z_rot*PI/2);
+  rotate(min_x_rot*PI/2.0, min_y_rot*PI/2.0, min_z_rot*PI/2.0);
 
-  std::cout << "Also rotated by " << min_x_rot <<"/2*pi, " 
-	    << min_y_rot <<"/2*pi, and " << min_z_rot <<"/2*pi CCW around x, y, and z.\n";
+  std::cout << "Also rotated by " << min_z_rot <<"/2*pi, " 
+    << min_y_rot <<"/2*pi, and " << min_x_rot <<"/2*pi CCW around z, y, and x.\n";
   std::cout << "The norm of the geometry difference from the initial state is " << sqrt(min_diff)<<"\n";
 }
 
@@ -225,7 +227,7 @@ void MolState::rotateZ_90deg()
 //------------------------------
 void MolState::rotate(const double alpha_x, const double alpha_y, const double alpha_z)
 {
-  // three rotation matrices (instead of making one matrix) arouns x, y, z axes
+  // three rotation matrices (instead of making one matrix) around x, y, z axes
   KMatrix R(CARTDIM,CARTDIM), Rx(CARTDIM,CARTDIM), Ry(CARTDIM,CARTDIM), Rz(CARTDIM,CARTDIM);
 
   Rx.Set(0);
@@ -249,11 +251,13 @@ void MolState::rotate(const double alpha_x, const double alpha_y, const double a
   Rz.Elem2(1,0)=-sin(alpha_z);
   Rz.Elem2(0,1)=sin(alpha_z);
 
-  // overall rotation R=Rx*Ry*Rz
+  // Rotations are applied in the order: x, y, and z
+  // which gives the overall rotation matrix
+  // R = Rz Ry Rx
   R.SetDiagonal(1);
-  R*=Rx;
-  R*=Ry;
   R*=Rz;
+  R*=Ry;
+  R*=Rx;
   
   // and now rotates using matix R:
   transformCoordinates(R);
@@ -468,19 +472,24 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
   //------------ Read IP (if provided) ----------------------------------
   energy = 0.0; //units are eV
   if(node_state.find_subnode("excitation_energy")) {
-    // TODO: change the adiabatic to vertical when VG is used
+    std::string energy_text = "Adiabatic excitation energy = ";
+    bool gradient_is_available = node_state.find_subnode("gradient");
+    if (gradient_is_available) {
+      energy_text = "Vertical excitation energy = ";
+    }
+
     xml_node node_ip(node_state, "excitation_energy", 0);
     std::string units=node_ip.read_string_value("units");
     energy=node_ip.read_node_double_value();
     std::cout << std::fixed << std::setprecision(6); //  <<  std::setw(6);
-    std::cout << "Adiabatic excitation energy = " << energy << " " << units << std::endl;
+    std::cout << energy_text << energy << " " << units << std::endl;
     
     if ( !covert_energy_to_eV(energy,units) ) {
       std::cout << "\nError! Unknow units of the IP: \"" << units <<"\"\n  (should be equal to \"eV\", \"K\", or \"cm-1\")\n\n";
       exit(1);
     }
 
-    std::cout << "Adiabatic excitation energy = " << energy << " eV " << std::endl;
+    std::cout << energy_text << energy << " eV " << std::endl;
   }
     
 
@@ -793,8 +802,29 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
     std::cout << "Molecular structure and normal modes of this electronic state\nwill be transformed as requested in the input.\n";
 
     shiftCoordinates(man_shift);
-    rotate(man_rot_x*PI,man_rot_y*PI,man_rot_z*PI);
+    rotate(man_rot_x*PI, man_rot_y*PI, man_rot_z*PI);
     applyCoordinateThreshold(COORDINATE_THRESHOLD);
+
+    std::cout << "Molecule was shifted by " 
+      << man_shift[0] << ", "
+      << man_shift[1] << ", "
+      << man_shift[2] << " in x, y, and z." 
+      << std::endl;
+
+    std::cout << "Also rotated by " 
+      << man_rot_z <<"*pi, " 
+      << man_rot_y <<"*pi, and " 
+      << man_rot_x <<"*pi around z, y, and x axes.\n";
+
+    // Printing difference from ground state is not implemented:
+    // This function would require knowldege about the ground state, and 
+    // as this is a Read state function it appears inappropriet to add it here.
+    // It appear approprieate, however, to move this manual rotation out of the 
+    // Read function (same as the vertical gradient) and apply the post processing 
+    // once all input states are parsed.
+    /* double diff_from_ground = this->getGeomDifference(*this); */
+    /* std::cout << "The norm of the geometry difference from the initial state is " << sqrt(diff_from_ground) <<"\n"; */
+
     if_aligned_manually=true;
   }
 
@@ -834,12 +864,12 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
     std::vector<int>::const_iterator intVec_iter;
     intVec_iter= unique( tmpIntVector.begin(), tmpIntVector.end() );
     if (intVec_iter != tmpIntVector.end())
-      {
-	std::cout << "\nFormat error: there are non unique entries. Check the sorted list:\n";
-	for (std::vector<int>::const_iterator tmp_iter=tmpIntVector2.begin(); tmp_iter!=tmpIntVector2.end(); tmp_iter++)
-	  std::cout << ' ' << *tmp_iter;
-	std::cout<<'\n';
-      }
+    {
+      std::cout << "\nFormat error: there are non unique entries. Check the sorted list:\n";
+      for (std::vector<int>::const_iterator tmp_iter=tmpIntVector2.begin(); tmp_iter!=tmpIntVector2.end(); tmp_iter++)
+        std::cout << ' ' << *tmp_iter;
+      std::cout<<'\n';
+    }
       
     // backup normal modes
     std::vector<NormalMode> oldNormModes;

@@ -127,7 +127,14 @@ def parse_qchem(StateF, data: dict):
     if_geometry_is_loaded = False
     Line = StateF.readline()
     while Line:
-        if (Line.find('Standard Nuclear Orientation') >= 0) and (if_geometry_is_loaded is False):
+        if (Line.find('Standard Nuclear Orientation') >= 0):
+            if if_geometry_is_loaded is True:
+                print("Warning!")
+                print("Multiple Geometries detected.")
+                data['NAtoms'] = 0
+                data['Geometry'] = ''
+                data['atoms_list'] = ''
+
             StateF.readline()
             StateF.readline()
             Line = StateF.readline()
@@ -144,9 +151,6 @@ def parse_qchem(StateF, data: dict):
                 Line = StateF.readline()
                 data['NormalModes'] += Line[2:]
             data['NormalModes'] += '\n'
-
-        # TODO: I do not understand the comment below.
-        # It comes from the previous version of the script. Pawel
 
         # remove end of the line symbols!!!
         if Line.find('Frequency: ') >= 0:
@@ -171,9 +175,6 @@ def parse_aces_old(StateF, data: dict):
     if_geometry_is_loaded = False
     Line = StateF.readline()
     while Line:
-        # TODO: I do not understand the comment below.
-        # It comes from the previous version of the script. Pawel
-
         # in FREQ job only one such line. Check it if it will be from OPT job....
         if (Line.find('Coordinates (in bohr)') >= 0) and (if_geometry_is_loaded is False):
             StateF.readline()
@@ -217,9 +218,6 @@ def parse_aces_new(StateF, data: dict):
     if_geometry_is_loaded = False
     Line = StateF.readline()
     while Line:
-        # TODO: I do not understand the comment below.
-        # It comes from the previous version of the script. Pawel
-
         # in FREQ job only one such line. Check it if it will be from OPT job....
         if (Line.find('C o o r d i n a t e s') >= 0) and (if_geometry_is_loaded is False):
             StateF.readline()
@@ -970,8 +968,6 @@ def parse_other(StateF, data: dict):
                 data['NormalModes'] += Line[10:]
             data['NormalModes'] += '\n'
 
-        # TODO: I do not understand the comment below. It comes from the previous version of the script. Pawel
-        # remove end of the line symbols!!!
         if Line.find('Frequencies --') >= 0:
             data['Frequencies'] += Line.replace('Frequencies --', '')
             no_lines_with_frequencies += 1

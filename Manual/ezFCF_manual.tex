@@ -4,6 +4,16 @@
 \usepackage{color}
 \usepackage{amsmath}
 \usepackage[shortlabels]{enumitem} % for a list with entries labeled with letters
+\usepackage{hyperref} % Clickable links in the document and their colors
+\hypersetup{
+    colorlinks=true, % false: boxed links; true: colored links
+    linkcolor=black, % color of internal links
+    citecolor=black, % color of links to bibliography
+    filecolor=black, % color of file links
+    urlcolor=black, % color of external links
+    runcolor=black
+}
+
 
 \begin{document}
 
@@ -598,7 +608,7 @@ The Cartesian geometry of the target state within the vertical gradient method i
     L ^{-1} T ^{-\frac{1}{2}} 
     \vec{g}.
 \end{equation}
-where $\Omega$ is an $N \times N$ diagonal matrix of harmonic frequencies, $\vec{g}$ is the gradient calculated on the potential energy surface of the target state in Cartesian coordinates at the geometry of the ground state. The other symbols are explained in Sec.~\ref{sec:dhush:overview}. The adiabatic excitation energy (bottom to bottom) is given by
+where $\Omega$ is an $N \times N$ diagonal matrix of harmonic frequencies, $\vec{g}$ is the gradient calculated on the potential energy surface of the target state in Cartesian coordinates evaluated at the geometry of the ground state. The other symbols are explained in Sec.~\ref{sec:dhush:overview}. The adiabatic excitation energy (bottom to bottom) is given by
 \begin{equation}
     \label{eq:VG_energy}
     E _\text{ad} = E _\text{vert} - \frac{1}{2} \sum _{i = 1} ^N \omega _i ^2 d _i ^2,
