@@ -809,9 +809,9 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
       << std::endl;
 
     std::cout << "Also rotated by " 
-      << man_rot_z <<"*pi, " 
+      << man_rot_x <<"*pi, " 
       << man_rot_y <<"*pi, and " 
-      << man_rot_x <<"*pi around x, y, and z axes.\n";
+      << man_rot_z <<"*pi around x, y, and z axes.\n";
 
     // Printing difference from ground state is not implemented:
     // This function would require knowldege about the ground state, and 
