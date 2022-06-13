@@ -91,8 +91,6 @@ void MolState::align(MolState& other)
   double min_diff=DBL_MAX; // minimum of the "sum"
   int min_x_rot, min_y_rot, min_z_rot; // rotations, that correspond to the minimum of the "sum"
 
-  // x_rot, y_rot, z_rot = {0, pi/2, pi, 3pi/2} rotation angle around x, y, and z axes ;
-  // rotation in 3D is not commutative, so first rotate around X, than Y, than Z:
   for (int z_rot=0;  z_rot<4; z_rot++)
   {
     for (int y_rot=0;  y_rot<4; y_rot++)
@@ -115,7 +113,6 @@ void MolState::align(MolState& other)
   }// at the end the molecule rotated by 4*pi/2 around x and y, i.e. it is non-rotated
   
   // rotate to the angles with the min norm of the deltaRi differences (min_x_rot, min_y_rot, min_z_rot):
-  
   rotate(min_x_rot*PI/2.0, min_y_rot*PI/2.0, min_z_rot*PI/2.0);
 
   std::cout << "Also rotated by " << min_z_rot <<"/2*pi, " 
@@ -255,9 +252,9 @@ void MolState::rotate(const double alpha_x, const double alpha_y, const double a
   // which gives the overall rotation matrix
   // R = Rz Ry Rx
   R.SetDiagonal(1);
-  R*=Rz;
-  R*=Ry;
   R*=Rx;
+  R*=Ry;
+  R*=Rz;
   
   // and now rotates using matix R:
   transformCoordinates(R);
@@ -814,7 +811,7 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
     std::cout << "Also rotated by " 
       << man_rot_z <<"*pi, " 
       << man_rot_y <<"*pi, and " 
-      << man_rot_x <<"*pi around z, y, and x axes.\n";
+      << man_rot_x <<"*pi around x, y, and z axes.\n";
 
     // Printing difference from ground state is not implemented:
     // This function would require knowldege about the ground state, and 
