@@ -129,14 +129,15 @@ def parse_qchem(StateF, data: dict):
     multiple_geometries_warning_printed = False
     while Line:
         if (Line.find('Standard Nuclear Orientation') >= 0):
-            if (if_geometry_is_loaded is True) and (multiple_geometries_warning_printed is False):
-                print("Warning. More than one 'Standard Nuclear Orientation' detected."
-                      " The last one will be used.")
-
+            if if_geometry_is_loaded is True:
                 data['NAtoms'] = 0
                 data['Geometry'] = ""
                 data['atoms_list'] = ""
-                multiple_geometries_warning_printed = True
+                if multiple_geometries_warning_printed is False:
+                    print("Warning."
+                            " More than one 'Standard Nuclear Orientation' detected."
+                            " The last one will be used.")
+                    multiple_geometries_warning_printed = True
 
             StateF.readline()
             StateF.readline()
