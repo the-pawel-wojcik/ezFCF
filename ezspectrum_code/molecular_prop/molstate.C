@@ -783,10 +783,10 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
 
   size_t manual_coord_transform=node_state.find_subnode("manual_coordinates_transformation");
   
-  if(manual_coord_transform) {
+  for (int i = 0; i < manual_coord_transform; ++i) {
 
     //std::cout  << "Do manual transformation" << std::endl;
-    xml_node manual_coord_transform(node_state,"manual_coordinates_transformation",0);
+    xml_node manual_coord_transform(node_state,"manual_coordinates_transformation", i);
     
     man_rot_x=manual_coord_transform.read_double_value("rotate_around_x"); 
     man_rot_y=manual_coord_transform.read_double_value("rotate_around_y"); 
