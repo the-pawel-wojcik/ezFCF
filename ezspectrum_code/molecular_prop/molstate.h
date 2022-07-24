@@ -12,6 +12,8 @@ Also reads input data from the XML file (vm'06)
 #include "aik_xml_parser.h"
 #include "atom.h"
 #include "normalmode.h"
+//FIXIT it: replace this class by kmatrix, which allows vector computations.
+//Vector would be Kmatrix[N,1] or [1,N] and can be used in all operations
 #include <vector>
 #include "vector3d.h"
 #include "kmatrix.h"
@@ -67,7 +69,7 @@ class MolState
 
   //! Returns Atom #i (this atoms can be different/isotops from the normal mode section)
   Atom& getAtom(int i){ return atoms[i]; } 
-  //! Returns NormalMode #i
+  //! Returns NormalMode #i (AIK: Are we using mass-weighted NModes or not? FIXIT: need to figure out and comment)
   NormalMode& getNormMode(int i) { return normModes[i]; } 
   //! Returns NormalMode order index
   int getNormModeIndex(int i) { return normModesOrder[i]; } 
@@ -80,6 +82,7 @@ class MolState
   //! Returns number of normal modes
   int NNormModes() const { return normModes.size(); }
   //! returns True if vertical gradient was used
+  //FIXIT: this is bad, need to rewrite in a safer way
   bool IfGradient() const { return static_cast<bool>(gradient.Size()); }
 
   //--- alignment ------------- ------------------------------------

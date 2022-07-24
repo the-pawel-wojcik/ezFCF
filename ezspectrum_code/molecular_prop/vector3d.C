@@ -5,6 +5,9 @@
 
 #include "vector3d.h"
 
+//FIX IT: This needs to be removed -- we do not need extra class wich duplicates the functionalitty
+//available in Matrix class. Please rewrite accordingly.
+
 Vector3D& Vector3D::print(const char* nameTag)
 {
   std::cout << nameTag;

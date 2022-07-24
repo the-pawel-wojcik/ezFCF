@@ -1,14 +1,13 @@
 
                         
-                       ezFCF v.1.1 (formerly known as ezSpectrum)
+                       ezFCF v.1.2 (formerly known as ezSpectrum)
 
-			  	2021
+			  	2022
 
-       Authors:  Samer Gozem,  Pawel Wojcik, Vadim Mozhayskiy, and Anna Krylov
+       Authors:  Pawel Wojcik, Samer Gozem, Vadim Mozhayskiy, and Anna Krylov
 
 
-   		The program is available for download and 
-	     for online use at iopenshell.usc.edu/downloads/
+   		The program is available for download at iopenshell.usc.edu/downloads/
 
 
 To compile type "make -f makefile" (e.g., make.mac) 

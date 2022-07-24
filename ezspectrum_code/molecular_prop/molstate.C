@@ -660,6 +660,7 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
     }
   
 
+  //FIXIT: Separate the code below into a member function of this class.
   
   // ------------ 1.5 Find geometry from the vertial gradient if available ------------
     
@@ -669,7 +670,7 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
    * */
   if (node_state.find_subnode("gradient")) {
     std::cout 
-      << " State geometry will be calculated with the vertical gradient (VG) method." 
+      << " State geometry will be calculated with the vertical gradient (VG) approximation." 
       << std::endl;
     xml_node node_gradient(node_state, "gradient", 0);
     // This version supports gradient only in atomic units, a.u., (Q-Chem opt output default)
@@ -724,6 +725,8 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
      * $\Delta$ as well as the cartesian displacement ($M ^{-1/2} D \Delta$) are expressed in a.u. and are converted to Angstroms only just before addition to the geometry. For this reason both matrices ($\Omega$ and $M$) and the gradient vector have values corresponding to the the units of a.u.
      */
 
+    //FIXIT: This needs to be cleaned up a bit in the future: use AU consistently,
+    //Move some pieces into functions of appropriate classes (e.g., normalmode)
     KMatrix mass_matrix_minus_half(CARTDIM * NAtoms(), CARTDIM * NAtoms(), true);
     for (int i = 0; i < NAtoms(); i++) {
       double mass = atoms[i].Mass() * AMU_2_ELECTRONMASS;
@@ -763,7 +766,7 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
         atoms[i].Coord(j) -= geometry_shift.Elem2(CARTDIM * i + j, 0);
       }
     }
-    std::cout << "Target state geometry calculated with VG:" << std::endl;
+    std::cout << "Target-state geometry calculated with vertical gradient apprx-n:" << std::endl;
     printGeometry();
 
     for (int i = 0; i < NNormModes(); i++) {
@@ -774,7 +777,7 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
       << "Adiabatic excitation energy (within VG) = "
       << energy << " eV " << std::endl;
   }
-
+  //end of computing geometry and adiabatic energy by using VG
 
   //------------ 2. Align geometry if requested ----------------------------
   if_aligned_manually=false;

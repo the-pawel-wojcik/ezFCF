@@ -13,6 +13,7 @@
 #include "kmatrix.h"
 #include "vector3d.h"
 
+//Stored in mass-unweighted form and in Angstrom -- this is ugly ...
 class NormalMode
 {
   // 1D structure AtomNumber*CARTDIM+CoordinateNumber:

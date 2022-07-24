@@ -1,5 +1,4 @@
-
-                          ezFCF 1.1 (formerly ezSpectrum v.3.0)
+                          ezFCF 1.2 (formerly ezSpectrum)
 
 The program is distributed under GPL license and the source code is freely 
 available upon request.
@@ -8,8 +7,12 @@ Please contact Professor Anna I. Krylov (krylov@usc.edu) if you have suggestions
 questions, or bugs to report.
 
 
-To acknowledge ezFCF/ezSpectrum, use the following citation: 
-Samer Gozem,  Pawel Wojcik, Vadim Mozhayskiy, and Anna Krylov
+To acknowledge ezFCF/ezSpectrum, use the following citation:
+S. Gozem and A. I. Krylov, The ezSpectra suite: An easy-to-use toolkit for spectroscopy modeling,
+WIRES Comp. Mol. Sci.  12, e1546 (2022)
+and 
+Pawel Wojcik, Samer Gozem, Vadim Mozhayskiy, and Anna Krylov
 http://iopenshell.usc.edu/downloads
+
 
 
