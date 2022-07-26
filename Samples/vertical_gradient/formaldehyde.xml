@@ -69,7 +69,7 @@
   <!-- THIS TARGET STATE IS FROM "formaldehyde.inp.out" FILE -->
 
   <!-- This state is a copy of the initial state with two manual adjustments:-->
-  <!-- excitation_energy node is the vertical excitation energy to the second excited state  -->
+  <!-- excitation_energy node is the vertical excitation energy to the second excited state -->
   <!-- gradient node contains the energy gradient of the second excited state -->
   <excitation_energy units="eV"> 7.9376 </excitation_energy>
 

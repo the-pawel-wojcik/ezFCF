@@ -252,9 +252,9 @@ void MolState::rotate(const double alpha_x, const double alpha_y, const double a
   // which gives the overall rotation matrix
   // R = Rz Ry Rx
   R.SetDiagonal(1);
-  R*=Rx;
-  R*=Ry;
   R*=Rz;
+  R*=Ry;
+  R*=Rx;
   
   // and now rotates using matix R:
   transformCoordinates(R);
@@ -469,7 +469,7 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
   //------------ Read IP (if provided) ----------------------------------
   energy = 0.0; //units are eV
   if(node_state.find_subnode("excitation_energy")) {
-    std::string energy_text = "Adiabatic excitation energy = ";
+    std::string energy_text = "Excitation energy = ";
     bool gradient_is_available = node_state.find_subnode("gradient");
     if (gradient_is_available) {
       energy_text = "Vertical excitation energy = ";
@@ -773,6 +773,10 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
       energy -= 0.5 * delta.Elem1(i) * delta.Elem1(i) / Omega_matrix_minus2.Elem2(i,i) / EV2HARTREE; 
     }
 
+    // HINT: Vertical gradient works within paralle approximation wo/ frequency shifts. 
+    // The adiabatic excitation energy is equal to the E^a _{00}, i.e., 
+    // ZPE of the initial to the ZPE of the target states.
+    // This is the energy used in the guts of the program where the intentities are calculated.
     std::cout 
       << "Adiabatic excitation energy (within VG) = "
       << energy << " eV " << std::endl;

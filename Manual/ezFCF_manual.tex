@@ -21,6 +21,7 @@
 \newcommand{\ezFCF}{\texttt{ezFCF}}
 \newcommand{\ezSnospace}{\texttt{ezSpectrum}}
 \newcommand{\ai}{\textit{ab initio} }
+\newcommand{\abinitio}{\textit{ab initio}}
 %\newcommand{\xml}{\texttt{.xml} }
 \newcommand{\xml}{\texttt{xml} }
 
@@ -122,8 +123,8 @@ if you have suggestions, questions, or bugs to report. Have fun!
 This version includes the following new features:
 \begin{itemize}
 \item Vertical gradient approximation (see Section \ref{sec:para:vertical_gradient});
-\item Ability to compute FCFs for {\bf XXX} % TODO: Add samples and references to illustrate new features
-\item Fixes to the scripts mostly extending the range of accepted {\emph ab initio} outputs.
+\item Ability to compute FCFs for transitions originating from a single vibrational level (see Sec.~\ref{sec:para:subspace:single_state} and \ref{sec:dush:the_only_initial_state});
+\item Fixes to the scripts mostly extending the range of accepted \abinitio{} outputs.
 \end{itemize}  
 
 \subsection*{ezFCF v.1.1 versus ezSpectrum v.3.0}
@@ -239,8 +240,7 @@ Here is the summary of \ai outputs' formats:
 
 For these packages \ul{make}{xml.py} script sets all necessary flags automatically,
 but if you plan to use other \ai programs you can compare the format of your
-outputs with the ones provided. Please see \ul{supported.ab}{initio /README} 
-file for additional info.
+outputs with the ones provided.
 
 Some tags in the created input \xml file are ``commented'' by
 the {\tt OPT\underline{~}} prefix: when removed, the tags become
@@ -251,8 +251,8 @@ To plot the spectra, use {\tt plot\_spectrum.py} script located in {\tt Plotting
 %----------------------------------------------------------------------
 \subsection{Run a sample job}
 
-\ezFCF\ executable takes the input \xml file as a single argument. 
-There are several sample input \xml files in the {\tt samples/} folder:
+\ezFCF{} executable takes the input \xml file as a single argument. 
+There are several sample input \xml files in the {\tt Samples/} folder:
 \begin{itemize}
 \item \ul{trans}{hcoh.xml}---a basic input for both parallel approximation and Duschinsky rotations calculations; 
 no hot bands (0 K temperature); 
@@ -263,8 +263,8 @@ normal modes are reordered manually for the best match;
 in the Duschinsky rotations section;
 \item {\tt thymine.xml}---only Duschinsky rotations with full set of optional keywords; 
 it takes several minutes to complete this job.
-\item {\tt XXX}---an input for calculation using vertical gradient approximation {\bf Pawel, need to add sample job, and a reference file}
-\item {\bf If there are new features -- need to add more examples}  
+\item {\tt vertical\_gradient/formaldehyde.xml}---an input for calculation using vertical gradient approximation.
+\item {\tt the\_only\_initial\_state.xml}---an input for calculation using only one vibrational state in the initial electronic state, see~\ref{sec:para:subspace:single_state} and \ref{sec:dush:the_only_initial_state}. The example uses the previously described formaldehyde model.
 \end{itemize}
 Note that the input file must contain \ul{parallel}{approximation} or \ul{dushinsky}{rotations} section.
 One may include both sections in a single input and compare the calculated spectra.
@@ -396,11 +396,11 @@ In the Duschinsky rotation section of the output, one should check the normal mo
 $Det(S)$, which should be close to one (see Sec.~\ref{sec:detS}); also check that you have enough
 memory to store all the requested ``layers''. 
 
-A basic {\tt python} script for plotting the resulting spectra is provided in {\tt Plotting} (should work with both {\tt python2} and {\tt python3}). To use it to plot a spectrum  from {\tt Samples}, follow these steps:
+A basic {\tt python3} script for plotting the resulting spectra is provided in {\tt Plotting}. To use it to plot a spectrum from {\tt Samples/}, follow these steps:
 \begin{lstlisting}[frame=single,framerule=0pt]
   cd Samples
-  ln -s ../Plotting/plot_spectrum.py .
-  ./plot_spectrum.py trans_hcoh.xml.spectrum_parallel
+  ln -s ../Plotting/plot_spectrum_new.py .
+  ./plot_spectrum_new.py trans_hcoh.xml.spectrum_parallel
 \end{lstlisting}
 The plot will be in {\tt trans\_hcoh.xml.spectrum\_parallel.pdf}. Tweak the parameters in the script for the desired appearance. (Note that {\tt python} executable path should be properly setup). 
 
@@ -456,7 +456,7 @@ Within the harmonic approximation vibrational wavefunctions are products of
 one dimensional harmonic oscillator wavefunctions. 
 If normal coordinates of the initial and the target electronic states are assumed to be the same
 (the parallel approximation),
-multidimensional Franck-Condon factors are simple the products of one dimensional FCFs:
+multidimensional Franck-Condon factors reduce to products of one dimensional FCFs:
 \begin{align}
 \braket{\chi'(Q)}{\chi''(Q)}&=\nonumber\\
 \braket{\chi'_1(Q_1)\cdot\chi'_2(Q_2)\cdot...}{\chi''_1(Q_1)\cdot\chi''_2(Q_2)\cdot...}&=\nonumber\\
@@ -520,6 +520,9 @@ set of keywords (all sub elements of the \ul{parallel}{approximation} element ar
       <initial_state   units="K">  1000 </initial_state>
       <target_state   units="eV">  0.25 </target_state>
    </energy_thresholds>
+
+   <the_only_initial_state text = "1v0,1v2" >
+   </the_only_initial_state>
 
 </parallel_approximation>
 \end{lstlisting}
@@ -609,29 +612,27 @@ To use this feature add an \xml\ node to the {\tt{}parallel\_approximation} node
 <the_only_initial_state text = "1v0,1v2" >
 </the_only_initial_state>
 \end{lstlisting}
-The argument of {\tt{}text} contains a string representing one initial vibrational state. The state representation uses the regular convention: a normal mode {\tt{}nm} with {\tt{}q} excitations should be listed as {\tt{}qvnm}; if more than one mode is excited use comma as a separator. 
+The argument of {\tt{}text} contains a string representing one initial vibrational state. The state representation uses the regular convention: a normal mode {\tt{}nm} with {\tt{}q} excitations should be listed as {\tt{}qvnm}; if more than one mode is excited use comma as a separator. If the parallel approximation is not enough, this functionality is available also in the calculations that include the Duschinsky effect (see Sec.~\ref{sec:dush:the_only_initial_state}).
 
 
 %----------------------------------------------------------------------
 \subsection{Vertical gradient approximation}
 \label{sec:para:vertical_gradient}
-One can compute a full spectrum without carrying out geometry optimizations for all final states
-by estimating the respective relaxed geometries using nuclear gradients computed at the equilibrium
-geometry of the initial state. This can be done exactly when (i) the potential
-energy surfaces are harmonic and (ii) normal modes are the same in the initial and target states.
-This approach is called vertical gradient approximation and requires 
-single point gradient calculations of the target states
-at the minimum of the initial state potential energy surface and frequency calculation for the
-initial state.
+One can compute a full spectrum without target state geometry optimizations 
+by instead calculating the excited states' nuclear gradient. The respective 
+relaxed geometries can be extrapolated using the gradients computed at the 
+equilibrium geometry of the initial state. This approach is exactly when 
+(i) the potential energy surfaces are harmonic and 
+(ii) normal modes are the same in the initial and target states.
+The vertical gradient approximation is also known as the linear coupling model.
 
-
-The calculations using vertical gradient approximation
-are triggered by including the {\tt{}gradient} node inside the {\tt{}target\_state} node. If
-the {\tt{}gradient} node is present, the {\tt{}geometry} node is taken as the single point calculations
-geometry (the initial state geometry). The {\tt{}normal\_modes} and {\tt{}frequencies} nodes must also correspond to the initial state (usually, the ground state), just as expected in the parallel mode
+The vertical gradient approximation is triggered when a {\tt{}gradient} node 
+is detected inside the {\tt{}target\_state} node. In that case, 
+the {\tt{}geometry} node \emph{must} describe the initial state geometry. 
+The {\tt{}normal\_modes} and {\tt{}frequencies} nodes must also correspond to the initial state (usually, the ground state), just as expected in the parallel mode
 approximation without frequency shifts. The meaning of the {\tt{}excitation\_energy} node changes
-as well---it now represents the vertical excitation energy. In the current implementation,
-the gradient must be given in atomic units {\tt{}a.u.} (hartree/bohr).
+as well---it now represents the vertical excitation energy. 
+The gradient must be given in atomic units {\tt{}a.u.} (Hartree/Bohr).
 
 Within the vertical gradient approximation, the Cartesian geometry of the target state 
 is given by
@@ -647,7 +648,7 @@ is given by
     \vec{g}.
 \end{equation}
 where $\Omega$ is an $N \times N$ diagonal matrix of harmonic frequencies, $\vec{g}$ is the gradient
-of  the potential energy surface of the target state in Cartesian coordinates evaluated at the geometry of the ground state. The other symbols are explained in Sec.~\ref{sec:dhush:overview}. The adiabatic excitation energy (bottom to bottom) is given by
+of  the potential energy surface of the target state in Cartesian coordinates evaluated at the geometry of the ground state. The other symbols are explained in Sec.~\ref{sec:dhush:overview}. The adiabatic excitation energy (bottom to bottom) extrapolated by the vertical gradient method is given by
 \begin{equation}
     \label{eq:VG_energy}
     E _\text{ad} = E _\text{vert} - \frac{1}{2} \sum _{i = 1} ^N \omega _i ^2 d _i ^2,
@@ -796,12 +797,12 @@ All three arguments in the example above are required:
 \begin{itemize}
 \item target state from the input to include; 
 if there is only one target state in the input, the attribute value must be {\tt "1"}.
-Duschinsky rotation calculations are implemented for to only one target state for simplicity of the input,
-if you need to include several target states, please combine the results from several separate calculations.
-\item maximum number of the vibrational excitations in the initial and target electronic states
+Implementation of the Duschinsky rotation, for simplicity, allows only one target state.
+If you need to include several target states, please combine the results from several separate calculations.
+\item the maximum number of vibrational excitations in the initial and target electronic states
 (total number of excitations in all normal modes combined).
 \end{itemize}
-This minimal set of parameters is sufficient for a Duschinsky rotation calculation, 
+This minimal set of parameters is sufficient, 
 however for larger systems it is often unrealistic to go beyond even few quanta of vibrational excitations. 
 Additional keywords can be used to reduce the number of FCFs and the time of a calculation. 
 Here is the example of the \ul{dushinsky}{rotations} element with all optional keywords included:
@@ -996,10 +997,10 @@ However full recursive calculations (first row) are much slower.
 \section{\ul{initial}{state} and \ul{target}{state} elements}
 \label{sec:elstates}
 
-For each \ai output \ul{make}{xml.py} script adds the electronic state element 
-into an input  \xml file; \ul{initial}{state} element is created from the first provided output, 
+For each \ai output \ul{make}{xml.py} script adds an electronic state element 
+to the input  \xml file; the \ul{initial}{state} element is created from the first provided output, 
 and \ul{target}{state} elements are created from all consecutive outputs.
-In many cases there is no need in changing anything except the \ul{excitation}{energy} element (see below).
+In many cases there is no need to change anything except the \ul{excitation}{energy} element (see below).
 However the optional elements described in this section may be used for 
 the manual reordering of normal modes and/or atoms, if necessary.
 Full description of the electronic state element format may be also useful 
@@ -1009,8 +1010,7 @@ Each electronic state element must have the following elements:
 (a) {\tt geometry} (Sec.~\ref{sec:geometry});
 (b) \ul{normal}{modes} (Sec.~\ref{sec:nmodes});
 and (c) {\tt frequencies} (Sec.~\ref{sec:freq}). 
-In addition, each \ul{target}{state} element must have the excitation or ionization energy indicated in electron 
-volts (eV) in the \ul{excitation}{energy} element. The value of the adiabatic excitation or ionization energy 
+In addition, each \ul{target}{state} element must contain the \ul{excitation}{energy} element. The value of the adiabatic excitation or ionization energy 
 should be the ZPE-corrected (0-0) adiabatic energy (i.e. the energy difference between lowest vibrational states of 
 initial and target electronic states). \ul{make}{xml.py} script fills the \ul{excitation}{energy} elements with a default value
 of 1.0 eV for the first target state.
@@ -1065,10 +1065,10 @@ Please pay special attention to the order of the same-type atoms, e.g., hydrogen
 
 
 %----------------------------------------------------------------------
-\subsection{Automatic alignment of the states}
+\subsection{Automatic states alignment}
 \label{sec:alignment}
 
-Orientation of the molecule in the \ai outputs is not always well defined. 
+The molecular orientation of \ai outputs is not always well defined. 
 The geometries of initial 
 and target electronic states must be correctly aligned before the FCF calculations.
 To address the problem of possible misalignment,
@@ -1090,7 +1090,7 @@ manually by adding the {\tt manual coordinates transformation} element to the
 electronic state element.
 The shift and rotation around axis $i$ ($i={x,y,z}$) is defined in {\tt shift along $i$} attribute in Angstroms
 and {\tt rotate around $i$} attribute in units of $\pi$, respectively. 
-When the manual transformation is performed, first the geometry is shifted and than it is rotated around $x$, then $y$, and then $z$ axis. 
+When the manual transformation is performed, first the geometry is shifted and then it is rotated around $x$, then $y$, and then $z$ axis. 
 Note that the coordinate system is ``right-handed'' and the rotation is CCW if you look along the 
 direction of the axis of rotation. 
 Here is the example of the {\tt manual coordinates transformation} element:
@@ -1271,8 +1271,7 @@ If you want to see the full normal modes' overlap matrix when you use a subspace
 into the root element {\tt input}
 This will also print normal modes after all coordinate transformations.
 
-An online normal modes' reordering tool may be useful (available in the online version of \ezFCF\
-at {\tt iopenshell.usc.edu/downloads})
+%An online normal modes' reordering tool may be useful (available in the online version of \ezFCF\ at {\tt iopenshell.usc.edu/downloads})
 
 Also note that Duschinsky rotations automatically eliminate the normal modes' reordering problem, but for
 large molecules it may be problematic to include high vibrational excitations with Duschinsky rotations.
@@ -1284,10 +1283,8 @@ large molecules it may be problematic to include high vibrational excitations wi
 
 $S$ is the normal modes' rotation matrix in a Duschinsky transformation, Eq.~(\ref{eq:dushinsky}).
 If all normal modes are in the ``excite subspace'', $Det(S)$ should be almost 1.0, 
-which corresponds to a true rotation and therefore both sets of normal modes span the same space.
-
-However if you use a ``do not excite subspace'' keyword, than two ``active''
-subspaces may be different and not alignable by a rotation (therefore $Det(S)$ is not 1.0).
+which corresponds to a true rotation and therefore both sets of normal modes span the same space.  Use of the ``do not excite subspace'' keyword can make two ``active''
+subspaces different and not alignable by a rotation (therefore $Det(S)$ is not 1.0).
 So, either your subspace is not uncoupled from the rest of the normal modes, or, 
 more likely, you use different normal modes in your initial and target subspaces.
 The latter requires reordering of the normal modes of the target electronic state
@@ -1327,7 +1324,7 @@ to convert line breaks back to unix format. Try applying {\tt dos2unix} to the i
 
 This problem can be caused by several issues related to the format of the \xml input. However, one common problem 
 occurs when Raman intensities are requested in {\tt Q-Chem}. As a result, the 
-{\tt Q-Chem} output is not read correctly by the \ul{make}{xml.py} script and this causes the ''format error"
+{\tt Q-Chem} output is not read correctly by the \ul{make}{xml.py} script and this causes the ``format error''
 to show up in \ezFCF. Re-run the {\tt Q-Chem} job without requesting Raman to avoid this problem or
 compose your \xml input manually.
 
