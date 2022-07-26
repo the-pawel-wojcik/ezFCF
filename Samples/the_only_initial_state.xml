@@ -1,0 +1,133 @@
+<input
+  job = "harmonic_pes" >
+
+<job_parameters 
+   spectrum_intensity_threshold = "0.0001" 
+   temperature                  = "600" >
+</job_parameters>
+
+
+<parallel_approximation
+        max_vibr_excitations_in_initial_el_state = "3"
+        max_vibr_excitations_in_target_el_state  = "4"
+        combination_bands                        = "true"
+        use_normal_coordinates_of_target_states  = "true" >
+
+
+  <energy_thresholds  units="eV, K, cm-1">
+    <initial_state   units="K">      8000    </initial_state>
+    <target_state   units="eV">      1.20    </target_state>
+  </energy_thresholds> 
+
+  <the_only_initial_state text="1v1,1v2"> 
+  </the_only_initial_state>
+
+</parallel_approximation>
+
+
+<dushinsky_rotations target_state="1"
+      max_vibr_excitations_in_initial_el_state = "3"
+      max_vibr_excitations_in_target_el_state  = "4"
+      > 
+
+  <energy_thresholds  units="eV, K, cm-1">
+    <initial_state   units="K">      8000    </initial_state>
+    <target_state   units="eV">      1.20    </target_state>
+  </energy_thresholds> 
+
+  <the_only_initial_state text="1v1,1v2"> 
+  </the_only_initial_state>
+
+</dushinsky_rotations>
+
+
+<initial_state>
+  <!-- THIS INITIAL STATE IS FROM "q0.out" FILE -->
+
+  <geometry
+    number_of_atoms = "4"
+    linear = "false"
+    units   ="angstr"
+    text   = "
+      C       0.5340153438    -0.0000003264     0.0000000000
+      O      -0.6761213844     0.0000015561    -0.0000000000
+      H       1.1024509331     0.9200767241     0.0000000000
+      H       1.1024280793    -0.9200872144     0.0000000000
+             ">
+    </geometry>
+
+  <normal_modes
+    if_mass_weighted="true"
+    text = "
+          0.000  0.000 -0.172    0.000  0.146  0.000    0.039 -0.000  0.000
+         -0.000 -0.000  0.041   -0.000 -0.077 -0.000   -0.108  0.000 -0.000
+          0.000  0.000  0.696    0.648 -0.258 -0.000    0.620 -0.331 -0.000
+         -0.000 -0.000  0.696   -0.648 -0.258 -0.000    0.620  0.331 -0.000
+
+          0.459 -0.000  0.000   -0.064 -0.000 -0.000    0.000 -0.100 -0.000
+         -0.303  0.000 -0.000    0.003  0.000  0.000   -0.000 -0.000  0.000
+         -0.330  0.490 -0.000    0.355  0.610  0.000    0.372  0.597  0.000
+         -0.330 -0.490 -0.000    0.354 -0.610  0.000   -0.372  0.598  0.000
+
+             "
+    atoms = "   C     O     H     H  ">
+  </normal_modes> 
+
+  <frequencies
+    text = "
+       1328.98                1373.53                1673.57
+       1909.76                3208.10                3299.85
+             ">
+    </frequencies>
+
+</initial_state>
+
+<target_state>
+
+  <excitation_energy units="eV"> 10.868 </excitation_energy>
+
+  <!-- THIS TARGET STATE IS FROM "q1.out" FILE -->
+  <geometry
+    number_of_atoms = "4"
+    linear = "false"
+    units   ="angstr"
+    text   = "
+      C       0.0000000017    -0.0000000000     0.5538395625
+      O       0.0000000000     0.0000000000    -0.6825093375
+      H       0.9535317529    -0.0000000000     1.0685187424
+      H      -0.9535317529     0.0000000000     1.0685187424
+             ">
+  </geometry>
+
+  <normal_modes
+    if_mass_weighted="true"
+    text = "
+          0.140  0.000 -0.000    0.000 -0.166  0.000   -0.000  0.000  0.074
+         -0.076 -0.000  0.000   -0.000  0.037 -0.000    0.000 -0.000 -0.135
+         -0.228 -0.000  0.660    0.000  0.697  0.000   -0.299 -0.000  0.631
+         -0.228 -0.000 -0.660   -0.000  0.697 -0.000    0.299 -0.000  0.631
+
+          0.000  0.000  0.377   -0.000 -0.000  0.060   -0.102  0.000 -0.000
+         -0.000 -0.000 -0.228   -0.000  0.000 -0.002   -0.001  0.000  0.000
+          0.463 -0.000 -0.434   -0.619  0.000 -0.339    0.615 -0.000  0.341
+         -0.463 -0.000 -0.434    0.619 -0.000 -0.339    0.615 -0.000 -0.341
+
+             "
+   atoms = "   C     O     H     H  ">
+        </normal_modes>
+
+  <manual_normal_modes_reordering 
+      new_order="1 0 2 3 4 5">
+  </manual_normal_modes_reordering>
+
+
+  <frequencies
+    text = "
+       1111.27                1286.59                1475.16
+       1634.87                3199.40                3348.62
+             ">
+   </frequencies>
+	
+</target_state>
+
+</input>
