@@ -115,8 +115,8 @@ void MolState::align(MolState& other)
   // rotate to the angles with the min norm of the deltaRi differences (min_x_rot, min_y_rot, min_z_rot):
   rotate(min_x_rot*PI/2.0, min_y_rot*PI/2.0, min_z_rot*PI/2.0);
 
-  std::cout << "Also rotated by " << min_z_rot <<"/2*pi, " 
-    << min_y_rot <<"/2*pi, and " << min_x_rot <<"/2*pi CCW around z, y, and x.\n";
+  std::cout << "Also rotated by " << min_x_rot <<"/2*pi, " 
+    << min_y_rot <<"/2*pi, and " << min_z_rot <<"/2*pi CCW around x, y, and z.\n";
   std::cout << "The norm of the geometry difference from the initial state is " << sqrt(min_diff)<<"\n";
 }
 
