@@ -1,4 +1,4 @@
-Job "../bin/ezFCF_linux.exe formaldehyde.xml" has been started: Tue Mar  8 11:18:53 2022
+Job "../bin/ezFCF_linux.exe formaldehyde.xml" has been started: Fri Jul 29 14:00:09 2022
 
 A copy of the "formaldehyde.xml" input:
 ------------------------------------------------------------------------------
@@ -135,8 +135,8 @@ Node input
 
 ====== Reading the initial state ======
 ===== Reading the target state #0 =====
-IP=10.868000 eV
-IP=10.868000 eV 
+Excitation energy = 10.868000 eV
+Excitation energy = 10.868000 eV 
 New normal modes order was requested:
 1 0 2 3 4 5
 Normal modes were reordered accordingly.
@@ -178,7 +178,7 @@ Done with the transformations
 ------------------------------------------------------------------------------
 
 === Reading the parallel approximation job parameters ===
-Reading energy thresholds .. 
+Reading energy thresholds. 
 
 ===== Overlap matrix of the target state #1 with the initial state =====
 The normal modes overlap matrix with the initial state is diagonal
@@ -423,5 +423,5 @@ Stick spectrum was also saved in "formaldehyde.xml.spectrum_dushinsky" file
 
 
 
-Job "../bin/ezFCF_linux.exe formaldehyde.xml" has finished: Tue Mar  8 11:18:53 2022
+Job "../bin/ezFCF_linux.exe formaldehyde.xml" has finished: Fri Jul 29 14:00:09 2022
 

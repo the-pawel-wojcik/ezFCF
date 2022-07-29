@@ -1,4 +1,4 @@
-Job "../bin/ezFCF_linux.exe cis_hcoh.xml" has been started: Tue Mar  8 11:18:31 2022
+Job "../bin/ezFCF_linux.exe cis_hcoh.xml" has been started: Fri Jul 29 13:59:37 2022
 
 A copy of the "cis_hcoh.xml" input:
 ------------------------------------------------------------------------------
@@ -84,7 +84,7 @@ Node input
 
 <target_state>
 
-  <excitation_energy> 8.79 </excitation_energy>
+  <excitation_energy units="eV" > 8.79 </excitation_energy>
 
   <!-- THIS TARGET STATE IS FROM "aces-cis-cat.out" FILE -->
 
@@ -135,8 +135,8 @@ Node input
 
 ====== Reading the initial state ======
 ===== Reading the target state #0 =====
-IP=8.790000 
-IP=8.790000 eV 
+Excitation energy = 8.790000 eV
+Excitation energy = 8.790000 eV 
 New normal modes order was requested:
 0 1 3 2 4 5
 Normal modes were reordered accordingly.
@@ -178,7 +178,7 @@ Done with the transformations
 ------------------------------------------------------------------------------
 
 === Reading the parallel approximation job parameters ===
-Reading energy thresholds .. 
+Reading energy thresholds. 
 
 ===== Overlap matrix of the target state #1 with the initial state =====
 The normal modes overlap matrix with the initial state is diagonal
@@ -754,5 +754,5 @@ Stick spectrum was also saved in "cis_hcoh.xml.spectrum_dushinsky" file
 
 
 
-Job "../bin/ezFCF_linux.exe cis_hcoh.xml" has finished: Tue Mar  8 11:18:31 2022
+Job "../bin/ezFCF_linux.exe cis_hcoh.xml" has finished: Fri Jul 29 13:59:37 2022
 

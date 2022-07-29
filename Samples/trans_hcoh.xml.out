@@ -1,4 +1,4 @@
-Job "../bin/ezFCF_linux.exe trans_hcoh.xml" has been started: Tue Mar  8 11:27:49 2022
+Job "../bin/ezFCF_linux.exe trans_hcoh.xml" has been started: Fri Jul 29 14:03:38 2022
 
 A copy of the "trans_hcoh.xml" input:
 ------------------------------------------------------------------------------
@@ -113,8 +113,8 @@ Node input
 
 ====== Reading the initial state ======
 ===== Reading the target state #0 =====
-IP=8.790000 
-IP=8.790000 eV 
+Excitation energy = 8.790000 
+Excitation energy = 8.790000 eV 
 New normal modes order was requested:
 0 1 3 2 4 5
 Normal modes were reordered accordingly.
@@ -438,5 +438,5 @@ Stick spectrum was also saved in "trans_hcoh.xml.spectrum_parallel" file
 ------------------------------------------------------------------------------
 
 
-Job "../bin/ezFCF_linux.exe trans_hcoh.xml" has finished: Tue Mar  8 11:27:49 2022
+Job "../bin/ezFCF_linux.exe trans_hcoh.xml" has finished: Fri Jul 29 14:03:39 2022
 

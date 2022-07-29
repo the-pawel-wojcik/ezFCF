@@ -1,4 +1,4 @@
-Job "../../ezspectrum_code/ezFCF_linux.exe formaldehyde.xml" has been started: Mon Jun  6 09:23:15 2022
+Job "../../bin/ezFCF_linux.exe formaldehyde.xml" has been started: Fri Jul 29 14:04:11 2022
 
 A copy of the "formaldehyde.xml" input:
 ------------------------------------------------------------------------------
@@ -74,7 +74,7 @@ Node input
   <!-- THIS TARGET STATE IS FROM "formaldehyde.inp.out" FILE -->
 
   <!-- This state is a copy of the initial state with two manual adjustments:-->
-  <!-- excitation_energy node is the vertical excitation energy to the second excited state  -->
+  <!-- excitation_energy node is the vertical excitation energy to the second excited state -->
   <!-- gradient node contains the energy gradient of the second excited state -->
   <excitation_energy units="eV"> 7.9376 </excitation_energy>
 
@@ -148,8 +148,8 @@ Node input
 ===== Reading the target state #0 =====
 Vertical excitation energy = 7.937600 eV
 Vertical excitation energy = 7.937600 eV 
- State geometry will be calculated with the vertical gradient (VG) method.
-Target state geometry calculated with VG:
+ State geometry will be calculated with the vertical gradient (VG) approximation.
+Target-state geometry calculated with vertical gradient apprx-n:
    O      0.0000       0.0000       0.6602 
    C      0.0000      -0.0000      -0.5324 
    H      0.0000       1.0132      -1.1107 
@@ -262,5 +262,5 @@ Stick spectrum was also saved in "formaldehyde.xml.spectrum_parallel" file
 ------------------------------------------------------------------------------
 
 
-Job "../../ezspectrum_code/ezFCF_linux.exe formaldehyde.xml" has finished: Mon Jun  6 09:23:15 2022
+Job "../../bin/ezFCF_linux.exe formaldehyde.xml" has finished: Fri Jul 29 14:04:11 2022
 

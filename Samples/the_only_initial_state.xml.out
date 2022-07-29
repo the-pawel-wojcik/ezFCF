@@ -1,4 +1,4 @@
-Job "../bin/ezFCF_linux.exe the_only_initial_state.xml" has been started: Mon Jul 25 13:59:03 2022
+Job "../bin/ezFCF_linux.exe the_only_initial_state.xml" has been started: Fri Jul 29 14:01:53 2022
 
 A copy of the "the_only_initial_state.xml" input:
 ------------------------------------------------------------------------------
@@ -141,8 +141,8 @@ Node input
 
 ====== Reading the initial state ======
 ===== Reading the target state #0 =====
-Adiabatic excitation energy = 10.868000 eV
-Adiabatic excitation energy = 10.868000 eV 
+Excitation energy = 10.868000 eV
+Excitation energy = 10.868000 eV 
 New normal modes order was requested:
 1 0 2 3 4 5
 Normal modes were reordered accordingly.
@@ -322,5 +322,5 @@ Stick spectrum was also saved in "the_only_initial_state.xml.spectrum_dushinsky"
 
 
 
-Job "../bin/ezFCF_linux.exe the_only_initial_state.xml" has finished: Mon Jul 25 13:59:03 2022
+Job "../bin/ezFCF_linux.exe the_only_initial_state.xml" has finished: Fri Jul 29 14:01:54 2022
 
