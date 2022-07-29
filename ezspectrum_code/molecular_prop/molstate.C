@@ -250,11 +250,11 @@ void MolState::rotate(const double alpha_x, const double alpha_y, const double a
 
   // Rotations are applied in the order: x, y, and z
   // which gives the overall rotation matrix
-  // R = Rz Ry Rx
+  // R = Rx Ry Rz
   R.SetDiagonal(1);
-  R*=Rz;
-  R*=Ry;
   R*=Rx;
+  R*=Ry;
+  R*=Rz;
   
   // and now rotates using matix R:
   transformCoordinates(R);
