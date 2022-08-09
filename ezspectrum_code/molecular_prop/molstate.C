@@ -466,7 +466,7 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
 {
   int i,j,k,l;
 
-  //------------ Read IP (if provided) ----------------------------------
+  //------------ Read excitation energy (if provided) (formerly IP) -------
   energy = 0.0; //units are eV
   if(node_state.find_subnode("excitation_energy")) {
     std::string energy_text = "Excitation energy = ";
@@ -475,14 +475,14 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
       energy_text = "Vertical excitation energy = ";
     }
 
-    xml_node node_ip(node_state, "excitation_energy", 0);
-    std::string units=node_ip.read_string_value("units");
-    energy=node_ip.read_node_double_value();
+    xml_node node_eenergy(node_state, "excitation_energy", 0);
+    std::string units=node_eenergy.read_string_value("units");
+    energy=node_eenergy.read_node_double_value();
     std::cout << std::fixed << std::setprecision(6); //  <<  std::setw(6);
     std::cout << energy_text << energy << " " << units << std::endl;
     
     if ( !covert_energy_to_eV(energy,units) ) {
-      std::cout << "\nError! Unknow units of the IP: \"" << units <<"\"\n  (should be equal to \"eV\", \"K\", or \"cm-1\")\n\n";
+      std::cout << "\nError! Unknow units of the excitation energy: \"" << units <<"\"\n  (should be equal to \"eV\", \"K\", or \"cm-1\")\n\n";
       exit(1);
     }
 
