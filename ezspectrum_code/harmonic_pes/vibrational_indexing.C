@@ -19,60 +19,60 @@ bool enumerateVibrStates(int norm_modes, int max_excitations, std::vector <int>&
   bool tmp_return;
 
   if ((if_comb_bands)and(norm_modes>1)) //include combination bands && not a single normal moe (no combintaion bands than)
-    {
-      std::vector <int> combination;
-      for (int i=0; i<max_excitations+norm_modes-1; i++)
-	combination.push_back(-1);
-      
-      // "state" -> "combination"
-      int curr_combination = 0;
-      int total_vibrations = 0;
-      if (  !(state[0]<0)  ) // (if not the first call)
-	for (int i=0; i<state.size()-1; i++) 
-	  {
-	    total_vibrations += state[i]+1;
-	    combination[curr_combination] = total_vibrations-1;
-	    curr_combination++;
-	  }
+  {
+    std::vector <int> combination;
+    for (int i=0; i<max_excitations+norm_modes-1; i++)
+      combination.push_back(-1);
 
-      // calculate the next "combination":
-      tmp_return = enumerateCombinations(max_excitations+norm_modes-1, norm_modes-1, combination);
-      
-      // "combination"->"state"
-      state[0] = combination[0];
+    // "state" -> "combination"
+    int curr_combination = 0;
+    int total_vibrations = 0;
+    if (  !(state[0]<0)  ) // (if not the first call)
+      for (int i=0; i<state.size()-1; i++) 
+      {
+        total_vibrations += state[i]+1;
+        combination[curr_combination] = total_vibrations-1;
+        curr_combination++;
+      }
 
-      for (int i=1; i<(norm_modes-1); i++)
-	state[i]=combination[i]-combination[i-1]-1;
-      state[norm_modes-1]=max_excitations-(combination[norm_modes-2]-(norm_modes-1)+1);
-    }
+    // calculate the next "combination":
+    tmp_return = enumerateCombinations(max_excitations+norm_modes-1, norm_modes-1, combination);
+
+    // "combination"->"state"
+    state[0] = combination[0];
+
+    for (int i=1; i<(norm_modes-1); i++)
+      state[i]=combination[i]-combination[i-1]-1;
+    state[norm_modes-1]=max_excitations-(combination[norm_modes-2]-(norm_modes-1)+1);
+  }
 
   else // do not include combination bands
+  {
+    if (state[0]<0) // first call --> initialize
     {
-      if (state[0]<0) // first call --> initialize
-	{
-	  for (int i=0; i<norm_modes-1; i++)
-	    state[i] = 0;
-	  state[norm_modes-1] = max_excitations;
-	  tmp_return = true;
-	}
-      else
-	{
-	  if ((max_excitations == 0) or (state[0]>0)) // (only |0,0,0, > ground state) OR (last index)
-	    tmp_return = false; 
-	  else
-	  {
-	    for (int i=1; i<norm_modes; i++)
-	      {
-		if (state[i]>0) 
-		  {
-		    state[i-1]=state[i];
-		    state[i]=0;
-		  }
-	      }
-	    tmp_return = true;
-	  }
-	}
+      for (int i=0; i<norm_modes-1; i++)
+        state[i] = 0;
+      state[norm_modes-1] = max_excitations;
+      tmp_return = true;
     }
+    else
+    {
+      if ((max_excitations == 0) or (state[0]>0)) // (only |0,0,0, > ground state) OR (last index)
+        tmp_return = false; 
+      else
+      {
+        for (int i=1; i<norm_modes; i++)
+        {
+          if (state[i]>0) 
+          {
+            state[i-1]=state[i];
+            state[i]=0;
+          }
+        }
+        tmp_return = true;
+      }
+    }
+  }
 
   //TMP=== print the state:
   //  for (int j=0; j<state.size()-1; j++)
@@ -92,18 +92,18 @@ unsigned long convVibrState2Index(std::vector <int>& state, int N, int k)
 {
   unsigned long number=0;
   for (int i=0, n=N-1; i<N-1; i++, n--)
+  {
+    int alpha;
+
+    for (alpha=0; alpha<state[i]; alpha++)
     {
-      int alpha;
-      
-      for (alpha=0; alpha<state[i]; alpha++)
-	{
-	  // ZZZ 4/11/2012 removed, and the combinations are calculated now on the fly
-	  //  number+=C[(k-alpha+n-1)*N+(n-1)];//==Combination(k-alpha+n-1, n-1)
-	  // std::cout << k-alpha+n-1 << " " << n-1 << "\n";
-	  number+=Combination( k-alpha+n-1 , n-1 );
-	}
-      k-=alpha;
+      // ZZZ 4/11/2012 removed, and the combinations are calculated now on the fly
+      //  number+=C[(k-alpha+n-1)*N+(n-1)];//==Combination(k-alpha+n-1, n-1)
+      // std::cout << k-alpha+n-1 << " " << n-1 << "\n";
+      number+=Combination( k-alpha+n-1 , n-1 );
     }
+    k-=alpha;
+  }
   return number;
 }
 

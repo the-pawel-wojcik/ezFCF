@@ -2,7 +2,7 @@
 
 bool covert_energy_to_eV(double& ene, const std::string& units) {
 
-//SG: modified to be case insensitive
+  //SG: modified to be case insensitive
   bool all_is_good=true;
   std::string tmp_unts = units ;
   std::transform(tmp_unts.begin(), tmp_unts.end(), tmp_unts.begin(), ::tolower) ;

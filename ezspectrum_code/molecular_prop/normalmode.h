@@ -2,9 +2,9 @@
 #define _normalmode_h_
 
 /*! \file normalmode.h
-\brief Normal mode: frequency and 3N displacements (N-number of atoms)
-\ingroup DATA_CLASSES
-*/
+  \brief Normal mode: frequency and 3N displacements (N-number of atoms)
+  \ingroup DATA_CLASSES
+  */
 
 //ACHTUNG! different constructor from the previous versions -- now one should supply
 //         it with number of atoms, NOT nAtoms*CartDim.
@@ -28,12 +28,12 @@ class NormalMode
   //      displacement.Adjust(NOfAtoms*CARTDIM,1); 
   //      nAtoms=NOfAtoms;
   //    }
-  
- public:
+
+  public:
   NormalMode(int n, double fr) : displacement(n*CARTDIM,1), freq(fr), nAtoms(n) {};
   NormalMode(const NormalMode& other);
   NormalMode& operator=(const NormalMode& other);
-  
+
   //! Returns frequency
   double& getFreq() { return freq; }
   // 3N displacements (x,y,z for N atoms) as a (3Nx1) KMatrix
@@ -49,7 +49,7 @@ class NormalMode
   void rotateX_90deg();
   void rotateY_90deg();
   void rotateZ_90deg();
- 
+
 };
 #endif
 

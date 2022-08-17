@@ -2,9 +2,9 @@
 #define _constants_h_
 
 /*! \file constants.h
-\brief Simple math functions and constants 
-\ingroup METHODS
-*/
+  \brief Simple math functions and constants 
+  \ingroup METHODS
+  */
 
 #include <string>
 #include <algorithm>

@@ -1,14 +1,14 @@
 #include "molstate.h"
 
 /*! \file molstate.C
-\brief Molecular state: Stores Geometry, Normal Modes & Frequencies. 
-Also reads input data from the XML file (vm'06) 
-\ingroup DATA_CLASSES
-*/
+  \brief Molecular state: Stores Geometry, Normal Modes & Frequencies. 
+  Also reads input data from the XML file (vm'06) 
+  \ingroup DATA_CLASSES
+  */
 
 //------------------------------
 MolState::MolState () {
-  
+
   momentOfInertiaTensor.Adjust(CARTDIM,CARTDIM);
   if_aligned_manually=false;
   if_nm_reordered_manually=false;
@@ -35,7 +35,7 @@ MolState::MolState (const MolState& other) {
 //------------------------------
 MolState& MolState::operator=(const MolState& other) {
   if (this != &other) {
-    
+
     atoms=other.atoms;
     normModes=other.normModes;
     gradient=other.gradient;
@@ -66,10 +66,10 @@ void MolState::align()
   MOI_tensor = getMomentOfInertiaTensor();
   //MOI_tensor.Print("Moment of inertia tensor");
   MOI_eigenVectors=MOI_tensor.Herm_Diag(MOI_eigenValues, true); // true=>eigen vals in the descending order; eigen vectors in ROWS.
-  // MOI_eigenVectors.Print("MOI eigen vectors");
-  // MOI_eigenValues.Print("MOI eigen values");
-  
-  // compute the determinant of MOI matrix:
+                                                                // MOI_eigenVectors.Print("MOI eigen vectors");
+                                                                // MOI_eigenValues.Print("MOI eigen values");
+
+                                                                // compute the determinant of MOI matrix:
   double det_tmp =  MOI_eigenVectors.Determinant();
   // if determinant is = 1 than it is a proper rotation; 
   // if it is = -1 than it is rotation+reflection (switch from left handed to the right handed coord.system); swap x&y axes:
@@ -111,7 +111,7 @@ void MolState::align(MolState& other)
     }
     rotateZ_90deg(); // after 4 rotations by pi/2, it gets the "0" rotation geometry.
   }// at the end the molecule rotated by 4*pi/2 around x and y, i.e. it is non-rotated
-  
+
   // rotate to the angles with the min norm of the deltaRi differences (min_x_rot, min_y_rot, min_z_rot):
   rotate(min_x_rot*PI/2.0, min_y_rot*PI/2.0, min_z_rot*PI/2.0);
 
@@ -127,15 +127,15 @@ bool MolState::ifSimilar(MolState& other)
   bool return_bool=true;
   std::string error_str="";
   if ( NAtoms()!=other.NAtoms() )
-    {
-      std::cout << "\nError: different number of atoms in the initial and the target states\n\n";
-      return_bool=false;	
-    }
+  {
+    std::cout << "\nError: different number of atoms in the initial and the target states\n\n";
+    return_bool=false;	
+  }
   else if ( NNormModes()!=other.NNormModes() )
-    {
-      std::cout << "\nError: different number of normal modes in the initial and the target state\n\n";
-      return_bool=false;	
-    }
+  {
+    std::cout << "\nError: different number of normal modes in the initial and the target state\n\n";
+    return_bool=false;	
+  }
 
   return return_bool;
 }
@@ -147,11 +147,11 @@ Vector3D& MolState::getCenterOfMass()
   centerOfMass.reset();
   double totalMass=0;
   for (int i=0; i<atoms.size();i++)
-    {
-      for (int axis=0; axis<3; axis++)
-	centerOfMass.getCoord(axis)+=atoms[i].getMomentumProj(axis);
-      totalMass+=atoms[i].getMass();
-    }
+  {
+    for (int axis=0; axis<3; axis++)
+      centerOfMass.getCoord(axis)+=atoms[i].getMomentumProj(axis);
+    totalMass+=atoms[i].getMass();
+  }
   centerOfMass*=1/totalMass;
   return centerOfMass;
 }
@@ -162,17 +162,17 @@ KMatrix& MolState::getMomentOfInertiaTensor()
   //  I_ij=SUM_k[m_k*(r_k^2*delta_ij-r_ki*r_kj)]
   for (int i=0; i< CARTDIM; i++)
     for (int j=0; j<CARTDIM; j++)
-      {
-	momentOfInertiaTensor.Elem2(i,j)=0;
-	for (int atom=0; atom<NAtoms(); atom++)
-	  { 
-	    momentOfInertiaTensor.Elem2(i,j)-=atoms[atom].getCoord(i)*atoms[atom].getCoord(j)*atoms[atom].getMass();
+    {
+      momentOfInertiaTensor.Elem2(i,j)=0;
+      for (int atom=0; atom<NAtoms(); atom++)
+      { 
+        momentOfInertiaTensor.Elem2(i,j)-=atoms[atom].getCoord(i)*atoms[atom].getCoord(j)*atoms[atom].getMass();
 
-	    // add R^2, i.e. I_zz=m*(R^2-r_z^2)=m*(r_x^2+r_y^2)
-	    if (i==j)
-	      momentOfInertiaTensor.Elem2(i,j)+=atoms[atom].getR()*atoms[atom].getR()*atoms[atom].getMass();
-	  }
+        // add R^2, i.e. I_zz=m*(R^2-r_z^2)=m*(r_x^2+r_y^2)
+        if (i==j)
+          momentOfInertiaTensor.Elem2(i,j)+=atoms[atom].getR()*atoms[atom].getR()*atoms[atom].getMass();
       }
+    }
   return momentOfInertiaTensor;
 }
 
@@ -255,7 +255,7 @@ void MolState::rotate(const double alpha_x, const double alpha_y, const double a
   R*=Rx;
   R*=Ry;
   R*=Rz;
-  
+
   // and now rotates using matix R:
   transformCoordinates(R);
 }
@@ -298,8 +298,8 @@ void MolState::applyCoordinateThreshold(const double threshold)
 
 bool MolState::getNormalModeOverlapWithOtherState(MolState& other, KMatrix& overlap, std::vector<int>& normal_modes_list)
 {
-// SG: next line not used.
-//  overlap; //#NM x #NM
+  // SG: next line not used.
+  //  overlap; //#NM x #NM
   overlap.Adjust(NNormModes(),NNormModes());
   overlap.Set(0.0);
 
@@ -308,37 +308,37 @@ bool MolState::getNormalModeOverlapWithOtherState(MolState& other, KMatrix& over
   // norm of the L
   for (int nm1=0; nm1<NNormModes(); nm1++)
     for (int nm2=0; nm2<NNormModes(); nm2++)
-      {
-	norm_ini = 0;
-	norm_targ = 0;
-	for (int a=0; a<NAtoms(); a++)
-	  for (int i=0; i<CARTDIM; i++ )
-	    {
-	      //x1*x1+y1*y1+..
-	      norm_ini+= getNormMode(nm1).getDisplacement().Elem1(a*CARTDIM+i) * getNormMode(nm1).getDisplacement().Elem1(a*CARTDIM+i);
-	      //x2*x2+y2*y2+..
-	      norm_targ+= other.getNormMode(nm2).getDisplacement().Elem1(a*CARTDIM+i) * other.getNormMode(nm2).getDisplacement().Elem1(a*CARTDIM+i);
-	      //x1*x2+y1*y2+...
-	      overlap.Elem2(nm1,nm2)+= getNormMode(nm1).getDisplacement().Elem1(a*CARTDIM+i) * other.getNormMode(nm2).getDisplacement().Elem1(a*CARTDIM+i);
-	    }
-	overlap.Elem2(nm1,nm2)/= sqrt(norm_ini) * sqrt(norm_targ);
-      }
+    {
+      norm_ini = 0;
+      norm_targ = 0;
+      for (int a=0; a<NAtoms(); a++)
+        for (int i=0; i<CARTDIM; i++ )
+        {
+          //x1*x1+y1*y1+..
+          norm_ini+= getNormMode(nm1).getDisplacement().Elem1(a*CARTDIM+i) * getNormMode(nm1).getDisplacement().Elem1(a*CARTDIM+i);
+          //x2*x2+y2*y2+..
+          norm_targ+= other.getNormMode(nm2).getDisplacement().Elem1(a*CARTDIM+i) * other.getNormMode(nm2).getDisplacement().Elem1(a*CARTDIM+i);
+          //x1*x2+y1*y2+...
+          overlap.Elem2(nm1,nm2)+= getNormMode(nm1).getDisplacement().Elem1(a*CARTDIM+i) * other.getNormMode(nm2).getDisplacement().Elem1(a*CARTDIM+i);
+        }
+      overlap.Elem2(nm1,nm2)/= sqrt(norm_ini) * sqrt(norm_targ);
+    }
   bool return_bool=true;
 
 
   // scan the diagonal; if the diagonal element is NOT the maximum element in the raw and the colum -- than ADD this nm to the list;
   double max;
   for (int nm=0; nm<NNormModes(); nm++)
-    {
-      max=fabs(overlap.Elem2(nm,nm)); // maximum should be at the diagonal
-      for (int nm_scan=0; nm_scan<NNormModes(); nm_scan++) // scan row&column
-	if ( (fabs(overlap.Elem2(nm,nm_scan))>max) or (fabs(overlap.Elem2(nm_scan,nm))>max) ) // check nm-th row & column
-	  {
-	    return_bool=false;
-	    normal_modes_list.push_back(nm);
-	    normal_modes_list.push_back(nm_scan); // the column/row with larger element should be also included
-	  }
-    }
+  {
+    max=fabs(overlap.Elem2(nm,nm)); // maximum should be at the diagonal
+    for (int nm_scan=0; nm_scan<NNormModes(); nm_scan++) // scan row&column
+      if ( (fabs(overlap.Elem2(nm,nm_scan))>max) or (fabs(overlap.Elem2(nm_scan,nm))>max) ) // check nm-th row & column
+      {
+        return_bool=false;
+        normal_modes_list.push_back(nm);
+        normal_modes_list.push_back(nm_scan); // the column/row with larger element should be also included
+      }
+  }
 
   // Now Sort and Remove duplicates from the normal_modes_list:
   std::sort( normal_modes_list.begin(), normal_modes_list.end() );
@@ -347,7 +347,7 @@ bool MolState::getNormalModeOverlapWithOtherState(MolState& other, KMatrix& over
   normal_modes_list.erase( new_end_pos, normal_modes_list.end() );
 
   return return_bool;
- }
+}
 
 
 
@@ -357,29 +357,29 @@ void MolState::Print()
   printGeometry();    
   std::cout << "Normal modes=\n";
   for (int k=0; k<NNormModes(); k++)
+  {
+    std::cout << "   Frequency="; 
+    std::cout << getNormMode(k).getFreq() << '\n';
+    std::cout << "   Displacement=\n";
+    for (int i=0; i<NAtoms(); i++)
     {
-      std::cout << "   Frequency="; 
-      std::cout << getNormMode(k).getFreq() << '\n';
-      std::cout << "   Displacement=\n";
-      for (int i=0; i<NAtoms(); i++)
-	{
-	  for (int l=0; l<CARTDIM; l++)
-	    std::cout << getNormMode(k).getDisplacement()[i*CARTDIM+l] << ' ';
-	  std::cout << '\n';
-	}
+      for (int l=0; l<CARTDIM; l++)
+        std::cout << getNormMode(k).getDisplacement()[i*CARTDIM+l] << ' ';
+      std::cout << '\n';
     }
+  }
   std::cout <<" end of the electronic state \n";   
 }
 
 void MolState::printGeometry()
 {
   for (int i=0; i<NAtoms(); i++)
-    {
-      std::cout << std::setw(4) << std::right  << getAtom(i).Name();
-      for (int k=0; k<CARTDIM; k++)
-	std::cout << std::setw(12) << std::right << std::fixed << std::setprecision(4) << std::showpoint << getAtom(i).Coord(k) << ' '; 
-      std::cout << '\n';
-    }
+  {
+    std::cout << std::setw(4) << std::right  << getAtom(i).Name();
+    for (int k=0; k<CARTDIM; k++)
+      std::cout << std::setw(12) << std::right << std::fixed << std::setprecision(4) << std::showpoint << getAtom(i).Coord(k) << ' '; 
+    std::cout << '\n';
+  }
 }
 
 
@@ -392,43 +392,43 @@ void MolState::printNormalModes()
     nLines++;
 
   for (int n = 0; n < nLines; n++)  // number of blocks with 3 norm.modes. ("lines")
+  {
+    int current_nModesPerLine = nModesPerLine;
+    // for the last entree, nModesPerString may differ from 3
+    if (nLines - 1 == n)
+      if ( NNormModes() % nModesPerLine != 0 )
+        current_nModesPerLine = NNormModes() % nModesPerLine;
+
+    for (int a=0; a < NAtoms(); a++)   
     {
-      int current_nModesPerLine = nModesPerLine;
-      // for the last entree, nModesPerString may differ from 3
-      if (nLines - 1 == n)
-  	if ( NNormModes() % nModesPerLine != 0 )
-	  current_nModesPerLine = NNormModes() % nModesPerLine;
- 
-      for (int a=0; a < NAtoms(); a++)   
-	{
-	  for (int j=0; j < current_nModesPerLine; j++) 
-	    {
-	      for (int k=0; k < CARTDIM; k++)
-	      
-		std::cout << std::setw(7) << std::right << std::fixed << std::setprecision(3)
-			  << getNormMode(n*nModesPerLine+j).getDisplacement()[a*CARTDIM+k]*sqrt( reduced_masses[n*nModesPerLine+j]/getAtom(a).Mass() )<<' ';
-	      std::cout <<  "  ";
-	    }
-	  std::cout << "\n";
-	}
+      for (int j=0; j < current_nModesPerLine; j++) 
+      {
+        for (int k=0; k < CARTDIM; k++)
+
+          std::cout << std::setw(7) << std::right << std::fixed << std::setprecision(3)
+            << getNormMode(n*nModesPerLine+j).getDisplacement()[a*CARTDIM+k]*sqrt( reduced_masses[n*nModesPerLine+j]/getAtom(a).Mass() )<<' ';
+        std::cout <<  "  ";
+      }
       std::cout << "\n";
     }
+    std::cout << "\n";
+  }
 
   /*
 
-  for (int nm=0; nm < NNormModes(); nm++)
-    {
-      for (int a=0; a < NAtoms(); a++) 
-	{
-	  for (int k=0; k < CARTDIM; k++)
-	    std::cout << std::setw(10) << std::right << std::fixed << std::setprecision(4)
-		      << getNormMode(nm).getDisplacement()[a*CARTDIM+k]*sqrt( reduced_masses[nm]/getAtom(a).Mass() )<<' ';
-	  std::cout << '\n';
-	}
-      std::cout << '\n';
-    }
+     for (int nm=0; nm < NNormModes(); nm++)
+     {
+     for (int a=0; a < NAtoms(); a++) 
+     {
+     for (int k=0; k < CARTDIM; k++)
+     std::cout << std::setw(10) << std::right << std::fixed << std::setprecision(4)
+     << getNormMode(nm).getDisplacement()[a*CARTDIM+k]*sqrt( reduced_masses[nm]/getAtom(a).Mass() )<<' ';
+     std::cout << '\n';
+     }
+     std::cout << '\n';
+     }
 
-  */
+*/
 
 
 }
@@ -436,12 +436,12 @@ void MolState::printNormalModes()
 void MolState::printGradient()
 {
   for (int i=0; i<NAtoms(); i++)
-    {
-      std::cout << std::setw(4) << std::right  << getAtom(i).Name();
-      for (int k=0; k<CARTDIM; k++)
-	std::cout << std::setw(12) << std::right << std::fixed << std::setprecision(4) << std::showpoint << gradient.Elem2(i * CARTDIM + k, 0) << ' '; 
-      std::cout << '\n';
-    }
+  {
+    std::cout << std::setw(4) << std::right  << getAtom(i).Name();
+    for (int k=0; k<CARTDIM; k++)
+      std::cout << std::setw(12) << std::right << std::fixed << std::setprecision(4) << std::showpoint << gradient.Elem2(i * CARTDIM + k, 0) << ' '; 
+    std::cout << '\n';
+  }
 }
 
 
@@ -449,19 +449,19 @@ void MolState::printGradient()
 //------------------------------
 bool MolState::ifLetterOrNumber(char Ch)
 {
-if ( ((int(Ch)<=int('Z'))&&(int(Ch)>=int('A')))  
-  || ((int(Ch)<=int('z'))&&(int(Ch)>=int('a'))) 
-  || ((int(Ch)<=int('9'))&&(int(Ch)>=int('0'))) )
-  return true;
-else return false;
+  if ( ((int(Ch)<=int('Z'))&&(int(Ch)>=int('A')))  
+      || ((int(Ch)<=int('z'))&&(int(Ch)>=int('a'))) 
+      || ((int(Ch)<=int('9'))&&(int(Ch)>=int('0'))) )
+    return true;
+  else return false;
 }
 
 
 //------------------------------ 
 /* Only this function needs to deal with input: 
- -  a node pointing out to initial_state or target_state section in the input
- -  a file where all masses are tabulated
-*/
+   -  a node pointing out to initial_state or target_state section in the input
+   -  a file where all masses are tabulated
+   */
 bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
 {
   int i,j,k,l;
@@ -480,7 +480,7 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
     energy=node_eenergy.read_node_double_value();
     std::cout << std::fixed << std::setprecision(6); //  <<  std::setw(6);
     std::cout << energy_text << energy << " " << units << std::endl;
-    
+
     if ( !covert_energy_to_eV(energy,units) ) {
       std::cout << "\nError! Unknow units of the excitation energy: \"" << units <<"\"\n  (should be equal to \"eV\", \"K\", or \"cm-1\")\n\n";
       exit(1);
@@ -488,16 +488,16 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
 
     std::cout << energy_text << energy << " eV " << std::endl;
   }
-    
+
 
   //------------ Read the Geometry --------------------------------------
   xml_node node_geometry(node_state,"geometry",0);
-  
+
   int tmp_nAtoms, tmp_nNormMds;
   tmp_nAtoms=node_geometry.read_int_value("number_of_atoms");
-  
+
   std::string units=node_geometry.read_string_value("units");
-  
+
   ifLinear= node_geometry.read_bool_value("linear"); 
   if (ifLinear) 
     tmp_nNormMds = (3*tmp_nAtoms - 5);
@@ -506,7 +506,7 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
 
   My_istringstream geom_iStr(node_geometry.read_string_value("text"));
   atoms.clear();
-  
+
   Atom tmp_atom;
   double coeff=(units=="au") ? AU2ANGSTROM : 1.0;
   for (i=0; i<tmp_nAtoms; i++) {
@@ -521,7 +521,7 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
     tmp_atom.Coord(0)=geom_iStr.getNextDouble()*coeff;
     tmp_atom.Coord(1)=geom_iStr.getNextDouble()*coeff;
     tmp_atom.Coord(2)=geom_iStr.getNextDouble()*coeff;
-    
+
     if(geom_iStr.fail()) {
       std::cout << "MolState::Read(): Error. Wrong format in geometry: ["+geom_iStr.str()+"]\n";
       exit(1);
@@ -529,17 +529,17 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
     atoms.push_back(tmp_atom);
   }
   //std::cout << "Read geometry: DONE" << std::endl;
-  
+
   //------------ Convert atomic names to masses --------------------------
   for (i=0; i<NAtoms(); i++) {
 
     //std::cout << "Atom name=" << getAtom(i).Name().c_str() << std::endl;
     //std::cout << "Value=" << node_amu_table.read_node_double_value(getAtom(i).Name().c_str()) << std::endl;
-								   
+
     getAtom(i).Mass()=node_amu_table.read_node_double_value(getAtom(i).Name().c_str());
   }
   //std::cout << "Read masses: DONE" << std::endl;   
-   
+
   //------------ Read Normal Modes ---------------------------------------
   NormalMode tmp_normMode(NAtoms(),0); // one temp. norm mode
 
@@ -547,10 +547,10 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
 
   xml_node node_nmodes(node_state,"normal_modes",0);
   My_istringstream nmodes_iStr(node_nmodes.read_string_value("text"));
-  
+
   for (i=0; i < tmp_nNormMds; i++)
     normModes.push_back( tmp_normMode );
-  
+
   int nModesPerLine=3;  // three number of vib. modes per Line
 
   int nLines;
@@ -559,29 +559,29 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
     nLines++;
 
   for (k = 0; k < nLines; k++)  // number of blocks with 3 norm.modes. ("lines")
-    {
-      int current_nModesPerLine = nModesPerLine;
-      // for the last entree, nModesPerString may differ from 3
-      if (nLines - 1 == k)
-  	if ( tmp_nNormMds % nModesPerLine != 0 )
-	  current_nModesPerLine = tmp_nNormMds % nModesPerLine;
- 
-      for (i=0; i < NAtoms(); i++)   
-  	for (j=0; j < current_nModesPerLine; j++) 
-  	  for (l=0; l < CARTDIM; l++) {
-	    normModes[k*nModesPerLine+j].getDisplacement()[i*CARTDIM+l]=nmodes_iStr.getNextDouble();
-	    if (nmodes_iStr.fail()) {
-	      std::cout<<"MolState::Read(): Error. Wrong format in normal modes: ["+nmodes_iStr.str()+"]\n";
-	      exit(1);
-	    }
-	  }
-    }
-  
-   
+  {
+    int current_nModesPerLine = nModesPerLine;
+    // for the last entree, nModesPerString may differ from 3
+    if (nLines - 1 == k)
+      if ( tmp_nNormMds % nModesPerLine != 0 )
+        current_nModesPerLine = tmp_nNormMds % nModesPerLine;
+
+    for (i=0; i < NAtoms(); i++)   
+      for (j=0; j < current_nModesPerLine; j++) 
+        for (l=0; l < CARTDIM; l++) {
+          normModes[k*nModesPerLine+j].getDisplacement()[i*CARTDIM+l]=nmodes_iStr.getNextDouble();
+          if (nmodes_iStr.fail()) {
+            std::cout<<"MolState::Read(): Error. Wrong format in normal modes: ["+nmodes_iStr.str()+"]\n";
+            exit(1);
+          }
+        }
+  }
+
+
   //------------ Read Frequencies ----------------------------------------
   xml_node node_freq(node_state,"frequencies",0);
   My_istringstream freq_iStr(node_freq.read_string_value("text"));
-  
+
   for (i=0; i < tmp_nNormMds; i++)
   {
     getNormMode(i).getFreq()=freq_iStr.getNextDouble();
@@ -595,7 +595,7 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
     }
   }
   //std::cout << "Read frequences: DONE\n" ;
-  
+
   // Now MolState is in a good shape, and some transformations can be performed
 
   //------------ 1. Un-mass-weight normal modes ----------------------------
@@ -607,63 +607,63 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
   reduced_masses.Adjust(NNormModes(),1);
   reduced_masses.Set(1);
   if (if_massweighted)
-    {
-      //std::cout << "Doing mass-weighted coordinates.....\n" ;
-      // Read atomic names from "...->normal_modes->atoms"
-      My_istringstream atoms_iStr(node_nmodes.read_string_value("atoms"));
-      
-      //std::cout << "Atoms: " << atoms_iStr.str() << std::endl;
-      
-      std::vector<Atom> normalModeAtoms;
-  
-      normalModeAtoms.clear();
+  {
+    //std::cout << "Doing mass-weighted coordinates.....\n" ;
+    // Read atomic names from "...->normal_modes->atoms"
+    My_istringstream atoms_iStr(node_nmodes.read_string_value("atoms"));
 
-      for (i=0; i<NAtoms(); i++) {
+    //std::cout << "Atoms: " << atoms_iStr.str() << std::endl;
 
-	std::string tmp_atomName;
-	//Get atomic name:
-	atoms_iStr.getNextWord(tmp_atomName);
-	tmp_atom.Name() = tmp_atomName;
-	normalModeAtoms.push_back(tmp_atom);
-      }
-      
-      // Get masses for each atomic name:
-      for (i=0; i<NAtoms(); i++){
+    std::vector<Atom> normalModeAtoms;
 
-	//std::cout << "Atom name=" << normalModeAtoms[i].Name().c_str() << std::endl;
-	//std::cout << "Value=" << node_amu_table.read_node_double_value(normalModeAtoms[i].Name().c_str()) << std::endl;
-	normalModeAtoms[i].Mass()=node_amu_table.read_node_double_value(normalModeAtoms[i].Name().c_str());
-      }
-      
-      // Mass-un-weight normal modes:
-      for (int nm=0; nm<NNormModes(); nm++)
-	for (int a=0; a<NAtoms(); a++)
-	  for (int i=0; i<CARTDIM; i++ )
-	    getNormMode(nm).getDisplacement().Elem1(a*CARTDIM+i) *= sqrt(normalModeAtoms[a].Mass());
+    normalModeAtoms.clear();
 
-      // normalize each normal mode (/sqrt(norm) which is also /sqrt(reduced mass)):
-      // KMatrix reduced_masses(NNormModes(),1);
-      for (int nm=0; nm<NNormModes(); nm++) {
-	reduced_masses[nm] = 0;
-	for (int a=0; a<NAtoms(); a++)
-	  for (int i=0; i<CARTDIM; i++ )
-	    reduced_masses[nm]+= getNormMode(nm).getDisplacement().Elem1(a*CARTDIM+i) *
-	      getNormMode(nm).getDisplacement().Elem1(a*CARTDIM+i);
-      }
-      // reduced_masses.Print("Reduced masses:");
-      // Normalize:
-      for (int nm=0; nm<NNormModes(); nm++)
-	for (int a=0; a<NAtoms(); a++)
-	  for (int i=0; i<CARTDIM; i++ )
-	    getNormMode(nm).getDisplacement().Elem1(a*CARTDIM+i)/=sqrt(reduced_masses[nm]);
+    for (i=0; i<NAtoms(); i++) {
 
+      std::string tmp_atomName;
+      //Get atomic name:
+      atoms_iStr.getNextWord(tmp_atomName);
+      tmp_atom.Name() = tmp_atomName;
+      normalModeAtoms.push_back(tmp_atom);
     }
-  
+
+    // Get masses for each atomic name:
+    for (i=0; i<NAtoms(); i++){
+
+      //std::cout << "Atom name=" << normalModeAtoms[i].Name().c_str() << std::endl;
+      //std::cout << "Value=" << node_amu_table.read_node_double_value(normalModeAtoms[i].Name().c_str()) << std::endl;
+      normalModeAtoms[i].Mass()=node_amu_table.read_node_double_value(normalModeAtoms[i].Name().c_str());
+    }
+
+    // Mass-un-weight normal modes:
+    for (int nm=0; nm<NNormModes(); nm++)
+      for (int a=0; a<NAtoms(); a++)
+        for (int i=0; i<CARTDIM; i++ )
+          getNormMode(nm).getDisplacement().Elem1(a*CARTDIM+i) *= sqrt(normalModeAtoms[a].Mass());
+
+    // normalize each normal mode (/sqrt(norm) which is also /sqrt(reduced mass)):
+    // KMatrix reduced_masses(NNormModes(),1);
+    for (int nm=0; nm<NNormModes(); nm++) {
+      reduced_masses[nm] = 0;
+      for (int a=0; a<NAtoms(); a++)
+        for (int i=0; i<CARTDIM; i++ )
+          reduced_masses[nm]+= getNormMode(nm).getDisplacement().Elem1(a*CARTDIM+i) *
+            getNormMode(nm).getDisplacement().Elem1(a*CARTDIM+i);
+    }
+    // reduced_masses.Print("Reduced masses:");
+    // Normalize:
+    for (int nm=0; nm<NNormModes(); nm++)
+      for (int a=0; a<NAtoms(); a++)
+        for (int i=0; i<CARTDIM; i++ )
+          getNormMode(nm).getDisplacement().Elem1(a*CARTDIM+i)/=sqrt(reduced_masses[nm]);
+
+  }
+
 
   //FIXIT: Separate the code below into a member function of this class.
-  
+
   // ------------ 1.5 Find geometry from the vertial gradient if available ------------
-    
+
   /* Notes on the gradient implementation:
    * Detection of gradient node triggers use of gradient and changes meaning of nodes: geometry, normal modes, frequncies, and excitation_energy. If a gradient node is present in an electronic state, the geometry, normal modes, and frequncies nodes are expected to descibe the initial state. The input excitation energy has to be the vertial excitation energy at the initial state geometry. The target state geometry and adiabatic excitation energy will be calculated using the vertial gradient method.
    * Pawel, May 2022
@@ -748,38 +748,38 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
         d_matrix.Elem2(i, j) = normModes[j].getDisplacement()[i];
       }
     }
-    
+
     KMatrix delta(gradient, true); // true initilizes values of delta with values of gradient
     delta.LeftMult(mass_matrix_minus_half);
     delta.LeftMult(d_matrix, true); // true transposes the matrix, D ^T = D ^{-1}
-    delta.LeftMult(Omega_matrix_minus2);
+  delta.LeftMult(Omega_matrix_minus2);
 
-    // R _e ^{(2)} = R _e ^{(1)} - M ^{-1/2} D \Delta
-    KMatrix geometry_shift(delta, true); // true for copying the data
-    geometry_shift.LeftMult(d_matrix);
-    geometry_shift.LeftMult(mass_matrix_minus_half);
+  // R _e ^{(2)} = R _e ^{(1)} - M ^{-1/2} D \Delta
+  KMatrix geometry_shift(delta, true); // true for copying the data
+  geometry_shift.LeftMult(d_matrix);
+  geometry_shift.LeftMult(mass_matrix_minus_half);
 
-    geometry_shift *= AU2ANGSTROM;
+  geometry_shift *= AU2ANGSTROM;
 
-    for (int i = 0; i < NAtoms(); i++) {
-      for (int j = 0; j < CARTDIM; j++){
-        atoms[i].Coord(j) -= geometry_shift.Elem2(CARTDIM * i + j, 0);
-      }
+  for (int i = 0; i < NAtoms(); i++) {
+    for (int j = 0; j < CARTDIM; j++){
+      atoms[i].Coord(j) -= geometry_shift.Elem2(CARTDIM * i + j, 0);
     }
-    std::cout << "Target-state geometry calculated with vertical gradient apprx-n:" << std::endl;
-    printGeometry();
+  }
+  std::cout << "Target-state geometry calculated with vertical gradient apprx-n:" << std::endl;
+  printGeometry();
 
-    for (int i = 0; i < NNormModes(); i++) {
-      energy -= 0.5 * delta.Elem1(i) * delta.Elem1(i) / Omega_matrix_minus2.Elem2(i,i) / EV2HARTREE; 
-    }
+  for (int i = 0; i < NNormModes(); i++) {
+    energy -= 0.5 * delta.Elem1(i) * delta.Elem1(i) / Omega_matrix_minus2.Elem2(i,i) / EV2HARTREE; 
+  }
 
-    // HINT: Vertical gradient works within paralle approximation wo/ frequency shifts. 
-    // The adiabatic excitation energy is equal to the E^a _{00}, i.e., 
-    // ZPE of the initial to the ZPE of the target states.
-    // This is the energy used in the guts of the program where the intentities are calculated.
-    std::cout 
-      << "Adiabatic excitation energy (within VG) = "
-      << energy << " eV " << std::endl;
+  // HINT: Vertical gradient works within paralle approximation wo/ frequency shifts. 
+  // The adiabatic excitation energy is equal to the E^a _{00}, i.e., 
+  // ZPE of the initial to the ZPE of the target states.
+  // This is the energy used in the guts of the program where the intentities are calculated.
+  std::cout 
+    << "Adiabatic excitation energy (within VG) = "
+    << energy << " eV " << std::endl;
   }
   //end of computing geometry and adiabatic energy by using VG
 
@@ -789,12 +789,12 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
   Vector3D man_shift;
 
   size_t manual_coord_transform=node_state.find_subnode("manual_coordinates_transformation");
-  
+
   for (int i = 0; i < manual_coord_transform; ++i) {
 
     //std::cout  << "Do manual transformation" << std::endl;
     xml_node manual_coord_transform(node_state,"manual_coordinates_transformation", i);
-    
+
     man_rot_x=manual_coord_transform.read_double_value("rotate_around_x"); 
     man_rot_y=manual_coord_transform.read_double_value("rotate_around_y"); 
     man_rot_z=manual_coord_transform.read_double_value("rotate_around_z"); 
@@ -802,7 +802,7 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
     man_shift.getCoord(0)=-manual_coord_transform.read_double_value("shift_along_x"); 
     man_shift.getCoord(1)=-manual_coord_transform.read_double_value("shift_along_y"); 
     man_shift.getCoord(2)=-manual_coord_transform.read_double_value("shift_along_z"); 
-       
+
     std::cout << "Molecular structure and normal modes of this electronic state\nwill be transformed as requested in the input.\n";
 
     shiftCoordinates(man_shift);
@@ -832,34 +832,34 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
     if_aligned_manually=true;
   }
 
-  
+
   //------------ 3. Reorder normal modes if requested --------------------
 
   size_t reorder_nmodes=node_state.find_subnode("manual_normal_modes_reordering");
   if ( reorder_nmodes ) {
-    
+
     xml_node node_nmodes_reorder(node_state,"manual_normal_modes_reordering",0);
     My_istringstream reorder_iStr(node_nmodes_reorder.read_string_value("new_order"));
-      
+
     if_nm_reordered_manually=false;//?? 
     normModesOrder.clear();
 
     std::cout << "New normal modes order was requested:\n" << reorder_iStr.str() <<"\n";
     int tmpInt;
     for (int nm=0; nm < NNormModes(); nm++)
-      {
-	tmpInt=reorder_iStr.getNextInt();
-	
-	//input error check:
-	if (reorder_iStr.fail()) {
-	  std::cout << "\nFormat error: non-numeric symbol or less entries then the number of normal modes\n\n";
-	}
-	if ( (tmpInt<0) or (tmpInt>=NNormModes()) ) {
-	  std::cout << "\nError: normal mode number ["<< tmpInt<<"] is out of range [0.."<<NNormModes()-1<<"].\n\n";
-	}
-	normModesOrder.push_back(tmpInt);
+    {
+      tmpInt=reorder_iStr.getNextInt();
+
+      //input error check:
+      if (reorder_iStr.fail()) {
+        std::cout << "\nFormat error: non-numeric symbol or less entries then the number of normal modes\n\n";
       }
-    
+      if ( (tmpInt<0) or (tmpInt>=NNormModes()) ) {
+        std::cout << "\nError: normal mode number ["<< tmpInt<<"] is out of range [0.."<<NNormModes()-1<<"].\n\n";
+      }
+      normModesOrder.push_back(tmpInt);
+    }
+
     // check if there are duplicates in the list:
     std::vector<int> tmpIntVector, tmpIntVector2;
     tmpIntVector = normModesOrder;
@@ -874,7 +874,7 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
         std::cout << ' ' << *tmp_iter;
       std::cout<<'\n';
     }
-      
+
     // backup normal modes
     std::vector<NormalMode> oldNormModes;
     oldNormModes.clear();
@@ -882,14 +882,14 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
       tmp_normMode = getNormMode(nm);
       oldNormModes.push_back( tmp_normMode );
     }
-    
+
     // copy normal modes using new order
     for (int nm=0; nm < NNormModes(); nm++)
       getNormMode(nm) = oldNormModes[  normModesOrder[nm] ];
-    
+
     std::cout << "Normal modes were reordered accordingly.\n";
     if_nm_reordered_manually=true;
-    
+
   }
   else
     for (int nm=0; nm < NNormModes(); nm++)
@@ -899,35 +899,35 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
   //------------ 4. Reorder atoms if requested --------------------
 
   Atom tmp_Atom; // one temp. norm mode
-  
+
   size_t reorder_atoms=node_state.find_subnode("manual_atoms_reordering");
-   
+
   if (reorder_atoms) {
 
     xml_node reorder_atoms(node_state,"manual_atoms_reordering",0);
     My_istringstream reorder_iStr(reorder_atoms.read_string_value("new_order"));
     std::cout << "New order of atoms was requested:\n" << reorder_iStr.str() <<"\n";
-    
+
     std::vector<int> atomsOrder;
     atomsOrder.clear();
-    
+
     int tmpInt;
     for (int nm=0; nm < NAtoms(); nm++) {
 
       tmpInt=reorder_iStr.getNextInt();
       //input error check:
       if (reorder_iStr.fail()) {
-	
-	std::cout << "\nFormat error: non numeric symbol or less entries then the number of atoms\n\n";
-	exit(1);
+
+        std::cout << "\nFormat error: non numeric symbol or less entries then the number of atoms\n\n";
+        exit(1);
       }
       if ( (tmpInt<0) or (tmpInt>=NAtoms()) ) {
-	std::cout << "\nError: stom number ["<< tmpInt<<"] is out of range [0.."<<NAtoms()-1<<"].\n";
-	exit(1);
+        std::cout << "\nError: stom number ["<< tmpInt<<"] is out of range [0.."<<NAtoms()-1<<"].\n";
+        exit(1);
       }
       atomsOrder.push_back(tmpInt);
     }
-      
+
     // check if there are duplicates in the list:
     std::vector<int> tmpIntVector, tmpIntVector2;
     tmpIntVector = atomsOrder;
@@ -938,11 +938,11 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
     if (intVec_iter != tmpIntVector.end()) {
       std::cout << "\nFormat error: there are non unique entries. Check the sorted list:\n";
       for (std::vector<int>::const_iterator tmp_iter=tmpIntVector2.begin(); tmp_iter!=tmpIntVector2.end(); tmp_iter++)
-	std::cout << ' ' << *tmp_iter << std::endl;
+        std::cout << ' ' << *tmp_iter << std::endl;
 
       exit(1);
     }
-    
+
     // backup molecular geometry and normal modes
     std::vector<Atom> oldAtoms;
     oldAtoms.clear();
@@ -958,17 +958,17 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
       tmp_normMode = getNormMode(nm);
       oldNormModes.push_back( tmp_normMode );
     }
-      
+
     // copy molecular geometry using the new order of atoms
     for (int a=0; a < NAtoms(); a++)
       getAtom(a) = oldAtoms[  atomsOrder[a] ];
-    
+
     // copy normal modes using the new order of atoms
     for (int nm=0; nm < NNormModes(); nm++)
       for (int a=0; a < NAtoms(); a++) 
-	for (int k=0; k < CARTDIM; k++)
-	  getNormMode(nm).getDisplacement()[a*CARTDIM+k]=oldNormModes[nm].getDisplacement()[  atomsOrder[a]*CARTDIM + k  ];
-    
+        for (int k=0; k < CARTDIM; k++)
+          getNormMode(nm).getDisplacement()[a*CARTDIM+k]=oldNormModes[nm].getDisplacement()[  atomsOrder[a]*CARTDIM + k  ];
+
     std::cout << "Atoms were reordered accordingly.\n";
   }
 

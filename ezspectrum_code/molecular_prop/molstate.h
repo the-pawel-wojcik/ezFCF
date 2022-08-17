@@ -2,11 +2,11 @@
 #define _molstate_h_
 
 /*! \file molstate.h
-\brief Molecular state: Stores Geometry, Normal Modes & Frequencies. 
-Also reads input data from the XML file (vm'06)
-20-12-30: Replace parser by aik_xml_parser 
-\ingroup MOLECULAR_PROP
-*/
+  \brief Molecular state: Stores Geometry, Normal Modes & Frequencies. 
+  Also reads input data from the XML file (vm'06)
+  20-12-30: Replace parser by aik_xml_parser 
+  \ingroup MOLECULAR_PROP
+  */
 
 #include "genincludes.h"
 #include "aik_xml_parser.h"
@@ -18,7 +18,7 @@ Also reads input data from the XML file (vm'06)
 #include "vector3d.h"
 #include "kmatrix.h"
 #include <algorithm>
- 
+
 
 class MolState
 {
@@ -34,7 +34,7 @@ class MolState
   bool ifLinear;
   //! IP
   double energy;
-  
+
   //!move this to functions...
   bool ifLetterOrNumber(char Ch);
 
@@ -43,12 +43,12 @@ class MolState
 
   //! reduced masses
   KMatrix reduced_masses;
-  
+
   //!if geometry transformation was performed manually
   bool if_aligned_manually;
   bool if_nm_reordered_manually;
 
- public:
+  public:
 
   MolState ();
   MolState (const MolState& other);

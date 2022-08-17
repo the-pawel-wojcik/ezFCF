@@ -2,15 +2,15 @@
 #define _dushinsky_h_
 
 /*! \file dushinsky.h 
-\ingroup METHODS
-\brief calculates and stores full dimentional Franck-Condon factors (i.e. including Dushinsky rotations) 
+  \ingroup METHODS
+  \brief calculates and stores full dimentional Franck-Condon factors (i.e. including Dushinsky rotations) 
 
-the notation and equations are from [Berger et al. JPCA 102:7157(1998)]
-To initialize provide:
-1. vector of molStates; ([0]-initial, [1],[2],... --target states)
-2. vector of int -- list of normal modes in the subspace;
-3. threshold for FCFs to accept (in_fcf_threshold)
-4. target state index =1..Nmax for spectral lines assignment (in_targN)
+  the notation and equations are from [Berger et al. JPCA 102:7157(1998)]
+  To initialize provide:
+  1. vector of molStates; ([0]-initial, [1],[2],... --target states)
+  2. vector of int -- list of normal modes in the subspace;
+  3. threshold for FCFs to accept (in_fcf_threshold)
+  4. target state index =1..Nmax for spectral lines assignment (in_targN)
 
 */
 
@@ -69,7 +69,7 @@ class Dushinsky
   // array of sqrt: sqrtArray[i]=sqrt(i); 
   double *sqrtArray;
 
- public:
+  public:
   Dushinsky(std::vector <MolState>& molStates, std::vector<int>& nm_list, double in_fcf_threshold, int in_targN, int max_quanta_target, int max_quanta_initial);
   ~Dushinsky();
 
@@ -83,9 +83,9 @@ class Dushinsky
 
   //! add hot bands to the spectrum
   int addHotBands(std::vector <MolState>& molStates, std::vector<int>& nm_list, 
-		   double fcf_threshold, double temperature, 
-		   int max_n_initial, int max_n_target, 
-		   double energy_threshold_initial,  double energy_threshold_target);
+      double fcf_threshold, double temperature, 
+      int max_n_initial, int max_n_target, 
+      double energy_threshold_initial,  double energy_threshold_target);
 
   //! if total number excitations in the stete is larger than Kp_max (stored), evaluates FCF recursively; 
   double evalSingleFCF(VibronicState& state_ini, int K, VibronicState& state_targ, int Kp);

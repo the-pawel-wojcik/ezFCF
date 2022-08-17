@@ -2,9 +2,9 @@
 #define _atom_h_
 
 /*! \file atom.h
-\brief Stores x,y,z mass, and atom name 
-\ingroup DATA_CLASSES
-*/
+  \brief Stores x,y,z mass, and atom name 
+  \ingroup DATA_CLASSES
+  */
 
 #include "genincludes.h"
 #include "constants.h"
@@ -18,7 +18,7 @@ class Atom
   double mass;
   std::string name;
 
- public:
+  public:
 
   // backwards comp:
   double& Mass()  { return mass; }

@@ -2,8 +2,8 @@
 #define _harmonic_pes_main_
 
 /*! \file harmonic_pes__main.h
-\brief  the "main" for analytic-harmonic Franck-Condon Factors calculation
-*/
+  \brief  the "main" for analytic-harmonic Franck-Condon Factors calculation
+  */
 
 
 //////////////////////////////////////////////////////////////////////////////
