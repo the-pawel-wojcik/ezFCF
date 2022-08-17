@@ -22,7 +22,7 @@ do
     fi
     if [ -e loc_${sample}.out ]
     then
-        loc_${sample}.out
+        rm loc_${sample}.out
     fi
 done
 echo " done."

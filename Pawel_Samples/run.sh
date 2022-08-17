@@ -23,7 +23,7 @@ do
     echo ""
     echo $sample
     cp ../Samples/$sample ./loc_$sample
-    time ../bin/ezFCF_linux.exe loc_$sample > loc_${sample}.out
+    time ../ezspectrum_code/ezFCF_linux.exe loc_$sample > loc_${sample}.out
 done
 
 echo ""
@@ -36,13 +36,11 @@ echo ""
 parallel="adenine.xml.spectrum_parallel cis_hcoh.xml.spectrum_parallel formaldehyde.xml.spectrum_parallel the_only_initial_state.xml.spectrum_parallel trans_hcoh_small.xml.spectrum_parallel trans_hcoh.xml.spectrum_parallel vg_phenolate.xml.spectrum_parallel"
 for spectrum in $parallel
 do
-    # echo ${spectrum:0:-22}
-    vimdiff loc_$spectrum ../Samples/$spectrum
+    cmp --silent ../Samples/$spectrum loc_$spectrum || echo "${spectrum} files are different"
 done
 
 duschinsky="adenine.xml.spectrum_dushinsky cis_hcoh.xml.spectrum_dushinsky formaldehyde.xml.spectrum_dushinsky the_only_initial_state.xml.spectrum_dushinsky thymine.xml.spectrum_dushinsky"
 for spectrum in $duschinsky
 do
-    # echo ${spectrum:0:-22}
-    vimdiff loc_$spectrum ../Samples/$spectrum
+    cmp --silent ../Samples/$spectrum loc_$spectrum || echo "${spectrum} files are different"
 done
