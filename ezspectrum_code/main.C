@@ -3,7 +3,6 @@
 #include "harmonic_pes_main.h"
 #include "aik_xml_parser.h"
 
-
 int main(int argc, char* argv[])
 {
 
@@ -22,7 +21,7 @@ int main(int argc, char* argv[])
     exit(1);
   }
   xml_node node_input("input",xml_file);
-  
+
   bool if_web_version=node_input.read_flag_value("if_web_version");
   if (not(if_web_version)) {
     std::cout << "A copy of the \"" << argv[1] << "\" input:\n";
@@ -39,17 +38,15 @@ int main(int argc, char* argv[])
     exit(1);
   }
   xml_node node_amu_table("masses",xml_amu_file);
-  
+
   bool done = false;
   if (job == "harmonic_pes")
     done=harmonic_pes_main(arg.c_str(), node_input, node_amu_table);
-  
+
   if ( !done )
     std::cout << "Method \"" << job <<"\" is unknown, or it has failed. \n";
-  
+
   std::cout << '\n' << "Job \"" << argv[0] << ' ' << argv[1] << "\" has finished: " <<  GetTime() << '\n';
 
   return EXIT_SUCCESS;
 }
-
-
