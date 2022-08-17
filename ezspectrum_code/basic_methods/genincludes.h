@@ -24,5 +24,6 @@
 #include <cstdlib>
 #include <iomanip>
 
+#include <armadillo>
 
 #endif

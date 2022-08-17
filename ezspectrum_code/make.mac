@@ -7,7 +7,7 @@ CCFLAGS = -O3 -fopenmp
 
 INC = -I /usr/local/include/
 LSTD = -lstdc++
-#LARMA=-L/usr/local/lib/ -larmadillo
+LARMA=-L/usr/local/lib/ -larmadillo
 LMATH = -llapack -lblas
 LDFLAGS =  $(LSTD) $(LARMA) $(LMATH) -lm 
 

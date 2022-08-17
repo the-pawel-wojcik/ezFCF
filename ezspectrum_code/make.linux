@@ -11,7 +11,7 @@ linux = -D UNDERSCORE
 INC = -I /usr/local/include/
 #LXML = -lexpat
 LSTD = -lstdc++
-#LARMA=-L/usr/local/lib/ -larmadillo
+LARMA=-L/usr/local/lib/ -larmadillo
 LMATH = -llapack -lblas
 LDFLAGS = $(LXML) $(LSTD) $(LARMA) $(LMATH) -lm 
 
