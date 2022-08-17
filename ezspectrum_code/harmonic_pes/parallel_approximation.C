@@ -36,8 +36,12 @@ Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int>& nm_list,
   // max_n_initial stands for maximum allowed excitations in a single mode in the initial state
   // FCFs_tmp(n, m) gives the integral of an overlap of a state with 'n' excitation with 
   // a state of 'm' excitations, i.e, <n|m> 
-  KMatrix FCFs_tmp(max_n_initial+1, max_n_target+1);
-  std::vector <KMatrix> FCFs;
+  // FIXED: KMatrix -> armadillo
+  arma::Mat<double> FCFs_tmp(max_n_initial+1, max_n_target+1);
+  /* KMatrix FCFs_tmp(max_n_initial+1, max_n_target+1); */
+  // FIXED: KMatrix -> armadillo
+  std::vector <arma::Mat<double>> FCFs;
+  /* std::vector <KMatrix> FCFs; */
 
   // matrix with intensities of FC transitions = FCFs * population_of_initial_vibrational_levels(Temperature distrib.)
   KMatrix I_tmp (max_n_initial+1,max_n_target+1);
@@ -246,7 +250,9 @@ Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int>& nm_list,
         }
 
         for (int j=0; j<max_n_target+1; j++)
-          I_tmp.Elem2(i,j) = FCFs_tmp.Elem2(i,j) * FCFs_tmp.Elem2(i,j) * exp(-IExponent);
+          // FIXED: KMatrix -> armadillo
+          I_tmp.Elem2(i,j) = FCFs_tmp(i, j) * FCFs_tmp(i, j) * exp(-IExponent);
+          /* I_tmp.Elem2(i,j) = FCFs_tmp.Elem2(i,j) * FCFs_tmp.Elem2(i,j) * exp(-IExponent); */
       }
       I.push_back(I_tmp);
 
@@ -265,7 +271,9 @@ Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int>& nm_list,
         std::cout << ")\n";
 
         E_position[nm].Print((char *)("Peak positions, eV"));
-        FCFs[nm].PrintScientific((char *)("1D Harmonic Franck-Condon factors"));
+        // FIXED: KMatrix -> armadillo
+        FCFs[nm].print("1D Harmonic Franck-Condon factors");
+        /* FCFs[nm].PrintScientific((char *)("1D Harmonic Franck-Condon factors")); */
         I[nm].Print((char *)("Intensities (FCFs^2)*(initial vibrational states termal population)"));
       }
 
@@ -418,7 +426,9 @@ Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int>& nm_list,
         for (int nm=0; nm < n_norm_modes; nm++)
         {
           intens *= I[nm].Elem2(selected_states_ini[curr_ini][nm],selected_states_targ[curr_targ][nm]);
-          FCF *= FCFs[nm].Elem2(selected_states_ini[curr_ini][nm],selected_states_targ[curr_targ][nm]);
+          // FIXED: KMatrix -> armadillo
+          FCF *= FCFs[nm](selected_states_ini[curr_ini][nm], selected_states_targ[curr_targ][nm]);
+          /* FCF *= FCFs[nm].Elem2(selected_states_ini[curr_ini][nm],selected_states_targ[curr_targ][nm]); */
           energy += E_position[nm].Elem2(selected_states_ini[curr_ini][nm],selected_states_targ[curr_targ][nm]) + molStates[targN].Energy(); 
           E_prime_prime += E_position[nm].Elem2(selected_states_ini[curr_ini][nm],0) + molStates[targN].Energy(); 
           // [ cancell the IE in each energy, which is stupid but inexpensive; probably should be eliminated ]
@@ -518,9 +528,13 @@ Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int> nm_active
   // max_n_initial stands for maximum allowed excitations in a single mode in the initial state
   // FCFs_tmp(n, m) gives the integral of an overlap of a state with 'n' excitation with 
   // a state of 'm' excitations, i.e, <n|m> 
-  KMatrix FCFs_tmp(max_n_initial+1, max_n_target+1);
+  // FIXED: KMatrix -> armadillo
+  arma::Mat<double> FCFs_tmp(max_n_initial+1, max_n_target+1);
+  /* KMatrix FCFs_tmp(max_n_initial+1, max_n_target+1); */
   // TODO: this might be more resource friendly if each FCFs in this vector had its own dims. Paweł Apr'22
-  std::vector <KMatrix> FCFs;
+  // FIXED: KMatrix -> armadillo
+  std::vector <arma::Mat<double>> FCFs;
+  /* std::vector <KMatrix> FCFs; */
 
   // matrix with intensities of FC transitions = FCFs*population_of_initial_vibrational_levels(Temperature distrib.)
   KMatrix I_tmp (max_n_initial+1,max_n_target+1);
@@ -728,7 +742,9 @@ Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int> nm_active
         }
         // TODO: The intensity should neglected if one only considers fluorescence
         for (int j=0; j<max_n_target+1; j++)
-          I_tmp.Elem2(i,j) = FCFs_tmp.Elem2(i,j) * FCFs_tmp.Elem2(i,j) * exp(-IExponent);
+          // FIXED: KMatrix -> armadillo
+          I_tmp.Elem2(i,j) = FCFs_tmp(i,j) * FCFs_tmp(i,j) * exp(-IExponent);
+          /* I_tmp.Elem2(i,j) = FCFs_tmp.Elem2(i,j) * FCFs_tmp.Elem2(i,j) * exp(-IExponent); */
       }
 
       I.push_back(I_tmp);
@@ -748,7 +764,9 @@ Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int> nm_active
         std::cout << ")\n";
 
         E_position[nm].Print((char *)("Peak positions, eV"));
-        FCFs[nm].PrintScientific((char *)("1D Harmonic Franck-Condon factors"));
+        // FIXED: KMatrix -> armadillo 
+        FCFs[nm].print("1D Harmonic Franck-Condon factors");
+        /* FCFs[nm].PrintScientific((char *)("1D Harmonic Franck-Condon factors")); */
         I[nm].Print((char *)("Intensities (FCFs^2)"));
       }
 
@@ -849,7 +867,9 @@ Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int> nm_active
         for (int nm=0; nm < n_norm_modes; nm++)
         {
           intens *= I[nm].Elem2(selected_states_ini[curr_ini][nm],selected_states_targ[curr_targ][nm]);
-          FCF *= FCFs[nm].Elem2(selected_states_ini[curr_ini][nm],selected_states_targ[curr_targ][nm]);
+          // FIXED: KMatrix -> armadillo
+          FCF *= FCFs[nm](selected_states_ini[curr_ini][nm], selected_states_targ[curr_targ][nm]);
+          /* FCF *= FCFs[nm].Elem2(selected_states_ini[curr_ini][nm],selected_states_targ[curr_targ][nm]); */
           energy += E_position[nm].Elem2(selected_states_ini[curr_ini][nm],selected_states_targ[curr_targ][nm]) + molStates[targN].Energy(); 
           E_prime_prime += E_position[nm].Elem2(selected_states_ini[curr_ini][nm],0) + molStates[targN].Energy(); 
           // [ cancell the IE in each energy, which is stupid but inexpensive; probably should be eliminated ]

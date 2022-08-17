@@ -20,7 +20,9 @@ Nu_ini/Nu_targ -- initial and target state's frequencies in cm-1
 */
 
 //! Analytic harmonic 1D Franck-Condon Factors.
-void harmonic_FCf (KMatrix& FCf, double reducedMass, double deltaQ, 
+// FIXED: KMatrix -> armadillo
+void harmonic_FCf (arma::Mat<double>& FCf, double reducedMass, double deltaQ, 
+/* void harmonic_FCf (KMatrix& FCf, double reducedMass, double deltaQ, */ 
                    double Nu_initial, double Nu_target);
 
 
