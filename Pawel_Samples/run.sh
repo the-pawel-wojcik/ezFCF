@@ -2,6 +2,19 @@
 
 # This is a script that runs all the samples and diffs them agains the ones in Samples/
 
+# Specify path and filenme of ezFCF executable
+ezFCF="../ezspectrum_code/ezFCF_linux.exe" # use this one if you compiled the program
+# ezFCF="../bin/ezFCF_linux.exe"
+
+# check if ezFCF file exists and is executable
+if [ ! -x $ezFCF ]
+then
+    echo "Error. The ezFCF exacutable at $ezFCF does not exist."
+    echo "Make sure the file exists and is executable (chmod +x)"
+    echo " or fix the path and filename inside this scirpt."
+    exit 1
+fi
+
 RED='\033[1;31m'
 NC='\033[0m' # No Color
 compare () {
@@ -29,7 +42,7 @@ do
     echo ""
     echo $sample
     cp ../Samples/$sample ./loc_$sample
-    time ../ezspectrum_code/ezFCF_linux.exe loc_$sample > loc_${sample}.out
+    time $ezFCF loc_$sample > loc_${sample}.out
 done
 
 echo ""
