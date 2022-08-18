@@ -37,153 +37,123 @@ Dushinsky::Dushinsky(std::vector <MolState>& molStates, std::vector<int>& nm_lis
     selected_nm_freq_targ.push_back( molStates[targN].getNormMode(nm).getFreq() );
 
   // get w & w'; frequencies; p=='==target electronic state; [N]; frequency==w_i=nu_i[cm-1]*BOHR_2_CM*2*PI*SPEEDOFLIGHT_AU; 
-  KMatrix w(N,1), wp(N,1);
+  arma::Col<double> w(N);
   for (int nm=0; nm<N; nm++)
-    w[nm]=selected_nm_freq_ini[nm]*BOHR_2_CM*2*PI*SPEEDOFLIGHT_AU;
-  //w.Print("w");
+    w(nm) = selected_nm_freq_ini[nm] * BOHR_2_CM * 2*PI * SPEEDOFLIGHT_AU;
+
+  arma::Col<double> wp(N);
   for (int nm=0; nm<N; nm++)
-    wp[nm]=selected_nm_freq_targ[nm]*BOHR_2_CM*2*PI*SPEEDOFLIGHT_AU;
-  //wp.Print("wp");
+    wp(nm) = selected_nm_freq_targ[nm] * BOHR_2_CM * 2*PI * SPEEDOFLIGHT_AU;
 
   // get normal modes: L and Lp (for the selected subspace):
-  KMatrix L( CARTDIM*(molStates[iniN].NAtoms()), N );
-  L.Set(0.0);  
-  for (int a=0; a < molStates[iniN].NAtoms(); a++) 
+  arma::Mat<double> L(CARTDIM*(molStates[iniN].NAtoms()), N, arma::fill::zeros);
+  for (int a=0; a < molStates[iniN].NAtoms(); a++)
     for (int nm = 0; nm < N; nm++) 
       for (int k=0; k < CARTDIM; k++)
-        L.Elem2(a*CARTDIM+k, nm) = molStates[iniN].getNormMode(nm).getDisplacement()[a*CARTDIM+k];
-  KMatrix Lp( CARTDIM*(molStates[targN].NAtoms()), N );
-  Lp.Set(0.0);  
+        L(a*CARTDIM+k, nm) = molStates[iniN].getNormMode(nm).getDisplacement()[a*CARTDIM+k];
+
+  arma::Mat<double> Lp(CARTDIM*(molStates[targN].NAtoms()), N, arma::fill::zeros);
   for (int a=0; a < molStates[targN].NAtoms(); a++) 
     for (int nm = 0; nm < N; nm++) 
       for (int k=0; k < CARTDIM; k++)
-        Lp.Elem2(a*CARTDIM+k, nm) = molStates[targN].getNormMode(nm).getDisplacement()[a*CARTDIM+k];
+        Lp(a*CARTDIM+k, nm) = molStates[targN].getNormMode(nm).getDisplacement()[a*CARTDIM+k];
 
   // get S; [NxN]; S=(Lp^T)*L; n.m.rotation matrix; if S==I, than norm. modes are parallel, det(S) sould be close to 1
-  KMatrix S;
-  Lp.Transpose();
-  S=Lp;
-  S*=L;
-  //S.Print("S");
+  arma::Mat<double> S;
+  S = Lp.t() * L;
 
   // get d displacements ; [N]; d= Lp^T*sqrt(T)*(x-xp); x & xp -- cartesian geometries of two states;
   // displacement of the target geometry in normal coordinates  d[angstr*sqrt(amu)] *ANGSTROM2AU*sqrt(AMU_2_ELECTRONMASS) ); 
   // mass weighted -- so m=1amu everywhere;
-  KMatrix d;
-  KMatrix tmpX(CARTDIM*molStates[iniN].NAtoms(),1), tmpXp(CARTDIM*molStates[iniN].NAtoms(),1);
+  arma::Col<double> tmpX(CARTDIM*molStates[iniN].NAtoms());
+  arma::Col<double> tmpXp(CARTDIM*molStates[iniN].NAtoms());
   for(int a=0; a<molStates[iniN].NAtoms(); a++)
     for (int k=0; k <CARTDIM; k++)
     {
-      tmpX[a*CARTDIM+k] =molStates[iniN].getAtom(a).Coord(k);
-      tmpXp[a*CARTDIM+k]=molStates[targN].getAtom(a).Coord(k);
+      tmpX(a*CARTDIM+k) = molStates[iniN].getAtom(a).Coord(k);
+      tmpXp(a*CARTDIM+k) = molStates[targN].getAtom(a).Coord(k);
     }
   //(x-xp)
-  tmpX-=tmpXp;
-  //d= Lp^T*aqrt(T)*(x-xp); Lp is already transposed;
-  d=Lp;
-  //d.Print("Lp^T");
-  //Make squrt(T)-matrix (diagonal matrix with sqrt(atomic masses) in cartesian coordinates); the matrix is the same for all states;
-  KMatrix SqrtT( CARTDIM*(molStates[iniN].NAtoms()), CARTDIM*(molStates[iniN].NAtoms()), true);
-  SqrtT.Set(0.0);
+  tmpX -= tmpXp;
+  // Make sqrt(T)-matrix (diagonal matrix with sqrt(atomic masses) in cartesian coordinates); the matrix is the same for all states;
+  int mass_matrix_size = CARTDIM*(molStates[iniN].NAtoms());
+  arma::Mat<double> SqrtT(mass_matrix_size, mass_matrix_size, arma::fill::zeros);
   for(int a=0; a<molStates[iniN].NAtoms(); a++)
-    SqrtT.Elem2(a*CARTDIM,a*CARTDIM) = SqrtT.Elem2(a*CARTDIM+1,a*CARTDIM+1)= SqrtT.Elem2(a*CARTDIM+2,a*CARTDIM+2)=sqrt(molStates[iniN].getAtom(a).Mass());
-  d*=SqrtT;
-  d*=tmpX;
-  //d.Print("d tmp");
+  {
+    double sqrt_of_mass = sqrt( molStates[iniN].getAtom(a).Mass() );
+    for (int loc_i = a * CARTDIM; loc_i < a * CARTDIM + 3; ++loc_i) {
+      SqrtT(loc_i, loc_i) = sqrt_of_mass;
+    }
+  }
+  // d = Lp^T * sqrt(T) * (x-xp);
+  arma::Col<double> d;
+  d = Lp.t() * SqrtT * tmpX;
   // switch to atomic units
-  d*=ANGSTROM2AU*sqrt(AMU_2_ELECTRONMASS);
+  d *= ANGSTROM2AU * sqrt(AMU_2_ELECTRONMASS);
 
   //----------------------------------------------------------------------
   // now evaluate all the matrices:  
 
   // temporary NxN matrices:
-  KMatrix tmpM(N,N), tmpM2(N,N);
+  arma::Mat<double> tmpM(N, N);
 
   // diag(1) NxN matrix:
-  KMatrix I(N,N);
-  I.Set();
-  I.SetDiagonal(1,true);
+  arma::Mat<double> I = arma::eye(N, N);
 
   // get Lm & Lmp; lamda & lamda'; [NxN] diag.; sqrt.freq.; \lamda=diag(sqrt(w_i)); 
-  KMatrix Lm(N,N), Lmp(N,N);
-  Lm.Set(0);
-  Lmp.Set(0);
+  arma::Mat<double> Lm(N, N, arma::fill::zeros);
   for (int nm=0; nm<N; nm++)
-    Lm.Elem2(nm,nm)=sqrt(w[nm]);
-  //Lm.Print("diag. Lm");
+    Lm(nm, nm) = sqrt(w(nm));
+
+  arma::Mat<double> Lmp(N, N, arma::fill::zeros);
   for (int nm=0; nm<N; nm++)
-    Lmp.Elem2(nm,nm)=sqrt(wp[nm]);
-  //Lmp.Print("diag. Lm\'");
+    Lmp(nm, nm) = sqrt(wp(nm));
 
   // get Dt; [N]; \delta=Lmp*d;
-  KMatrix Dt(N,1);
-  tmpM=Lmp;
-  tmpM*=d;
-  Dt=tmpM;
-  //Dt.Print("Dt=Lmp*d");
+  arma::Col<double> Dt = Lmp * d;
 
   // get J;  [NxN]; J=Lmp*S*Lm^{-1};  ^{-1} -- inverse;
-  KMatrix J(N,N);
-  J=Lmp;
-  J*=S;
-  tmpM=Lm;
-  tmpM.Inverse();
-  J*=tmpM;
-  //J.Print("J=Lmp*S*Lm^{-1}");
+  arma::Mat<double> J(N, N);
+  J = Lmp * S * Lm.i();
 
-  // get Q;  [NxN] symm. pos.; Q = (1 + J^T * J)^{-1}; ^{T} -- transposed {KMatrix::Transpose()};  ^{-1} -- inverse;
-  KMatrix Q(N,N);
-  tmpM=J;
-  tmpM.Transpose();
-  tmpM*=J;
-  tmpM+=I;
-  Q=tmpM.Inverse();
-  //Q.Print("Q = (1 + J^T * J)^{-1}; symm. pos. ");
-  double detQ=Q.Determinant();
+  // get Q;  [NxN] symm. pos.; Q = (1 + J^T * J)^{-1}; ^{T} -- transposed;  ^{-1} -- inverse;
+  arma::Mat<double> Q(N, N);
+  tmpM = I + J.t() * J;
+  Q = tmpM.i();
+  double detQ = arma::det(Q);
 
   // get P;  [NxN] symm.; P = J * Q * J^T
-  KMatrix P(N,N);
-  P=J;
-  P*=Q;
-  tmpM=J;
-  tmpM.Transpose();
-  P*=tmpM;
-  //P.Print("P = J * Q * J^T; symm.");
+  arma::Mat<double> P(N, N);
+  P = J * Q * J.t();
 
   // get R;  [NxN]; R = Q * J^T
-  KMatrix R(N,N);
-  tmpM=J;
-  tmpM.Transpose();
-  R=Q;
-  R*=tmpM;
-  //R.Print("R = Q * J^T");
-
+  arma::Mat<double> R(N, N);
+  R = Q * J.t();
 
   // get Det(S)
-  double detS=S.Determinant();
-  std::cout << "Determinant of the normal modes rotation matrix: |Det(S)| =" << std::fixed << std::setw(12) << std::setprecision(8) << fabs(detS)<<"\n";
-  if (fabs(detS)<0.5)
+  double detS = arma::det(S);
+  std::cout 
+    << "Determinant of the normal modes rotation matrix: |Det(S)| =" 
+    << std::fixed << std::setw(12) << std::setprecision(8) << fabs(detS)
+    << "\n";
+  if (fabs(detS) < 0.5)
   {   
-    std::cout << "\nError: |Det(S)| is too small (<0.5). Please see \"|Det(S)| is less than one\n   (or even zero)\" in the \"Common problems\" section of the manual\n\n";
+    std::cout 
+      << "\n"
+      << "Error: |Det(S)| is too small (<0.5). Please see \"|Det(S)| is less than one\n"
+      << "   (or even zero)\" in the \"Common problems\" section of the manual\n\n";
     exit(2);
   }
 
-
   //--------------------------------------------------------------------------------
   // zero_zero, K'=0: one element = <0|0>
-  double zero_zero=1;
+  double zero_zero = 1;
   for (int nm=0; nm<N; nm++)
-    zero_zero*=w[nm]/wp[nm];
+    zero_zero *= w(nm) / wp(nm);
   // ORIGINAL: pow 0.25; MODIFIED TO: pow -0.25
-  zero_zero=pow(2.0,N*0.5)*pow(zero_zero,-0.25)*sqrt(detQ)/sqrt(fabs(detS));
-  tmpM=Dt;
-  tmpM.Transpose();
-  tmpM2=I;
-  tmpM2-=P;
-  tmpM*=tmpM2;
-  tmpM*=Dt;
-  tmpM*=-0.5;
-  zero_zero*=exp(tmpM[0]);
+  zero_zero = pow(2.0, N*0.5) * pow(zero_zero, -0.25) * sqrt(detQ) / sqrt(fabs(detS));
+  tmpM = - 0.5 * Dt.t() * (I - P) * Dt; // It's a scalar now
+  zero_zero *= exp(tmpM(0,0));
 
   //--------------------------------------------------------------------------------
   // get the the frequently used vectors/matrices:
@@ -191,75 +161,56 @@ Dushinsky::Dushinsky(std::vector <MolState>& molStates, std::vector<int>& nm_lis
   // for target state excitations (no hot bands):
 
   // ompd=sqrt(2)*(1-P)*Dt; [N]
-  ompd_full=I;
-  ompd_full-=P;
-  ompd_full*=Dt;
-  ompd_full*=sqrt(2);
-  //ompd_full.Print("sqrt(2)*(1-P)*Dt");
+  ompd_full = sqrt(2) * (I - P) * Dt;
 
   // tpmo=(2P-1); [NxN]
-  tpmo_full=P;
-  tpmo_full*=2;
-  tpmo_full-=I;
-  //tpmo_full.Print("2P-1");
-
+  tpmo_full = 2 * P - I;
 
   // for the hot bands:
 
   // rd=sqrt(2)*R*Dt; [N]
-  rd_full = R;
-  rd_full *= Dt;
-  rd_full *= sqrt(2);
-  //rd_full.Print("rd=sqrt(2)*R*Dt");
-
+  rd_full = sqrt(2) * R * Dt;
 
   // tqmo=(2Q-1); [NxN]
-  tqmo_full=Q;
-  tqmo_full*=2;
-  tqmo_full-=I;
-  //tqmo_full.Print("tqmo=(2Q-1)");
+  tqmo_full = 2 * Q - I;
 
   // tr=2*R; [NxN]
-  tr_full=R;
-  tr_full*=2;
-  //tr_full.Print("tr=2*R");
-
+  tr_full = 2 * R;
 
   //----------------------------------------------------------------------
   // shrink the space to the nm_list space
 
-  if (N!=nm_list.size())
+  if (N != nm_list.size())
   {
     N = nm_list.size();
 
     // shrink "frequently used matrices"
-    ompd.Adjust(N,1);
-    tpmo.Adjust(N,N);
-    rd.Adjust(N,1);
-    tqmo.Adjust(N,N);
-    tr.Adjust(N,N);
+    ompd = arma::Col<double> (N);
+    rd = arma::Col<double> (N);
+    tpmo = arma::Mat<double> (N, N);
+    tqmo = arma::Mat<double> (N, N);
+    tr = arma::Mat<double> (N, N);
 
     for (int nm1=0; nm1<N; nm1++)
     {
-      ompd[nm1]=ompd_full[ nm_list[nm1] ];
-      rd[nm1]=rd[ nm_list[nm1] ];
+      ompd(nm1) = ompd_full( nm_list[nm1] );
+      rd(nm1) = rd( nm_list[nm1] ); // TODO: here is the bug
       for (int nm2=0; nm2<N; nm2++)
       {
-        tpmo.Elem2(nm1,nm2)=tpmo_full.Elem2(nm_list[nm1],nm_list[nm2]);
-        tqmo.Elem2(nm1,nm2)=tqmo_full.Elem2(nm_list[nm1],nm_list[nm2]);
-        tr.Elem2(nm1,nm2)=tr_full.Elem2(nm_list[nm1],nm_list[nm2]);
+        tpmo(nm1, nm2) = tpmo_full(nm_list[nm1], nm_list[nm2]);
+        tqmo(nm1, nm2) = tqmo_full(nm_list[nm1], nm_list[nm2]);
+        tr(nm1, nm2) = tr_full(nm_list[nm1], nm_list[nm2]);
       }
     }
   }
   else
   {
-    ompd=ompd_full;
-    tpmo=tpmo_full;
-    rd=rd_full;
-    tqmo=tqmo_full;
-    tr=tr_full;
+    ompd = ompd_full;
+    tpmo = tpmo_full;
+    rd = rd_full;
+    tqmo = tqmo_full;
+    tr = tr_full;
   }
-
 
   //----------------------------------------------------------------------
   // create the initial ground vibr. state <0000...000|
@@ -482,14 +433,14 @@ double Dushinsky::evalSingleFCF(VibronicState& state_ini, int K, VibronicState& 
 
       // get the first term
       state_targ.getV()[ksi]--;
-      fcf = ompd[ksi]*evalSingleFCF(state_ini, K, state_targ, Kp-1);
+      fcf = ompd[ksi] * evalSingleFCF(state_ini, K, state_targ, Kp-1);
 
       // add the second term for K'>=2
       if (Kp>1)
         for (int theta=ksi; theta<N; theta++)
           if (state_targ.getV()[theta]>0)
           {
-            double tmp_dbl = tpmo.Elem2(ksi,theta) * sqrtArray[ state_targ.getV()[theta] ];
+            double tmp_dbl = tpmo(ksi,theta) * sqrtArray[ state_targ.getV()[theta] ];
             state_targ.getV()[theta]--;
             tmp_dbl*= evalSingleFCF(state_ini, K, state_targ, Kp-2);
             fcf += tmp_dbl;
@@ -509,14 +460,14 @@ double Dushinsky::evalSingleFCF(VibronicState& state_ini, int K, VibronicState& 
 
     // get the first term
     state_ini.getV()[ksi]--;
-    fcf = -rd[ksi]*evalSingleFCF(state_ini, K-1, state_targ, Kp);
+    fcf = - rd(ksi) * evalSingleFCF(state_ini, K-1, state_targ, Kp);
 
     // add the second term
     if (K>1)
       for (int theta=ksi; theta<N; theta++)
         if (state_ini.getV()[theta]>0)
         {
-          double tmp_dbl = tqmo.Elem2(ksi,theta) * sqrtArray[state_ini.getV()[theta] ];
+          double tmp_dbl = tqmo(ksi,theta) * sqrtArray[state_ini.getV()[theta] ];
           state_ini.getV()[theta]--;
           tmp_dbl*= evalSingleFCF(state_ini, K-2, state_targ, Kp);
           fcf += tmp_dbl;
@@ -528,7 +479,7 @@ double Dushinsky::evalSingleFCF(VibronicState& state_ini, int K, VibronicState& 
       for (int theta=0; theta<N; theta++)
         if (state_targ.getV()[theta]>0)
         {
-          double tmp_dbl = tr.Elem2(ksi,theta) * sqrtArray[ state_targ.getV()[theta] ];
+          double tmp_dbl = tr(ksi, theta) * sqrtArray[ state_targ.getV()[theta] ];
           state_targ.getV()[theta]--;
           tmp_dbl*= evalSingleFCF(state_ini, K-1, state_targ, Kp-1);
           fcf += tmp_dbl;
@@ -564,14 +515,14 @@ double Dushinsky::evalSingleFCF_full_space(VibronicState& state_ini, int K, Vibr
 
       // get the first term
       state_targ.getV()[ksi]--;
-      fcf = ompd_full[ksi]*evalSingleFCF_full_space(state_ini, K, state_targ, Kp-1);
+      fcf = ompd_full[ksi] * evalSingleFCF_full_space(state_ini, K, state_targ, Kp-1);
 
       // add the second term for K'>=2
       if (Kp>1)
         for (int theta=ksi; theta<N; theta++)
           if (state_targ.getV()[theta]>0)
           {
-            double tmp_dbl = tpmo_full.Elem2(ksi,theta) * sqrt( state_targ.getV()[theta] );
+            double tmp_dbl = tpmo_full(ksi,theta) * sqrt( state_targ.getV()[theta] );
             state_targ.getV()[theta]--;
             tmp_dbl*= evalSingleFCF_full_space(state_ini, K, state_targ, Kp-2);
             fcf += tmp_dbl;
@@ -598,7 +549,7 @@ double Dushinsky::evalSingleFCF_full_space(VibronicState& state_ini, int K, Vibr
       for (int theta=ksi; theta<N; theta++)
         if (state_ini.getV()[theta]>0)
         {
-          double tmp_dbl = tqmo_full.Elem2(ksi,theta) * sqrt( state_ini.getV()[theta] );
+          double tmp_dbl = tqmo_full(ksi, theta) * sqrt( state_ini.getV()[theta] );
           state_ini.getV()[theta]--;
           tmp_dbl*= evalSingleFCF_full_space(state_ini, K-2, state_targ, Kp);
           fcf += tmp_dbl;
@@ -610,7 +561,7 @@ double Dushinsky::evalSingleFCF_full_space(VibronicState& state_ini, int K, Vibr
       for (int theta=0; theta<N; theta++)
         if (state_targ.getV()[theta]>0)
         {
-          double tmp_dbl = tr_full.Elem2(ksi,theta) * sqrt( state_targ.getV()[theta] );
+          double tmp_dbl = tr_full(ksi, theta) * sqrt( state_targ.getV()[theta] );
           state_targ.getV()[theta]--;
           tmp_dbl*= evalSingleFCF_full_space(state_ini, K-1, state_targ, Kp-1);
           fcf += tmp_dbl;

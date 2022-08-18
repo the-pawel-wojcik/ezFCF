@@ -33,9 +33,10 @@ class Dushinsky
   //! number of normal modes (dimentionality) 
   int N;
   //! frequently used matrices in the "excite subspace"
-  KMatrix ompd, tpmo, rd, tqmo, tr;
+  arma::Mat<double> tpmo, tqmo, tr;
   //! frequently used matrices in the full space; requred for single excitation (outside the "excite subspace") and hot bands recursive calculations;
-  KMatrix ompd_full, tpmo_full, rd_full, tqmo_full, tr_full;
+  arma::Mat<double> tpmo_full, tqmo_full, tr_full;
+  arma::Col<double> ompd, ompd_full, rd, rd_full;
   //! K' -- maximum layer which was stored ( maximum total number of quanta in the target state):
   int Kp_max_saved;
   //! K' -- maximum layer which was evaluated( maximum total number of quanta in the target state):
