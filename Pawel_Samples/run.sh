@@ -2,6 +2,12 @@
 
 # This is a script that runs all the samples and diffs them agains the ones in Samples/
 
+RED='\033[1;31m'
+NC='\033[0m' # No Color
+compare () {
+    cmp --silent ../Samples/$1 loc_$1 && echo "OK: ${1}"  || echo -e "${RED}Different${NC}: ${1}"
+}
+
 # Makse sure that dependencies are satisifed
 if [ ! -e atomicMasses.xml ]
 then 
@@ -36,11 +42,18 @@ echo ""
 parallel="adenine.xml.spectrum_parallel cis_hcoh.xml.spectrum_parallel formaldehyde.xml.spectrum_parallel the_only_initial_state.xml.spectrum_parallel trans_hcoh_small.xml.spectrum_parallel trans_hcoh.xml.spectrum_parallel vg_phenolate.xml.spectrum_parallel"
 for spectrum in $parallel
 do
-    cmp --silent ../Samples/$spectrum loc_$spectrum || echo "${spectrum} files are different"
+    compare $spectrum
 done
 
 duschinsky="adenine.xml.spectrum_dushinsky cis_hcoh.xml.spectrum_dushinsky formaldehyde.xml.spectrum_dushinsky the_only_initial_state.xml.spectrum_dushinsky thymine.xml.spectrum_dushinsky"
 for spectrum in $duschinsky
 do
-    cmp --silent ../Samples/$spectrum loc_$spectrum || echo "${spectrum} files are different"
+    compare $spectrum
 done
+
+echo ""
+echo " = = = = = = = = = = "
+echo " All tests completed "
+echo " = = = = = = = = = = "
+echo "" 
+
