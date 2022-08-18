@@ -194,7 +194,7 @@ Dushinsky::Dushinsky(std::vector <MolState>& molStates, std::vector<int>& nm_lis
     for (int nm1=0; nm1<N; nm1++)
     {
       ompd(nm1) = ompd_full( nm_list[nm1] );
-      rd(nm1) = rd( nm_list[nm1] ); // TODO: here is the bug
+      rd(nm1) = rd_full( nm_list[nm1] );
       for (int nm2=0; nm2<N; nm2++)
       {
         tpmo(nm1, nm2) = tpmo_full(nm_list[nm1], nm_list[nm2]);
