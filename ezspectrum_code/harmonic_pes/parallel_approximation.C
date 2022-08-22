@@ -36,20 +36,16 @@ Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int>& nm_list,
   // max_n_initial stands for maximum allowed excitations in a single mode in the initial state
   // FCFs_tmp(n, m) gives the integral of an overlap of a state with 'n' excitation with 
   // a state of 'm' excitations, i.e, <n|m> 
-  // FIXED: KMatrix -> armadillo
   arma::Mat<double> FCFs_tmp(max_n_initial+1, max_n_target+1);
-  /* KMatrix FCFs_tmp(max_n_initial+1, max_n_target+1); */
-  // FIXED: KMatrix -> armadillo
   std::vector <arma::Mat<double>> FCFs;
-  /* std::vector <KMatrix> FCFs; */
 
   // matrix with intensities of FC transitions = FCFs * population_of_initial_vibrational_levels(Temperature distrib.)
-  KMatrix I_tmp (max_n_initial+1,max_n_target+1);
-  std::vector <KMatrix> I;
+  arma::Mat<double> I_tmp (max_n_initial+1, max_n_target+1);
+  std::vector <arma::Mat<double>> I;
 
   // energy position of each transition for a given normal mode; 1D; ofset by IP; when add for N dimensions, substract IP from each energy;
-  KMatrix E_position_tmp (max_n_initial+1,max_n_target+1);
-  std::vector <KMatrix> E_position;
+  arma::Mat<double> E_position_tmp (max_n_initial+1, max_n_target+1);
+  std::vector <arma::Mat<double>> E_position;
 
   // reduced mass for FCF calcualtions -- mass weighted coordinates
   // TODO: This variable is not used in this scope. Is it still necessary? Paweł Apr'22
@@ -57,42 +53,40 @@ Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int>& nm_list,
 
   // ==========================================================================================
   // Calculate transformation matrix "cartesian->normal mode" coordinates (for each state):
-  std::vector <KMatrix> Cart2Normal_Rs;
+  std::vector <arma::Mat<double>> Cart2Normal_Rs;
 
   for (int state=0; state<molStates.size(); state++)
   {
-    KMatrix NormModes( CARTDIM*(molStates[state].NAtoms()), molStates[state].NNormModes() ); // NOT mass weighted normal modes i.e. (L~)=T^(0.5)*L
-    NormModes.Set(0.0);  
+    arma::Mat<double> NormModes( CARTDIM*(molStates[state].NAtoms()), molStates[state].NNormModes(), arma::fill::zeros ); // NOT mass weighted normal modes i.e. (L~)=T^(0.5)*L
     //Get L (normal modes in cartesian coordinates mass unweighted (in Angstroms) ):
     for (int j=0; j < molStates[state].NAtoms(); j++) 
       for (int i = 0; i < molStates[state].NNormModes(); i++) 
         for (int k=0; k < CARTDIM; k++)
-          NormModes.Elem2(j*CARTDIM+k, i) = molStates[state].getNormMode(i).getDisplacement()[j*CARTDIM+k];
+          NormModes(j*CARTDIM+k, i) = molStates[state].getNormMode(i).getDisplacement()[j*CARTDIM+k];
 
     //Make sqrt(T)-matrix (diagonal matrix with sqrt(atomic masses) in cartesian coordinates):
-    KMatrix SqrtT( CARTDIM*(molStates[state].NAtoms()), CARTDIM*(molStates[state].NAtoms()), true);
-    SqrtT.Set(0.0);
+    arma::Mat<double> SqrtT( CARTDIM*(molStates[state].NAtoms()), CARTDIM*(molStates[state].NAtoms()), arma::fill::zeros);
     for (int i=0; i<molStates[state].NAtoms(); i++)
-      SqrtT.Elem2(i*CARTDIM,i*CARTDIM) 
-        = SqrtT.Elem2(i*CARTDIM+1,i*CARTDIM+1)
-        = SqrtT.Elem2(i*CARTDIM+2,i*CARTDIM+2)
+      SqrtT(i*CARTDIM, i*CARTDIM) 
+        = SqrtT(i*CARTDIM+1, i*CARTDIM+1)
+        = SqrtT(i*CARTDIM+2, i*CARTDIM+2)
         = sqrt(molStates[state].getAtom(i).Mass());
 
     // Cart->NormalModes transformation matrix R=L^T*sqrt(T)
     // q' = q+d = q+R*(x-x') (for the parallel normal mode approximation)
     // units of d are Angstr*sqrt(amu)
-    NormModes.Transpose(); 
-    NormModes*=SqrtT;
+    NormModes = NormModes.t(); 
+    NormModes *= SqrtT;
 
     Cart2Normal_Rs.push_back(NormModes);
   }
 
   // Initial geometry in cartesian coordinates:
-  KMatrix InitialCartCoord( CARTDIM*(molStates[iniN].NAtoms()), 1);
+  arma::Col<double> InitialCartCoord(CARTDIM*(molStates[iniN].NAtoms()));
   for (int i=0; i<molStates[iniN].NAtoms(); i++)
     for (int k=0; k<CARTDIM; k++)
-      InitialCartCoord[i*CARTDIM+k]=molStates[iniN].getAtom(i).Coord(k);
-  InitialCartCoord.Scale(ANGSTROM2AU); 
+      InitialCartCoord[i*CARTDIM+k] = molStates[iniN].getAtom(i).Coord(k);
+  InitialCartCoord *= ANGSTROM2AU; 
 
   // initialize spectrlPoint: create vector of VibrQuantNumbers for the initital and target state 
   // (keep only non-zero qunta, i.e. from the "excite subspace")
@@ -118,27 +112,29 @@ Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int>& nm_list,
     // calculate dQ:
 
     // Target state geometry in cartesian coordinates:
-    KMatrix TargetCartCoord( CARTDIM*(molStates[iniN].NAtoms()), 1);
+    arma::Col<double> TargetCartCoord(CARTDIM*(molStates[iniN].NAtoms()));
     for (int i=0; i<molStates[targN].NAtoms(); i++)
       for (int k=0; k <CARTDIM; k++)
-        TargetCartCoord[i*CARTDIM+k]=molStates[targN].getAtom(i).Coord(k);
+        TargetCartCoord[i*CARTDIM+k] = molStates[targN].getAtom(i).Coord(k);
 
     // input is in angstroms
-    TargetCartCoord.Scale(ANGSTROM2AU);
+    TargetCartCoord *= ANGSTROM2AU;
 
     // Shift of the target state relative to the initial (In cart. coord.)
-    KMatrix cartesian_shift(TargetCartCoord - InitialCartCoord, true); // true copies data
+    arma::Col<double> cartesian_shift = TargetCartCoord - InitialCartCoord;
 
-    // Transform Cart_>normal Mode coordinates
+    // Transform Cart->normal Mode coordinates
 
     // Geometry differences in normal coordinates
-    KMatrix NormModeShift_ini(molStates[iniN].NNormModes(), 1), NormModeShift_targ(molStates[iniN].NNormModes(), 1);
-    NormModeShift_ini.Multiply(Cart2Normal_Rs[iniN], cartesian_shift);
-    NormModeShift_targ.Multiply(Cart2Normal_Rs[targN], cartesian_shift);
+    arma::Col<double> NormModeShift_ini(molStates[iniN].NNormModes());
+    arma::Col<double> NormModeShift_targ(molStates[iniN].NNormModes());
+
+    NormModeShift_ini = Cart2Normal_Rs[iniN] * cartesian_shift;
+    NormModeShift_targ = Cart2Normal_Rs[targN] * cartesian_shift;
 
     // Rescale it back & print:
-    NormModeShift_ini*=(AU2ANGSTROM);
-    NormModeShift_targ*=(AU2ANGSTROM);
+    NormModeShift_ini *= AU2ANGSTROM;
+    NormModeShift_targ *= AU2ANGSTROM;
 
     std::cout << "Difference (dQ) between the initial and the target state geometries.\n"
       << "Angstrom*sqrt(amu):\n\n"
@@ -162,8 +158,8 @@ Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int>& nm_list,
     if (if_web_version)
     {
       std::vector <int> nondiagonal_list;
-      KMatrix NMoverlap;
-      bool if_overlap_diagonal=molStates[targN].getNormalModeOverlapWithOtherState(molStates[iniN], NMoverlap, nondiagonal_list);
+      arma::Mat<double> NMoverlap;
+      bool if_overlap_diagonal = molStates[targN].getNormalModeOverlapWithOtherState(molStates[iniN], NMoverlap, nondiagonal_list);
 
       std::ofstream nmoverlapF;     
       nmoverlapF.open(nmoverlapFName, std::ios::out);
@@ -192,7 +188,7 @@ Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int>& nm_list,
       {    
         nmoverlapF << "<row"<<nmt<<">\n";
         for (int nmi=0; nmi<n_norm_modes; nmi++)
-          nmoverlapF << "<c"<<nmi<<">"<< NMoverlap.Elem2(nmt,nmi)<<"</c"<<nmi<<">";
+          nmoverlapF << "<c"<<nmi<<">"<< NMoverlap(nmt, nmi)<<"</c"<<nmi<<">";
         nmoverlapF << "\n</row"<<nmt<<">\n";
       }
       nmoverlapF << "</overlap_matrix>\n\n</nmoverlap>";
@@ -218,7 +214,7 @@ Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int>& nm_list,
       for (int i=0; i<max_n_initial+1; i++)
         for (int j=0; j<max_n_target+1; j++)
           // energy position of each transition for a given normal mode; 1D; ofset by IP; when add for N dimensions, substract IP from each energy;
-          E_position_tmp.Elem2(i,j)
+          E_position_tmp(i, j)
             =
             - molStates[targN].Energy()
             + (molStates[iniN].getNormMode(nm).getFreq() * i
@@ -250,9 +246,7 @@ Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int>& nm_list,
         }
 
         for (int j=0; j<max_n_target+1; j++)
-          // FIXED: KMatrix -> armadillo
-          I_tmp.Elem2(i,j) = FCFs_tmp(i, j) * FCFs_tmp(i, j) * exp(-IExponent);
-          /* I_tmp.Elem2(i,j) = FCFs_tmp.Elem2(i,j) * FCFs_tmp.Elem2(i,j) * exp(-IExponent); */
+          I_tmp(i, j) = FCFs_tmp(i, j) * FCFs_tmp(i, j) * exp(-IExponent);
       }
       I.push_back(I_tmp);
 
@@ -270,11 +264,9 @@ Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int>& nm_list,
           std::cout << NormModeShift_ini[nm];
         std::cout << ")\n";
 
-        E_position[nm].Print((char *)("Peak positions, eV"));
-        // FIXED: KMatrix -> armadillo
+        E_position[nm].print("Peak positions, eV");
         FCFs[nm].print("1D Harmonic Franck-Condon factors");
-        /* FCFs[nm].PrintScientific((char *)("1D Harmonic Franck-Condon factors")); */
-        I[nm].Print((char *)("Intensities (FCFs^2)*(initial vibrational states termal population)"));
+        I[nm].print("Intensities (FCFs^2)*(initial vibrational states termal population)");
       }
 
     } // end for each normal mode
@@ -331,7 +323,7 @@ Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int>& nm_list,
 
         double energy = 0;
         for (int nm=0; nm < n_norm_modes; nm++) 
-          energy += E_position[nm].Elem2(state_ini[nm],0) + molStates[targN].Energy(); 
+          energy += E_position[nm](state_ini[nm], 0) + molStates[targN].Energy(); 
 
         if (energy < energy_threshold_initial)
         {
@@ -385,7 +377,7 @@ Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int>& nm_list,
 
         for (int nm=0; nm < n_norm_modes; nm++)
           // threshold -- energy above the ground state:
-          energy += E_position[nm].Elem2(0,state_targ[nm])+molStates[targN].Energy(); 
+          energy += E_position[nm](0, state_targ[nm])+molStates[targN].Energy(); 
 
         if ( -energy < energy_threshold_target )
         {
@@ -425,12 +417,10 @@ Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int>& nm_list,
 
         for (int nm=0; nm < n_norm_modes; nm++)
         {
-          intens *= I[nm].Elem2(selected_states_ini[curr_ini][nm],selected_states_targ[curr_targ][nm]);
-          // FIXED: KMatrix -> armadillo
+          intens *= I[nm](selected_states_ini[curr_ini][nm], selected_states_targ[curr_targ][nm]);
           FCF *= FCFs[nm](selected_states_ini[curr_ini][nm], selected_states_targ[curr_targ][nm]);
-          /* FCF *= FCFs[nm].Elem2(selected_states_ini[curr_ini][nm],selected_states_targ[curr_targ][nm]); */
-          energy += E_position[nm].Elem2(selected_states_ini[curr_ini][nm],selected_states_targ[curr_targ][nm]) + molStates[targN].Energy(); 
-          E_prime_prime += E_position[nm].Elem2(selected_states_ini[curr_ini][nm],0) + molStates[targN].Energy(); 
+          energy += E_position[nm](selected_states_ini[curr_ini][nm], selected_states_targ[curr_targ][nm]) + molStates[targN].Energy(); 
+          E_prime_prime += E_position[nm](selected_states_ini[curr_ini][nm], 0) + molStates[targN].Energy(); 
           // [ cancell the IE in each energy, which is stupid but inexpensive; probably should be eliminated ]
         }
 
@@ -528,21 +518,17 @@ Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int> nm_active
   // max_n_initial stands for maximum allowed excitations in a single mode in the initial state
   // FCFs_tmp(n, m) gives the integral of an overlap of a state with 'n' excitation with 
   // a state of 'm' excitations, i.e, <n|m> 
-  // FIXED: KMatrix -> armadillo
   arma::Mat<double> FCFs_tmp(max_n_initial+1, max_n_target+1);
-  /* KMatrix FCFs_tmp(max_n_initial+1, max_n_target+1); */
   // TODO: this might be more resource friendly if each FCFs in this vector had its own dims. Paweł Apr'22
-  // FIXED: KMatrix -> armadillo
   std::vector <arma::Mat<double>> FCFs;
-  /* std::vector <KMatrix> FCFs; */
 
   // matrix with intensities of FC transitions = FCFs*population_of_initial_vibrational_levels(Temperature distrib.)
-  KMatrix I_tmp (max_n_initial+1,max_n_target+1);
-  std::vector <KMatrix> I;
+  arma::Mat<double> I_tmp (max_n_initial+1, max_n_target+1);
+  std::vector <arma::Mat<double>> I;
 
   // energy position of each transition for a given normal mode; 1D; ofset by IP; when add for N dimensions, substract IP from each energy;
-  KMatrix E_position_tmp (max_n_initial+1,max_n_target+1);
-  std::vector <KMatrix> E_position;
+  arma::Mat<double> E_position_tmp (max_n_initial+1, max_n_target+1);
+  std::vector <arma::Mat<double>> E_position;
 
   // reduced mass for FCF calcualtions -- mass weighted coordinates
   // TODO: This is not used. Is it still necessary? Paweł Apr'22
@@ -550,42 +536,40 @@ Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int> nm_active
 
   // ==========================================================================================
   // Calculate transformation matrix "cartesian->normal mode" coordinates (for each state):
-  std::vector <KMatrix> Cart2Normal_Rs;
+  std::vector <arma::Mat<double>> Cart2Normal_Rs;
 
   for (int state=0; state<molStates.size(); state++)
   {
-    KMatrix NormModes( CARTDIM*(molStates[state].NAtoms()), molStates[state].NNormModes() ); // NOT mass weighted normal modes i.e. (L~)=T^(0.5)*L
-    NormModes.Set(0.0);  
+    arma::Mat<double> NormModes( CARTDIM*(molStates[state].NAtoms()), molStates[state].NNormModes(), arma::fill::zeros ); // NOT mass weighted normal modes i.e. (L~)=T^(0.5)*L
     //Get L (normal modes in cartesian coordinates mass unweighted (in Angstroms) ):
     for (int j=0; j < molStates[state].NAtoms(); j++) 
       for (int i = 0; i < molStates[state].NNormModes(); i++) 
         for (int k=0; k < CARTDIM; k++)
-          NormModes.Elem2(j*CARTDIM+k, i) = molStates[state].getNormMode(i).getDisplacement()[j*CARTDIM+k];
+          NormModes(j*CARTDIM+k, i) = molStates[state].getNormMode(i).getDisplacement()[j*CARTDIM+k];
 
     //Make sqrt(T)-matrix (diagonal matrix with sqrt(atomic masses) in cartesian coordinates):
-    KMatrix SqrtT( CARTDIM*(molStates[state].NAtoms()), CARTDIM*(molStates[state].NAtoms()), true);
-    SqrtT.Set(0.0);
+    arma::Mat<double> SqrtT( CARTDIM*(molStates[state].NAtoms()), CARTDIM*(molStates[state].NAtoms()), arma::fill::zeros);
     for (int i=0; i<molStates[state].NAtoms(); i++)
-      SqrtT.Elem2(i*CARTDIM,i*CARTDIM) 
-        = SqrtT.Elem2(i*CARTDIM+1,i*CARTDIM+1)
-        = SqrtT.Elem2(i*CARTDIM+2,i*CARTDIM+2)
+      SqrtT(i*CARTDIM, i*CARTDIM) 
+        = SqrtT(i*CARTDIM+1, i*CARTDIM+1)
+        = SqrtT(i*CARTDIM+2, i*CARTDIM+2)
         = sqrt(molStates[state].getAtom(i).Mass());
 
     // Cart->NormalModes transformation matrix R=L^T*sqrt(T)
     // q' = q+d = q+R*(x-x') (for the parallel normal mode approximation)
     // units of d are Angstr*sqrt(amu)
-    NormModes.Transpose(); 
-    NormModes*=SqrtT;
+    NormModes = NormModes.t(); 
+    NormModes *= SqrtT;
 
     Cart2Normal_Rs.push_back(NormModes);
   }
 
   // Initial geometry in cartesian coordinates:
-  KMatrix InitialCartCoord( CARTDIM*(molStates[iniN].NAtoms()), 1);
+  arma::Col<double> InitialCartCoord(CARTDIM*(molStates[iniN].NAtoms()));
   for (int i=0; i<molStates[iniN].NAtoms(); i++)
     for (int k=0; k<CARTDIM; k++)
-      InitialCartCoord[i*CARTDIM+k]=molStates[iniN].getAtom(i).Coord(k);
-  InitialCartCoord.Scale(ANGSTROM2AU); 
+      InitialCartCoord[i*CARTDIM+k] = molStates[iniN].getAtom(i).Coord(k);
+  InitialCartCoord *= ANGSTROM2AU; 
 
   // initialize spectrlPoint: create vector of VibrQuantNumbers for the initital and target state 
   // (keep only non-zero qunta, i.e. from the "excite subspace")
@@ -611,27 +595,29 @@ Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int> nm_active
     // calculate dQ:
 
     // Target state geometry in cartesian coordinates:
-    KMatrix TargetCartCoord( CARTDIM*(molStates[iniN].NAtoms()), 1);
+    arma::Col<double> TargetCartCoord(CARTDIM*(molStates[iniN].NAtoms()));
     for (int i=0; i<molStates[targN].NAtoms(); i++)
       for (int k=0; k <CARTDIM; k++)
-        TargetCartCoord[i*CARTDIM+k]=molStates[targN].getAtom(i).Coord(k);
+        TargetCartCoord[i*CARTDIM+k] = molStates[targN].getAtom(i).Coord(k);
 
     // input is in angstroms
-    TargetCartCoord.Scale(ANGSTROM2AU);
+    TargetCartCoord *= ANGSTROM2AU;
 
     // Shift of the target state relative to the initial (In cart. coord.)
-    KMatrix cartesian_shift(TargetCartCoord - InitialCartCoord, true); // true copies data
+    arma::Col<double> cartesian_shift = TargetCartCoord - InitialCartCoord;
 
     // Transform Cart_>normal Mode coordinates
 
     // Geometry differences in normal coordinates
-    KMatrix NormModeShift_ini(molStates[iniN].NNormModes(), 1), NormModeShift_targ(molStates[iniN].NNormModes(), 1);
-    NormModeShift_ini.Multiply(Cart2Normal_Rs[iniN], cartesian_shift);
-    NormModeShift_targ.Multiply(Cart2Normal_Rs[targN], cartesian_shift);
+    arma::Col<double> NormModeShift_ini(molStates[iniN].NNormModes());
+    arma::Col<double> NormModeShift_targ(molStates[iniN].NNormModes());
+
+    NormModeShift_ini = Cart2Normal_Rs[iniN] * cartesian_shift;
+    NormModeShift_targ = Cart2Normal_Rs[targN] * cartesian_shift;
 
     // Rescale it back & print:
-    NormModeShift_ini*=(AU2ANGSTROM);
-    NormModeShift_targ*=(AU2ANGSTROM);
+    NormModeShift_ini *= AU2ANGSTROM;
+    NormModeShift_targ *= AU2ANGSTROM;
 
     std::cout << "Difference (dQ) between the initial and the target state geometries.\n"
       << "Angstrom*sqrt(amu):\n\n"
@@ -655,7 +641,7 @@ Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int> nm_active
     if (if_web_version)
     {
       std::vector <int> nondiagonal_list;
-      KMatrix NMoverlap;
+      arma::Mat<double> NMoverlap;
       bool if_overlap_diagonal=molStates[targN].getNormalModeOverlapWithOtherState(molStates[iniN], NMoverlap, nondiagonal_list);
 
       std::ofstream nmoverlapF;     
@@ -685,7 +671,7 @@ Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int> nm_active
       {    
         nmoverlapF << "<row"<<nmt<<">\n";
         for (int nmi=0; nmi<n_norm_modes; nmi++)
-          nmoverlapF << "<c"<<nmi<<">"<< NMoverlap.Elem2(nmt,nmi)<<"</c"<<nmi<<">";
+          nmoverlapF << "<c"<<nmi<<">"<< NMoverlap(nmt, nmi)<<"</c"<<nmi<<">";
         nmoverlapF << "\n</row"<<nmt<<">\n";
       }
       nmoverlapF << "</overlap_matrix>\n\n</nmoverlap>";
@@ -710,7 +696,7 @@ Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int> nm_active
       for (int i=0; i<max_n_initial+1; i++)
         for (int j=0; j<max_n_target+1; j++)
           // energy position of each transition for a given normal mode; 1D; ofset by IP; when add for N dimensions, substract IP from each energy;
-          E_position_tmp.Elem2(i,j)
+          E_position_tmp(i, j)
             =
             - molStates[targN].Energy()
             + (molStates[iniN].getNormMode(nm).getFreq() * i
@@ -742,9 +728,7 @@ Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int> nm_active
         }
         // TODO: The intensity should neglected if one only considers fluorescence
         for (int j=0; j<max_n_target+1; j++)
-          // FIXED: KMatrix -> armadillo
-          I_tmp.Elem2(i,j) = FCFs_tmp(i,j) * FCFs_tmp(i,j) * exp(-IExponent);
-          /* I_tmp.Elem2(i,j) = FCFs_tmp.Elem2(i,j) * FCFs_tmp.Elem2(i,j) * exp(-IExponent); */
+          I_tmp(i,j) = FCFs_tmp(i,j) * FCFs_tmp(i,j) * exp(-IExponent);
       }
 
       I.push_back(I_tmp);
@@ -763,11 +747,9 @@ Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int> nm_active
           std::cout << NormModeShift_ini[nm];
         std::cout << ")\n";
 
-        E_position[nm].Print((char *)("Peak positions, eV"));
-        // FIXED: KMatrix -> armadillo 
+        E_position[nm].print("Peak positions, eV");
         FCFs[nm].print("1D Harmonic Franck-Condon factors");
-        /* FCFs[nm].PrintScientific((char *)("1D Harmonic Franck-Condon factors")); */
-        I[nm].Print((char *)("Intensities (FCFs^2)"));
+        I[nm].print("Intensities (FCFs^2)");
       }
 
     } // end for each normal mode
@@ -828,7 +810,7 @@ Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int> nm_active
 
         for (int nm=0; nm < n_norm_modes; nm++)
           // threshold -- energy above the ground state:
-          energy += E_position[nm].Elem2(0,state_targ[nm])+molStates[targN].Energy(); 
+          energy += E_position[nm](0, state_targ[nm])+molStates[targN].Energy(); 
 
         if ( -energy < energy_threshold_target )
         {
@@ -866,12 +848,10 @@ Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int> nm_active
 
         for (int nm=0; nm < n_norm_modes; nm++)
         {
-          intens *= I[nm].Elem2(selected_states_ini[curr_ini][nm],selected_states_targ[curr_targ][nm]);
-          // FIXED: KMatrix -> armadillo
+          intens *= I[nm](selected_states_ini[curr_ini][nm], selected_states_targ[curr_targ][nm]);
           FCF *= FCFs[nm](selected_states_ini[curr_ini][nm], selected_states_targ[curr_targ][nm]);
-          /* FCF *= FCFs[nm].Elem2(selected_states_ini[curr_ini][nm],selected_states_targ[curr_targ][nm]); */
-          energy += E_position[nm].Elem2(selected_states_ini[curr_ini][nm],selected_states_targ[curr_targ][nm]) + molStates[targN].Energy(); 
-          E_prime_prime += E_position[nm].Elem2(selected_states_ini[curr_ini][nm],0) + molStates[targN].Energy(); 
+          energy += E_position[nm](selected_states_ini[curr_ini][nm], selected_states_targ[curr_targ][nm]) + molStates[targN].Energy(); 
+          E_prime_prime += E_position[nm](selected_states_ini[curr_ini][nm], 0) + molStates[targN].Energy(); 
           // [ cancell the IE in each energy, which is stupid but inexpensive; probably should be eliminated ]
         }
 

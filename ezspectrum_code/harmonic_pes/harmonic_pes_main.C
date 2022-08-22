@@ -358,7 +358,7 @@ void harmonic_pes_parallel(xml_node& node_input, std::vector <MolState>& elState
     std::cout << "\n===== Overlap matrix of the target state #" << state << " with the initial state =====\n";
 
     std::vector <int> normal_modes_list;
-    KMatrix NMoverlap;  //normal modes overlap matric (for each target state the same matrix is used)
+    arma::Mat<double> NMoverlap;  //normal modes overlap matrix (for each target state the same matrix is used)
     bool if_overlap_diagonal;
 
     // select nondiagonal submatrix of the overlap matrix:
@@ -388,11 +388,10 @@ void harmonic_pes_parallel(xml_node& node_input, std::vector <MolState>& elState
       std::cout << "WARNING! The normal modes overlap matrix with the initial state\n"
         << "         is non-diagonal! Consider reordering the normal modes.\n\n";
       // create a normal mode submatrix:
-      KMatrix overlap_submatrix(new_normal_modes_list.size(),new_normal_modes_list.size());
-      overlap_submatrix.Set(0.0);
+      arma::Mat<double> overlap_submatrix(new_normal_modes_list.size(), new_normal_modes_list.size(), arma::fill::zeros);
       for (int nm1=0; nm1<new_normal_modes_list.size(); nm1++)
         for (int nm2=0; nm2<new_normal_modes_list.size(); nm2++)
-          overlap_submatrix.Elem2(nm1,nm2)=NMoverlap.Elem2(new_normal_modes_list[nm1],new_normal_modes_list[nm2]);
+          overlap_submatrix(nm1, nm2) = NMoverlap(new_normal_modes_list[nm1],new_normal_modes_list[nm2]);
 
       //print the overlap_submatrix (with correct column/row labbels):
       std::cout << "  The non-diagonal part of the normal modes overlap matrix (do_not_excite_subspace is excluded):";
@@ -403,8 +402,8 @@ void harmonic_pes_parallel(xml_node& node_input, std::vector <MolState>& elState
       for (int i=0; i<new_normal_modes_list.size(); i++) {
         std::cout << "\n  "<< std::fixed << std::setprecision(0) << std::setw(3) << new_normal_modes_list[i];
         for (int j=0; j<new_normal_modes_list.size(); j++)
-          if (fabs(overlap_submatrix.Elem2(i,j)) >= 0.001)
-            std::cout << std::fixed << std::setprecision(3) << std::setw(8) << overlap_submatrix.Elem2(i,j);
+          if (fabs(overlap_submatrix(i, j)) >= 0.001)
+            std::cout << std::fixed << std::setprecision(3) << std::setw(8) << overlap_submatrix(i, j);
           else
             std::cout << "      --";
       }
@@ -413,7 +412,7 @@ void harmonic_pes_parallel(xml_node& node_input, std::vector <MolState>& elState
 
     // print in a "fit 80 chars wide terminal" form
     if(if_print_normal_modes)
-      NMoverlap.Print((char *)("Normal modes overlap matrix with the initial state \n(if significantly non diagonal, please consider normal modes reordering)"));
+      NMoverlap.print("Normal modes overlap matrix with the initial state \n(if significantly non diagonal, please consider normal modes reordering)");
   }
 
   // for the web version: save the overlap matrix (with displacements) in an xml file

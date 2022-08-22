@@ -296,12 +296,9 @@ void MolState::applyCoordinateThreshold(const double threshold)
     normModes[i].applyCoordinateThreshold(threshold);
 }
 
-bool MolState::getNormalModeOverlapWithOtherState(MolState& other, KMatrix& overlap, std::vector<int>& normal_modes_list)
+bool MolState::getNormalModeOverlapWithOtherState(MolState& other, arma::Mat<double>& overlap, std::vector<int>& normal_modes_list)
 {
-  // SG: next line not used.
-  //  overlap; //#NM x #NM
-  overlap.Adjust(NNormModes(),NNormModes());
-  overlap.Set(0.0);
+  overlap = arma::Mat<double> (NNormModes(), NNormModes(), arma::fill::zeros);
 
   //normalization of initial and target normal modes (stored as un-mass-weighted)
   double norm_ini, norm_targ;
@@ -319,9 +316,9 @@ bool MolState::getNormalModeOverlapWithOtherState(MolState& other, KMatrix& over
           //x2*x2+y2*y2+..
           norm_targ+= other.getNormMode(nm2).getDisplacement().Elem1(a*CARTDIM+i) * other.getNormMode(nm2).getDisplacement().Elem1(a*CARTDIM+i);
           //x1*x2+y1*y2+...
-          overlap.Elem2(nm1,nm2)+= getNormMode(nm1).getDisplacement().Elem1(a*CARTDIM+i) * other.getNormMode(nm2).getDisplacement().Elem1(a*CARTDIM+i);
+          overlap(nm1, nm2)+= getNormMode(nm1).getDisplacement().Elem1(a*CARTDIM+i) * other.getNormMode(nm2).getDisplacement().Elem1(a*CARTDIM+i);
         }
-      overlap.Elem2(nm1,nm2)/= sqrt(norm_ini) * sqrt(norm_targ);
+      overlap(nm1, nm2)/= sqrt(norm_ini) * sqrt(norm_targ);
     }
   bool return_bool=true;
 
@@ -330,9 +327,9 @@ bool MolState::getNormalModeOverlapWithOtherState(MolState& other, KMatrix& over
   double max;
   for (int nm=0; nm<NNormModes(); nm++)
   {
-    max=fabs(overlap.Elem2(nm,nm)); // maximum should be at the diagonal
+    max=fabs(overlap(nm, nm)); // maximum should be at the diagonal
     for (int nm_scan=0; nm_scan<NNormModes(); nm_scan++) // scan row&column
-      if ( (fabs(overlap.Elem2(nm,nm_scan))>max) or (fabs(overlap.Elem2(nm_scan,nm))>max) ) // check nm-th row & column
+      if ( (fabs(overlap(nm, nm_scan))>max) or (fabs(overlap(nm_scan, nm))>max) ) // check nm-th row & column
       {
         return_bool=false;
         normal_modes_list.push_back(nm);

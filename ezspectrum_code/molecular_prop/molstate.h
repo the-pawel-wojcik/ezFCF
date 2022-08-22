@@ -63,7 +63,7 @@ class MolState
   void printNormalModes(); 
   void printGradient(); 
   // returns true if the overlap matrix is diagonal; makes a list of normal modes which form a non-diagonal minor.
-  bool getNormalModeOverlapWithOtherState(MolState& other, KMatrix& overlap, std::vector<int>& normal_modes_list);
+  bool getNormalModeOverlapWithOtherState(MolState& other, arma::Mat<double>& overlap, std::vector<int>& normal_modes_list);
 
   //--- interface ---------------------------------------------------
 
