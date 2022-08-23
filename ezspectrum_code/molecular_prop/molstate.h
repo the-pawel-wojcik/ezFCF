@@ -29,7 +29,7 @@ class MolState
   //! Normal modes order (relative to the input file's order)
   std::vector<int> normModesOrder;
   //! Gradient calculated in the caresian (non-mass-weighted) coordinates, a 3N x 1 matrix TODO: hande the cases where gradient is available only in the mass-weighted coordinates
-  KMatrix gradient;
+  arma::Col<double> gradient;
   //! may be removed later
   bool ifLinear;
   //! IP
@@ -83,7 +83,7 @@ class MolState
   int NNormModes() const { return normModes.size(); }
   //! returns True if vertical gradient was used
   //FIXIT: this is bad, need to rewrite in a safer way
-  bool IfGradient() const { return static_cast<bool>(gradient.Size()); }
+  bool IfGradient() const { return gradient.n_rows > 0; }
 
   //--- alignment ------------- ------------------------------------
   //! align each state: center of mass in the coordinates origin, moment of ineretia principal axes along the coordinate axes:

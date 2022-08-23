@@ -436,7 +436,7 @@ void MolState::printGradient()
   {
     std::cout << std::setw(4) << std::right  << getAtom(i).Name();
     for (int k=0; k<CARTDIM; k++)
-      std::cout << std::setw(12) << std::right << std::fixed << std::setprecision(4) << std::showpoint << gradient.Elem2(i * CARTDIM + k, 0) << ' '; 
+      std::cout << std::setw(12) << std::right << std::fixed << std::setprecision(4) << std::showpoint << gradient(i * CARTDIM + k) << ' '; 
     std::cout << '\n';
   }
 }
@@ -680,8 +680,8 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
       exit(1);
     }
     My_istringstream grad_iStr(node_gradient.read_string_value("text"));
-    // gradient is stored as a column, i.e, a 3N x 1 matrix 
-    gradient.Adjust(CARTDIM * NAtoms(), 1);
+    // gradient is stored as a column vector
+    gradient = arma::Col<double> (CARTDIM * NAtoms());
     for (int i = 0; i < NAtoms(); i++) {
       // Read the x, y, and z components of each vector
       for (int j = 0; j < CARTDIM; j++) {
@@ -694,12 +694,12 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
             << std::endl;
           exit(1);
         }
-        gradient.Elem1(CARTDIM * i + j) = cartesian_component;
+        gradient(CARTDIM * i + j) = cartesian_component;
       }
     }
   }
   /* End of parsing of the vertical gradient node. */
-  if (gradient.Size() > 0) {
+  if (gradient.n_rows > 0) {
     // $\Delta = \Omega ^{-2} D ^{-1} M ^{-1/2} g _{(2)} ^{(x)}$
 
     /* $\Delta$ is a vector of displacement between the target state normal coordinates $q ^{(2)}$ and the initial state normal coordinates $q ^{(1)}$:
@@ -724,50 +724,46 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
 
     //FIXIT: This needs to be cleaned up a bit in the future: use AU consistently,
     //Move some pieces into functions of appropriate classes (e.g., normalmode)
-    KMatrix mass_matrix_minus_half(CARTDIM * NAtoms(), CARTDIM * NAtoms(), true);
+    arma::Mat<double> mass_matrix_minus_half(CARTDIM * NAtoms(), CARTDIM * NAtoms(), arma::fill::zeros);
     for (int i = 0; i < NAtoms(); i++) {
       double mass = atoms[i].Mass() * AMU_2_ELECTRONMASS;
       double mass_inv = 1.0 / mass;
       double sqrt_mass_inv = sqrt(mass_inv);
       for (int j = 0; j < CARTDIM; j++) {
-        mass_matrix_minus_half.Elem2(CARTDIM * i + j, CARTDIM * i + j) = sqrt_mass_inv;
+        mass_matrix_minus_half(CARTDIM * i + j, CARTDIM * i + j) = sqrt_mass_inv;
       }
     }
 
-    KMatrix d_matrix(CARTDIM * NAtoms(), NNormModes(), true);
-    KMatrix Omega_matrix_minus2(NNormModes(), NNormModes(), true);
+    arma::Mat<double> d_matrix(CARTDIM * NAtoms(), NNormModes(), arma::fill::zeros);
+    arma::Mat<double> Omega_matrix_minus2(NNormModes(), NNormModes(), arma::fill::zeros);
     for (int j = 0; j < NNormModes(); j++){
       double freq = normModes[j].getFreq();
       freq *= WAVENUMBERS2EV; // first to eV
       freq *= EV2HARTREE; // then eV to a.u.
-      Omega_matrix_minus2.Elem2(j, j) = 1 / freq / freq;
+      Omega_matrix_minus2(j, j) = 1 / freq / freq;
       for (int i = 0; i < CARTDIM * NAtoms(); i++){
-        d_matrix.Elem2(i, j) = normModes[j].getDisplacement()[i];
+        d_matrix(i, j) = normModes[j].getDisplacement()[i];
       }
     }
 
-    KMatrix delta(gradient, true); // true initilizes values of delta with values of gradient
-    delta.LeftMult(mass_matrix_minus_half);
-    delta.LeftMult(d_matrix, true); // true transposes the matrix, D ^T = D ^{-1}
-  delta.LeftMult(Omega_matrix_minus2);
+    arma::Col<double> delta;
+    delta = Omega_matrix_minus2 * d_matrix.t() * mass_matrix_minus_half * gradient;
 
-  // R _e ^{(2)} = R _e ^{(1)} - M ^{-1/2} D \Delta
-  KMatrix geometry_shift(delta, true); // true for copying the data
-  geometry_shift.LeftMult(d_matrix);
-  geometry_shift.LeftMult(mass_matrix_minus_half);
+    // R _e ^{(2)} = R _e ^{(1)} - M ^{-1/2} D \Delta
+    arma::Col<double> geometry_shift;
+    geometry_shift = mass_matrix_minus_half * d_matrix * delta;
+    geometry_shift *= AU2ANGSTROM;
 
-  geometry_shift *= AU2ANGSTROM;
-
-  for (int i = 0; i < NAtoms(); i++) {
-    for (int j = 0; j < CARTDIM; j++){
-      atoms[i].Coord(j) -= geometry_shift.Elem2(CARTDIM * i + j, 0);
+    for (int i = 0; i < NAtoms(); i++) {
+      for (int j = 0; j < CARTDIM; j++){
+        atoms[i].Coord(j) -= geometry_shift(CARTDIM * i + j);
+      }
     }
-  }
-  std::cout << "Target-state geometry calculated with vertical gradient apprx-n:" << std::endl;
-  printGeometry();
+    std::cout << "Target-state geometry calculated with vertical gradient apprx-n:" << std::endl;
+    printGeometry();
 
   for (int i = 0; i < NNormModes(); i++) {
-    energy -= 0.5 * delta.Elem1(i) * delta.Elem1(i) / Omega_matrix_minus2.Elem2(i,i) / EV2HARTREE; 
+    energy -= 0.5 * delta(i) * delta(i) / Omega_matrix_minus2(i,i) / EV2HARTREE; 
   }
 
   // HINT: Vertical gradient works within paralle approximation wo/ frequency shifts. 
