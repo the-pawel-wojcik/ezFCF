@@ -90,7 +90,7 @@ bool harmonic_pes_main (const char *InputFileName, xml_node& node_input, xml_nod
     std::cout << "\nNew molecular geometry:\n";
     elStates[state_i].printGeometry();
     // centerOfMass=elStates[i].getCenterOfMass().applyThreshold(COORDINATE_THRESHOLD).print("Center of mass: ");
-    elStates[state_i].getMomentOfInertiaTensor().Print((char *)("\nMOI tensor:"));
+    elStates[state_i].getMomentOfInertiaTensor().print("\nMOI tensor:");
 
     if (if_print_normal_modes) {
       std::cout << "Normal modes after the geometry transformations:\n\n";

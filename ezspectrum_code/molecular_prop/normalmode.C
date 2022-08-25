@@ -27,7 +27,7 @@ void NormalMode::shiftCoordinates(Vector3D& vector)
       displacement[a*CARTDIM+j] -= vector[j];
 }
 
-void NormalMode::transformCoordinates(const KMatrix& matrix_3x3)
+void NormalMode::transformCoordinates(const arma::Mat<double>& matrix_3x3)
 {
   KMatrix old_displacement(displacement);
   displacement.Set(0.0);
@@ -35,7 +35,7 @@ void NormalMode::transformCoordinates(const KMatrix& matrix_3x3)
   for (int a=0; a<nAtoms; a++) // for each atom take (x,y,z) vector and transform it as in Atom class
     for (int i=0; i<CARTDIM; i++) // columns #, i.e. i=0 is x, i=1 is y, i=2 is z;
   for (int j=0; j<CARTDIM; j++) // rows #, i.e. eigen vectors, wich are in rows;
-  displacement[a*CARTDIM+i]+=old_displacement[a*CARTDIM+j]*matrix_3x3.Elem2(i,j);
+  displacement[a*CARTDIM+i]+=old_displacement[a*CARTDIM+j] * matrix_3x3(i, j);
 }
 
 void NormalMode::applyCoordinateThreshold(const double threshold)

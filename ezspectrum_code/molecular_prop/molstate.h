@@ -39,7 +39,7 @@ class MolState
   bool ifLetterOrNumber(char Ch);
 
   Vector3D centerOfMass;
-  KMatrix momentOfInertiaTensor;
+  arma::Mat<double> momentOfInertiaTensor;
 
   //! reduced masses
   KMatrix reduced_masses;
@@ -97,11 +97,11 @@ class MolState
   // Center eof mass vector:
   Vector3D& getCenterOfMass();
   // Moment of inertia tensor:
-  KMatrix& getMomentOfInertiaTensor();
+  arma::Mat<double>& getMomentOfInertiaTensor();
   // Shifts coordinate's origin by "vector" 
   void shiftCoordinates(Vector3D& vector);
   // matrix multiolication coordinates*matrix_3x3; "coordinates" matrix is of 3 columns: x,y,z. matrix_3x3 has eigen vectors of the transformation in rows.
-  void transformCoordinates(const KMatrix& matrix_3x3);
+  void transformCoordinates(const arma::Mat<double>& matrix_3x3);
   void applyCoordinateThreshold(const double threshold);
   double getGeomDifference(MolState& other);
   // three rotations around x, y, z by PI/2:

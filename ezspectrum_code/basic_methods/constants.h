@@ -44,6 +44,9 @@
 
 //! if less than threshold, considered to be zero
 #define COORDINATE_THRESHOLD 0.00000001 //Angstrom
+//! if less than threshold, considered to be zero
+// threshold for moment of intertia tensor
+#define MOI_THRESHOLD 0.00000001
 
 
 //! Convert energy to eV

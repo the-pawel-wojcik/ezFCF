@@ -9,7 +9,7 @@
 //------------------------------
 MolState::MolState () {
 
-  momentOfInertiaTensor.Adjust(CARTDIM,CARTDIM);
+  momentOfInertiaTensor = arma::Mat<double> (CARTDIM, CARTDIM);
   if_aligned_manually=false;
   if_nm_reordered_manually=false;
   normModesOrder.clear();
@@ -60,21 +60,36 @@ void MolState::align()
   /* const char * center_of_mass_name = "Center of mass: "; */
   /* getCenterOfMass().print(center_of_mass_name); */
 
-
-  // Aligh moment of inertia principal axes:
-  KMatrix MOI_tensor(3,3), MOI_eigenValues(3,1), MOI_eigenVectors(3,3);
+  arma::Mat<double> MOI_tensor(CARTDIM, CARTDIM);
   MOI_tensor = getMomentOfInertiaTensor();
-  //MOI_tensor.Print("Moment of inertia tensor");
-  MOI_eigenVectors=MOI_tensor.Herm_Diag(MOI_eigenValues, true); // true=>eigen vals in the descending order; eigen vectors in ROWS.
-                                                                // MOI_eigenVectors.Print("MOI eigen vectors");
-                                                                // MOI_eigenValues.Print("MOI eigen values");
 
-                                                                // compute the determinant of MOI matrix:
-  double det_tmp =  MOI_eigenVectors.Determinant();
+  arma::Col<double> MOI_eigenValues(CARTDIM);
+  arma::Mat<double> MOI_eigenVectors(CARTDIM, CARTDIM);
+  // "std" indicates use of a standard method instead of 
+  // the divide-and-conquer "dc" method. "dc" gives 
+  // slightly different results than "std", but is 
+  // considerably faster for large matrices
+  // http://arma.sourceforge.net/docs.html#eig_sym
+  arma::eig_sym(MOI_eigenValues, MOI_eigenVectors, MOI_tensor, "std");
+  // The ezSpectrum convention said:
+  // a) eigenvalues in descending order
+  // b) eigenvectors in ROWS
+  // The armadillo convention is the exact opposite.
+  
+  // Move eigenvectors to rows
+  MOI_eigenVectors = MOI_eigenVectors.t(); 
+  // Flip the order of rows
+  MOI_eigenVectors = arma::flipud(MOI_eigenVectors); 
+  MOI_eigenValues = arma::reverse(MOI_eigenValues);
+
+  // compute the determinant of MOI matrix:
+  double det_tmp =  arma::det(MOI_eigenVectors);
   // if determinant is = 1 than it is a proper rotation; 
   // if it is = -1 than it is rotation+reflection (switch from left handed to the right handed coord.system); swap x&y axes:
   if (det_tmp < 0)
-    MOI_eigenVectors.SwapRows(0,1);
+  {
+    MOI_eigenVectors.swap_rows(0, 1);
+  }
 
   transformCoordinates(MOI_eigenVectors); // rotate coordinates using matrix of the MOI eigen vectors 
   std::cout << "Coordinate axes were aligned with MOI principal axes; center mass was shifted to the origin.\n";
@@ -157,22 +172,28 @@ Vector3D& MolState::getCenterOfMass()
 }
 
 //------------------------------
-KMatrix& MolState::getMomentOfInertiaTensor()
+arma::Mat<double>& MolState::getMomentOfInertiaTensor()
 {
-  //  I_ij=SUM_k[m_k*(r_k^2*delta_ij-r_ki*r_kj)]
+  // I_ij = SUM_k[m_k * (r_k^2*delta_ij-r_ki*r_kj)]
   for (int i=0; i< CARTDIM; i++)
+  {
     for (int j=0; j<CARTDIM; j++)
     {
-      momentOfInertiaTensor.Elem2(i,j)=0;
+      momentOfInertiaTensor(i, j) = 0.0;
       for (int atom=0; atom<NAtoms(); atom++)
       { 
-        momentOfInertiaTensor.Elem2(i,j)-=atoms[atom].getCoord(i)*atoms[atom].getCoord(j)*atoms[atom].getMass();
-
-        // add R^2, i.e. I_zz=m*(R^2-r_z^2)=m*(r_x^2+r_y^2)
+        double atom_mass = atoms[atom].getMass();
+        momentOfInertiaTensor(i, j) -= atoms[atom].getCoord(i) * atoms[atom].getCoord(j) * atom_mass;
+        // add R^2, i.e. I_zz = m * (R^2 - r_z^2) = m * (r_x^2 + r_y^2)
         if (i==j)
-          momentOfInertiaTensor.Elem2(i,j)+=atoms[atom].getR()*atoms[atom].getR()*atoms[atom].getMass();
+          momentOfInertiaTensor(i, j) += atoms[atom].getR() * atoms[atom].getR() * atom_mass;
       }
     }
+  }
+
+  // clean zeroes
+  momentOfInertiaTensor.clean(MOI_THRESHOLD);
+
   return momentOfInertiaTensor;
 }
 
@@ -186,7 +207,7 @@ void MolState::shiftCoordinates(Vector3D& vector)
 }
 
 //------------------------------
-void MolState::transformCoordinates(const KMatrix& matrix_3x3)
+void MolState::transformCoordinates(const arma::Mat<double>& matrix_3x3)
 {
   for (int i=0; i<atoms.size(); i++)
     atoms[i].transformCoordinates(matrix_3x3);
@@ -225,36 +246,34 @@ void MolState::rotateZ_90deg()
 void MolState::rotate(const double alpha_x, const double alpha_y, const double alpha_z)
 {
   // three rotation matrices (instead of making one matrix) around x, y, z axes
-  KMatrix R(CARTDIM,CARTDIM), Rx(CARTDIM,CARTDIM), Ry(CARTDIM,CARTDIM), Rz(CARTDIM,CARTDIM);
+  arma::Mat<double> Rx(CARTDIM, CARTDIM, arma::fill::zeros);
+  Rx(0, 0) = 1;
+  Rx(1, 1) = cos(alpha_x);
+  Rx(2, 2) = cos(alpha_x);
+  Rx(2, 1) = -sin(alpha_x);
+  Rx(1, 2) = sin(alpha_x);
 
-  Rx.Set(0);
-  Rx.Elem2(0,0)=1;
-  Rx.Elem2(1,1)=cos(alpha_x);
-  Rx.Elem2(2,2)=cos(alpha_x);
-  Rx.Elem2(2,1)=-sin(alpha_x);
-  Rx.Elem2(1,2)=sin(alpha_x);
+  arma::Mat<double> Ry(CARTDIM, CARTDIM, arma::fill::zeros); 
+  Ry(1, 1) = 1;
+  Ry(0, 0) = cos(alpha_y);
+  Ry(2, 2) = cos(alpha_y);
+  Ry(2, 0) = sin(alpha_y);
+  Ry(0, 2) = -sin(alpha_y);
 
-  Ry.Set(0);
-  Ry.Elem2(1,1)=1;
-  Ry.Elem2(0,0)=cos(alpha_y);
-  Ry.Elem2(2,2)=cos(alpha_y);
-  Ry.Elem2(2,0)=sin(alpha_y);
-  Ry.Elem2(0,2)=-sin(alpha_y);
-
-  Rz.Set(0);
-  Rz.Elem2(2,2)=1;
-  Rz.Elem2(0,0)=cos(alpha_z);
-  Rz.Elem2(1,1)=cos(alpha_z);
-  Rz.Elem2(1,0)=-sin(alpha_z);
-  Rz.Elem2(0,1)=sin(alpha_z);
+  arma::Mat<double> Rz(CARTDIM, CARTDIM, arma::fill::zeros);
+  Rz(2, 2) = 1;
+  Rz(0, 0) = cos(alpha_z);
+  Rz(1, 1) = cos(alpha_z);
+  Rz(1, 0) = -sin(alpha_z);
+  Rz(0, 1) = sin(alpha_z);
 
   // Rotations are applied in the order: x, y, and z
   // which gives the overall rotation matrix
   // R = Rx Ry Rz
-  R.SetDiagonal(1);
-  R*=Rx;
-  R*=Ry;
-  R*=Rz;
+  arma::Mat<double> R = arma::eye(CARTDIM, CARTDIM);
+  R *= Rx;
+  R *= Ry;
+  R *= Rz;
 
   // and now rotates using matix R:
   transformCoordinates(R);

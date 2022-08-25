@@ -27,20 +27,20 @@ void Atom::shiftCoordinates(Vector3D& vector)
     coord[i]-=vector[i];
 }
 
-void Atom::transformCoordinates(const KMatrix& matrix_3x3)
+void Atom::transformCoordinates(const arma::Mat<double>& matrix_3x3)
 {
-  double coord_old[CARTDIM];
+  arma::Col<double> coord_old(CARTDIM);
 
   for (int i=0; i<CARTDIM; i++)
   {
-    coord_old[i]=coord[i];
-    coord[i]=0;
+    coord_old(i) = coord[i];
+    coord[i] = 0;
   }
 
   //vector*matrix multiplication:
   for (int i=0; i<CARTDIM; i++) // columns #, i.e. i=0 is x, i=1 is y, i=2 is z;
   for (int j=0; j<CARTDIM; j++) // rows #, i.e. eigen vectors, which are in rows;
-  coord[i]+=coord_old[j]*matrix_3x3.Elem2(i,j);
+  coord[i] += coord_old(j) * matrix_3x3(i, j);
 }
 
 void Atom::applyCoordinateThreshold(const double threshold)

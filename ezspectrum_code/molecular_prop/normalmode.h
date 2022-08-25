@@ -43,7 +43,7 @@ class NormalMode
   // IMPORTANT: there is no need to "shift" normal coordinates in general. (i.e. never use this function!)
   void shiftCoordinates(Vector3D& vector);
   // matrix multiplication coordinates*matrix_3x3; "coordinates" matrix is of 3 columns: x,y,z. matrix_3x3 has eigen vectors of the transformation in rows.
-  void transformCoordinates(const KMatrix& matrix_3x3);
+  void transformCoordinates(const arma::Mat<double>& matrix_3x3);
   void applyCoordinateThreshold(const double threshold);
   // three rotations around x, y, z by PI/2:
   void rotateX_90deg();
