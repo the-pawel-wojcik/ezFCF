@@ -13,7 +13,7 @@ bool harmonic_pes_main (const char *InputFileName, xml_node& node_input, xml_nod
   //======= read "global" job variables  =====================================================
   xml_node node_jobparams(node_input,"job_parameters",0);
   // check if print normal modes after transformations & overlap matrix
-  bool if_print_normal_modes=node_input.read_flag_value("print_normal_modes"); // . Paweł Apr'22
+  bool if_print_normal_modes=node_input.read_flag_value("print_normal_modes");
 
   //===========================================================================================
   //Read initial state and N target states; i.e. (N+1) electronic states total
@@ -45,7 +45,8 @@ bool harmonic_pes_main (const char *InputFileName, xml_node& node_input, xml_nod
   }
 
   if (elStates[0].IfGradient()) {
-    std::cout << "\nError! Use of the vertical gradient method is allowed only in target states.\n\n";
+    std::cout 
+      << "\nError! Use of the vertical gradient method is allowed only in target states.\n\n";
     exit(2);
   }
 
@@ -76,7 +77,9 @@ bool harmonic_pes_main (const char *InputFileName, xml_node& node_input, xml_nod
     // apply automatic transformations to the last loaded state (if no manual were requested):
     if ( not(elStates[state_i].ifAlignedManually()) ) {
 
-      // align each state: center of mass in the coordinates origin, moment of ineretia principal axes along the coordinate axes
+      // align each state: 
+      // 1. center of mass in the coordinates origin
+      // 2. moment of ineretia principal axes along the coordinate axes
       elStates[state_i].align();
 
       // align each target state with the initial one
