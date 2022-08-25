@@ -1,4 +1,4 @@
-Job "../bin/ezFCF_linux.exe trans_hcoh_small.xml" has been started: Fri Jul 29 14:02:56 2022
+Job "../ezspectrum_code/ezFCF_linux.exe trans_hcoh_small.xml" has been started: Thu Aug 25 14:36:42 2022
 
 A copy of the "trans_hcoh_small.xml" input:
 ------------------------------------------------------------------------------
@@ -128,35 +128,29 @@ Done reading states
 Coordinate axes were aligned with MOI principal axes; center mass was shifted to the origin.
 
 New molecular geometry:
-   C      0.1216       0.0000      -0.7363 
-   O     -0.0831       0.0000       0.5617 
-   H     -0.9104       0.0000      -1.1360 
-   H      0.7818       0.0000       0.9890 
+   C      0.0000       0.1216      -0.7363 
+   O      0.0000      -0.0831       0.5617 
+   H      0.0000      -0.9104      -1.1360 
+   H      0.0000       0.7818       0.9890 
 
 MOI tensor:
-                0           1           2
-    0   13.839364    0.000000    0.000000
-    1    0.000000   15.578733    0.000000
-    2    0.000000    0.000000    1.739369
-
-
+   15.5787        0.        0.
+        0.   13.8394        0.
+        0.        0.    1.7394
 Coordinate axes were aligned with MOI principal axes; center mass was shifted to the origin.
 Also rotated by 2/2*pi, 2/2*pi, and 2/2*pi CCW around x, y, and z.
 The norm of the geometry difference from the initial state is 0.4350
 
 New molecular geometry:
-   C      0.1194       0.0000      -0.6757 
-   O     -0.0919       0.0000       0.5270 
-   H     -0.6578       0.0000      -1.4431 
-   H      0.6938       0.0000       1.1245 
+   C      0.0000       0.1194      -0.6757 
+   O      0.0000      -0.0919       0.5270 
+   H      0.0000      -0.6578      -1.4431 
+   H      0.0000       0.6938       1.1245 
 
 MOI tensor:
-                0           1           2
-    0   13.295704    0.000000   -0.000000
-    1    0.000000   14.523102    0.000000
-    2   -0.000000    0.000000    1.227398
-
-
+   14.5231        0.        0.
+        0.   13.2957        0.
+        0.        0.    1.2274
 Done with the transformations
 ------------------------------------------------------------------------------
 
@@ -252,5 +246,5 @@ Stick spectrum was also saved in "trans_hcoh_small.xml.spectrum_parallel" file
 ------------------------------------------------------------------------------
 
 
-Job "../bin/ezFCF_linux.exe trans_hcoh_small.xml" has finished: Fri Jul 29 14:02:56 2022
+Job "../ezspectrum_code/ezFCF_linux.exe trans_hcoh_small.xml" has finished: Thu Aug 25 14:36:42 2022
 

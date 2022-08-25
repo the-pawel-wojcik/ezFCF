@@ -16,13 +16,13 @@ samples="adenine.xml cis_hcoh.xml formaldehyde.xml the_only_initial_state.xml th
 for sample in $samples
 do
     echo -n "."
-    if [ -e loc_$sample ]
+    if [ -e $sample ]
     then
-        rm loc_$sample
+        rm $sample
     fi
-    if [ -e loc_${sample}.out ]
+    if [ -e ${sample}.out ]
     then
-        rm loc_${sample}.out
+        rm ${sample}.out
     fi
 done
 echo " done."
@@ -32,9 +32,9 @@ parallel="adenine.xml.spectrum_parallel cis_hcoh.xml.spectrum_parallel formaldeh
 for spectrum in $parallel
 do
     echo -n "."
-    if [ -e loc_$spectrum ]
+    if [ -e $spectrum ]
     then
-        rm loc_$spectrum
+        rm $spectrum
     fi
 done
 echo " done."
@@ -44,9 +44,9 @@ duschinsky="adenine.xml.spectrum_dushinsky cis_hcoh.xml.spectrum_dushinsky forma
 for spectrum in $duschinsky
 do
     echo -n "."
-    if [ -e loc_$spectrum ]
+    if [ -e $spectrum ]
     then
-        rm loc_$spectrum
+        rm $spectrum
     fi
 done
 echo " done."

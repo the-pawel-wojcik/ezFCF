@@ -1,4 +1,4 @@
-Job "../bin/ezFCF_linux.exe the_only_initial_state.xml" has been started: Fri Jul 29 14:01:53 2022
+Job "../ezspectrum_code/ezFCF_linux.exe the_only_initial_state.xml" has been started: Thu Aug 25 14:35:30 2022
 
 A copy of the "the_only_initial_state.xml" input:
 ------------------------------------------------------------------------------
@@ -151,18 +151,15 @@ Done reading states
 Coordinate axes were aligned with MOI principal axes; center mass was shifted to the origin.
 
 New molecular geometry:
-   C     -0.0000       0.0000      -0.6068 
+   C      0.0000      -0.0000      -0.6068 
    O      0.0000       0.0000       0.6033 
-   H      0.9201       0.0000      -1.1752 
-   H     -0.9201       0.0000      -1.1752 
+   H      0.0000       0.9201      -1.1752 
+   H      0.0000      -0.9201      -1.1752 
 
 MOI tensor:
-                0           1           2
-    0   13.024798    0.000000   -0.000000
-    1    0.000000   14.731157    0.000000
-    2   -0.000000    0.000000    1.706359
-
-
+   14.7312        0.        0.
+        0.   13.0248        0.
+        0.        0.    1.7064
 Coordinate axes were aligned with MOI principal axes; center mass was shifted to the origin.
 Also rotated by 0/2*pi, 2/2*pi, and 3/2*pi CCW around x, y, and z.
 The norm of the geometry difference from the initial state is 0.0724
@@ -170,16 +167,13 @@ The norm of the geometry difference from the initial state is 0.0724
 New molecular geometry:
    C      0.0000       0.0000      -0.6244 
    O      0.0000       0.0000       0.6120 
-   H      0.9535       0.0000      -1.1391 
-   H     -0.9535       0.0000      -1.1391 
+   H      0.0000       0.9535      -1.1391 
+   H      0.0000      -0.9535      -1.1391 
 
 MOI tensor:
-                0           1           2
-    0   13.283623    0.000000   -0.000000
-    1    0.000000   15.116307    0.000000
-    2   -0.000000    0.000000    1.832684
-
-
+   15.1163        0.        0.
+        0.   13.2836        0.
+        0.        0.    1.8327
 Done with the transformations
 ------------------------------------------------------------------------------
 
@@ -322,5 +316,5 @@ Stick spectrum was also saved in "the_only_initial_state.xml.spectrum_dushinsky"
 
 
 
-Job "../bin/ezFCF_linux.exe the_only_initial_state.xml" has finished: Fri Jul 29 14:01:54 2022
+Job "../ezspectrum_code/ezFCF_linux.exe the_only_initial_state.xml" has finished: Thu Aug 25 14:35:30 2022
 

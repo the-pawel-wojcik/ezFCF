@@ -1,4 +1,4 @@
-Job "../bin/ezFCF_linux.exe cis_hcoh.xml" has been started: Fri Jul 29 13:59:37 2022
+Job "../ezspectrum_code/ezFCF_linux.exe cis_hcoh.xml" has been started: Thu Aug 25 14:35:29 2022
 
 A copy of the "cis_hcoh.xml" input:
 ------------------------------------------------------------------------------
@@ -145,35 +145,29 @@ Done reading states
 Coordinate axes were aligned with MOI principal axes; center mass was shifted to the origin.
 
 New molecular geometry:
-   C      0.0834       0.0000      -0.7437 
-   O      0.0520       0.0000       0.5674 
-   H     -0.9752       0.0000      -1.0889 
-   H     -0.8434       0.0000       0.9388 
+   C      0.0000       0.0834      -0.7437 
+   O      0.0000       0.0520       0.5674 
+   H      0.0000      -0.9752      -1.0889 
+   H      0.0000      -0.8434       0.9388 
 
 MOI tensor:
-                0           1           2
-    0   13.868805    0.000000    0.000000
-    1    0.000000   15.670849    0.000000
-    2    0.000000    0.000000    1.802044
-
-
+   15.6708        0.        0.
+        0.   13.8688        0.
+        0.        0.    1.8020
 Coordinate axes were aligned with MOI principal axes; center mass was shifted to the origin.
 Also rotated by 2/2*pi, 2/2*pi, and 2/2*pi CCW around x, y, and z.
 The norm of the geometry difference from the initial state is 0.4325
 
 New molecular geometry:
-   C      0.0715       0.0000      -0.6793 
-   O      0.0441       0.0000       0.5359 
-   H     -0.7261       0.0000      -1.4270 
-   H     -0.8247       0.0000       1.0099 
+   C      0.0000       0.0715      -0.6793 
+   O      0.0000       0.0441       0.5359 
+   H      0.0000      -0.7261      -1.4270 
+   H      0.0000      -0.8247       1.0099 
 
 MOI tensor:
-                0           1           2
-    0   13.211404    0.000000   -0.000000
-    1    0.000000   14.520626    0.000000
-    2   -0.000000    0.000000    1.309222
-
-
+   14.5206        0.        0.
+        0.   13.2114        0.
+        0.        0.    1.3092
 Done with the transformations
 ------------------------------------------------------------------------------
 
@@ -754,5 +748,5 @@ Stick spectrum was also saved in "cis_hcoh.xml.spectrum_dushinsky" file
 
 
 
-Job "../bin/ezFCF_linux.exe cis_hcoh.xml" has finished: Fri Jul 29 13:59:37 2022
+Job "../ezspectrum_code/ezFCF_linux.exe cis_hcoh.xml" has finished: Thu Aug 25 14:35:30 2022
 

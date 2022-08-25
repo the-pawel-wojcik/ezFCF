@@ -18,7 +18,7 @@ fi
 RED='\033[1;31m'
 NC='\033[0m' # No Color
 compare () {
-    cmp --silent ../Samples/$1 loc_$1 && echo "OK: ${1}"  || echo -e "${RED}Different${NC}: ${1}"
+    cmp --silent ../Samples/$1 $1 && echo "OK: ${1}"  || echo -e "${RED}Different${NC}: ${1}"
 }
 
 # Makse sure that dependencies are satisifed
@@ -30,9 +30,9 @@ then
 fi
 
 echo ""
-echo " = = = = = = = = = = = = = "
-echo " Beginning the test "
-echo " = = = = = = = = = = = = = "
+echo " = = = = = = = = = = = = = = ="
+echo "  Running sample calculations "
+echo " = = = = = = = = = = = = = = ="
 echo "" 
 
 # Run a local copy of samples and print timing 
@@ -41,14 +41,14 @@ for sample in $samples
 do
     echo ""
     echo $sample
-    cp ../Samples/$sample ./loc_$sample
-    time $ezFCF loc_$sample > loc_${sample}.out
+    cp ../Samples/$sample ./$sample
+    time $ezFCF $sample > ${sample}.out
 done
 
 echo ""
-echo " = = = = = = = = = = = = = "
-echo " Done running the examples "
-echo " = = = = = = = = = = = = = "
+echo " = = = = = = = = = ="
+echo "  Samples are ready"
+echo " = = = = = = = = = ="
 echo "" 
 
 # Diff parallel spectra
@@ -65,8 +65,8 @@ do
 done
 
 echo ""
-echo " = = = = = = = = = = "
-echo " All tests completed "
-echo " = = = = = = = = = = "
+echo " = = = = = = = = = = ="
+echo "  Comparison complete "
+echo " = = = = = = = = = = ="
 echo "" 
 
