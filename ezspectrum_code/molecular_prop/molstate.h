@@ -32,7 +32,7 @@ class MolState
   arma::Col<double> gradient;
   //! may be removed later
   bool ifLinear;
-  //! IP
+  //! excitation energy (formerly IP)
   double energy;
 
   //!move this to functions...
