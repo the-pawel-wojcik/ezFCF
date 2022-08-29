@@ -42,7 +42,7 @@ class MolState
   arma::Mat<double> momentOfInertiaTensor;
 
   //! reduced masses
-  KMatrix reduced_masses;
+  arma::Col<double> reduced_masses;
 
   //!if geometry transformation was performed manually
   bool if_aligned_manually;

@@ -421,32 +421,19 @@ void MolState::printNormalModes()
       {
         for (int k=0; k < CARTDIM; k++)
 
-          std::cout << std::setw(7) << std::right << std::fixed << std::setprecision(3)
-            << getNormMode(n*nModesPerLine+j).getDisplacement()[a*CARTDIM+k]*sqrt( reduced_masses[n*nModesPerLine+j]/getAtom(a).Mass() )<<' ';
+          std::cout 
+            << std::setw(7) << std::right << std::fixed << std::setprecision(3)
+            << 
+            getNormMode(n*nModesPerLine+j).getDisplacement()[a*CARTDIM+k] 
+            * 
+            sqrt( reduced_masses(n * nModesPerLine + j) / getAtom(a).Mass() )
+            <<' ';
         std::cout <<  "  ";
       }
       std::cout << "\n";
     }
     std::cout << "\n";
   }
-
-  /*
-
-     for (int nm=0; nm < NNormModes(); nm++)
-     {
-     for (int a=0; a < NAtoms(); a++) 
-     {
-     for (int k=0; k < CARTDIM; k++)
-     std::cout << std::setw(10) << std::right << std::fixed << std::setprecision(4)
-     << getNormMode(nm).getDisplacement()[a*CARTDIM+k]*sqrt( reduced_masses[nm]/getAtom(a).Mass() )<<' ';
-     std::cout << '\n';
-     }
-     std::cout << '\n';
-     }
-
-*/
-
-
 }
 
 void MolState::printGradient()
@@ -455,7 +442,8 @@ void MolState::printGradient()
   {
     std::cout << std::setw(4) << std::right  << getAtom(i).Name();
     for (int k=0; k<CARTDIM; k++)
-      std::cout << std::setw(12) << std::right << std::fixed << std::setprecision(4) << std::showpoint << gradient(i * CARTDIM + k) << ' '; 
+      std::cout << std::setw(12) << std::right << std::fixed << std::setprecision(4) 
+        << std::showpoint << gradient(i * CARTDIM + k) << ' '; 
     std::cout << '\n';
   }
 }
@@ -620,8 +608,8 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
 
   //------------ 1. mass un-weight normal modes, if needed (QChem-->ACES format;) ----------------
   // qchem if_massweighted="true"; aces if_massweighted="false";
-  reduced_masses.Adjust(NNormModes(),1);
-  reduced_masses.Set(1);
+  reduced_masses = arma::Col<double> (NNormModes(), arma::fill::ones);
+
   if (if_massweighted)
   {
     //std::cout << "Doing mass-weighted coordinates.....\n" ;
@@ -658,20 +646,18 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
           getNormMode(nm).getDisplacement().Elem1(a*CARTDIM+i) *= sqrt(normalModeAtoms[a].Mass());
 
     // normalize each normal mode (/sqrt(norm) which is also /sqrt(reduced mass)):
-    // KMatrix reduced_masses(NNormModes(),1);
     for (int nm=0; nm<NNormModes(); nm++) {
-      reduced_masses[nm] = 0;
+      reduced_masses(nm) = 0;
       for (int a=0; a<NAtoms(); a++)
         for (int i=0; i<CARTDIM; i++ )
-          reduced_masses[nm]+= getNormMode(nm).getDisplacement().Elem1(a*CARTDIM+i) *
+          reduced_masses(nm) += getNormMode(nm).getDisplacement().Elem1(a*CARTDIM+i) *
             getNormMode(nm).getDisplacement().Elem1(a*CARTDIM+i);
     }
-    // reduced_masses.Print("Reduced masses:");
     // Normalize:
     for (int nm=0; nm<NNormModes(); nm++)
       for (int a=0; a<NAtoms(); a++)
         for (int i=0; i<CARTDIM; i++ )
-          getNormMode(nm).getDisplacement().Elem1(a*CARTDIM+i)/=sqrt(reduced_masses[nm]);
+          getNormMode(nm).getDisplacement().Elem1(a*CARTDIM+i)/=sqrt(reduced_masses(nm));
 
   }
 
