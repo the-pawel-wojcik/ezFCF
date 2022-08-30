@@ -330,12 +330,13 @@ bool MolState::getNormalModeOverlapWithOtherState(MolState& other, arma::Mat<dou
       for (int a=0; a<NAtoms(); a++)
         for (int i=0; i<CARTDIM; i++ )
         {
+          // TODO: there are only two variabels here. Define them separately to make it a clean read.
           //x1*x1+y1*y1+..
-          norm_ini+= getNormMode(nm1).getDisplacement().Elem1(a*CARTDIM+i) * getNormMode(nm1).getDisplacement().Elem1(a*CARTDIM+i);
+          norm_ini+= getNormMode(nm1).getDisplacement()(a*CARTDIM+i) * getNormMode(nm1).getDisplacement()(a*CARTDIM+i);
           //x2*x2+y2*y2+..
-          norm_targ+= other.getNormMode(nm2).getDisplacement().Elem1(a*CARTDIM+i) * other.getNormMode(nm2).getDisplacement().Elem1(a*CARTDIM+i);
+          norm_targ+= other.getNormMode(nm2).getDisplacement()(a*CARTDIM+i) * other.getNormMode(nm2).getDisplacement()(a*CARTDIM+i);
           //x1*x2+y1*y2+...
-          overlap(nm1, nm2)+= getNormMode(nm1).getDisplacement().Elem1(a*CARTDIM+i) * other.getNormMode(nm2).getDisplacement().Elem1(a*CARTDIM+i);
+          overlap(nm1, nm2)+= getNormMode(nm1).getDisplacement()(a*CARTDIM+i) * other.getNormMode(nm2).getDisplacement()(a*CARTDIM+i);
         }
       overlap(nm1, nm2)/= sqrt(norm_ini) * sqrt(norm_targ);
     }
@@ -380,7 +381,7 @@ void MolState::Print()
     for (int i=0; i<NAtoms(); i++)
     {
       for (int l=0; l<CARTDIM; l++)
-        std::cout << getNormMode(k).getDisplacement()[i*CARTDIM+l] << ' ';
+        std::cout << getNormMode(k).getDisplacement()(i*CARTDIM+l) << ' ';
       std::cout << '\n';
     }
   }
@@ -424,7 +425,7 @@ void MolState::printNormalModes()
           std::cout 
             << std::setw(7) << std::right << std::fixed << std::setprecision(3)
             << 
-            getNormMode(n*nModesPerLine+j).getDisplacement()[a*CARTDIM+k] 
+            getNormMode(n*nModesPerLine+j).getDisplacement()(a*CARTDIM+k) 
             * 
             sqrt( reduced_masses(n * nModesPerLine + j) / getAtom(a).Mass() )
             <<' ';
@@ -573,7 +574,7 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
     for (i=0; i < NAtoms(); i++)   
       for (j=0; j < current_nModesPerLine; j++) 
         for (l=0; l < CARTDIM; l++) {
-          normModes[k*nModesPerLine+j].getDisplacement()[i*CARTDIM+l]=nmodes_iStr.getNextDouble();
+          normModes[k*nModesPerLine+j].getDisplacement()(i*CARTDIM+l)=nmodes_iStr.getNextDouble();
           if (nmodes_iStr.fail()) {
             std::cout<<"MolState::Read(): Error. Wrong format in normal modes: ["+nmodes_iStr.str()+"]\n";
             exit(1);
@@ -643,21 +644,21 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
     for (int nm=0; nm<NNormModes(); nm++)
       for (int a=0; a<NAtoms(); a++)
         for (int i=0; i<CARTDIM; i++ )
-          getNormMode(nm).getDisplacement().Elem1(a*CARTDIM+i) *= sqrt(normalModeAtoms[a].Mass());
+          getNormMode(nm).getDisplacement()(a*CARTDIM+i) *= sqrt(normalModeAtoms[a].Mass());
 
     // normalize each normal mode (/sqrt(norm) which is also /sqrt(reduced mass)):
     for (int nm=0; nm<NNormModes(); nm++) {
       reduced_masses(nm) = 0;
       for (int a=0; a<NAtoms(); a++)
         for (int i=0; i<CARTDIM; i++ )
-          reduced_masses(nm) += getNormMode(nm).getDisplacement().Elem1(a*CARTDIM+i) *
-            getNormMode(nm).getDisplacement().Elem1(a*CARTDIM+i);
+          reduced_masses(nm) += getNormMode(nm).getDisplacement()(a*CARTDIM+i) *
+            getNormMode(nm).getDisplacement()(a*CARTDIM+i);
     }
     // Normalize:
     for (int nm=0; nm<NNormModes(); nm++)
       for (int a=0; a<NAtoms(); a++)
         for (int i=0; i<CARTDIM; i++ )
-          getNormMode(nm).getDisplacement().Elem1(a*CARTDIM+i)/=sqrt(reduced_masses(nm));
+          getNormMode(nm).getDisplacement()(a*CARTDIM+i)/=sqrt(reduced_masses(nm));
 
   }
 
@@ -747,7 +748,7 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
       freq *= EV2HARTREE; // then eV to a.u.
       Omega_matrix_minus2(j, j) = 1 / freq / freq;
       for (int i = 0; i < CARTDIM * NAtoms(); i++){
-        d_matrix(i, j) = normModes[j].getDisplacement()[i];
+        d_matrix(i, j) = normModes[j].getDisplacement()(i);
       }
     }
 
@@ -965,7 +966,7 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
     for (int nm=0; nm < NNormModes(); nm++)
       for (int a=0; a < NAtoms(); a++) 
         for (int k=0; k < CARTDIM; k++)
-          getNormMode(nm).getDisplacement()[a*CARTDIM+k]=oldNormModes[nm].getDisplacement()[  atomsOrder[a]*CARTDIM + k  ];
+          getNormMode(nm).getDisplacement()(a*CARTDIM+k)=oldNormModes[nm].getDisplacement()( atomsOrder[a]*CARTDIM + k );
 
     std::cout << "Atoms were reordered accordingly.\n";
   }

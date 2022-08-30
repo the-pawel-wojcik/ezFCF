@@ -62,7 +62,7 @@ Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int>& nm_list,
     for (int j=0; j < molStates[state].NAtoms(); j++) 
       for (int i = 0; i < molStates[state].NNormModes(); i++) 
         for (int k=0; k < CARTDIM; k++)
-          NormModes(j*CARTDIM+k, i) = molStates[state].getNormMode(i).getDisplacement()[j*CARTDIM+k];
+          NormModes(j*CARTDIM+k, i) = molStates[state].getNormMode(i).getDisplacement()(j*CARTDIM+k);
 
     //Make sqrt(T)-matrix (diagonal matrix with sqrt(atomic masses) in cartesian coordinates):
     arma::Mat<double> SqrtT( CARTDIM*(molStates[state].NAtoms()), CARTDIM*(molStates[state].NAtoms()), arma::fill::zeros);
@@ -545,7 +545,7 @@ Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int> nm_active
     for (int j=0; j < molStates[state].NAtoms(); j++) 
       for (int i = 0; i < molStates[state].NNormModes(); i++) 
         for (int k=0; k < CARTDIM; k++)
-          NormModes(j*CARTDIM+k, i) = molStates[state].getNormMode(i).getDisplacement()[j*CARTDIM+k];
+          NormModes(j*CARTDIM+k, i) = molStates[state].getNormMode(i).getDisplacement()(j*CARTDIM+k);
 
     //Make sqrt(T)-matrix (diagonal matrix with sqrt(atomic masses) in cartesian coordinates):
     arma::Mat<double> SqrtT( CARTDIM*(molStates[state].NAtoms()), CARTDIM*(molStates[state].NAtoms()), arma::fill::zeros);

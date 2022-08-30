@@ -17,27 +17,19 @@
 class NormalMode
 {
   // 1D structure AtomNumber*CARTDIM+CoordinateNumber:
-  KMatrix displacement;
+  arma::Col<double> displacement;
   double freq;
-
   int nAtoms;
 
-  //!  Re-allocates memory to size NOfAtoms_x_CARTDIM. 
-  //  void AllocForNAtoms(int NOfAtoms) 
-  //    {
-  //      displacement.Adjust(NOfAtoms*CARTDIM,1); 
-  //      nAtoms=NOfAtoms;
-  //    }
-
   public:
-  NormalMode(int n, double fr) : displacement(n*CARTDIM,1), freq(fr), nAtoms(n) {};
+  NormalMode(int n, double fr) : displacement(n*CARTDIM, arma::fill::zeros), freq(fr), nAtoms(n) {};
   NormalMode(const NormalMode& other);
   NormalMode& operator=(const NormalMode& other);
 
   //! Returns frequency
   double& getFreq() { return freq; }
   // 3N displacements (x,y,z for N atoms) as a (3Nx1) KMatrix
-  KMatrix& getDisplacement() { return displacement; }
+  arma::Col<double>& getDisplacement() { return displacement; }
 
   // Shifts coordinate's origin by "vector" 
   // IMPORTANT: there is no need to "shift" normal coordinates in general. (i.e. never use this function!)

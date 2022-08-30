@@ -50,13 +50,13 @@ Dushinsky::Dushinsky(std::vector <MolState>& molStates, std::vector<int>& nm_lis
   for (int a=0; a < molStates[iniN].NAtoms(); a++)
     for (int nm = 0; nm < N; nm++) 
       for (int k=0; k < CARTDIM; k++)
-        L(a*CARTDIM+k, nm) = molStates[iniN].getNormMode(nm).getDisplacement()[a*CARTDIM+k];
+        L(a*CARTDIM+k, nm) = molStates[iniN].getNormMode(nm).getDisplacement()(a*CARTDIM+k);
 
   arma::Mat<double> Lp(CARTDIM*(molStates[targN].NAtoms()), N, arma::fill::zeros);
   for (int a=0; a < molStates[targN].NAtoms(); a++) 
     for (int nm = 0; nm < N; nm++) 
       for (int k=0; k < CARTDIM; k++)
-        Lp(a*CARTDIM+k, nm) = molStates[targN].getNormMode(nm).getDisplacement()[a*CARTDIM+k];
+        Lp(a*CARTDIM+k, nm) = molStates[targN].getNormMode(nm).getDisplacement()(a*CARTDIM+k);
 
   // get S; [NxN]; S=(Lp^T)*L; n.m.rotation matrix; if S==I, than norm. modes are parallel, det(S) sould be close to 1
   arma::Mat<double> S;
