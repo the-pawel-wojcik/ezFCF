@@ -10,7 +10,6 @@
 //         it with number of atoms, NOT nAtoms*CartDim.
 
 #include "genincludes.h"
-#include "kmatrix.h"
 #include "vector3d.h"
 
 //Stored in mass-unweighted form and in Angstrom -- this is ugly ...
@@ -28,7 +27,7 @@ class NormalMode
 
   //! Returns frequency
   double& getFreq() { return freq; }
-  // 3N displacements (x,y,z for N atoms) as a (3Nx1) KMatrix
+  // 3N displacements (x,y,z for N atoms)
   arma::Col<double>& getDisplacement() { return displacement; }
 
   // Shifts coordinate's origin by "vector" 

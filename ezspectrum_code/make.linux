@@ -18,7 +18,7 @@ LDFLAGS = $(LXML) $(LSTD) $(LARMA) $(LMATH) -lm
 CODE = ezFCF_linux.exe
 
 CXX_MOLECULAR_PROP = molecular_prop/molstate.C molecular_prop/atom.C molecular_prop/normalmode.C molecular_prop/vibronic_state.C  molecular_prop/vector3d.C molecular_prop/spectrum.C  molecular_prop/spectralpoint.C
-CXX_MATRIX_MATH = matrix_math/blas_calls.C  matrix_math/kmatrix.C  matrix_math/tmp_buffer.C  
+CXX_MATRIX_MATH = matrix_math/blas_calls.C  matrix_math/tmp_buffer.C  
 CXX_BASIC_METHODS = basic_methods/genutil.C  basic_methods/mathutil.C basic_methods/aik_xml_parser.C basic_methods/conversions.C
 CXX_COMMON = $(CXX_MOLECULAR_PROP) $(CXX_MATRIX_MATH) $(CXX_BASIC_METHODS)
 

@@ -9,7 +9,6 @@
 #include "genincludes.h"
 #include "constants.h"
 #include "vector3d.h"
-#include "kmatrix.h"
 
 //! atom: stores x,y,z mass, and atom name                  
 class Atom

@@ -15,7 +15,6 @@ To initialize provide:
 #include "genincludes.h"
 #include "mathutil.h"
 #include "constants.h"
-#include "kmatrix.h"
 #include "vibronic_state.h"
 #include "vibrational_indexing.h"
 

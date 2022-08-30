@@ -26,7 +26,6 @@
 #include <set>
 
 #include "molstate.h"
-#include "kmatrix.h"
 #include "vector3d.h"
 
 #include "parallel_approximation.h"

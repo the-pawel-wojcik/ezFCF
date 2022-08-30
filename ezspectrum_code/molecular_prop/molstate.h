@@ -12,11 +12,9 @@
 #include "aik_xml_parser.h"
 #include "atom.h"
 #include "normalmode.h"
-//FIXIT it: replace this class by kmatrix, which allows vector computations.
-//Vector would be Kmatrix[N,1] or [1,N] and can be used in all operations
 #include <vector>
+//FIXIT it: replace vector3d class by armadillo Col class
 #include "vector3d.h"
-#include "kmatrix.h"
 #include <algorithm>
 
 

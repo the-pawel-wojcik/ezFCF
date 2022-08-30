@@ -9,7 +9,6 @@
 #include "genincludes.h"
 #include "mathutil.h"
 #include "constants.h"
-#include "kmatrix.h"
 
 /*!
 This functions follows the algorithm described by Elmer Hutchisson in Phys. Rev. 36: 410-420 (1930) \n
