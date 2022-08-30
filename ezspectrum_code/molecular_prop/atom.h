@@ -8,12 +8,11 @@
 
 #include "genincludes.h"
 #include "constants.h"
-#include "vector3d.h"
 
 //! atom: stores x,y,z mass, and atom name                  
 class Atom
 {
-  double coord[CARTDIM];
+  arma::Col<double> coord = arma::Col<double> (3, arma::fill::zeros);
   double mass;
   std::string name;
 
@@ -30,9 +29,9 @@ class Atom
   double& getCoord(int i) {return coord[i];}
 
   double getR(); // distance from the origin
-  double getMomentumProj(const int axis);
+  double getCoordMass(const int axis);
   // Shifts coordinate's origin by "vector" 
-  void shiftCoordinates(Vector3D& vector);
+  void shiftCoordinates(arma::Col<double>& vector);
   // matrix multiolication coordinates*matrix_3x3; "coordinates" matrix is of 3 columns: x,y,z. matrix_3x3 has eigen vectors of the transformation in rows.
   void transformCoordinates(const arma::Mat<double>& matrix_3x3);
   void applyCoordinateThreshold(const double threshold);

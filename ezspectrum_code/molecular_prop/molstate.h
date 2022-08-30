@@ -13,8 +13,6 @@
 #include "atom.h"
 #include "normalmode.h"
 #include <vector>
-//FIXIT it: replace vector3d class by armadillo Col class
-#include "vector3d.h"
 #include <algorithm>
 
 
@@ -36,7 +34,7 @@ class MolState
   //!move this to functions...
   bool ifLetterOrNumber(char Ch);
 
-  Vector3D centerOfMass;
+  arma::Col<double> centerOfMass;
   arma::Mat<double> momentOfInertiaTensor;
 
   //! reduced masses
@@ -93,11 +91,11 @@ class MolState
 
   //--- Geometry transformations ------------------------------------
   // Center eof mass vector:
-  Vector3D& getCenterOfMass();
+  arma::Col<double>& getCenterOfMass();
   // Moment of inertia tensor:
   arma::Mat<double>& getMomentOfInertiaTensor();
   // Shifts coordinate's origin by "vector" 
-  void shiftCoordinates(Vector3D& vector);
+  void shiftCoordinates(arma::Col<double>& vector);
   // matrix multiolication coordinates*matrix_3x3; "coordinates" matrix is of 3 columns: x,y,z. matrix_3x3 has eigen vectors of the transformation in rows.
   void transformCoordinates(const arma::Mat<double>& matrix_3x3);
   void applyCoordinateThreshold(const double threshold);

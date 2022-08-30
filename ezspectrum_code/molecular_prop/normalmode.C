@@ -20,13 +20,6 @@ NormalMode& NormalMode::operator=(const NormalMode& other)
   return *this;
 }
 
-void NormalMode::shiftCoordinates(Vector3D& vector)
-{
-  for (int a=0; a<nAtoms; a++)
-    for (int j=0; j<CARTDIM; j++ )
-      displacement(a*CARTDIM+j) -= vector[j];
-}
-
 void NormalMode::transformCoordinates(const arma::Mat<double>& matrix_3x3)
 {
   arma::Col<double> old_displacement = displacement;

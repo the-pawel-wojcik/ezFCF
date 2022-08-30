@@ -13,7 +13,7 @@ double Atom::getR()
   return sqrt(R);
 }
 
-double Atom::getMomentumProj(const int axis)
+double Atom::getCoordMass(const int axis)
 {
   double tmpDbl;
   tmpDbl=coord[axis]*mass;
@@ -21,10 +21,9 @@ double Atom::getMomentumProj(const int axis)
 }
 
 
-void Atom::shiftCoordinates(Vector3D& vector)
+void Atom::shiftCoordinates(arma::Col<double>& vector)
 {
-  for (int i=0; i<CARTDIM; i++)
-    coord[i]-=vector[i];
+  coord -= vector;
 }
 
 void Atom::transformCoordinates(const arma::Mat<double>& matrix_3x3)

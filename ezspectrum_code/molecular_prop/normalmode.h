@@ -10,7 +10,7 @@
 //         it with number of atoms, NOT nAtoms*CartDim.
 
 #include "genincludes.h"
-#include "vector3d.h"
+#include "constants.h"
 
 //Stored in mass-unweighted form and in Angstrom -- this is ugly ...
 class NormalMode
@@ -30,9 +30,6 @@ class NormalMode
   // 3N displacements (x,y,z for N atoms)
   arma::Col<double>& getDisplacement() { return displacement; }
 
-  // Shifts coordinate's origin by "vector" 
-  // IMPORTANT: there is no need to "shift" normal coordinates in general. (i.e. never use this function!)
-  void shiftCoordinates(Vector3D& vector);
   // matrix multiplication coordinates*matrix_3x3; "coordinates" matrix is of 3 columns: x,y,z. matrix_3x3 has eigen vectors of the transformation in rows.
   void transformCoordinates(const arma::Mat<double>& matrix_3x3);
   void applyCoordinateThreshold(const double threshold);

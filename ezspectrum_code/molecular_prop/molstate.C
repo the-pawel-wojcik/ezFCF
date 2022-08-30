@@ -9,6 +9,7 @@
 //------------------------------
 MolState::MolState () {
 
+  centerOfMass = arma::Col<double> (CARTDIM, arma::fill::zeros);
   momentOfInertiaTensor = arma::Mat<double> (CARTDIM, CARTDIM);
   if_aligned_manually=false;
   if_nm_reordered_manually=false;
@@ -57,8 +58,6 @@ void MolState::align()
 {
   // Shift center of mass to the origin:
   shiftCoordinates( getCenterOfMass() );
-  /* const char * center_of_mass_name = "Center of mass: "; */
-  /* getCenterOfMass().print(center_of_mass_name); */
 
   arma::Mat<double> MOI_tensor(CARTDIM, CARTDIM);
   MOI_tensor = getMomentOfInertiaTensor();
@@ -157,17 +156,17 @@ bool MolState::ifSimilar(MolState& other)
 
 
 //------------------------------
-Vector3D& MolState::getCenterOfMass()
+arma::Col<double>& MolState::getCenterOfMass()
 {
-  centerOfMass.reset();
-  double totalMass=0;
-  for (int i=0; i<atoms.size();i++)
+  centerOfMass.fill(0.0);
+  double totalMass = 0.0;
+  for (int i=0; i<atoms.size(); i++)
   {
     for (int axis=0; axis<3; axis++)
-      centerOfMass.getCoord(axis)+=atoms[i].getMomentumProj(axis);
+      centerOfMass(axis) += atoms[i].getCoordMass(axis);
     totalMass+=atoms[i].getMass();
   }
-  centerOfMass*=1/totalMass;
+  centerOfMass /= totalMass;
   return centerOfMass;
 }
 
@@ -199,7 +198,7 @@ arma::Mat<double>& MolState::getMomentOfInertiaTensor()
 
 
 //------------------------------
-void MolState::shiftCoordinates(Vector3D& vector)
+void MolState::shiftCoordinates(arma::Col<double>& vector)
 {
   for (int i=0; i<atoms.size(); i++)
     atoms[i].shiftCoordinates(vector);
@@ -785,7 +784,7 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
   //------------ 2. Align geometry if requested ----------------------------
   if_aligned_manually=false;
   double man_rot_x, man_rot_y, man_rot_z;
-  Vector3D man_shift;
+  arma::Col<double> man_shift(CARTDIM, arma::fill::zeros);
 
   size_t manual_coord_transform=node_state.find_subnode("manual_coordinates_transformation");
 
@@ -798,9 +797,9 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
     man_rot_y=manual_coord_transform.read_double_value("rotate_around_y"); 
     man_rot_z=manual_coord_transform.read_double_value("rotate_around_z"); 
 
-    man_shift.getCoord(0)=-manual_coord_transform.read_double_value("shift_along_x"); 
-    man_shift.getCoord(1)=-manual_coord_transform.read_double_value("shift_along_y"); 
-    man_shift.getCoord(2)=-manual_coord_transform.read_double_value("shift_along_z"); 
+    man_shift(0) -= manual_coord_transform.read_double_value("shift_along_x"); 
+    man_shift(1) -= manual_coord_transform.read_double_value("shift_along_y"); 
+    man_shift(2) -= manual_coord_transform.read_double_value("shift_along_z"); 
 
     std::cout << "Molecular structure and normal modes of this electronic state\nwill be transformed as requested in the input.\n";
 
@@ -809,9 +808,9 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
     applyCoordinateThreshold(COORDINATE_THRESHOLD);
 
     std::cout << "Molecule was shifted by " 
-      << man_shift[0] << ", "
-      << man_shift[1] << ", "
-      << man_shift[2] << " in x, y, and z." 
+      << man_shift(0) << ", "
+      << man_shift(1) << ", "
+      << man_shift(2) << " in x, y, and z." 
       << std::endl;
 
     std::cout << "Also rotated by " 
