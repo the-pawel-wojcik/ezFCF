@@ -75,7 +75,7 @@ class MolState
   int getNormModeIndex(int i) { return normModesOrder[i]; } 
   //! Linear?
   bool IfLinear () const { return ifLinear; }
-  //! Energy (IP)
+  //! Excitation Energy (formerly IP)
   double Energy () const { return energy; }
   //! Returns number of atoms
   int NAtoms() const { return atoms.size(); }
