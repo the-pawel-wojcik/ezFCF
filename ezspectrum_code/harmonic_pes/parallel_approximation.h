@@ -32,9 +32,12 @@ class Parallel
 {
   //! spectrum which stores all the points above the intensity threshold
   Spectrum spectrum;
+  int n_atoms;
+  int n_molecule_nm;
+  int n_active_nm;
 
   public:
-  Parallel(std::vector <MolState>& molStates, std::vector<int>& nm_list, 
+  Parallel(std::vector <MolState>& molStates, std::vector<int>& active_nm, 
       double fcf_threshold, double temperature, 
       int max_n_initial, int max_n_target, 
       bool if_comb_bands, bool if_use_target_nm, bool if_print_fcfs, bool if_web_version, const char* nmoverlapFName, 
