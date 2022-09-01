@@ -1,6 +1,6 @@
 #include "parallel_approximation.h"
 
-Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int>& nm_list, 
+Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int>& active_nms, 
     double fcf_threshold, double temperature, 
     int max_n_initial, int max_n_target, 
     bool if_comb_bands, bool if_use_target_nm, bool if_print_fcfs, bool if_web_version, const char* nmoverlapFName,
@@ -8,28 +8,25 @@ Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int>& nm_list,
 {
   double intens_threshold=fcf_threshold*fcf_threshold;
 
-  //initial state index
-  int  iniN=0;
+  // initial state index
+  int iniN=0;
 
-  // full space size
-  int n_norm_modes = molStates[iniN].NNormModes();
+  // number of atoms in the molecule
+  n_atoms = molStates[iniN].NAtoms();
 
-  //
-  std::vector <int> state_ini, state_targ, state_ini_subspace, state_targ_subspace;
-  for (int i=0; i<n_norm_modes; i++)
-  {
-    state_ini.push_back(-1);
-    state_targ.push_back(-1);
-  }
+  // number of normal modes in the molecule
+  n_molecule_nm = molStates[iniN].NNormModes();
+  int default_value = -1;
+  std::vector <int> state_ini(n_molecule_nm, default_value);
+  std::vector <int> state_targ(n_molecule_nm, default_value);
 
-  //"excite subspace" size
-  for (int i=0; i<nm_list.size(); i++) 
-  {
-    state_ini_subspace.push_back(-1);
-    state_targ_subspace.push_back(-1);
-  }
+  // Normal modes in the "excite subspace" = molecular normal modes - do_not_excite
+  n_active_nm = active_nms.size();
+  std::vector <int> state_ini_subspace(n_active_nm, default_value);
+  std::vector <int> state_targ_subspace(n_active_nm, default_value);
 
-  // stores set of the inital and target vibrational states (for each electronic state) -- after energy threshold applied
+  // stores set of the inital and target vibrational states 
+  // (for each electronic state) -- after energy threshold applied
   std::vector < std::vector <int> > selected_states_ini, selected_states_targ;
 
   // matrix with FC factors (use the same variable for every target state)
@@ -39,17 +36,16 @@ Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int>& nm_list,
   arma::Mat<double> FCFs_tmp(max_n_initial+1, max_n_target+1);
   std::vector <arma::Mat<double>> FCFs;
 
-  // matrix with intensities of FC transitions = FCFs * population_of_initial_vibrational_levels(Temperature distrib.)
+  // matrix with intensities of FC transitions:
+  //  FCFs * population_of_initial_vibrational_levels(Temperature distrib.)
   arma::Mat<double> I_tmp (max_n_initial+1, max_n_target+1);
   std::vector <arma::Mat<double>> I;
 
-  // energy position of each transition for a given normal mode; 1D; ofset by IP; when add for N dimensions, substract IP from each energy;
+  // energy position of each transition for a given normal mode; 
+  // 1D; ofset by IP; 
+  // when add for N dimensions, substract IP from each energy;
   arma::Mat<double> E_position_tmp (max_n_initial+1, max_n_target+1);
   std::vector <arma::Mat<double>> E_position;
-
-  // reduced mass for FCF calcualtions -- mass weighted coordinates
-  // TODO: This variable is not used in this scope. Is it still necessary? Paweł Apr'22
-  double reducedMass=1.0;
 
   // ==========================================================================================
   // Calculate transformation matrix "cartesian->normal mode" coordinates (for each state):
@@ -57,20 +53,23 @@ Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int>& nm_list,
 
   for (int state=0; state<molStates.size(); state++)
   {
-    arma::Mat<double> NormModes( CARTDIM*(molStates[state].NAtoms()), molStates[state].NNormModes(), arma::fill::zeros ); // NOT mass weighted normal modes i.e. (L~)=T^(0.5)*L
-    //Get L (normal modes in cartesian coordinates mass unweighted (in Angstroms) ):
-    for (int j=0; j < molStates[state].NAtoms(); j++) 
-      for (int i = 0; i < molStates[state].NNormModes(); i++) 
+    // NOT mass weighted normal modes i.e. (L~)=T^(0.5)*L
+    arma::Mat<double> NormModes( CARTDIM * n_atoms, n_molecule_nm, arma::fill::zeros ); 
+    // Get L (normal modes in cartesian coordinates mass unweighted (in Angstroms) ):
+    for (int j=0; j < n_atoms; j++) 
+      for (int i = 0; i < n_molecule_nm; i++) 
         for (int k=0; k < CARTDIM; k++)
           NormModes(j*CARTDIM+k, i) = molStates[state].getNormMode(i).getDisplacement()(j*CARTDIM+k);
 
-    //Make sqrt(T)-matrix (diagonal matrix with sqrt(atomic masses) in cartesian coordinates):
-    arma::Mat<double> SqrtT( CARTDIM*(molStates[state].NAtoms()), CARTDIM*(molStates[state].NAtoms()), arma::fill::zeros);
-    for (int i=0; i<molStates[state].NAtoms(); i++)
+    // Make sqrt(T)-matrix (diagonal matrix with sqrt(atomic masses) in cartesian coordinates):
+    arma::Mat<double> SqrtT( CARTDIM * n_atoms, CARTDIM * n_atoms, arma::fill::zeros);
+    for (int i=0; i<n_atoms; i++) 
+    {
       SqrtT(i*CARTDIM, i*CARTDIM) 
         = SqrtT(i*CARTDIM+1, i*CARTDIM+1)
         = SqrtT(i*CARTDIM+2, i*CARTDIM+2)
         = sqrt(molStates[state].getAtom(i).Mass());
+    }
 
     // Cart->NormalModes transformation matrix R=L^T*sqrt(T)
     // q' = q+d = q+R*(x-x') (for the parallel normal mode approximation)
@@ -82,21 +81,26 @@ Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int>& nm_list,
   }
 
   // Initial geometry in cartesian coordinates:
-  arma::Col<double> InitialCartCoord(CARTDIM*(molStates[iniN].NAtoms()));
-  for (int i=0; i<molStates[iniN].NAtoms(); i++)
+  arma::Col<double> InitialCartCoord(CARTDIM*n_atoms);
+  for (int i=0; i<n_atoms; i++)
     for (int k=0; k<CARTDIM; k++)
       InitialCartCoord[i*CARTDIM+k] = molStates[iniN].getAtom(i).Coord(k);
   InitialCartCoord *= ANGSTROM2AU; 
 
-  // initialize spectrlPoint: create vector of VibrQuantNumbers for the initital and target state 
+  // initialize SpectralPoint: 
+  // create vector of VibrQuantNumbers for the initital and target states 
   // (keep only non-zero qunta, i.e. from the "excite subspace")
-  // Also add subspace mask (the rest of nmodes do not have excitations, and  would not be printers in the spectrum)
+  // add subspace mask (the rest of nmodes do not have excitations, 
+  // and would not be printed in the spectrum)
   SpectralPoint tmpPoint;
-  for (int nm=0; nm<nm_list.size(); nm++)
+  for (int nm=0; nm<n_active_nm; nm++)
   {
-    tmpPoint.getVibrState1().addVibrQuanta(0, nm_list[nm]);
-    tmpPoint.getVibrState2().addVibrQuanta(0, nm_list[nm]);
+    tmpPoint.getVibrState1().addVibrQuanta(0, active_nms[nm]);
+    tmpPoint.getVibrState2().addVibrQuanta(0, active_nms[nm]);
   }
+
+  // reduced mass for FCF calcualtions -- mass weighted coordinates
+  double reducedMass=1.0;
 
   // For each target state, for each normal mode: calculate shift, FCFs, and print spectrum
   for (int targN=1; targN < molStates.size(); targN++)
@@ -112,11 +116,10 @@ Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int>& nm_list,
     // calculate dQ:
 
     // Target state geometry in cartesian coordinates:
-    arma::Col<double> TargetCartCoord(CARTDIM*(molStates[iniN].NAtoms()));
-    for (int i=0; i<molStates[targN].NAtoms(); i++)
+    arma::Col<double> TargetCartCoord(CARTDIM*n_atoms);
+    for (int i=0; i<n_atoms; i++)
       for (int k=0; k <CARTDIM; k++)
         TargetCartCoord[i*CARTDIM+k] = molStates[targN].getAtom(i).Coord(k);
-
     // input is in angstroms
     TargetCartCoord *= ANGSTROM2AU;
 
@@ -126,8 +129,8 @@ Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int>& nm_list,
     // Transform Cart->normal Mode coordinates
 
     // Geometry differences in normal coordinates
-    arma::Col<double> NormModeShift_ini(molStates[iniN].NNormModes());
-    arma::Col<double> NormModeShift_targ(molStates[iniN].NNormModes());
+    arma::Col<double> NormModeShift_ini(n_molecule_nm);
+    arma::Col<double> NormModeShift_targ(n_molecule_nm);
 
     NormModeShift_ini = Cart2Normal_Rs[iniN] * cartesian_shift;
     NormModeShift_targ = Cart2Normal_Rs[targN] * cartesian_shift;
@@ -140,7 +143,7 @@ Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int>& nm_list,
       << "Angstrom*sqrt(amu):\n\n"
       << "normal mode  dQ in initial  dQ in target   frequency   frequency   comments\n"
       << "  number      state coord.  state coord.    initial      target\n\n";
-    for (int nm=0; nm<n_norm_modes; nm++)
+    for (int nm=0; nm<n_molecule_nm; nm++)
     {
       std::cout << "     " << std::fixed << std::setw(3) << nm <<"      " 
         << std::setprecision(6) 
@@ -154,7 +157,9 @@ Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int>& nm_list,
 
 
     //----------------------------------------------------------------------
-    // save the spectrumnm overlap to file (for normal mode reordering tool in the web interface)
+    // save the spectrum overlap to a file 
+    // (for normal mode reordering tool in the web interface)
+    // TODO: web version
     if (if_web_version)
     {
       std::vector <int> nondiagonal_list;
@@ -164,30 +169,30 @@ Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int>& nm_list,
       std::ofstream nmoverlapF;     
       nmoverlapF.open(nmoverlapFName, std::ios::out);
       nmoverlapF << "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n"
-        << "<nmoverlap\n  nm_initial=\"" <<n_norm_modes <<"\"\n  nm_target =\""<<n_norm_modes << "\">\n\n<nm_order_initial>\n";
+        << "<nmoverlap\n  nm_initial=\"" <<n_molecule_nm <<"\"\n  nm_target =\""<<n_molecule_nm << "\">\n\n<nm_order_initial>\n";
       //inital state's nm order -- 0,1,2... -- always!
-      for (int nm=0; nm<n_norm_modes; nm++)
+      for (int nm=0; nm<n_molecule_nm; nm++)
         nmoverlapF << "<oi" << nm << ">"<< molStates[iniN].getNormModeIndex(nm) << "</oi" << nm << ">\n";
       nmoverlapF << "</nm_order_initial>\n\n<frequencies_initial>\n";
-      for (int nm=0; nm<n_norm_modes; nm++)
+      for (int nm=0; nm<n_molecule_nm; nm++)
         nmoverlapF << "<fi" << nm << ">"<< std::fixed << std::setprecision(1) << molStates[iniN].getNormMode(nm).getFreq()<< "</fi" << nm << ">\n";
       nmoverlapF << "</frequencies_initial>\n\n<displacements_initial>\n";
-      for (int nm=0; nm<n_norm_modes; nm++)
+      for (int nm=0; nm<n_molecule_nm; nm++)
         nmoverlapF << "<dqi" << nm << ">"<< std::fixed << std::setprecision(2) << NormModeShift_ini[nm]<< "</dqi" << nm << ">\n";
       nmoverlapF << "</displacements_initial>\n\n<nm_order_target>\n";
-      for (int nm=0; nm<n_norm_modes; nm++)
+      for (int nm=0; nm<n_molecule_nm; nm++)
         nmoverlapF << "<ot" << nm << ">"<< molStates[targN].getNormModeIndex(nm) << "</ot" << nm << ">\n";
       nmoverlapF << "</nm_order_target>\n\n<frequencies_target>\n";
-      for (int nm=0; nm<n_norm_modes; nm++)
+      for (int nm=0; nm<n_molecule_nm; nm++)
         nmoverlapF << "<ft" << nm << ">"<< std::fixed << std::setprecision(1) << molStates[targN].getNormMode(nm).getFreq()<< "</ft" << nm << ">\n";
       nmoverlapF << "</frequencies_target>\n\n<displacements_target>\n";
-      for (int nm=0; nm<n_norm_modes; nm++)
+      for (int nm=0; nm<n_molecule_nm; nm++)
         nmoverlapF << "<dqt" << nm << ">"<< std::fixed << std::setprecision(2) << NormModeShift_targ[nm]<< "</dqt" << nm << ">\n";
       nmoverlapF << "</displacements_target>\n\n<overlap_matrix>\n";
-      for (int nmt=0; nmt<n_norm_modes; nmt++)
+      for (int nmt=0; nmt<n_molecule_nm; nmt++)
       {    
         nmoverlapF << "<row"<<nmt<<">\n";
-        for (int nmi=0; nmi<n_norm_modes; nmi++)
+        for (int nmi=0; nmi<n_molecule_nm; nmi++)
           nmoverlapF << "<c"<<nmi<<">"<< NMoverlap(nmt, nmi)<<"</c"<<nmi<<">";
         nmoverlapF << "\n</row"<<nmt<<">\n";
       }
@@ -197,43 +202,55 @@ Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int>& nm_list,
     //----------------------------------------------------------------------
 
 
-    if (if_use_target_nm) 
+    if (if_use_target_nm) {
       std::cout<<"TARGET state normal coordinates (displacements dQ) will be used.\n\n"; 
-    else 
+    }
+    else {
       std::cout<<"INITIAL state normal coordinates are used.\n\n"; 
+    }
     // ----------------------------------------------------------------------
 
     if (if_print_fcfs)
-      std::cout << "Peak positions, Franck-Condon factors, and intensities along each normal mode:\n\n";
+      std::cout << "Peak positions, Franck-Condon factors, and intensities "
+        "along each normal mode:\n\n";
 
     // for each normal mode of the initial state
-    // TODO: This appears as too 
-    for (int nm=0; nm<n_norm_modes; nm++) 
+    for (int nm=0; nm<n_molecule_nm; nm++) 
     {      
+      // TODO: wrap this into a function
       // Calculate the energy positions:
-      for (int i=0; i<max_n_initial+1; i++)
-        for (int j=0; j<max_n_target+1; j++)
-          // energy position of each transition for a given normal mode; 1D; ofset by IP; when add for N dimensions, substract IP from each energy;
+      for (int i=0; i<max_n_initial+1; i++) {
+        for (int j=0; j<max_n_target+1; j++) {
+          // energy position of each transition for a given normal mode; 
+          // 1D; ofset by IP; when add for N dimensions, substract IP from each energy;
           E_position_tmp(i, j)
             =
             - molStates[targN].Energy()
-            + (molStates[iniN].getNormMode(nm).getFreq() * i
-                - molStates[targN].getNormMode(nm).getFreq() * j) * WAVENUMBERS2EV;
+            + (
+                molStates[iniN].getNormMode(nm).getFreq() * i
+                - molStates[targN].getNormMode(nm).getFreq() * j
+              ) * WAVENUMBERS2EV;
+        }
+      }
       E_position.push_back(E_position_tmp);
 
       // Calculate the Franck-Condon factors
-      if (if_use_target_nm) // which normal modes (displacements) to use: of the initial or the target state?
+      // which normal modes (displacements) to use: of the initial or the target state?
+      if (if_use_target_nm) {
         harmonic_FCf(FCFs_tmp, reducedMass, NormModeShift_targ[nm],
             molStates[iniN].getNormMode(nm).getFreq(), 
             molStates[targN].getNormMode(nm).getFreq());
-      else
+      }
+      else {
         harmonic_FCf(FCFs_tmp, reducedMass, NormModeShift_ini[nm],
             molStates[iniN].getNormMode(nm).getFreq(), 
             molStates[targN].getNormMode(nm).getFreq());
+      }
 
       FCFs.push_back(FCFs_tmp);
 
-      // Calculate the line intensities (FCF^2 *  the temperature distribution in the initial state):
+      // Calculate the line intensities: 
+      //   FCF^2 * the temperature distribution in the initial state
       for (int i=0; i<max_n_initial+1; i++)
       { 
         double IExponent=100*i; //(intensity < 10e-44 for non ground states if temperature=0)
@@ -266,27 +283,33 @@ Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int>& nm_list,
 
         E_position[nm].print("Peak positions, eV");
         FCFs[nm].print("1D Harmonic Franck-Condon factors");
-        I[nm].print("Intensities (FCFs^2)*(initial vibrational states termal population)");
+        I[nm].print("Intensities (FCFs^2)*(initial states' termal population)");
       }
 
     } // end for each normal mode
 
 
-    //================================================================================
-    // evaluate the overal intensities as all possible products of 1D intensities (including combination bands)
-    std::cout << "Maximum number of vibrational excitations: " << max_n_initial << " and "<< max_n_target 
+    //==========================================================================
+    // evaluate the overal intensities as all possible products of 1D 
+    // intensities (including combination bands)
+    std::cout << "Maximum number of vibrational excitations: " 
+      << max_n_initial << " and "<< max_n_target 
       << "\n in the initial and each target state, respectively.\n\n";
 
     unsigned long total_combs_ini=0, total_combs_targ=0;
+    // TODO: the_only_initial_state enters here
     for (int curr_max_ini=0; curr_max_ini<=max_n_initial; curr_max_ini++)
-      total_combs_ini += Combination(  (curr_max_ini + nm_list.size() - 1), (nm_list.size() - 1)  );
+      total_combs_ini += Combination(  (curr_max_ini + n_active_nm - 1), (n_active_nm - 1)  );
 
     for (int curr_max_targ=0; curr_max_targ<=max_n_target; curr_max_targ++)
-      total_combs_targ += Combination( (curr_max_targ + nm_list.size() - 1), (nm_list.size() - 1) );
+      total_combs_targ += Combination( (curr_max_targ + n_active_nm - 1), (n_active_nm - 1) );
 
-    std::cout << "Maximum number of combination bands = " << total_combs_ini * total_combs_targ  
-      << "\n   = " << total_combs_ini << " (# of vibrational states in the initial electronic state)"
-      << "\n   * " << total_combs_targ  << " (# of vibrational states in the target electronic state)\n\n" << std::flush;
+    std::cout << "Maximum number of combination bands = " 
+      << total_combs_ini * total_combs_targ  
+      << "\n   = " << total_combs_ini 
+      << " (# of vibrational states in the initial electronic state)"
+      << "\n   * " << total_combs_targ  
+      << " (# of vibrational states in the target electronic state)\n\n" << std::flush;
 
     // This is just a reseting of these variables for a use with the next molecular state. 
     // TODO: It would be an easier read if definitions of these variabes were here. Paweł Apr '22
@@ -318,18 +341,18 @@ Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int>& nm_list,
 
         // copy indexes from the subspace state_ini_subspace into the full space state_ini (the rest stays=0):
         int index=0;
-        for (int nm=0; nm<nm_list.size(); nm++)
-          state_ini[ nm_list[nm] ] = state_ini_subspace[nm];
+        for (int nm=0; nm<n_active_nm; nm++)
+          state_ini[ active_nms[nm] ] = state_ini_subspace[nm];
 
         double energy = 0;
-        for (int nm=0; nm < n_norm_modes; nm++) 
+        for (int nm=0; nm < n_molecule_nm; nm++) 
           energy += E_position[nm](state_ini[nm], 0) + molStates[targN].Energy(); 
 
         if (energy < energy_threshold_initial)
         {
           // TODO: Is the commented code still valuable? Paweł Apr '22
           // check memory available (dirty, but anyway one copying of the state is requared...)
-          //int * buffer = (int*) malloc ( sizeof(int)*n_norm_modes*100 );
+          //int * buffer = (int*) malloc ( sizeof(int)*n_molecule_nm*100 );
           //if (buffer==NULL)
           //  {
           //    std::cout << "\nError: not enough memory available to store all initial vibrational states\n\n";
@@ -369,13 +392,13 @@ Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int>& nm_list,
           state_targ[nm]=0;
         //copy indexes from the subspace state_targ_subspace into the full space state_targ (the rest stays=0):
         int index=0;
-        for (int nm=0; nm<nm_list.size(); nm++)
-          state_targ[ nm_list[nm] ] = state_targ_subspace[nm];
+        for (int nm=0; nm<n_active_nm; nm++)
+          state_targ[ active_nms[nm] ] = state_targ_subspace[nm];
 
 
         double energy = 0;
 
-        for (int nm=0; nm < n_norm_modes; nm++)
+        for (int nm=0; nm < n_molecule_nm; nm++)
           // threshold -- energy above the ground state:
           energy += E_position[nm](0, state_targ[nm])+molStates[targN].Energy(); 
 
@@ -415,7 +438,7 @@ Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int>& nm_list,
         double energy = -molStates[targN].Energy();
         double E_prime_prime = 0;
 
-        for (int nm=0; nm < n_norm_modes; nm++)
+        for (int nm=0; nm < n_molecule_nm; nm++)
         {
           intens *= I[nm](selected_states_ini[curr_ini][nm], selected_states_targ[curr_targ][nm]);
           FCF *= FCFs[nm](selected_states_ini[curr_ini][nm], selected_states_targ[curr_targ][nm]);
@@ -435,10 +458,10 @@ Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int>& nm_list,
           tmpPoint.getVibrState1().setElStateIndex(0);
           tmpPoint.getVibrState2().reset();
           tmpPoint.getVibrState2().setElStateIndex(targN);
-          for (int nm=0; nm<nm_list.size(); nm++)
+          for (int nm=0; nm<n_active_nm; nm++)
           {
-            tmpPoint.getVibrState1().setVibrQuanta(nm, selected_states_ini[curr_ini][  nm_list[nm]  ]);
-            tmpPoint.getVibrState2().setVibrQuanta(nm, selected_states_targ[curr_targ][  nm_list[nm]  ]);
+            tmpPoint.getVibrState1().setVibrQuanta(nm, selected_states_ini[curr_ini][  active_nms[nm]  ]);
+            tmpPoint.getVibrState2().setVibrQuanta(nm, selected_states_targ[curr_targ][  active_nms[nm]  ]);
           }
           spectrum.AddSpectralPoint( tmpPoint );
         }
@@ -465,12 +488,12 @@ Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int> nm_active
   int  iniN=0;
 
   // full space size
-  int n_norm_modes = molStates[iniN].NNormModes();
-  if (initial_state.size() != n_norm_modes) {
-    std::cout << "Error in Parallel::Parallel: Invalid intial state:" << std::endl;
+  int n_molecule_nm = molStates[iniN].NNormModes();
+  if (initial_state.size() != n_molecule_nm) {
+    std::cout << "Error in Parallel::Parallel: Invalid initial state:" << std::endl;
     std::cout 
       << " Excitations in all "  
-      << n_norm_modes 
+      << n_molecule_nm 
       << " must be defined."
       << std::endl;
     std::cout << " Only " 
@@ -504,7 +527,7 @@ Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int> nm_active
   int max_n_initial = *max_it;
 
   std::vector <int> state_targ, state_targ_subspace;
-  for (int i=0; i<n_norm_modes; i++)
+  for (int i=0; i<n_molecule_nm; i++)
     state_targ.push_back(-1);
 
   // "excite subspace" size
@@ -609,8 +632,8 @@ Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int> nm_active
     // Transform Cart_>normal Mode coordinates
 
     // Geometry differences in normal coordinates
-    arma::Col<double> NormModeShift_ini(molStates[iniN].NNormModes());
-    arma::Col<double> NormModeShift_targ(molStates[iniN].NNormModes());
+    arma::Col<double> NormModeShift_ini(n_molecule_nm);
+    arma::Col<double> NormModeShift_targ(n_molecule_nm);
 
     NormModeShift_ini = Cart2Normal_Rs[iniN] * cartesian_shift;
     NormModeShift_targ = Cart2Normal_Rs[targN] * cartesian_shift;
@@ -623,7 +646,7 @@ Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int> nm_active
       << "Angstrom*sqrt(amu):\n\n"
       << "normal mode  dQ in initial  dQ in target   frequency   frequency   comments\n"
       << "  number      state coord.  state coord.    initial      target\n\n";
-    for (int nm=0; nm<n_norm_modes; nm++)
+    for (int nm=0; nm<n_molecule_nm; nm++)
     {
       std::cout << "     " << std::fixed << std::setw(3) << nm <<"      " 
         << std::setprecision(6) 
@@ -647,30 +670,30 @@ Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int> nm_active
       std::ofstream nmoverlapF;     
       nmoverlapF.open(nmoverlapFName, std::ios::out);
       nmoverlapF << "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n"
-        << "<nmoverlap\n  nm_initial=\"" <<n_norm_modes <<"\"\n  nm_target =\""<<n_norm_modes << "\">\n\n<nm_order_initial>\n";
+        << "<nmoverlap\n  nm_initial=\"" <<n_molecule_nm <<"\"\n  nm_target =\""<<n_molecule_nm << "\">\n\n<nm_order_initial>\n";
       //inital state's nm order -- 0,1,2... -- always!
-      for (int nm=0; nm<n_norm_modes; nm++)
+      for (int nm=0; nm<n_molecule_nm; nm++)
         nmoverlapF << "<oi" << nm << ">"<< molStates[iniN].getNormModeIndex(nm) << "</oi" << nm << ">\n";
       nmoverlapF << "</nm_order_initial>\n\n<frequencies_initial>\n";
-      for (int nm=0; nm<n_norm_modes; nm++)
+      for (int nm=0; nm<n_molecule_nm; nm++)
         nmoverlapF << "<fi" << nm << ">"<< std::fixed << std::setprecision(1) << molStates[iniN].getNormMode(nm).getFreq()<< "</fi" << nm << ">\n";
       nmoverlapF << "</frequencies_initial>\n\n<displacements_initial>\n";
-      for (int nm=0; nm<n_norm_modes; nm++)
+      for (int nm=0; nm<n_molecule_nm; nm++)
         nmoverlapF << "<dqi" << nm << ">"<< std::fixed << std::setprecision(2) << NormModeShift_ini[nm]<< "</dqi" << nm << ">\n";
       nmoverlapF << "</displacements_initial>\n\n<nm_order_target>\n";
-      for (int nm=0; nm<n_norm_modes; nm++)
+      for (int nm=0; nm<n_molecule_nm; nm++)
         nmoverlapF << "<ot" << nm << ">"<< molStates[targN].getNormModeIndex(nm) << "</ot" << nm << ">\n";
       nmoverlapF << "</nm_order_target>\n\n<frequencies_target>\n";
-      for (int nm=0; nm<n_norm_modes; nm++)
+      for (int nm=0; nm<n_molecule_nm; nm++)
         nmoverlapF << "<ft" << nm << ">"<< std::fixed << std::setprecision(1) << molStates[targN].getNormMode(nm).getFreq()<< "</ft" << nm << ">\n";
       nmoverlapF << "</frequencies_target>\n\n<displacements_target>\n";
-      for (int nm=0; nm<n_norm_modes; nm++)
+      for (int nm=0; nm<n_molecule_nm; nm++)
         nmoverlapF << "<dqt" << nm << ">"<< std::fixed << std::setprecision(2) << NormModeShift_targ[nm]<< "</dqt" << nm << ">\n";
       nmoverlapF << "</displacements_target>\n\n<overlap_matrix>\n";
-      for (int nmt=0; nmt<n_norm_modes; nmt++)
+      for (int nmt=0; nmt<n_molecule_nm; nmt++)
       {    
         nmoverlapF << "<row"<<nmt<<">\n";
-        for (int nmi=0; nmi<n_norm_modes; nmi++)
+        for (int nmi=0; nmi<n_molecule_nm; nmi++)
           nmoverlapF << "<c"<<nmi<<">"<< NMoverlap(nmt, nmi)<<"</c"<<nmi<<">";
         nmoverlapF << "\n</row"<<nmt<<">\n";
       }
@@ -690,7 +713,7 @@ Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int> nm_active
       std::cout << "Peak positions, Franck-Condon factors, and intensities along each normal mode:\n\n";
 
     // for each normal mode of the initial state
-    for (int nm=0; nm < n_norm_modes; nm++) 
+    for (int nm=0; nm < n_molecule_nm; nm++) 
     {      
       // Calculate the energy positions:
       for (int i=0; i<max_n_initial+1; i++)
@@ -808,7 +831,7 @@ Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int> nm_active
 
         double energy = 0;
 
-        for (int nm=0; nm < n_norm_modes; nm++)
+        for (int nm=0; nm < n_molecule_nm; nm++)
           // threshold -- energy above the ground state:
           energy += E_position[nm](0, state_targ[nm])+molStates[targN].Energy(); 
 
@@ -846,7 +869,7 @@ Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int> nm_active
         double energy = -molStates[targN].Energy();
         double E_prime_prime = 0;
 
-        for (int nm=0; nm < n_norm_modes; nm++)
+        for (int nm=0; nm < n_molecule_nm; nm++)
         {
           intens *= I[nm](selected_states_ini[curr_ini][nm], selected_states_targ[curr_targ][nm]);
           FCF *= FCFs[nm](selected_states_ini[curr_ini][nm], selected_states_targ[curr_targ][nm]);

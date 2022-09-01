@@ -343,13 +343,13 @@ void harmonic_pes_parallel(xml_node& node_input, std::vector <MolState>& elState
     exit(2);
   }
 
-  //create nms_parallel -- "excite subspace" (full_space-do_not_excite_subspace)
-  std::vector<int> nms_parallel;
+  //create active_nm -- "excite subspace" (full_space-do_not_excite_subspace)
+  std::vector<int> active_nm_parallel;
   for (int nm=0; nm<n_norm_modes; nm++) {
     std::set<int>::const_iterator intSet_iter;
     intSet_iter = do_not_excite_subspace.find(nm);
     if ( intSet_iter == do_not_excite_subspace.end( ) )
-      nms_parallel.push_back(nm);
+      active_nm_parallel.push_back(nm);
   }
 
 
@@ -497,7 +497,7 @@ void harmonic_pes_parallel(xml_node& node_input, std::vector <MolState>& elState
       the_only_initial_state[mode_number] = no_of_quanta;
     }
 
-    parallel_ptr = new Parallel(elStates, nms_parallel, 
+    parallel_ptr = new Parallel(elStates, active_nm_parallel, 
         fcf_threshold, temperature, 
         the_only_initial_state, max_n_target, 
         if_comb_bands, if_use_target_nm, if_print_fcfs, if_web_version, 
@@ -505,7 +505,7 @@ void harmonic_pes_parallel(xml_node& node_input, std::vector <MolState>& elState
         energy_threshold_target);
   }
   else {
-    parallel_ptr = new Parallel(elStates, nms_parallel, 
+    parallel_ptr = new Parallel(elStates, active_nm_parallel, 
         fcf_threshold, temperature, 
         max_n_initial, max_n_target, 
         if_comb_bands, if_use_target_nm, if_print_fcfs, if_web_version,
@@ -528,11 +528,11 @@ void harmonic_pes_parallel(xml_node& node_input, std::vector <MolState>& elState
   if (ifAnyNormalModesReordered)
     std::cout <<"\nWARNING! The normal modes of one of the target states were reordered!\n"
       <<"         New order is used for the target state assignment.\n";
-  if( nms_parallel.size()!=n_norm_modes )
+  if( active_nm_parallel.size()!=n_norm_modes )
   {
     std::cout << "\nNOTE: only the following normal modes were excited: (\"excite subspace\"):\n  ";
-    for (int nm=0; nm< nms_parallel.size(); nm++)
-      std::cout << nms_parallel[nm] << ' ';
+    for (int nm=0; nm< active_nm_parallel.size(); nm++)
+      std::cout << active_nm_parallel[nm] << ' ';
     std::cout << "\n";
     if (ifAnyNormalModesReordered)
       std::cout <<"\nWARNING! The normal modes of one of the target states were reordered!\n"
