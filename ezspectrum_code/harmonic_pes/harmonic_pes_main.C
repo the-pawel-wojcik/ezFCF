@@ -433,7 +433,16 @@ void harmonic_pes_parallel(xml_node& node_input, std::vector <MolState>& elState
   // create a new parallel approximation object (evaluates and stores FCFs in the harmonic approximation)
   Parallel* parallel_ptr;
 
+  // Process the_only_initial_state node and prepare input
+  bool if_the_only_initial_state = false;
+  // container for the only initial state
+  // initialized as a state which has every mode with zero excitations 
+  std::vector<int> the_only_initial_state(n_norm_modes, 0); 
+  // TODO: use available function to store the_only_initial_state as a structre
   if (node_parallel_approx.find_subnode("the_only_initial_state")) {
+    if_the_only_initial_state = true;
+
+    // TODO: Use available functions instead of the below parsing.
     xml_node node_the_only_initial_state(node_parallel_approx, "the_only_initial_state", 0);
     std::string text = node_the_only_initial_state.read_string_value("text");
     if (text.empty()) {
@@ -456,9 +465,6 @@ void harmonic_pes_parallel(xml_node& node_input, std::vector <MolState>& elState
       pos = text.find(",");
     } 
 
-    // container for the only initial state
-    // initialized as a state which has every mode with zero excitations 
-    std::vector<int> the_only_initial_state(n_norm_modes, 0); 
 
     while (non_zero_modes.size()) {
       std::string excitation = non_zero_modes.front();
@@ -496,22 +502,15 @@ void harmonic_pes_parallel(xml_node& node_input, std::vector <MolState>& elState
       }
       the_only_initial_state[mode_number] = no_of_quanta;
     }
-
-    parallel_ptr = new Parallel(elStates, active_nm_parallel, 
-        fcf_threshold, temperature, 
-        the_only_initial_state, max_n_target, 
-        if_comb_bands, if_use_target_nm, if_print_fcfs, if_web_version, 
-        nmoverlapFName.str().c_str(),
-        energy_threshold_target);
   }
-  else {
-    parallel_ptr = new Parallel(elStates, active_nm_parallel, 
-        fcf_threshold, temperature, 
-        max_n_initial, max_n_target, 
-        if_comb_bands, if_use_target_nm, if_print_fcfs, if_web_version,
-        nmoverlapFName.str().c_str(),  
-        energy_threshold_initial,  energy_threshold_target);
-  }
+  parallel_ptr = new Parallel(elStates, active_nm_parallel, 
+      fcf_threshold, temperature, 
+      max_n_initial, max_n_target, 
+      if_the_only_initial_state, the_only_initial_state,
+      if_comb_bands, if_use_target_nm, 
+      if_print_fcfs, if_web_version,
+      nmoverlapFName.str().c_str(),  
+      energy_threshold_initial,  energy_threshold_target);
 
   //================================================================================
   //================================================================================
