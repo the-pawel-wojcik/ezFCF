@@ -32,6 +32,8 @@ class MolState
   bool ifLinear;
   //! excitation energy (formerly IP)
   double energy;
+  //! calculate the state's properties using the vertical gradient method
+  bool IfGradientAvailable;
 
   //!move this to functions...
   bool ifLetterOrNumber(char Ch);
@@ -81,8 +83,7 @@ class MolState
   //! Returns number of molecular normal modes, i.e., 3N - 5/6
   int NNormModes() const { return normModes.size(); }
   //! returns True if vertical gradient was used
-  // FIXIT: this is bad, need to rewrite in a safer way
-  bool IfGradient() const { return gradient.n_rows > 0; }
+  bool IfGradient() const { return IfGradientAvailable; }
 
   //--- alignment ------------- ------------------------------------
   //! align each state: center of mass in the coordinates origin, moment of ineretia principal axes along the coordinate axes:

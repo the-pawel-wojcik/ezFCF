@@ -13,6 +13,7 @@ MolState::MolState () {
   momentOfInertiaTensor = arma::Mat<double> (CARTDIM, CARTDIM);
   if_aligned_manually=false;
   if_nm_reordered_manually=false;
+  IfGradientAvailable = false;
   normModesOrder.clear();
 }
 
@@ -28,6 +29,7 @@ MolState::MolState (const MolState& other) {
   centerOfMass = other.centerOfMass;
   momentOfInertiaTensor = other.momentOfInertiaTensor;
   if_aligned_manually = other.if_aligned_manually;
+  IfGradientAvailable = other.IfGradientAvailable;
   if_nm_reordered_manually =other.if_nm_reordered_manually;
   normModesOrder = other.normModesOrder;
   reduced_masses=other.reduced_masses;
@@ -45,6 +47,7 @@ MolState& MolState::operator=(const MolState& other) {
     centerOfMass = other.centerOfMass;
     momentOfInertiaTensor = other.momentOfInertiaTensor;
     if_aligned_manually = other.if_aligned_manually;
+    IfGradientAvailable = other.IfGradientAvailable;
     if_nm_reordered_manually =other.if_nm_reordered_manually;
     normModesOrder = other.normModesOrder;
     reduced_masses=other.reduced_masses;
@@ -462,7 +465,7 @@ bool MolState::ifLetterOrNumber(char Ch)
 
 
 //------------------------------ 
-/* Only this function needs to deal with input: 
+/* The only function to deal with input: 
    -  a node pointing out to initial_state or target_state section in the input
    -  a file where all masses are tabulated
    */
@@ -474,8 +477,8 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
   energy = 0.0; //units are eV
   if(node_state.find_subnode("excitation_energy")) {
     std::string energy_text = "Excitation energy = ";
-    bool gradient_is_available = node_state.find_subnode("gradient");
-    if (gradient_is_available) {
+    IfGradientAvailable = node_state.find_subnode("gradient");
+    if (IfGradientAvailable) {
       energy_text = "Vertical excitation energy = ";
     }
 
@@ -575,7 +578,9 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
         for (l=0; l < CARTDIM; l++) {
           normModes[k*nModesPerLine+j].getDisplacement()(i*CARTDIM+l)=nmodes_iStr.getNextDouble();
           if (nmodes_iStr.fail()) {
-            std::cout<<"MolState::Read(): Error. Wrong format in normal modes: ["+nmodes_iStr.str()+"]\n";
+            std::cout
+              << "MolState::Read(): Error. Wrong format in normal modes: ["
+              + nmodes_iStr.str() + "]\n";
             exit(1);
           }
         }
@@ -670,7 +675,7 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
    * Detection of gradient node triggers use of gradient and changes meaning of nodes: geometry, normal modes, frequncies, and excitation_energy. If a gradient node is present in an electronic state, the geometry, normal modes, and frequncies nodes are expected to descibe the initial state. The input excitation energy has to be the vertial excitation energy at the initial state geometry. The target state geometry and adiabatic excitation energy will be calculated using the vertial gradient method.
    * Pawel, May 2022
    * */
-  if (node_state.find_subnode("gradient")) {
+  if (IfGradientAvailable) {
     std::cout 
       << " State geometry will be calculated with the vertical gradient (VG) approximation." 
       << std::endl;
