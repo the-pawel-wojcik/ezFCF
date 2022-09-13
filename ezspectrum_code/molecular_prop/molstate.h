@@ -20,11 +20,13 @@ class MolState
 {
   //! N Atoms 
   std::vector<Atom> atoms;
-  //! M Normal modes and frequencies (3N-5 or 3N-6) Stored in mass unweighted format in Angstoms (i.e as in ACESII)
+  //! M Normal modes and frequencies (3N-5 or 3N-6) 
+  //! Stored in the mass unweighted format in Angstoms (i.e as in ACESII)
   std::vector<NormalMode> normModes;
   //! Normal modes order (relative to the input file's order)
   std::vector<int> normModesOrder;
-  //! Gradient calculated in the caresian (non-mass-weighted) coordinates, a 3N x 1 matrix TODO: hande the cases where gradient is available only in the mass-weighted coordinates
+  //! Gradient calculated in the caresian (non-mass-weighted) coordinates a 3N vector
+  //! TODO: handle the cases where gradient is available only in the mass-weighted coordinates
   arma::Col<double> gradient;
   //! may be removed later
   bool ifLinear;
@@ -65,7 +67,8 @@ class MolState
 
   //! Returns Atom #i (this atoms can be different/isotops from the normal mode section)
   Atom& getAtom(int i){ return atoms[i]; } 
-  //! Returns NormalMode #i (AIK: Are we using mass-weighted NModes or not? FIXIT: need to figure out and comment)
+  //! Returns NormalMode #i 
+  //! Stored in the mass unweighted format in Angstoms (i.e as in ACESII)
   NormalMode& getNormMode(int i) { return normModes[i]; } 
   //! Returns NormalMode order index
   int getNormModeIndex(int i) { return normModesOrder[i]; } 
@@ -75,10 +78,10 @@ class MolState
   double Energy () const { return energy; }
   //! Returns number of atoms
   int NAtoms() const { return atoms.size(); }
-  //! Returns number of normal modes
+  //! Returns number of molecular normal modes, i.e., 3N - 5/6
   int NNormModes() const { return normModes.size(); }
   //! returns True if vertical gradient was used
-  //FIXIT: this is bad, need to rewrite in a safer way
+  // FIXIT: this is bad, need to rewrite in a safer way
   bool IfGradient() const { return gradient.n_rows > 0; }
 
   //--- alignment ------------- ------------------------------------
@@ -96,7 +99,9 @@ class MolState
   arma::Mat<double>& getMomentOfInertiaTensor();
   // Shifts coordinate's origin by "vector" 
   void shiftCoordinates(arma::Col<double>& vector);
-  // matrix multiolication coordinates*matrix_3x3; "coordinates" matrix is of 3 columns: x,y,z. matrix_3x3 has eigen vectors of the transformation in rows.
+  // matrix multiplication coordinates*matrix_3x3; 
+  // "coordinates" matrix is of 3 columns: x,y,z. 
+  // matrix_3x3 has eigen vectors of the transformation in rows.
   void transformCoordinates(const arma::Mat<double>& matrix_3x3);
   void applyCoordinateThreshold(const double threshold);
   double getGeomDifference(MolState& other);

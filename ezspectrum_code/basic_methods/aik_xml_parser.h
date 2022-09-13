@@ -115,13 +115,9 @@ class My_istringstream
   };
   
  public:
-  //My_istringstream(const char* str){ iStr.str(str); iStr.clear(); };
-  //AIK: I think this is safer then above. But it does not make a difference
   My_istringstream(const std::string& str){ iStr.str(str); iStr.clear();
-    
     //std::cout << "My_istringstream(const std::string& str)   str=" << iStr.str() << std::endl;
   };
-  //My_istringstream(const std::string str) { iStr.str(str); iStr.clear(); };
   My_istringstream(const My_istringstream& other){ iStr.str(other.iStr.str()); iStr.clear();
     //std::cout << "My_istringstream(const std::string& other)   str=" << iStr.str() << std::endl;
   };

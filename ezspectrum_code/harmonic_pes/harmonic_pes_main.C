@@ -1,9 +1,20 @@
 #include "harmonic_pes_main.h"
 
 //! splits string of type "3v21" into two integers 3 and 21
+//! qnt = 3; nm = 21
 void get_qnt_nm(std::string& ex_str, int& qnt, int& nm );
-//! converts string of type "1v1,1v2,1v3,3v19" into a vibrational state (i.e. vector of integers)
+
+//! converts string of type "1v1,1v2,1v3,3v19" into a vibrational state 
+//! stored as an object of the VibronicState class.
 void fillVibrState(My_istringstream& vibr_str, VibronicState& v_state, const int nm_max);
+
+//! converts string of type "1v1,1v2,1v3,3v19" into a vibrational state 
+//! stored as a vector of integers. This is an alternative to the
+//! fillVibronicState which stores the vibrational state as 
+//! an object of VibronicState
+//! v_state should be initilized to zeros. Each index of v_state is the number
+//! of a normal mode in use
+void vib_state_to_vec_int(std::string& text, std::vector<int>& v_state);
 
 void harmonic_pes_parallel(xml_node& node_input, std::vector <MolState>& elStates, const char *InputFileName);
 void harmonic_pes_dushinksy(xml_node& node_input, std::vector <MolState>& elStates, const char *InputFileName);
@@ -154,37 +165,116 @@ void get_qnt_nm(std::string& ex_str, int& qnt, int& nm ) {
   }
 }
 
+//! converts string of type "1v1,1v2,1v3,3v19" into a vibrational state 
+//! stored as a vector of integers. This is an alternative to the
+//! fillVibronicState which stores the vibrational state as 
+//! an object of VibronicState
+//! v_state should be initilized to zeros. Each index of v_state is the number
+//! of a normal mode in use
+void vib_state_to_vec_int(std::string& text, std::vector<int>& v_state) { 
+
+  if (text.empty()) {
+    std::cout 
+      << "\nError! Empty specification of a vibrational state." 
+      << std::endl;
+    exit(1);
+  }
+
+  // number of molecule's normal modes: 3N - 5/6
+  const int max_nm = v_state.size();
+
+  std::queue<std::string> non_zero_modes;
+
+  std::string non_zero_mode;
+  size_t pos = text.find(",");
+  while (true) {
+    non_zero_mode = text.substr(0, pos);
+    non_zero_modes.push(non_zero_mode);
+    if (pos == std::string::npos) 
+      break;
+    text.erase(0, pos + 1);
+    pos = text.find(",");
+  } 
+
+
+  while (non_zero_modes.size()) {
+    std::string excitation = non_zero_modes.front();
+    non_zero_modes.pop();
+    // parse "10v3" into 
+    // no_of_quanta = 10 
+    // mode_number = 3
+    int no_of_quanta = -1;
+    int mode_number = -1;
+    get_qnt_nm(excitation, no_of_quanta, mode_number);
+
+    if (mode_number >= max_nm || mode_number < 0) {
+      std::cout << "Error in processing the_only_initial_state." 
+        << std::endl
+        << " Please pick normal mode from the range 0 to " 
+        << max_nm - 1 
+        << "." 
+        << std::endl;
+      exit(1);
+    }
+    if (no_of_quanta < 0) {
+      std::cout << "Error in processing the_only_initial_state." 
+        << std::endl
+        << " Please pick a positive number of vibrational quanta in all excited modes."
+        << std::endl;
+      exit(1);
+    }
+    if (v_state[mode_number] != 0) {
+      std::cout << "Error in processing the_only_initial_state." 
+        << std::endl
+        << " The number of vibrational quanta in mode #"
+        << mode_number
+        << " is defined more than once."
+        << std::endl
+        << " Please define each normal mode excitations only once."
+        << std::endl;
+      exit(1);
+    }
+    v_state[mode_number] = no_of_quanta;
+  }
+}
 
 //! converts string of type "1v1,1v2,1v3,3v19" into a vibrational state (i.e. vector of integers)
 void fillVibrState(My_istringstream& vibr_str, VibronicState& v_state, const int nm_max) {
+  // set all excitations back to 0
+  v_state.reset();
 
-  // quanta & normal mode number (for parsing strings like "3v19", where qnt=3 and nm=19)
-  int qnt=0, nm=0;
   // string like 3v19"
   std::string ex_str;
-  // string like "1v1,1v2,1v3,3v19"
-  //std::cout << "fillVibrState: vibr_str= " << vibr_str.str() << std::endl;
-  bool if_read=vibr_str.getNextWord(ex_str);
-  /* std::cout << "fillVibrState: if_read=" << if_read << "  ex_str= " << ex_str << std::endl; */
 
-  // reset vibrational state
-  for (int i=0; i<v_state.getVibrQuantaSize(); i++)
-    v_state.setVibrQuanta(i,0);
+  // string like "1v1,1v2,1v3,3v19"
+  // getNextWord skips untill the first letter or number (A-Z, a-z, 0-9)
+  // and keeps reading for as long as only letters and numbers appear,
+  // i.e., stops reading at a comma ",".
+  bool if_read=vibr_str.getNextWord(ex_str);
+
+  if (ex_str.empty()) {
+    std::cout 
+      << "\nError! Empty specification of a vibrational state." 
+      << std::endl;
+    exit(1);
+  }
+
+  // quanta & normal mode number (for parsing "3v19" to qnt=3 and nm=19)
+  int qnt=0, nm=0;
 
   // fill vibrational state (if == 0 -- nothing to do)
   if (ex_str!="0") {
     get_qnt_nm(ex_str, qnt, nm);
-    /* std::cout << "The word " << ex_str << " was read as qnt = " << qnt << " nm = " << nm << std::endl; */
 
-    /* std::cout << "nm_max = " << nm_max << std::endl; */
-
+    // TODO: make run stronger tests as a function here
     if (nm>nm_max) {
       std::cout << "\nError! Normal mode " << nm 
         << " (in [" << qnt << 'v' << nm << "] excitation) is out of range.\n\n";
       exit(1);
     }
-
     v_state.setVibrQuanta(nm, qnt);
+
+    // repeat
     while (not(vibr_str.fail())) {
       vibr_str.getNextWord(ex_str);
       get_qnt_nm(ex_str, qnt, nm);
@@ -435,74 +525,18 @@ void harmonic_pes_parallel(xml_node& node_input, std::vector <MolState>& elState
 
   // Process the_only_initial_state node and prepare input
   bool if_the_only_initial_state = false;
+
   // container for the only initial state
   // initialized as a state which has every mode with zero excitations 
   std::vector<int> the_only_initial_state(n_norm_modes, 0); 
-  // TODO: use available function to store the_only_initial_state as a structre
   if (node_parallel_approx.find_subnode("the_only_initial_state")) {
     if_the_only_initial_state = true;
 
-    // TODO: Use available functions instead of the below parsing.
     xml_node node_the_only_initial_state(node_parallel_approx, "the_only_initial_state", 0);
     std::string text = node_the_only_initial_state.read_string_value("text");
-    if (text.empty()) {
-      std::cout << "Error in processing the_only_initial_state." 
-        << std::endl
-        << " The selected state must have at least one excitation." 
-        << std::endl;
-      exit(1);
-    }
-    std::queue<std::string> non_zero_modes;
-
-    std::string non_zero_mode;
-    size_t pos = text.find(",");
-    while (true) {
-      non_zero_mode = text.substr(0, pos);
-      non_zero_modes.push(non_zero_mode);
-      if (pos == std::string::npos) 
-        break;
-      text.erase(0, pos + 1);
-      pos = text.find(",");
-    } 
-
-
-    while (non_zero_modes.size()) {
-      std::string excitation = non_zero_modes.front();
-      non_zero_modes.pop();
-      int no_of_quanta = -1;
-      int mode_number = -1;
-      get_qnt_nm(excitation, no_of_quanta, mode_number);
-
-      if (mode_number >= n_norm_modes || mode_number < 0) {
-        std::cout << "Error in processing the_only_initial_state." 
-          << std::endl
-          << " Please pick normal mode from the range 0 to " 
-          << n_norm_modes - 1 
-          << "." 
-          << std::endl;
-        exit(1);
-      }
-      if (no_of_quanta < 0) {
-        std::cout << "Error in processing the_only_initial_state." 
-          << std::endl
-          << " Please pick a positive number of vibrational quanta in all excited modes."
-          << std::endl;
-        exit(1);
-      }
-      if (the_only_initial_state[mode_number] != 0) {
-        std::cout << "Error in processing the_only_initial_state." 
-          << std::endl
-          << " The number of vibrational quanta in mode #"
-          << mode_number
-          << " is defined more than once."
-          << std::endl
-          << " Please define each normal mode excitations only once."
-          << std::endl;
-        exit(1);
-      }
-      the_only_initial_state[mode_number] = no_of_quanta;
-    }
+    vib_state_to_vec_int(text, the_only_initial_state);
   }
+
   parallel_ptr = new Parallel(elStates, active_nm_parallel, 
       fcf_threshold, temperature, 
       max_n_initial, max_n_target, 
