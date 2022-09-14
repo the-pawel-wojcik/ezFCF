@@ -103,7 +103,9 @@ bool harmonic_pes_main (const char *InputFileName, xml_node& node_input, xml_nod
 
     std::cout << "\nNew molecular geometry:\n";
     elStates[state_i].printGeometry();
-    elStates[state_i].getMomentOfInertiaTensor().print("\nMOI tensor:");
+    std::cout << std::fixed << std::setprecision(6) << std::setw(13);
+    // Armadillo's `raw_print` uses cout flags
+    elStates[state_i].getMomentOfInertiaTensor().raw_print("\nMOI tensor:");
 
     if (if_print_normal_modes) {
       std::cout << "Normal modes after the geometry transformations:\n\n";
