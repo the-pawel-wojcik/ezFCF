@@ -20,11 +20,13 @@ class MolState
 {
   //! N Atoms 
   std::vector<Atom> atoms;
-  //! M Normal modes and frequencies (3N-5 or 3N-6) 
+  //! M Normal modes and frequencies (3N-5 or 3N-6)
   //! Stored in the mass unweighted format in Angstoms (i.e as in ACESII)
   std::vector<NormalMode> normModes;
   //! Normal modes order (relative to the input file's order)
   std::vector<int> normModesOrder;
+  //! number of molecular normal modes: 3N-6 or 3N-5 for linear
+  int n_molecular_nm;
   //! Gradient calculated in the caresian (non-mass-weighted) coordinates a 3N vector
   //! TODO: handle the cases where gradient is available only in the mass-weighted coordinates
   arma::Col<double> gradient;
@@ -48,6 +50,13 @@ class MolState
   bool if_aligned_manually;
   bool if_nm_reordered_manually;
 
+  // ==  Helpers of the MolState::Read function ==
+  
+  void Read_excitation_energy(xml_node &node_state);
+  void Read_molecular_geometry(xml_node &node_state);
+  void Read_normal_modes(xml_node &node_state);
+
+  // ==  Helpers of the MolState::Read function ==
   public:
 
   MolState ();
@@ -58,7 +67,7 @@ class MolState
 
   //! Read the state data from file
   bool Read(xml_node& node_state, xml_node& node_amu_table);
-  void Print(); 
+  void Print();
   void printGeometry(); 
   void printNormalModes(); 
   void printGradient(); 

@@ -67,13 +67,14 @@ void MolState::align()
 
   arma::Col<double> MOI_eigenValues(CARTDIM);
   arma::Mat<double> MOI_eigenVectors(CARTDIM, CARTDIM);
+
   // "std" indicates use of a standard method instead of 
-  // the divide-and-conquer "dc" method. "dc" gives 
-  // slightly different results than "std", but is 
-  // considerably faster for large matrices
+  // the divide-and-conquer "dc" method. The "dc" method 
+  // gives slightly different results than "std", but is 
+  // considerably faster for large matrices:
   // http://arma.sourceforge.net/docs.html#eig_sym
   arma::eig_sym(MOI_eigenValues, MOI_eigenVectors, MOI_tensor, "std");
-  // The ezSpectrum convention said:
+  // The previous ezSpectrum convention was:
   // a) eigenvalues in descending order
   // b) eigenvectors in ROWS
   // The armadillo convention is the exact opposite.
@@ -84,7 +85,7 @@ void MolState::align()
   MOI_eigenVectors = arma::flipud(MOI_eigenVectors); 
   MOI_eigenValues = arma::reverse(MOI_eigenValues);
 
-  // compute the determinant of MOI matrix:
+  // compute the determinant of a MOI matrix:
   double det_tmp =  arma::det(MOI_eigenVectors);
   // if determinant is = 1 than it is a proper rotation; 
   // if it is = -1 than it is rotation+reflection (switch from left handed to the right handed coord.system); swap x&y axes:
@@ -463,6 +464,81 @@ bool MolState::ifLetterOrNumber(char Ch)
   else return false;
 }
 
+/* Parser of the "excitation_energy" subnode of the "initial_state" or
+ * "target_state" node. Helper of MolState::Read function. */
+void MolState::Read_excitation_energy(xml_node &node_state) {
+
+  xml_node node_eenergy(node_state, "excitation_energy", 0);
+  std::string units = node_eenergy.read_string_value("units");
+  energy = node_eenergy.read_node_double_value();
+
+  std::string energy_text = "Excitation energy = ";
+  // The meaning of the "energy" node changes in the Vertical Gradient mode
+  if (IfGradientAvailable) {
+    energy_text = "Vertical excitation energy = ";
+  }
+
+  if (units != "eV") {
+    std::cout << std::fixed << std::setprecision(6) << energy_text << energy
+              << " " << units << std::endl;
+  }
+
+  if (!covert_energy_to_eV(energy, units)) {
+    std::cout << "\nError! Unknown units of the excitation energy: \"" << units
+              << "\"\n  (should be equal to \"eV\", \"K\", or \"cm-1\")\n\n";
+    exit(1);
+  }
+
+  std::cout << energy_text << energy << " eV " << std::endl;
+}
+
+/* Parser of the "geometry" subnode of the "initial_state" or
+ * "target_state" node. Helper of MolState::Read function. */
+void MolState::Read_molecular_geometry(xml_node &node_state) {
+  xml_node node_geometry(node_state, "geometry", 0);
+
+  int nAtoms;
+  nAtoms = node_geometry.read_int_value("number_of_atoms");
+
+  n_molecular_nm = 3 * nAtoms - 6;
+  ifLinear = node_geometry.read_bool_value("linear");
+  if (ifLinear) {
+    n_molecular_nm = 3 * nAtoms - 5;
+  }
+
+  My_istringstream geom_iStr(node_geometry.read_string_value("text"));
+  atoms.clear();
+
+  std::string units = node_geometry.read_string_value("units");
+  double coeff = (units == "au") ? AU2ANGSTROM : 1.0;
+
+  Atom tmp_atom;
+  for (int i = 0; i < nAtoms; i++) {
+    // Get atomic name:
+    std::string tmp_atomName;
+    geom_iStr.getNextWord(tmp_atomName);
+    tmp_atom.Name() = tmp_atomName;
+
+    // get coordinates & convert to a.u.
+
+    // TODO: `coeff` converts to Angstroms. The comment from line above is
+    // confusing. Pawel Feb '22
+    tmp_atom.Coord(0) = geom_iStr.getNextDouble() * coeff;
+    tmp_atom.Coord(1) = geom_iStr.getNextDouble() * coeff;
+    tmp_atom.Coord(2) = geom_iStr.getNextDouble() * coeff;
+
+    if (geom_iStr.fail()) {
+      std::cout << "MolState::Read(): Error. Wrong format in geometry: [" +
+                       geom_iStr.str() + "]\n";
+      exit(1);
+    }
+    atoms.push_back(tmp_atom);
+  }
+}
+
+/* Parser of the "normal_modes" and "frequencies" subnodes of the
+ * "initial_state" or "target_state" node. Helper of MolState::Read function. */
+void MolState::Read_normal_modes(xml_node &node_state) {}
 
 //------------------------------ 
 /* The only function to deal with input: 
@@ -473,79 +549,24 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
 {
   int i,j,k,l;
 
-  //------------ Read excitation energy (if provided) (formerly IP) -------
-  energy = 0.0; //units are eV
-  if(node_state.find_subnode("excitation_energy")) {
-    std::string energy_text = "Excitation energy = ";
-    IfGradientAvailable = node_state.find_subnode("gradient");
-    if (IfGradientAvailable) {
-      energy_text = "Vertical excitation energy = ";
-    }
+  // Presence of the "gradient" node triggers the vertical gradient calculations
+  IfGradientAvailable = node_state.find_subnode("gradient");
 
-    xml_node node_eenergy(node_state, "excitation_energy", 0);
-    std::string units=node_eenergy.read_string_value("units");
-    energy=node_eenergy.read_node_double_value();
-    std::cout << std::fixed << std::setprecision(6); //  <<  std::setw(6);
-    std::cout << energy_text << energy << " " << units << std::endl;
-
-    if ( !covert_energy_to_eV(energy,units) ) {
-      std::cout << "\nError! Unknow units of the excitation energy: \"" << units <<"\"\n  (should be equal to \"eV\", \"K\", or \"cm-1\")\n\n";
-      exit(1);
-    }
-
-    std::cout << energy_text << energy << " eV " << std::endl;
+  // When available, read the excitation energy (formerly IP)
+  energy = 0.0; // eV
+  if (node_state.find_subnode("excitation_energy")) {
+    this->Read_excitation_energy(node_state);
   }
 
-
-  //------------ Read the Geometry --------------------------------------
-  xml_node node_geometry(node_state,"geometry",0);
-
-  int tmp_nAtoms, tmp_nNormMds;
-  tmp_nAtoms=node_geometry.read_int_value("number_of_atoms");
-
-  std::string units=node_geometry.read_string_value("units");
-
-  ifLinear= node_geometry.read_bool_value("linear"); 
-  if (ifLinear) 
-    tmp_nNormMds = (3*tmp_nAtoms - 5);
-  else
-    tmp_nNormMds = (3*tmp_nAtoms - 6);
-
-  My_istringstream geom_iStr(node_geometry.read_string_value("text"));
-  atoms.clear();
-
-  Atom tmp_atom;
-  double coeff=(units=="au") ? AU2ANGSTROM : 1.0;
-  for (i=0; i<tmp_nAtoms; i++) {
-
-    std::string tmp_atomName;
-    //Get atomic name:
-    geom_iStr.getNextWord(tmp_atomName);
-    tmp_atom.Name() = tmp_atomName;
-
-    //get coordinates & convert to a.u.
-    // TODO: `coeff` converts to Angstroms. The above comment is confusing. Pawel Feb '22
-    tmp_atom.Coord(0)=geom_iStr.getNextDouble()*coeff;
-    tmp_atom.Coord(1)=geom_iStr.getNextDouble()*coeff;
-    tmp_atom.Coord(2)=geom_iStr.getNextDouble()*coeff;
-
-    if(geom_iStr.fail()) {
-      std::cout << "MolState::Read(): Error. Wrong format in geometry: ["+geom_iStr.str()+"]\n";
-      exit(1);
-    }
-    atoms.push_back(tmp_atom);
-  }
-  //std::cout << "Read geometry: DONE" << std::endl;
+  // Read the molecular geometry 
+  this->Read_molecular_geometry(node_state);
 
   //------------ Convert atomic names to masses --------------------------
-  for (i=0; i<NAtoms(); i++) {
-
-    //std::cout << "Atom name=" << getAtom(i).Name().c_str() << std::endl;
-    //std::cout << "Value=" << node_amu_table.read_node_double_value(getAtom(i).Name().c_str()) << std::endl;
-
-    getAtom(i).Mass()=node_amu_table.read_node_double_value(getAtom(i).Name().c_str());
+  // TODO: This is processing -- it should be separated from reading.
+  for (int i = 0; i < NAtoms(); i++) {
+    getAtom(i).Mass() =
+        node_amu_table.read_node_double_value(getAtom(i).Name().c_str());
   }
-  //std::cout << "Read masses: DONE" << std::endl;   
 
   //------------ Read Normal Modes ---------------------------------------
   NormalMode tmp_normMode(NAtoms(),0); // one temp. norm mode
@@ -555,14 +576,14 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
   xml_node node_nmodes(node_state,"normal_modes",0);
   My_istringstream nmodes_iStr(node_nmodes.read_string_value("text"));
 
-  for (i=0; i < tmp_nNormMds; i++)
+  for (int i=0; i < n_molecular_nm; i++)
     normModes.push_back( tmp_normMode );
 
   int nModesPerLine=3;  // three number of vib. modes per Line
 
   int nLines;
-  nLines = tmp_nNormMds / nModesPerLine;
-  if ( tmp_nNormMds % nModesPerLine != 0)
+  nLines = n_molecular_nm / nModesPerLine;
+  if ( n_molecular_nm % nModesPerLine != 0)
     nLines++;
 
   for (k = 0; k < nLines; k++)  // number of blocks with 3 norm.modes. ("lines")
@@ -570,8 +591,8 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
     int current_nModesPerLine = nModesPerLine;
     // for the last entree, nModesPerString may differ from 3
     if (nLines - 1 == k)
-      if ( tmp_nNormMds % nModesPerLine != 0 )
-        current_nModesPerLine = tmp_nNormMds % nModesPerLine;
+      if ( n_molecular_nm % nModesPerLine != 0 )
+        current_nModesPerLine = n_molecular_nm % nModesPerLine;
 
     for (i=0; i < NAtoms(); i++)   
       for (j=0; j < current_nModesPerLine; j++) 
@@ -591,11 +612,11 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
   xml_node node_freq(node_state,"frequencies",0);
   My_istringstream freq_iStr(node_freq.read_string_value("text"));
 
-  for (i=0; i < tmp_nNormMds; i++)
+  for (i=0; i < n_molecular_nm; i++)
   {
     getNormMode(i).getFreq()=freq_iStr.getNextDouble();
     if (freq_iStr.fail()) {
-      std::cout << "\nError: format error at frequency #"<<i<< " or less than " << tmp_nNormMds <<" frequencies found\n";
+      std::cout << "\nError: format error at frequency #"<<i<< " or less than " << n_molecular_nm <<" frequencies found\n";
       exit(1);
     }
     if (getNormMode(i).getFreq()<=0) {
@@ -615,6 +636,7 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
   // qchem if_massweighted="true"; aces if_massweighted="false";
   reduced_masses = arma::Col<double> (NNormModes(), arma::fill::ones);
 
+  Atom tmp_atom;
   if (if_massweighted)
   {
     //std::cout << "Doing mass-weighted coordinates.....\n" ;
