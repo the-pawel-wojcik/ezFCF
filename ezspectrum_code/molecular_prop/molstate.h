@@ -18,8 +18,11 @@
 
 class MolState
 {
-  //! N Atoms 
+  //! N Atoms: these atoms come from parsing the "geometry" node
   std::vector<Atom> atoms;
+  //! N Atoms: these atoms come from parsing the "normal_modes" node.
+  //! HINT: `atoms` and `nm_atoms` can come in different order 
+  std::vector<Atom> nm_atoms;
   //! M Normal modes and frequencies (3N-5 or 3N-6)
   //! Stored in the mass unweighted format in Angstoms (i.e as in ACESII)
   std::vector<NormalMode> normModes;
@@ -27,6 +30,8 @@ class MolState
   std::vector<int> normModesOrder;
   //! number of molecular normal modes: 3N-6 or 3N-5 for linear
   int n_molecular_nm;
+  //! The xml input may store the normal modes using mass weighted convention
+  bool ifInputNMmassweighted;
   //! Gradient calculated in the caresian (non-mass-weighted) coordinates a 3N vector
   //! TODO: handle the cases where gradient is available only in the mass-weighted coordinates
   arma::Col<double> gradient;
@@ -52,11 +57,18 @@ class MolState
 
   // ==  Helpers of the MolState::Read function ==
   
-  void Read_excitation_energy(xml_node &node_state);
-  void Read_molecular_geometry(xml_node &node_state);
-  void Read_normal_modes(xml_node &node_state);
+  void Read_excitation_energy(xml_node &);
+  void Read_molecular_geometry(xml_node &);
+  void Read_normal_modes(xml_node &);
+  void Read_frequencies(xml_node &);
 
-  // ==  Helpers of the MolState::Read function ==
+  // -- helpers to the MolState::Read_normal_modes function --
+  void Read_normal_modes_atoms(std::string &);
+
+  // ==  Helpers of the MolState::Transform function ==
+  void convert_atomic_names_to_masses(xml_node &);
+  void un_mass_weight_nm();
+
   public:
 
   MolState ();

@@ -536,9 +536,136 @@ void MolState::Read_molecular_geometry(xml_node &node_state) {
   }
 }
 
-/* Parser of the "normal_modes" and "frequencies" subnodes of the
- * "initial_state" or "target_state" node. Helper of MolState::Read function. */
-void MolState::Read_normal_modes(xml_node &node_state) {}
+// TODO: read this carefully
+void MolState::Read_normal_modes_atoms(std::string &atoms_text) {
+  My_istringstream atoms_iStr(atoms_text);
+
+  nm_atoms.clear();
+  Atom tmp_atom;
+  for (int i = 0; i < NAtoms(); i++) {
+    std::string tmp_atomName;
+    // Get atomic name:
+    atoms_iStr.getNextWord(tmp_atomName);
+    tmp_atom.Name() = tmp_atomName;
+    nm_atoms.push_back(tmp_atom);
+  }
+
+}
+
+/* Parser of the "normal_modes" subnode of the "initial_state" or "target_state"
+ * node. Helper of MolState::Read function. */
+void MolState::Read_normal_modes(xml_node &node_state) {
+  normModes.clear();
+  NormalMode nMode(NAtoms(), 0);
+  for (int i = 0; i < n_molecular_nm; i++)
+    normModes.push_back(nMode);
+
+  // number of normal modes per Line in the xml input
+  int nModesPerLine = 3;
+  int nLines;
+  nLines = n_molecular_nm / nModesPerLine;
+  if (n_molecular_nm % nModesPerLine != 0)
+    nLines++;
+
+  xml_node node_nmodes(node_state, "normal_modes", 0);
+  ifInputNMmassweighted = node_nmodes.read_bool_value("if_mass_weighted");
+  My_istringstream nmodes_iStr(node_nmodes.read_string_value("text"));
+
+  // number of blocks with 3 norm.modes. ("lines")
+  for (int k = 0; k < nLines; k++) {
+    int current_nModesPerLine = nModesPerLine;
+
+    // in the last entry, nModesPerString may be less than 3
+    if (nLines - 1 == k)
+      if (n_molecular_nm % nModesPerLine != 0)
+        current_nModesPerLine = n_molecular_nm % nModesPerLine;
+
+    for (int i = 0; i < NAtoms(); i++)
+      for (int j = 0; j < current_nModesPerLine; j++)
+        for (int l = 0; l < CARTDIM; l++) {
+          normModes[k * nModesPerLine + j].getDisplacement()(i * CARTDIM + l) =
+              nmodes_iStr.getNextDouble();
+          if (nmodes_iStr.fail()) {
+            std::cout
+                << "MolState::Read(): Error. Wrong format in normal modes: [" +
+                       nmodes_iStr.str() + "]\n";
+            exit(1);
+          }
+        }
+  }
+
+  // parse atoms argument
+  std::string nm_atoms_list = node_nmodes.read_string_value("atoms");
+  this->Read_normal_modes_atoms(nm_atoms_list);
+}
+
+/* Parser of the "frequencies" subnode of the "initial_state" or "target_state"
+ * node. Helper of MolState::Read function. */
+void MolState::Read_frequencies(xml_node &node_state) {
+  xml_node node_freq(node_state, "frequencies", 0);
+  My_istringstream freq_iStr(node_freq.read_string_value("text"));
+
+  for (int i = 0; i < n_molecular_nm; i++) {
+    getNormMode(i).getFreq() = freq_iStr.getNextDouble();
+    if (freq_iStr.fail()) {
+      std::cout << "\nError: format error at frequency #" << i
+                << " or less than " << n_molecular_nm << " frequencies found."
+                << "\n";
+      exit(1);
+    }
+    if (getNormMode(i).getFreq() <= 0) {
+      std::cout << "\nError. The frequency [" << getNormMode(i).getFreq()
+                << "] is negative\n";
+      exit(1);
+    }
+  }
+}
+
+/* MolState object stores two vectors of atoms: one from the "geometry" node and
+ * one from the "normal_modes" node. After sucessful reading of the xml input,
+ * each vector stores the atoms' names. This function uses the atomic_masses.xml
+ * file to add the information about the atoms mass to the Atom containers. */
+void MolState::convert_atomic_names_to_masses(xml_node &node_amu_table) {
+  for (int i = 0; i < NAtoms(); i++)
+    atoms[i].Mass() =
+        node_amu_table.read_node_double_value(atoms[i].Name().c_str());
+
+  for (int i = 0; i < NAtoms(); i++)
+    nm_atoms[i].Mass() =
+        node_amu_table.read_node_double_value(nm_atoms[i].Name().c_str());
+}
+
+void MolState::un_mass_weight_nm() {
+
+  reduced_masses = arma::Col<double>(NNormModes(), arma::fill::ones);
+
+  // Mass-un-weight normal modes, using the nm_atoms' masses 
+  for (int nm = 0; nm < NNormModes(); nm++)
+    for (int a = 0; a < NAtoms(); a++)
+      for (int i = 0; i < CARTDIM; i++)
+        getNormMode(nm).getDisplacement()(a * CARTDIM + i) *=
+            sqrt(nm_atoms[a].Mass());
+
+  // Normalize each normal mode (divide by sqrt(norm) which is the same as
+  // division by sqrt(reduced mass))
+
+  // Prepare reduced masses:
+  for (int nm = 0; nm < NNormModes(); nm++) {
+    reduced_masses(nm) = 0;
+    for (int a = 0; a < NAtoms(); a++)
+      for (int i = 0; i < CARTDIM; i++)
+        reduced_masses(nm) +=
+            getNormMode(nm).getDisplacement()(a * CARTDIM + i) *
+            getNormMode(nm).getDisplacement()(a * CARTDIM + i);
+  }
+
+  // Normalize:
+  for (int nm = 0; nm < NNormModes(); nm++)
+    for (int a = 0; a < NAtoms(); a++)
+      for (int i = 0; i < CARTDIM; i++)
+        getNormMode(nm).getDisplacement()(a * CARTDIM + i) /=
+            sqrt(reduced_masses(nm));
+}
 
 //------------------------------ 
 /* The only function to deal with input: 
@@ -561,135 +688,24 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
   // Read the molecular geometry 
   this->Read_molecular_geometry(node_state);
 
-  //------------ Convert atomic names to masses --------------------------
-  // TODO: This is processing -- it should be separated from reading.
-  for (int i = 0; i < NAtoms(); i++) {
-    getAtom(i).Mass() =
-        node_amu_table.read_node_double_value(getAtom(i).Name().c_str());
-  }
+  // Read Normal Modes
+  this->Read_normal_modes(node_state);
 
-  //------------ Read Normal Modes ---------------------------------------
-  NormalMode tmp_normMode(NAtoms(),0); // one temp. norm mode
-
-  normModes.clear();
-
-  xml_node node_nmodes(node_state,"normal_modes",0);
-  My_istringstream nmodes_iStr(node_nmodes.read_string_value("text"));
-
-  for (int i=0; i < n_molecular_nm; i++)
-    normModes.push_back( tmp_normMode );
-
-  int nModesPerLine=3;  // three number of vib. modes per Line
-
-  int nLines;
-  nLines = n_molecular_nm / nModesPerLine;
-  if ( n_molecular_nm % nModesPerLine != 0)
-    nLines++;
-
-  for (k = 0; k < nLines; k++)  // number of blocks with 3 norm.modes. ("lines")
-  {
-    int current_nModesPerLine = nModesPerLine;
-    // for the last entree, nModesPerString may differ from 3
-    if (nLines - 1 == k)
-      if ( n_molecular_nm % nModesPerLine != 0 )
-        current_nModesPerLine = n_molecular_nm % nModesPerLine;
-
-    for (i=0; i < NAtoms(); i++)   
-      for (j=0; j < current_nModesPerLine; j++) 
-        for (l=0; l < CARTDIM; l++) {
-          normModes[k*nModesPerLine+j].getDisplacement()(i*CARTDIM+l)=nmodes_iStr.getNextDouble();
-          if (nmodes_iStr.fail()) {
-            std::cout
-              << "MolState::Read(): Error. Wrong format in normal modes: ["
-              + nmodes_iStr.str() + "]\n";
-            exit(1);
-          }
-        }
-  }
-
-
-  //------------ Read Frequencies ----------------------------------------
-  xml_node node_freq(node_state,"frequencies",0);
-  My_istringstream freq_iStr(node_freq.read_string_value("text"));
-
-  for (i=0; i < n_molecular_nm; i++)
-  {
-    getNormMode(i).getFreq()=freq_iStr.getNextDouble();
-    if (freq_iStr.fail()) {
-      std::cout << "\nError: format error at frequency #"<<i<< " or less than " << n_molecular_nm <<" frequencies found\n";
-      exit(1);
-    }
-    if (getNormMode(i).getFreq()<=0) {
-      std::cout <<"\nError. The frequency ["<<getNormMode(i).getFreq() <<"] is negative\n";
-      exit(1);
-    }
-  }
-  //std::cout << "Read frequences: DONE\n" ;
+  // Read Frequencies
+  this->Read_frequencies(node_state);
 
   // Now MolState is in a good shape, and some transformations can be performed
 
+  // TODO: The transformations deserve a function that is separate from
+  // MolState::Read
+
+  //------------ 0. Convert atomic names to masses --------------------------
+  this->convert_atomic_names_to_masses(node_amu_table);
+
   //------------ 1. Un-mass-weight normal modes ----------------------------
-  bool if_massweighted=node_nmodes.read_bool_value("if_mass_weighted");
-
-
-  //------------ 1. mass un-weight normal modes, if needed (QChem-->ACES format;) ----------------
-  // qchem if_massweighted="true"; aces if_massweighted="false";
-  reduced_masses = arma::Col<double> (NNormModes(), arma::fill::ones);
-
-  Atom tmp_atom;
-  if (if_massweighted)
-  {
-    //std::cout << "Doing mass-weighted coordinates.....\n" ;
-    // Read atomic names from "...->normal_modes->atoms"
-    My_istringstream atoms_iStr(node_nmodes.read_string_value("atoms"));
-
-    //std::cout << "Atoms: " << atoms_iStr.str() << std::endl;
-
-    std::vector<Atom> normalModeAtoms;
-
-    normalModeAtoms.clear();
-
-    for (i=0; i<NAtoms(); i++) {
-
-      std::string tmp_atomName;
-      //Get atomic name:
-      atoms_iStr.getNextWord(tmp_atomName);
-      tmp_atom.Name() = tmp_atomName;
-      normalModeAtoms.push_back(tmp_atom);
-    }
-
-    // Get masses for each atomic name:
-    for (i=0; i<NAtoms(); i++){
-
-      //std::cout << "Atom name=" << normalModeAtoms[i].Name().c_str() << std::endl;
-      //std::cout << "Value=" << node_amu_table.read_node_double_value(normalModeAtoms[i].Name().c_str()) << std::endl;
-      normalModeAtoms[i].Mass()=node_amu_table.read_node_double_value(normalModeAtoms[i].Name().c_str());
-    }
-
-    // Mass-un-weight normal modes:
-    for (int nm=0; nm<NNormModes(); nm++)
-      for (int a=0; a<NAtoms(); a++)
-        for (int i=0; i<CARTDIM; i++ )
-          getNormMode(nm).getDisplacement()(a*CARTDIM+i) *= sqrt(normalModeAtoms[a].Mass());
-
-    // normalize each normal mode (/sqrt(norm) which is also /sqrt(reduced mass)):
-    for (int nm=0; nm<NNormModes(); nm++) {
-      reduced_masses(nm) = 0;
-      for (int a=0; a<NAtoms(); a++)
-        for (int i=0; i<CARTDIM; i++ )
-          reduced_masses(nm) += getNormMode(nm).getDisplacement()(a*CARTDIM+i) *
-            getNormMode(nm).getDisplacement()(a*CARTDIM+i);
-    }
-    // Normalize:
-    for (int nm=0; nm<NNormModes(); nm++)
-      for (int a=0; a<NAtoms(); a++)
-        for (int i=0; i<CARTDIM; i++ )
-          getNormMode(nm).getDisplacement()(a*CARTDIM+i)/=sqrt(reduced_masses(nm));
-
+  if (ifInputNMmassweighted) {
+    this->un_mass_weight_nm();
   }
-
-
-  //FIXIT: Separate the code below into a member function of this class.
 
   // ------------ 1.5 Find geometry from the vertial gradient if available ------------
 
@@ -903,6 +919,7 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
     // backup normal modes
     std::vector<NormalMode> oldNormModes;
     oldNormModes.clear();
+    NormalMode tmp_normMode(NAtoms(), 0);
     for (int nm=0; nm < NNormModes(); nm++) {
       tmp_normMode = getNormMode(nm);
       oldNormModes.push_back( tmp_normMode );
@@ -980,6 +997,7 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
     oldNormModes.clear();
     for (int nm=0; nm < NNormModes(); nm++) {
 
+      NormalMode tmp_normMode(NAtoms(), 0);
       tmp_normMode = getNormMode(nm);
       oldNormModes.push_back( tmp_normMode );
     }
