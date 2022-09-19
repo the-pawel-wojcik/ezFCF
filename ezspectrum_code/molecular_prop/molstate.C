@@ -596,7 +596,7 @@ void MolState::Read_normal_modes(xml_node &node_state) {
 
   // parse atoms argument
   std::string nm_atoms_list = node_nmodes.read_string_value("atoms");
-  this->Read_normal_modes_atoms(nm_atoms_list);
+  Read_normal_modes_atoms(nm_atoms_list);
 }
 
 /* Parser of the "frequencies" subnode of the "initial_state" or "target_state"
@@ -621,6 +621,43 @@ void MolState::Read_frequencies(xml_node &node_state) {
   }
 }
 
+/* Parser of the "gradient" subnode of the "initial_state" or "target_state"
+ * node. Helper of MolState::Read function.
+ * Populates the `gradient` variable of MolState. */
+void MolState::Read_vertical_gradient(xml_node &node_state) {
+
+  xml_node node_gradient(node_state, "gradient", 0);
+
+  // Read out the gradient in atomic units (Q-Chem default)
+  std::string units = node_gradient.read_string_value("units");
+  if (units != "a.u.") {
+    std::cout << "\n"
+                 "Error! Gradient reported in unsupported units: \""
+              << units
+              << "\"\n"
+                 "  (use \"a.u.\")\n\n";
+    exit(1);
+  }
+
+  std::istringstream grad_istr(node_gradient.read_string_value("text"));
+
+  // gradient is stored as a column vector
+  gradient = arma::Col<double>(CARTDIM * NAtoms());
+  double cartesian_component;
+  for (int i = 0; i < NAtoms(); i++) {
+    // Read the x, y, and z components of each vector
+    for (int j = 0; j < CARTDIM; j++) {
+      grad_istr >> cartesian_component;
+      if (grad_istr.fail()) {
+        std::cout << "MolState::Read(): Error. Wrong format in gradient:\n"
+                  << grad_istr.str() << std::endl;
+        exit(1);
+      }
+      gradient(CARTDIM * i + j) = cartesian_component;
+    }
+  }
+}
+
 /* MolState object stores two vectors of atoms: one from the "geometry" node and
  * one from the "normal_modes" node. After sucessful reading of the xml input,
  * each vector stores the atoms' names. This function uses the atomic_masses.xml
@@ -635,6 +672,9 @@ void MolState::convert_atomic_names_to_masses(xml_node &node_amu_table) {
         node_amu_table.read_node_double_value(nm_atoms[i].Name().c_str());
 }
 
+/* Helper of MolState::Transform function.
+ * Populates the
+ * arma::Col<double> mass_matrix variable of MolState. */
 void MolState::un_mass_weight_nm() {
 
   reduced_masses = arma::Col<double>(NNormModes(), arma::fill::ones);
@@ -667,6 +707,137 @@ void MolState::un_mass_weight_nm() {
             sqrt(reduced_masses(nm));
 }
 
+/* Helper of MolState::Transform function.
+ * Populates the MolState variables:
+ * 1) mass_matrix
+ * 2) omega_matrix
+ * 3) d_matrix
+ * For mass_matrix uses the order of atoms from MolState::atoms.
+ * Stores masses in AU (not amu!) and frequncies as well in AU. */
+void MolState::create_matrices() {
+  // TODO: make sure that the mass matrix and the normal modes
+  // use the same order of atoms.
+  int threeN = CARTDIM * NAtoms();
+  mass_matrix = arma::Mat<double>(threeN, threeN, arma::fill::zeros);
+
+  for (int i = 0; i < NAtoms(); i++) {
+    double mass = atoms[i].Mass() * AMU_2_ELECTRONMASS; // mass in AU
+    for (int j = 0; j < CARTDIM; j++) {
+      int index = CARTDIM * i + j;
+      mass_matrix(index, index) = mass;
+    }
+  }
+
+  // A diagonal matrix that stores the harmonic frequencies
+  omega_matrix =
+      arma::Mat<double>(n_molecular_nm, n_molecular_nm, arma::fill::zeros);
+  for (int j = 0; j < n_molecular_nm; j++) {
+    double freq = normModes[j].getFreq();
+    freq *= WAVENUMBERS2EV * EV2HARTREE; // frequencies in AU
+    omega_matrix(j, j) = freq;
+  }
+
+  // Matrix that stores normal modes as columns
+  d_matrix = arma::Mat<double>(threeN, n_molecular_nm, arma::fill::zeros);
+  for (int j = 0; j < n_molecular_nm; j++) {
+    for (int i = 0; i < CARTDIM * NAtoms(); i++) {
+      d_matrix(i, j) = normModes[j].getDisplacement()(i); // D is dimensionless
+    }
+  }
+}
+
+/* Helper of MolState::Transform function. Main part of the Vertical Gradient
+ * implementation. Calculates the target state geometry which can be forwarded
+ * to the parallel mode approximation code. */
+void MolState::calculate_vertical_gradient_geometry() {
+  /* $$ \Delta = \Omega ^{-2} D ^{-1} M ^{-1/2} g _{(2)} ^{(x)} $$
+   * $\Delta$ is a vector of displacement between the target state normal
+   * coordinates $q ^{(2)}$ and the initial state normal coordinates
+   * $q ^{(1)}$:
+   * $$ q ^{(2)} = q ^{(1)} + \Delta $$
+   * (in parallel approximation without frequency shifts there is no
+   * Duschinsky matrix in the last equation, and as the two sets of normal
+   * modes are parallel, $\Delta$ is also the shift between the two geometries
+   * in the normal mode coordinates of the (1) state).
+   *
+   * $\Omega$ is a diagonal matrix (3N - 5/6 x 3N - 5/6) of harmonic
+   * frequencies. $D$ stores normal modes as its columns. $D$ is a rectangular
+   * matrix (3N x 3N - 5/6) that turns the the mass-weighted Hessian matrix
+   * into its diagonal form:
+   * $$ H = D \Omega ^2 D ^T $$
+   * One dimension of $D$ is shorter because the normal coordinates
+   * coresponding to the zero frequency modes do not contribute to the
+   * vibrational spectrum as they describe translations and rotations. $M$ is
+   * a diagonal matrix of dim 3N x 3N of atomic masses. $g _(2) ^{(x)}$ is the
+   * gradient of the target state energy surface calculated at the geometry of
+   * the initial state in cartesian (non-mass-weighted) coordinates
+   * (${}^{(x)}$). The number ${}_(2)$ indicates that the value was calculated
+   * at the second (target) state.
+   *
+   * The equilibrium geometry of the second (target) state) $R _e ^(2)$ is
+   * derived from  $\Delta$
+   * $$ R _e ^(2) = R _e ^{(1)} - M ^{-1/2} D \Delta $$
+   * or in terms of a gradient
+   * $$
+   * R _e ^(2)
+   * =
+   * R _e ^{(1)}
+   * -
+   * M ^{-1/2} D \Omega ^{-2} D ^{-1} M ^{-1/2} g _{(2)} ^{(x)}
+   * $$
+   *
+   * $M$ is in the $-1/2$ power in both cases as the right most is a
+   * transformation of the **gradient** from cartesian to mass-weighted
+   * coordinates, while the leftmost is a transfromation of **coordinates**
+   * from a mass-weighted vector to a mass-un-weighed vector.
+   *
+   * $\Delta$ as well as the cartesian displacement ($M ^{-1/2} D \Delta$) are
+   * expressed in AU and are converted to Angstroms only just before
+   * addition to the geometry. For this reason both matrices ($\Omega$ and
+   * $M$) and the gradient vector have values stored in the atomic units.
+   */
+
+  std::cout << " State geometry will be calculated with the vertical "
+               "gradient (VG) approximation."
+            << std::endl;
+
+  // arma::sqrt is an element-wise square root
+  arma::Mat<double> Omega_matrix_minus2 = arma::inv(arma::square(omega_matrix));
+  arma::Mat<double> mass_matrix_minus_half = arma::inv(arma::sqrt(mass_matrix));
+
+  arma::Col<double> delta;
+  delta =
+      Omega_matrix_minus2 * d_matrix.t() * mass_matrix_minus_half * gradient;
+
+  // R _e ^{(2)} = R _e ^{(1)} - M ^{-1/2} D \Delta
+  arma::Col<double> geometry_shift;
+  geometry_shift = mass_matrix_minus_half * d_matrix * delta;
+  geometry_shift *= AU2ANGSTROM;
+
+  for (int i = 0; i < NAtoms(); i++) {
+    for (int j = 0; j < CARTDIM; j++) {
+      atoms[i].Coord(j) -= geometry_shift(CARTDIM * i + j);
+    }
+  }
+  std::cout
+      << "Target-state geometry calculated with vertical gradient apprx-n:"
+      << std::endl;
+  printGeometry();
+
+  for (int i = 0; i < NNormModes(); i++) {
+    energy -=
+        0.5 * delta(i) * delta(i) / Omega_matrix_minus2(i, i) / EV2HARTREE;
+  }
+
+  // HINT: Vertical gradient works within paralle approximation wo/ frequency
+  // shifts. The adiabatic excitation energy is equal to the E^a _{00}, i.e.,
+  // ZPE of the initial to the ZPE of the target states.
+  // This is the energy used in the guts of the program where the intentities
+  // are calculated.
+  std::cout << "Adiabatic excitation energy (within VG) = " << energy << " eV "
+            << std::endl;
+}
+
 //------------------------------ 
 /* The only function to deal with input: 
    -  a node pointing out to initial_state or target_state section in the input
@@ -694,6 +865,11 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
   // Read Frequencies
   Read_frequencies(node_state);
 
+  // Read Gradient
+  if (IfGradientAvailable) {
+    Read_vertical_gradient(node_state);
+  }
+
   // Now MolState is in a good shape, and some transformations can be performed
 
   // TODO: The transformations deserve a function that is separate from
@@ -707,122 +883,25 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
     un_mass_weight_nm();
   }
 
-  // ------------ 1.5 Find geometry from the vertial gradient if available ------------
+  // ------------ 1.5 Find geometry from the vertial gradient if available
+  // ------------
+  // Create diagonal matrices of atomic masses, harmonic frequencies and a
+  // rectangular matrix of normal modes: these are used thorughout the program.
+  create_matrices();
 
-  /* Notes on the gradient implementation:
-   * Detection of gradient node triggers use of gradient and changes meaning of nodes: geometry, normal modes, frequncies, and excitation_energy. If a gradient node is present in an electronic state, the geometry, normal modes, and frequncies nodes are expected to descibe the initial state. The input excitation energy has to be the vertial excitation energy at the initial state geometry. The target state geometry and adiabatic excitation energy will be calculated using the vertial gradient method.
-   * Pawel, May 2022
+  /* Notes on the vertical gradient implementation:
+   * Detection of gradient node triggers use of gradient and changes meaning of
+   * nodes: geometry, normal modes, frequncies, and excitation_energy. If a
+   * gradient node is present in an electronic state, the geometry, normal
+   * modes, and frequncies nodes are expected to descibe the initial state. The
+   * input excitation energy has to be the vertial excitation energy at the
+   * initial state geometry. The target state geometry and adiabatic excitation
+   * energy will be calculated using the vertial gradient method. Pawel, May
+   * 2022
    * */
   if (IfGradientAvailable) {
-    std::cout 
-      << " State geometry will be calculated with the vertical gradient (VG) approximation." 
-      << std::endl;
-    xml_node node_gradient(node_state, "gradient", 0);
-    // This version supports gradient only in atomic units, a.u., (Q-Chem opt output default)
-    std::string units = node_gradient.read_string_value("units");
-    if (units != "a.u.") {
-      std::cout 
-        << "\nError! Gradient reported in unsupported units: \"" 
-        << units 
-        << "\"\n  (this version of ezFCF supports only \"a.u.\")\n\n";
-      exit(1);
-    }
-    My_istringstream grad_iStr(node_gradient.read_string_value("text"));
-    // gradient is stored as a column vector
-    gradient = arma::Col<double> (CARTDIM * NAtoms());
-    for (int i = 0; i < NAtoms(); i++) {
-      // Read the x, y, and z components of each vector
-      for (int j = 0; j < CARTDIM; j++) {
-        double cartesian_component = grad_iStr.getNextDouble();
-        if (grad_iStr.fail()) {
-          std::cout 
-            << "MolState::Read(): Error. Wrong format in gradient: [" 
-            << grad_iStr.str() 
-            << "]" 
-            << std::endl;
-          exit(1);
-        }
-        gradient(CARTDIM * i + j) = cartesian_component;
-      }
-    }
+    calculate_vertical_gradient_geometry();
   }
-  /* End of parsing of the vertical gradient node. */
-  if (gradient.n_rows > 0) {
-    // $\Delta = \Omega ^{-2} D ^{-1} M ^{-1/2} g _{(2)} ^{(x)}$
-
-    /* $\Delta$ is a vector of displacement between the target state normal coordinates $q ^{(2)}$ and the initial state normal coordinates $q ^{(1)}$:
-     * $$ q ^{(2)} = q ^{(1)} + \Delta $$
-     * (in parallel approximation without frequency shifts there is no Duschinsky matrix in the last equation, and as the two sets of normal modes are parallel, $\Delta$ is also the shift between the two geometries in the normal mode coordinates)
-     * $\Omega$ is a diagonal matrix (3N - 5/6 x 3N - 5/6) of harmonic frequencies 
-     * $D$ has normal modes as its columns. $D$ is a rectangular matrix (3N x 3N - 5/6) diagonalizing the mass-weighted Hessian matrix:
-     * $$ H = D \Omega ^2 D ^{-1} $$
-     * One dimension of $D$ is shorter because the normal coordinates coresponding to zero frequency modes do not contribute to vibrational spectrum but descibe translations and rotations. 
-     * M is a diagonal matrix of dim 3N x 3N of atomic masses
-     * g _(2) ^{(x)} is the gradient of the target state energy surface calculated at the geometry of the initial state in cartesian (non-mass-weighted) coordinates (${}^{(x)}$). The number ${}_(2)$ indicates that the value was calculated at the second (target) state.
-     * 
-     * Additionally, to find $R _e ^(2)$ (the equilibrium geometry of the second (target) state) from $\Delta$
-     * $$ R _e ^(2) = R _e ^{(1)} - M ^{-1/2} D \Delta $$
-     * or in terms of a gradient
-     * $$ R _e ^(2) = R _e ^{(1)} - M ^{-1/2} D \Omega ^{-2} D ^{-1} M ^{-1/2} g _{(2)} ^{(x)} $$
-     *
-     * $M$ is in the $-1/2$ power in both cases as the right most is a transformation of the **gradient** from cartesian to mass-weighted coordinates, while the leftmost is a transfromation of **coordinates** from a mass-weighted vector to a mass-un-weighed vector.
-     *
-     * $\Delta$ as well as the cartesian displacement ($M ^{-1/2} D \Delta$) are expressed in a.u. and are converted to Angstroms only just before addition to the geometry. For this reason both matrices ($\Omega$ and $M$) and the gradient vector have values corresponding to the the units of a.u.
-     */
-
-    //FIXIT: This needs to be cleaned up a bit in the future: use AU consistently,
-    //Move some pieces into functions of appropriate classes (e.g., normalmode)
-    arma::Mat<double> mass_matrix_minus_half(CARTDIM * NAtoms(), CARTDIM * NAtoms(), arma::fill::zeros);
-    for (int i = 0; i < NAtoms(); i++) {
-      double mass = atoms[i].Mass() * AMU_2_ELECTRONMASS;
-      double mass_inv = 1.0 / mass;
-      double sqrt_mass_inv = sqrt(mass_inv);
-      for (int j = 0; j < CARTDIM; j++) {
-        mass_matrix_minus_half(CARTDIM * i + j, CARTDIM * i + j) = sqrt_mass_inv;
-      }
-    }
-
-    arma::Mat<double> d_matrix(CARTDIM * NAtoms(), NNormModes(), arma::fill::zeros);
-    arma::Mat<double> Omega_matrix_minus2(NNormModes(), NNormModes(), arma::fill::zeros);
-    for (int j = 0; j < NNormModes(); j++){
-      double freq = normModes[j].getFreq();
-      freq *= WAVENUMBERS2EV; // first to eV
-      freq *= EV2HARTREE; // then eV to a.u.
-      Omega_matrix_minus2(j, j) = 1 / freq / freq;
-      for (int i = 0; i < CARTDIM * NAtoms(); i++){
-        d_matrix(i, j) = normModes[j].getDisplacement()(i);
-      }
-    }
-
-    arma::Col<double> delta;
-    delta = Omega_matrix_minus2 * d_matrix.t() * mass_matrix_minus_half * gradient;
-
-    // R _e ^{(2)} = R _e ^{(1)} - M ^{-1/2} D \Delta
-    arma::Col<double> geometry_shift;
-    geometry_shift = mass_matrix_minus_half * d_matrix * delta;
-    geometry_shift *= AU2ANGSTROM;
-
-    for (int i = 0; i < NAtoms(); i++) {
-      for (int j = 0; j < CARTDIM; j++){
-        atoms[i].Coord(j) -= geometry_shift(CARTDIM * i + j);
-      }
-    }
-    std::cout << "Target-state geometry calculated with vertical gradient apprx-n:" << std::endl;
-    printGeometry();
-
-  for (int i = 0; i < NNormModes(); i++) {
-    energy -= 0.5 * delta(i) * delta(i) / Omega_matrix_minus2(i,i) / EV2HARTREE; 
-  }
-
-  // HINT: Vertical gradient works within paralle approximation wo/ frequency shifts. 
-  // The adiabatic excitation energy is equal to the E^a _{00}, i.e., 
-  // ZPE of the initial to the ZPE of the target states.
-  // This is the energy used in the guts of the program where the intentities are calculated.
-  std::cout 
-    << "Adiabatic excitation energy (within VG) = "
-    << energy << " eV " << std::endl;
-  }
-  //end of computing geometry and adiabatic energy by using VG
 
   //------------ 2. Align geometry if requested ----------------------------
   if_aligned_manually=false;

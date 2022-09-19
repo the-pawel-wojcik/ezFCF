@@ -21,7 +21,13 @@ class MolState
   //! N Atoms: these atoms come from parsing the "geometry" node
   std::vector<Atom> atoms;
   //! N Atoms: these atoms come from parsing the "normal_modes" node.
-  //! HINT: `atoms` and `nm_atoms` can come in different order 
+  //! HINT: `atoms` and `nm_atoms` can come in different order
+  //! TODO: This can cause troubles down the way:
+  //! -- it's difficult to tell when this is the case as the same atoms
+  //! can be reshuffled
+  //! -- If the order of cartesian coordinates in normal modes doesn't match 
+  //!    the order in which they appear in the geometries the restuls would be 
+  //!    garbage.
   std::vector<Atom> nm_atoms;
   //! n_molecular_nm Normal modes and frequencies (3N-5 or 3N-6)
   //! Stored in the mass unweighted format in Angstoms (i.e as in ACESII)
@@ -39,10 +45,18 @@ class MolState
   //! excitation energy (formerly IP), the adiabatic energy gap to the initial state
   double energy;
   //! Gradient calculated in the caresian (non-mass-weighted) coordinates, a 3N vector
-  //! TODO: handle the cases where gradient is available only in the mass-weighted coordinates
   arma::Col<double> gradient;
   //! calculate the state's properties using the vertical gradient method
   bool IfGradientAvailable;
+
+  //! Three matrices below are initilized in create_matrices function
+  //! mass matrix uses the order of atoms from MolState::atoms
+  arma::Mat<double> mass_matrix;
+  //! matrix of harmonic frequencies
+  arma::Mat<double> omega_matrix;
+  //! matrix that stores normal modes as its columns  
+  arma::Mat<double> d_matrix;
+
 
   arma::Col<double> centerOfMass;
   arma::Mat<double> momentOfInertiaTensor;
@@ -59,6 +73,7 @@ class MolState
   void Read_molecular_geometry(xml_node &);
   void Read_normal_modes(xml_node &);
   void Read_frequencies(xml_node &);
+  void Read_vertical_gradient(xml_node &);
 
   // -- helpers to the MolState::Read_normal_modes function --
   void Read_normal_modes_atoms(std::string &);
@@ -66,6 +81,9 @@ class MolState
   // ==  Helpers of the MolState::Transform function ==
   void convert_atomic_names_to_masses(xml_node &);
   void un_mass_weight_nm();
+  void create_mass_matrix();
+  void create_matrices();
+  void calculate_vertical_gradient_geometry();
 
   bool ifLetterOrNumber(char Ch);
 
