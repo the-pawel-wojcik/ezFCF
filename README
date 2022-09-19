@@ -12,7 +12,7 @@
 
 To compile type "make -f makefile" (e.g., make.mac) 
 
-Compilation requires LAPACK and BLAS.
+Compilation requires LAPACK, BLAS, and Armadillo.
 
 ----------------------------------------------------------------------
 The structure of the code:

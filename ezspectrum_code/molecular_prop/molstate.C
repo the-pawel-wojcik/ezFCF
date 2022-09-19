@@ -682,17 +682,17 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
   // When available, read the excitation energy (formerly IP)
   energy = 0.0; // eV
   if (node_state.find_subnode("excitation_energy")) {
-    this->Read_excitation_energy(node_state);
+    Read_excitation_energy(node_state);
   }
 
   // Read the molecular geometry 
-  this->Read_molecular_geometry(node_state);
+  Read_molecular_geometry(node_state);
 
   // Read Normal Modes
-  this->Read_normal_modes(node_state);
+  Read_normal_modes(node_state);
 
   // Read Frequencies
-  this->Read_frequencies(node_state);
+  Read_frequencies(node_state);
 
   // Now MolState is in a good shape, and some transformations can be performed
 
@@ -700,11 +700,11 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
   // MolState::Read
 
   //------------ 0. Convert atomic names to masses --------------------------
-  this->convert_atomic_names_to_masses(node_amu_table);
+  convert_atomic_names_to_masses(node_amu_table);
 
   //------------ 1. Un-mass-weight normal modes ----------------------------
   if (ifInputNMmassweighted) {
-    this->un_mass_weight_nm();
+    un_mass_weight_nm();
   }
 
   // ------------ 1.5 Find geometry from the vertial gradient if available ------------

@@ -23,27 +23,26 @@ class MolState
   //! N Atoms: these atoms come from parsing the "normal_modes" node.
   //! HINT: `atoms` and `nm_atoms` can come in different order 
   std::vector<Atom> nm_atoms;
-  //! M Normal modes and frequencies (3N-5 or 3N-6)
+  //! n_molecular_nm Normal modes and frequencies (3N-5 or 3N-6)
   //! Stored in the mass unweighted format in Angstoms (i.e as in ACESII)
   std::vector<NormalMode> normModes;
-  //! Normal modes order (relative to the input file's order)
-  std::vector<int> normModesOrder;
+  //! The xml input may store the normal modes using mass weighted convention
+  //! The MolState::Read function reads them as they are 
+  //! only in MolState::Transform the nodes get mass-un-weighted
+  bool ifInputNMmassweighted;
   //! number of molecular normal modes: 3N-6 or 3N-5 for linear
   int n_molecular_nm;
-  //! The xml input may store the normal modes using mass weighted convention
-  bool ifInputNMmassweighted;
-  //! Gradient calculated in the caresian (non-mass-weighted) coordinates a 3N vector
-  //! TODO: handle the cases where gradient is available only in the mass-weighted coordinates
-  arma::Col<double> gradient;
+  //! Normal modes order (relative to the input file's order)
+  std::vector<int> normModesOrder;
   //! may be removed later
   bool ifLinear;
-  //! excitation energy (formerly IP)
+  //! excitation energy (formerly IP), the adiabatic energy gap to the initial state
   double energy;
+  //! Gradient calculated in the caresian (non-mass-weighted) coordinates, a 3N vector
+  //! TODO: handle the cases where gradient is available only in the mass-weighted coordinates
+  arma::Col<double> gradient;
   //! calculate the state's properties using the vertical gradient method
   bool IfGradientAvailable;
-
-  //!move this to functions...
-  bool ifLetterOrNumber(char Ch);
 
   arma::Col<double> centerOfMass;
   arma::Mat<double> momentOfInertiaTensor;
@@ -51,12 +50,11 @@ class MolState
   //! reduced masses
   arma::Col<double> reduced_masses;
 
-  //!if geometry transformation was performed manually
+  //! if geometry transformation was performed manually
   bool if_aligned_manually;
   bool if_nm_reordered_manually;
 
   // ==  Helpers of the MolState::Read function ==
-  
   void Read_excitation_energy(xml_node &);
   void Read_molecular_geometry(xml_node &);
   void Read_normal_modes(xml_node &);
@@ -69,8 +67,9 @@ class MolState
   void convert_atomic_names_to_masses(xml_node &);
   void un_mass_weight_nm();
 
-  public:
+  bool ifLetterOrNumber(char Ch);
 
+public:
   MolState ();
   MolState (const MolState& other);
   //  ~MolState();
