@@ -14,6 +14,7 @@
 #include "normalmode.h"
 #include <vector>
 #include <queue>
+#include <set>
 #include <algorithm>
 
 
@@ -79,6 +80,7 @@ class MolState
   void Read_frequencies(xml_node &);
   void Read_vertical_gradient(xml_node &);
   void Read_manual_coord_transformations(xml_node &);
+  void Read_normal_modes_reorder(xml_node &);
 
   // -- helpers to the MolState::Read_normal_modes function --
   void Read_normal_modes_atoms(std::string &);
@@ -90,6 +92,7 @@ class MolState
   void create_matrices();
   void calculate_vertical_gradient_geometry();
   void apply_manual_coord_transformation();
+  void reorder_normal_modes();
 
   bool ifLetterOrNumber(char Ch);
 

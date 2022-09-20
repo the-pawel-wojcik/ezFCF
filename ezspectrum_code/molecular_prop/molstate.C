@@ -684,6 +684,57 @@ void MolState::Read_manual_coord_transformations(xml_node &node_state) {
   }
 }
 
+/* Parser of the "manual_normal_modes_reordering" subnode of the "initial_state"
+ * or "target_state" node. Helper of MolState::Read function. Populates the
+ * `normModesOrder` and 'if_nm_reordered_manually` variables of MolState. */
+void MolState::Read_normal_modes_reorder(xml_node &node_state) {
+  size_t reorder_nmodes =
+      node_state.find_subnode("manual_normal_modes_reordering");
+
+  if (reorder_nmodes) {
+
+    xml_node node_nm_order(node_state, "manual_normal_modes_reordering", 0);
+    std::istringstream order_stream(node_nm_order.read_string_value("new_order"));
+
+    normModesOrder.clear();
+
+    std::cout << "New normal modes order was requested:\n"
+              << order_stream.str() << "\n";
+    int mode;
+    for (int nm=0; nm < NNormModes(); nm++)
+    {
+      order_stream >> mode;
+
+      if (order_stream.fail()) {
+        std::cout << "\nFormat error: non-numeric symbol or less entries then "
+                     "the number of normal modes\n\n";
+        exit(1);
+      }
+      if ((mode < 0) or (mode >= NNormModes())) {
+        std::cout << "\nError: normal mode number [" << mode
+                  << "] is out of range [0.." << NNormModes() - 1 << "].\n\n";
+        exit(1);
+      }
+      normModesOrder.push_back(mode);
+    }
+
+    // check if there are duplicates in the list:
+    std::set<int> s(normModesOrder.begin(), normModesOrder.end());
+    if (s.size() != normModesOrder.size()) {
+      std::cout << "\nFormat error: manual_normal_modes_reordering node "
+                   "contains duplicates.\n";
+      exit(0);
+    }
+
+    if_nm_reordered_manually = true;
+
+  } else {
+    for (int nm = 0; nm < NNormModes(); nm++)
+      normModesOrder.push_back(nm);
+    // if_nm_reordered_manually = false;  // this is the default value
+  }
+}
+
 /* MolState object stores two vectors of atoms: one from the "geometry" node and
  * one from the "normal_modes" node. After sucessful reading of the xml input,
  * each vector stores the atoms' names. This function uses the atomic_masses.xml
@@ -896,6 +947,19 @@ void MolState::apply_manual_coord_transformation() {
   }
 }
 
+/* Helper of MolState::Transform function. Applies manual reodering of normal
+ * modes specified in the `manual_normal_modes_reordering` node. */
+void MolState::reorder_normal_modes() {
+  // backup normal modes
+  std::vector<NormalMode> oldNormModes(normModes);
+
+  // copy normal modes using new order
+  for (int nm = 0; nm < NNormModes(); nm++)
+    getNormMode(nm) = oldNormModes[normModesOrder[nm]];
+
+  std::cout << "Normal modes reordered.\n";
+}
+
 //------------------------------ 
 /* The only function to deal with input: 
    -  a node pointing out to initial_state or target_state section in the input
@@ -903,8 +967,6 @@ void MolState::apply_manual_coord_transformation() {
    */
 bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
 {
-  int i,j,k,l;
-
   // Presence of the "gradient" node triggers the vertical gradient calculations
   IfGradientAvailable = node_state.find_subnode("gradient");
 
@@ -929,6 +991,7 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
   }
 
   Read_manual_coord_transformations(node_state);
+  Read_normal_modes_reorder(node_state);
 
   // Now MolState is in a good shape, and some transformations can be performed
 
@@ -966,72 +1029,12 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
   //------------ 2. Align geometry if requested ----------------------------
   // TODO: A sample job that presents how to use the
   // manual_coordinates_transformation is missing. A problem also for testing.
-
   apply_manual_coord_transformation();
 
   //------------ 3. Reorder normal modes if requested --------------------
-
-  size_t reorder_nmodes=node_state.find_subnode("manual_normal_modes_reordering");
-  if ( reorder_nmodes ) {
-
-    xml_node node_nmodes_reorder(node_state,"manual_normal_modes_reordering",0);
-    My_istringstream reorder_iStr(node_nmodes_reorder.read_string_value("new_order"));
-
-    if_nm_reordered_manually=false;//?? 
-    normModesOrder.clear();
-
-    std::cout << "New normal modes order was requested:\n" << reorder_iStr.str() <<"\n";
-    int tmpInt;
-    for (int nm=0; nm < NNormModes(); nm++)
-    {
-      tmpInt=reorder_iStr.getNextInt();
-
-      //input error check:
-      if (reorder_iStr.fail()) {
-        std::cout << "\nFormat error: non-numeric symbol or less entries then the number of normal modes\n\n";
-      }
-      if ( (tmpInt<0) or (tmpInt>=NNormModes()) ) {
-        std::cout << "\nError: normal mode number ["<< tmpInt<<"] is out of range [0.."<<NNormModes()-1<<"].\n\n";
-      }
-      normModesOrder.push_back(tmpInt);
-    }
-
-    // check if there are duplicates in the list:
-    std::vector<int> tmpIntVector, tmpIntVector2;
-    tmpIntVector = normModesOrder;
-    std::sort( tmpIntVector.begin(), tmpIntVector.end() );
-    tmpIntVector2 = tmpIntVector;
-    std::vector<int>::const_iterator intVec_iter;
-    intVec_iter= unique( tmpIntVector.begin(), tmpIntVector.end() );
-    if (intVec_iter != tmpIntVector.end())
-    {
-      std::cout << "\nFormat error: there are non unique entries. Check the sorted list:\n";
-      for (std::vector<int>::const_iterator tmp_iter=tmpIntVector2.begin(); tmp_iter!=tmpIntVector2.end(); tmp_iter++)
-        std::cout << ' ' << *tmp_iter;
-      std::cout<<'\n';
-    }
-
-    // backup normal modes
-    std::vector<NormalMode> oldNormModes;
-    oldNormModes.clear();
-    NormalMode tmp_normMode(NAtoms(), 0);
-    for (int nm=0; nm < NNormModes(); nm++) {
-      tmp_normMode = getNormMode(nm);
-      oldNormModes.push_back( tmp_normMode );
-    }
-
-    // copy normal modes using new order
-    for (int nm=0; nm < NNormModes(); nm++)
-      getNormMode(nm) = oldNormModes[  normModesOrder[nm] ];
-
-    std::cout << "Normal modes were reordered accordingly.\n";
-    if_nm_reordered_manually=true;
-
+  if (if_nm_reordered_manually){
+    reorder_normal_modes();
   }
-  else
-    for (int nm=0; nm < NNormModes(); nm++)
-      normModesOrder.push_back(nm);
-
 
   //------------ 4. Reorder atoms if requested --------------------
 
