@@ -658,6 +658,32 @@ void MolState::Read_vertical_gradient(xml_node &node_state) {
   }
 }
 
+/* Parser of the "manual_coord_transform" subnode of the "initial_state" or
+ * "target_state" node. Helper of MolState::Read function. Populates the
+ * `manual_transofrmations` variable of MolState. */
+void MolState::Read_manual_coord_transformations(xml_node &node_state) {
+
+  size_t manual_coord_transform =
+      node_state.find_subnode("manual_coordinates_transformation");
+
+  typedef arma::Col<double> vec;
+  for (int i = 0; i < manual_coord_transform; ++i) {
+    xml_node mct_node(node_state,"manual_coordinates_transformation", i);
+
+    vec shift(CARTDIM, arma::fill::zeros);
+    shift(0) -= mct_node.read_double_value("shift_along_x");
+    shift(1) -= mct_node.read_double_value("shift_along_y");
+    shift(2) -= mct_node.read_double_value("shift_along_z");
+
+    vec rotation(CARTDIM, arma::fill::zeros);
+    rotation(0) = mct_node.read_double_value("rotate_around_x");
+    rotation(1) = mct_node.read_double_value("rotate_around_y");
+    rotation(2) = mct_node.read_double_value("rotate_around_z");
+
+    manual_transformations.push(std::pair<vec, vec>(shift, rotation));
+  }
+}
+
 /* MolState object stores two vectors of atoms: one from the "geometry" node and
  * one from the "normal_modes" node. After sucessful reading of the xml input,
  * each vector stores the atoms' names. This function uses the atomic_masses.xml
@@ -838,6 +864,38 @@ void MolState::calculate_vertical_gradient_geometry() {
             << std::endl;
 }
 
+/* Helper of MolState::Transform function. Applies manual shifts and rotations
+ * of the molecular geometry, which were specified in the
+ * `manual_coordinates_transformation` nodes. */
+void MolState::apply_manual_coord_transformation() {
+
+  if_aligned_manually = false;
+
+  while (! manual_transformations.empty()) {
+    arma::Col<double> shift = manual_transformations.front().first;
+    arma::Col<double> rotation = manual_transformations.front().second;
+    manual_transformations.pop();
+
+    shiftCoordinates(shift);
+
+    rotate(rotation(0) * PI, rotation(1) * PI, rotation(2) * PI);
+    applyCoordinateThreshold(COORDINATE_THRESHOLD);
+
+    std::cout << "Molecule was shifted by " << shift(0) << ", " << shift(1)
+              << ", " << shift(2) << " in x, y, and z." << std::endl;
+
+    std::cout << "Also rotated by " << rotation(0) << "*pi, " << rotation(1)
+              << "*pi, and " << rotation(2) << "*pi around x, y, and z axes.\n";
+
+    if_aligned_manually = true;
+    // TODO: Try to add printing the difference to the ground state, just like in
+    // the automated geometry alignment:
+    /* double diff_from_ground = this->getGeomDifference(ground); */
+    /* std::cout << "The norm of the geometry difference from the initial state is
+     * " << sqrt(diff_from_ground) <<"\n"; */
+  }
+}
+
 //------------------------------ 
 /* The only function to deal with input: 
    -  a node pointing out to initial_state or target_state section in the input
@@ -869,6 +927,8 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
   if (IfGradientAvailable) {
     Read_vertical_gradient(node_state);
   }
+
+  Read_manual_coord_transformations(node_state);
 
   // Now MolState is in a good shape, and some transformations can be performed
 
@@ -904,54 +964,10 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
   }
 
   //------------ 2. Align geometry if requested ----------------------------
-  if_aligned_manually=false;
-  double man_rot_x, man_rot_y, man_rot_z;
-  arma::Col<double> man_shift(CARTDIM, arma::fill::zeros);
+  // TODO: A sample job that presents how to use the
+  // manual_coordinates_transformation is missing. A problem also for testing.
 
-  size_t manual_coord_transform=node_state.find_subnode("manual_coordinates_transformation");
-
-  for (int i = 0; i < manual_coord_transform; ++i) {
-
-    //std::cout  << "Do manual transformation" << std::endl;
-    xml_node manual_coord_transform(node_state,"manual_coordinates_transformation", i);
-
-    man_rot_x=manual_coord_transform.read_double_value("rotate_around_x"); 
-    man_rot_y=manual_coord_transform.read_double_value("rotate_around_y"); 
-    man_rot_z=manual_coord_transform.read_double_value("rotate_around_z"); 
-
-    man_shift(0) -= manual_coord_transform.read_double_value("shift_along_x"); 
-    man_shift(1) -= manual_coord_transform.read_double_value("shift_along_y"); 
-    man_shift(2) -= manual_coord_transform.read_double_value("shift_along_z"); 
-
-    std::cout << "Molecular structure and normal modes of this electronic state\nwill be transformed as requested in the input.\n";
-
-    shiftCoordinates(man_shift);
-    rotate(man_rot_x*PI, man_rot_y*PI, man_rot_z*PI);
-    applyCoordinateThreshold(COORDINATE_THRESHOLD);
-
-    std::cout << "Molecule was shifted by " 
-      << man_shift(0) << ", "
-      << man_shift(1) << ", "
-      << man_shift(2) << " in x, y, and z." 
-      << std::endl;
-
-    std::cout << "Also rotated by " 
-      << man_rot_x <<"*pi, " 
-      << man_rot_y <<"*pi, and " 
-      << man_rot_z <<"*pi around x, y, and z axes.\n";
-
-    // Printing difference from ground state is not implemented:
-    // This function would require knowldege about the ground state, and 
-    // as this is a Read state function it appears inappropriet to add it here.
-    // It appear approprieate, however, to move this manual rotation out of the 
-    // Read function (same as the vertical gradient) and apply the post processing 
-    // once all input states are parsed.
-    /* double diff_from_ground = this->getGeomDifference(*this); */
-    /* std::cout << "The norm of the geometry difference from the initial state is " << sqrt(diff_from_ground) <<"\n"; */
-
-    if_aligned_manually=true;
-  }
-
+  apply_manual_coord_transformation();
 
   //------------ 3. Reorder normal modes if requested --------------------
 

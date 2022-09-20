@@ -13,6 +13,7 @@
 #include "atom.h"
 #include "normalmode.h"
 #include <vector>
+#include <queue>
 #include <algorithm>
 
 
@@ -66,6 +67,9 @@ class MolState
 
   //! if geometry transformation was performed manually
   bool if_aligned_manually;
+  //! stores manual coordinate transformations
+  std::queue<std::pair<arma::Col<double>, arma::Col<double>>>
+      manual_transformations;
   bool if_nm_reordered_manually;
 
   // ==  Helpers of the MolState::Read function ==
@@ -74,6 +78,7 @@ class MolState
   void Read_normal_modes(xml_node &);
   void Read_frequencies(xml_node &);
   void Read_vertical_gradient(xml_node &);
+  void Read_manual_coord_transformations(xml_node &);
 
   // -- helpers to the MolState::Read_normal_modes function --
   void Read_normal_modes_atoms(std::string &);
@@ -84,6 +89,7 @@ class MolState
   void create_mass_matrix();
   void create_matrices();
   void calculate_vertical_gradient_geometry();
+  void apply_manual_coord_transformation();
 
   bool ifLetterOrNumber(char Ch);
 
