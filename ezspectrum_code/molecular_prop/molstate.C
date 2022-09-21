@@ -694,18 +694,17 @@ void MolState::Read_normal_modes_reorder(xml_node &node_state) {
   if (reorder_nmodes) {
 
     xml_node node_nm_order(node_state, "manual_normal_modes_reordering", 0);
-    std::istringstream order_stream(node_nm_order.read_string_value("new_order"));
+    std::istringstream order_istr(node_nm_order.read_string_value("new_order"));
 
     normModesOrder.clear();
 
     std::cout << "New normal modes order was requested:\n"
-              << order_stream.str() << "\n";
+              << order_istr.str() << "\n";
     int mode;
-    for (int nm=0; nm < NNormModes(); nm++)
-    {
-      order_stream >> mode;
+    for (int nm = 0; nm < NNormModes(); nm++) {
+      order_istr >> mode;
 
-      if (order_stream.fail()) {
+      if (order_istr.fail()) {
         std::cout << "\nFormat error: non-numeric symbol or less entries then "
                      "the number of normal modes\n\n";
         exit(1);
@@ -731,7 +730,57 @@ void MolState::Read_normal_modes_reorder(xml_node &node_state) {
   } else {
     for (int nm = 0; nm < NNormModes(); nm++)
       normModesOrder.push_back(nm);
-    // if_nm_reordered_manually = false;  // this is the default value
+  }
+}
+
+/* Parser of the "manual_atoms_reordering" subnode of the "initial_state"
+ * or "target_state" node. Helper of MolState::Read function. Populates the
+ * `atomOrder` and 'if_atoms_reordered_manually` variables of MolState. */
+void MolState::Read_atoms_reorder(xml_node &node_state) {
+  if_atoms_reordered_manually =
+      bool(node_state.find_subnode("manual_atoms_reordering"));
+
+  if (if_atoms_reordered_manually == false) {
+    for (int i = 0; i < NAtoms(); ++i ) {
+      atomsOrder.push_back(i);
+    }
+    // all job done leave the function
+    return; 
+  }
+
+  xml_node reorder_atoms(node_state, "manual_atoms_reordering", 0);
+
+  std::istringstream order_istr(reorder_atoms.read_string_value("new_order"));
+  std::cout << "New atoms order:\n" << order_istr.str() << "\n";
+
+  int atom;
+  for (int nm = 0; nm < NAtoms(); nm++) {
+    order_istr >> atom;
+    if (order_istr.fail()) {
+      std::cout << "\n"
+                << "Input error in manual_atoms_reordering. Cannot process:\n  "
+                << order_istr.str() << "\n";
+      exit(1);
+    }
+    if ((atom < 0) or (atom >= NAtoms())) {
+      std::cout << "\n"
+                << "Input error in manual_atoms_reordering.\n"
+                << "  atom number [" << atom << "] is out of range [0.."
+                << NAtoms() - 1 << "].\n";
+      exit(1);
+    }
+    atomsOrder.push_back(atom);
+  }
+
+  // check if there are duplicates in the list:
+  std::set<int> s(atomsOrder.begin(), atomsOrder.end());
+  if (s.size() != atomsOrder.size()) {
+    std::cout << "\n"
+              << "Input error in manual_atoms_reordering.\n"
+              << "  Repeated entries in manual_atoms_reordering:\n  ";
+    for (int atm : atomsOrder)
+      std::cout << ' ' << atm << std::endl;
+    exit(1);
   }
 }
 
@@ -960,6 +1009,29 @@ void MolState::reorder_normal_modes() {
   std::cout << "Normal modes reordered.\n";
 }
 
+/* Helper of MolState::Transform function. Applies manual reodering of atoms
+ * specified in the `manual_atoms_reordering` node.
+ * The atoms reordergin has to be applied to both geometry and normal modes. */
+void MolState::reorder_atoms() {
+
+  // backup molecular geometry and normal modes
+  std::vector<Atom> oldAtoms(atoms);
+  std::vector<NormalMode> oldNormModes(normModes);
+
+  // copy molecular geometry using the new order of atoms
+  for (int a = 0; a < NAtoms(); a++)
+    getAtom(a) = oldAtoms[atomsOrder[a]];
+
+  // copy normal modes using the new order of atoms
+  for (int nm = 0; nm < NNormModes(); nm++)
+    for (int a = 0; a < NAtoms(); a++)
+      for (int k = 0; k < CARTDIM; k++)
+        getNormMode(nm).getDisplacement()(a * CARTDIM + k) =
+            oldNormModes[nm].getDisplacement()(atomsOrder[a] * CARTDIM + k);
+
+  std::cout << "Atoms reordered in both molecular geometry and normal modes.\n";
+}
+
 //------------------------------ 
 /* The only function to deal with input: 
    -  a node pointing out to initial_state or target_state section in the input
@@ -992,36 +1064,26 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
 
   Read_manual_coord_transformations(node_state);
   Read_normal_modes_reorder(node_state);
+  Read_atoms_reorder(node_state);
 
   // Now MolState is in a good shape, and some transformations can be performed
 
   // TODO: The transformations deserve a function that is separate from
   // MolState::Read
 
-  //------------ 0. Convert atomic names to masses --------------------------
+  // ------------ 0. Convert atomic names to masses --------------------------
   convert_atomic_names_to_masses(node_amu_table);
 
-  //------------ 1. Un-mass-weight normal modes ----------------------------
+  // ------------ 1. Un-mass-weight normal modes ------------------------------
   if (ifInputNMmassweighted) {
     un_mass_weight_nm();
   }
 
-  // ------------ 1.5 Find geometry from the vertial gradient if available
-  // ------------
+  // ------------ 1.5 Find geometry from the vertial gradient if available ----
   // Create diagonal matrices of atomic masses, harmonic frequencies and a
   // rectangular matrix of normal modes: these are used thorughout the program.
   create_matrices();
 
-  /* Notes on the vertical gradient implementation:
-   * Detection of gradient node triggers use of gradient and changes meaning of
-   * nodes: geometry, normal modes, frequncies, and excitation_energy. If a
-   * gradient node is present in an electronic state, the geometry, normal
-   * modes, and frequncies nodes are expected to descibe the initial state. The
-   * input excitation energy has to be the vertial excitation energy at the
-   * initial state geometry. The target state geometry and adiabatic excitation
-   * energy will be calculated using the vertial gradient method. Pawel, May
-   * 2022
-   * */
   if (IfGradientAvailable) {
     calculate_vertical_gradient_geometry();
   }
@@ -1037,80 +1099,8 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
   }
 
   //------------ 4. Reorder atoms if requested --------------------
-
-  Atom tmp_Atom; // one temp. norm mode
-
-  size_t reorder_atoms=node_state.find_subnode("manual_atoms_reordering");
-
-  if (reorder_atoms) {
-
-    xml_node reorder_atoms(node_state,"manual_atoms_reordering",0);
-    My_istringstream reorder_iStr(reorder_atoms.read_string_value("new_order"));
-    std::cout << "New order of atoms was requested:\n" << reorder_iStr.str() <<"\n";
-
-    std::vector<int> atomsOrder;
-    atomsOrder.clear();
-
-    int tmpInt;
-    for (int nm=0; nm < NAtoms(); nm++) {
-
-      tmpInt=reorder_iStr.getNextInt();
-      //input error check:
-      if (reorder_iStr.fail()) {
-
-        std::cout << "\nFormat error: non numeric symbol or less entries then the number of atoms\n\n";
-        exit(1);
-      }
-      if ( (tmpInt<0) or (tmpInt>=NAtoms()) ) {
-        std::cout << "\nError: stom number ["<< tmpInt<<"] is out of range [0.."<<NAtoms()-1<<"].\n";
-        exit(1);
-      }
-      atomsOrder.push_back(tmpInt);
-    }
-
-    // check if there are duplicates in the list:
-    std::vector<int> tmpIntVector, tmpIntVector2;
-    tmpIntVector = atomsOrder;
-    std::sort( tmpIntVector.begin(), tmpIntVector.end() );
-    tmpIntVector2 = tmpIntVector;
-    std::vector<int>::const_iterator intVec_iter;
-    intVec_iter= unique( tmpIntVector.begin(), tmpIntVector.end() );
-    if (intVec_iter != tmpIntVector.end()) {
-      std::cout << "\nFormat error: there are non unique entries. Check the sorted list:\n";
-      for (std::vector<int>::const_iterator tmp_iter=tmpIntVector2.begin(); tmp_iter!=tmpIntVector2.end(); tmp_iter++)
-        std::cout << ' ' << *tmp_iter << std::endl;
-
-      exit(1);
-    }
-
-    // backup molecular geometry and normal modes
-    std::vector<Atom> oldAtoms;
-    oldAtoms.clear();
-    for (int a=0; a < NAtoms(); a++) {
-
-      tmp_Atom = getAtom(a);
-      oldAtoms.push_back( tmp_Atom );
-    }
-    std::vector<NormalMode> oldNormModes;
-    oldNormModes.clear();
-    for (int nm=0; nm < NNormModes(); nm++) {
-
-      NormalMode tmp_normMode(NAtoms(), 0);
-      tmp_normMode = getNormMode(nm);
-      oldNormModes.push_back( tmp_normMode );
-    }
-
-    // copy molecular geometry using the new order of atoms
-    for (int a=0; a < NAtoms(); a++)
-      getAtom(a) = oldAtoms[  atomsOrder[a] ];
-
-    // copy normal modes using the new order of atoms
-    for (int nm=0; nm < NNormModes(); nm++)
-      for (int a=0; a < NAtoms(); a++) 
-        for (int k=0; k < CARTDIM; k++)
-          getNormMode(nm).getDisplacement()(a*CARTDIM+k)=oldNormModes[nm].getDisplacement()( atomsOrder[a]*CARTDIM + k );
-
-    std::cout << "Atoms were reordered accordingly.\n";
+  if (if_atoms_reordered_manually) {
+    reorder_atoms();
   }
 
   return true;

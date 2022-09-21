@@ -40,8 +40,6 @@ class MolState
   bool ifInputNMmassweighted;
   //! number of molecular normal modes: 3N-6 or 3N-5 for linear
   int n_molecular_nm;
-  //! Normal modes order (relative to the input file's order)
-  std::vector<int> normModesOrder;
   //! may be removed later
   bool ifLinear;
   //! excitation energy (formerly IP), the adiabatic energy gap to the initial state
@@ -66,12 +64,22 @@ class MolState
   //! reduced masses
   arma::Col<double> reduced_masses;
 
+
+  // == Variables for manual tweaks ==
+
   //! if geometry transformation was performed manually
   bool if_aligned_manually;
   //! stores manual coordinate transformations
   std::queue<std::pair<arma::Col<double>, arma::Col<double>>>
       manual_transformations;
+
   bool if_nm_reordered_manually;
+  //! Normal modes order (relative to the input file's order)
+  std::vector<int> normModesOrder;
+
+  bool if_atoms_reordered_manually;
+  //! Atoms order (relative to the input file's order)
+  std::vector<int> atomsOrder;
 
   // ==  Helpers of the MolState::Read function ==
   void Read_excitation_energy(xml_node &);
@@ -81,6 +89,7 @@ class MolState
   void Read_vertical_gradient(xml_node &);
   void Read_manual_coord_transformations(xml_node &);
   void Read_normal_modes_reorder(xml_node &);
+  void Read_atoms_reorder(xml_node &);
 
   // -- helpers to the MolState::Read_normal_modes function --
   void Read_normal_modes_atoms(std::string &);
@@ -93,6 +102,7 @@ class MolState
   void calculate_vertical_gradient_geometry();
   void apply_manual_coord_transformation();
   void reorder_normal_modes();
+  void reorder_atoms();
 
   bool ifLetterOrNumber(char Ch);
 
