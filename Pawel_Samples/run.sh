@@ -10,9 +10,10 @@ ezFCF="../ezspectrum_code/ezFCF_linux.exe" # use this one if you compiled the pr
 # Check if ezFCF file exists and is executable
 if [ ! -x $ezFCF ]
 then
-    echo "Error. The ezFCF exacutable at $ezFCF does not exist."
-    echo "Make sure the file exists and is executable (chmod +x)"
-    echo " or fix the path and filename inside this scirpt."
+    echo "Error."
+    echo "  The ezFCF exacutable at $ezFCF does not exist."
+    echo "  Make sure the file exists and is executable (chmod +x)"
+    echo "  or fix the path and filename inside this scirpt."
     exit 1
 fi
 
@@ -40,6 +41,10 @@ do
     time $ezFCF $sample > ${sample}.out
 done
 
+# run an extra test from InputScripts
+cp ../InputScripts/test.xml ./
+time $ezFCF test.xml > test.xml.out
+
 echo ""
 echo " = = = = = = = = = ="
 echo "  Samples are ready"
@@ -49,7 +54,12 @@ echo ""
 RED='\033[1;31m'
 NC='\033[0m' # No Color
 compare () {
-    cmp --silent ../Samples/$1 $1 && echo "OK: ${1}"  || echo -e "${RED}Different${NC}: ${1}"
+    directory=Samples
+    if [ ! -z $2 ]
+    then
+        directory=$2
+    fi
+    cmp --silent ../${directory}/$1 $1 && echo "OK: ${1}"  || echo -e "${RED}Different${NC}: ${1}"
 }
 
 # Diff parallel spectra
@@ -64,6 +74,8 @@ for spectrum in $duschinsky
 do
     compare $spectrum
 done
+
+compare test.xml InputScripts
 
 echo ""
 echo " = = = = = = = = = = ="
