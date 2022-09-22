@@ -465,8 +465,14 @@ bool MolState::ifLetterOrNumber(char Ch)
 }
 
 /* Parser of the "excitation_energy" subnode of the "initial_state" or
- * "target_state" node. Helper of MolState::Read function. */
+ * "target_state" node. Helper of MolState::Read function.
+ * If the node is not presents (e.g. `initial_state`), set it to zero.*/
 void MolState::Read_excitation_energy(xml_node &node_state) {
+
+  // excitation energy, previously called IP
+  energy = 0.0; // eV
+  if (! node_state.find_subnode("excitation_energy"))
+    return;
 
   xml_node node_eenergy(node_state, "excitation_energy", 0);
   std::string units = node_eenergy.read_string_value("units");
@@ -528,15 +534,16 @@ void MolState::Read_molecular_geometry(xml_node &node_state) {
     tmp_atom.Coord(2) = geom_iStr.getNextDouble() * coeff;
 
     if (geom_iStr.fail()) {
-      std::cout << "MolState::Read(): Error. Wrong format in geometry: [" +
-                       geom_iStr.str() + "]\n";
+      std::cout << "\nMolState::Read_molecular_geometry(): Error. Incorrect "
+                   "format of geometry:\n" +
+                       geom_iStr.str() + "\n";
       exit(1);
     }
     atoms.push_back(tmp_atom);
   }
 }
 
-// TODO: read this carefully
+// TODO: Why normal modes are allowed to have different order of atoms
 void MolState::Read_normal_modes_atoms(std::string &atoms_text) {
   My_istringstream atoms_iStr(atoms_text);
 
@@ -586,9 +593,9 @@ void MolState::Read_normal_modes(xml_node &node_state) {
           normModes[k * nModesPerLine + j].getDisplacement()(i * CARTDIM + l) =
               nmodes_iStr.getNextDouble();
           if (nmodes_iStr.fail()) {
-            std::cout
-                << "MolState::Read(): Error. Wrong format in normal modes: [" +
-                       nmodes_iStr.str() + "]\n";
+            std::cout << "\nMolState::Read_normal_modes(): Error. Wrong format "
+                         "of normal modes:\n" +
+                             nmodes_iStr.str() + "\n";
             exit(1);
           }
         }
@@ -623,38 +630,54 @@ void MolState::Read_frequencies(xml_node &node_state) {
 
 /* Parser of the "gradient" subnode of the "initial_state" or "target_state"
  * node. Helper of MolState::Read function.
- * Populates the `gradient` variable of MolState. */
+ * Populates 'IfGradientAvailable' and `gradient` variables of MolState, while
+ * the latter only if available, otherwise the `gradient` variable is left
+ * uninitilized. */
 void MolState::Read_vertical_gradient(xml_node &node_state) {
+
+  IfGradientAvailable = bool(node_state.find_subnode("gradient"));
+
+  // if the gradient node is not present in the input, this is the end
+  if (! IfGradientAvailable) 
+    return;
 
   xml_node node_gradient(node_state, "gradient", 0);
 
   // Read out the gradient in atomic units (Q-Chem default)
   std::string units = node_gradient.read_string_value("units");
+  trim(units);
   if (units != "a.u.") {
-    std::cout << "\n"
-                 "Error! Gradient reported in unsupported units: \""
-              << units
-              << "\"\n"
-                 "  (use \"a.u.\")\n\n";
+    std::cout << "\nError! Gradient reported in unsupported units: \"" << units
+              << "\"\n  (use \"a.u.\" or contact us for implementation of your "
+                 "units)\n\n";
     exit(1);
   }
 
-  std::istringstream grad_istr(node_gradient.read_string_value("text"));
+  std::string grad_text = node_gradient.read_string_value("text");
+  std::istringstream grad_istr(trim(grad_text));
 
-  // gradient is stored as a column vector
-  gradient = arma::Col<double>(CARTDIM * NAtoms());
+  // Read gradient withouth knowing the number of atoms in the molecule.
+  // TODO: check that the size of the gradient matches the number of 
+  // atoms in the molecule in the tests section.
+  std::queue<double> grad_queue;
   double cartesian_component;
-  for (int i = 0; i < NAtoms(); i++) {
-    // Read the x, y, and z components of each vector
-    for (int j = 0; j < CARTDIM; j++) {
-      grad_istr >> cartesian_component;
-      if (grad_istr.fail()) {
-        std::cout << "MolState::Read(): Error. Wrong format in gradient:\n"
-                  << grad_istr.str() << std::endl;
-        exit(1);
-      }
-      gradient(CARTDIM * i + j) = cartesian_component;
+  while (grad_istr.good()) {
+    // Read the x, y, and z components of the gradient for every atom
+    grad_istr >> cartesian_component;
+    if (grad_istr.fail()) {
+      std::cout << "\nError! Wrong gradient format:\n"
+                << grad_istr.str() << std::endl;
+      exit(1);
     }
+    grad_queue.push(cartesian_component);
+  }
+  // copy the gradient into MolState storage
+  size_t gradient_length = grad_queue.size();
+  // gradient is stored as a column vector
+  gradient = arma::Col<double>(gradient_length);
+  for (int i = 0; i < gradient_length; ++i) {
+    gradient(i) = grad_queue.front();
+    grad_queue.pop();
   }
 }
 
@@ -946,7 +969,7 @@ void MolState::calculate_vertical_gradient_geometry() {
     }
   }
   std::cout
-      << "Target-state geometry calculated with vertical gradient apprx-n:"
+      << "Target-state VG geometry:"
       << std::endl;
   printGeometry();
 
@@ -1032,21 +1055,19 @@ void MolState::reorder_atoms() {
   std::cout << "Atoms reordered in both molecular geometry and normal modes.\n";
 }
 
-//------------------------------ 
-/* The only function to deal with input: 
-   -  a node pointing out to initial_state or target_state section in the input
+//------------------------------
+/* The function that read all keywords passed to the `initial_state` or
+   `target_state` nodes. Arguments:
+   -  a node pointing out to initial_state or target_state node
    -  a file where all masses are tabulated
    */
 bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
 {
   // Presence of the "gradient" node triggers the vertical gradient calculations
-  IfGradientAvailable = node_state.find_subnode("gradient");
+  Read_vertical_gradient(node_state);
 
   // When available, read the excitation energy (formerly IP)
-  energy = 0.0; // eV
-  if (node_state.find_subnode("excitation_energy")) {
-    Read_excitation_energy(node_state);
-  }
+  Read_excitation_energy(node_state);
 
   // Read the molecular geometry 
   Read_molecular_geometry(node_state);
@@ -1056,11 +1077,6 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
 
   // Read Frequencies
   Read_frequencies(node_state);
-
-  // Read Gradient
-  if (IfGradientAvailable) {
-    Read_vertical_gradient(node_state);
-  }
 
   Read_manual_coord_transformations(node_state);
   Read_normal_modes_reorder(node_state);
@@ -1091,7 +1107,9 @@ bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
   //------------ 2. Align geometry if requested ----------------------------
   // TODO: A sample job that presents how to use the
   // manual_coordinates_transformation is missing. A problem also for testing.
-  apply_manual_coord_transformation();
+  if (! manual_transformations.empty()) {
+    apply_manual_coord_transformation();
+  }
 
   //------------ 3. Reorder normal modes if requested --------------------
   if (if_nm_reordered_manually){

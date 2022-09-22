@@ -9,6 +9,7 @@
   */
 
 #include "genincludes.h"
+#include "genutil.h"
 #include "aik_xml_parser.h"
 #include "atom.h"
 #include "normalmode.h"
@@ -23,13 +24,13 @@ class MolState
   //! N Atoms: these atoms come from parsing the "geometry" node
   std::vector<Atom> atoms;
   //! N Atoms: these atoms come from parsing the "normal_modes" node.
-  //! HINT: `atoms` and `nm_atoms` can come in different order
-  //! TODO: This can cause troubles down the way:
-  //! -- it's difficult to tell when this is the case as the same atoms
-  //! can be reshuffled
-  //! -- If the order of cartesian coordinates in normal modes doesn't match 
-  //!    the order in which they appear in the geometries the restuls would be 
-  //!    garbage.
+  //! TODO: `atoms` and `nm_atoms` must be in the same order,
+  //! otherwise mismatch between normal modes and geometry coordinates
+  //! will cause incorrect results
+  //! Why the two are allowed?
+  //! If there are many the same atoms (e.g. many carbons or hydrogens),
+  //! the atoms can be reshuffled therfore detecting these differences 
+  //! is possible from the level of ezFCF
   std::vector<Atom> nm_atoms;
   //! n_molecular_nm Normal modes and frequencies (3N-5 or 3N-6)
   //! Stored in the mass unweighted format in Angstoms (i.e as in ACESII)

@@ -6,6 +6,7 @@
 \ingroup (BASIC_METHODS)
 */
 
+// TODO: define is not a moder c++ way of constants
 #define ATOMIC_MASSES_FILE ("atomicMasses.xml")
 
 #include <math.h>
