@@ -22,6 +22,7 @@
 class MolState
 {
   //! N Atoms: these atoms come from parsing the "geometry" node
+  //! Geometry is stored in Angstoms.
   std::vector<Atom> atoms;
   //! N Atoms: these atoms come from parsing the "normal_modes" node.
   //! TODO: `atoms` and `nm_atoms` must be in the same order,
@@ -32,32 +33,32 @@ class MolState
   //! the atoms can be reshuffled therfore detecting these differences 
   //! is possible from the level of ezFCF
   std::vector<Atom> nm_atoms;
-  //! n_molecular_nm Normal modes and frequencies (3N-5 or 3N-6)
-  //! Stored in the mass unweighted format in Angstoms (i.e as in ACESII)
+  //! Stored normal modes in the mass unweighted format (i.e. as in ACESII)
   std::vector<NormalMode> normModes;
-  //! The xml input may store the normal modes using mass weighted convention
-  //! The MolState::Read function reads them as they are 
-  //! only in MolState::Transform the nodes get mass-un-weighted
+  //! The xml input may store the normal modes using mass weighted coordinates.
+  //! The MolState::Read_normal_modes function reads them as they are and, if
+  //! needed, MolState::Transform un-mass-weights them
   bool ifInputNMmassweighted;
   //! number of molecular normal modes: 3N-6 or 3N-5 for linear
   int n_molecular_nm;
-  //! may be removed later
-  bool ifLinear;
-  //! excitation energy (formerly IP), the adiabatic energy gap to the initial state
+  //! excitation energy (formerly IP), the adiabatic energy gap to the initial
+  //! state (bottom to bottom)
   double energy;
-  //! Gradient calculated in the caresian (non-mass-weighted) coordinates, a 3N vector
+  //! Gradient calculated in the caresian (NOT mass-weighted!) coordinates
   arma::Col<double> gradient;
   //! calculate the state's properties using the vertical gradient method
   bool IfGradientAvailable;
 
-  //! Three matrices below are initilized in create_matrices function
-  //! mass matrix uses the order of atoms from MolState::atoms
+  //! Three matrices below are initilized in `MolState::create_matrices`
+  //! function.
+
+  //! Diagonal mass matrix uses the order of atoms from MolState::atoms
+  //! stores atomic masses in AU (not amu!)
   arma::Mat<double> mass_matrix;
-  //! matrix of harmonic frequencies
+  //! diagonal matrix of harmonic frequencies stored in AU
   arma::Mat<double> omega_matrix;
   //! matrix that stores normal modes as its columns  
   arma::Mat<double> d_matrix;
-
 
   arma::Col<double> centerOfMass;
   arma::Mat<double> momentOfInertiaTensor;
@@ -68,11 +69,13 @@ class MolState
 
   // == Variables for manual tweaks ==
 
-  //! if geometry transformation was performed manually
+  //! Answers the questions if any manual transformations were requested
   bool if_aligned_manually;
-  //! stores manual coordinate transformations
-  std::queue<std::pair<arma::Col<double>, arma::Col<double>>>
-      manual_transformations;
+  //! stores manual coordinate transformations. First element of the pair stores
+  //! the shift, while the second element stores the rotation angles around x, y
+  //! and z axes. The transformations are applied in
+  //! `MolState::apply_manual_coord_transformation` function
+  std::queue<std::pair<arma::vec, arma::vec>> manual_transformations;
 
   bool if_nm_reordered_manually;
   //! Normal modes order (relative to the input file's order)
@@ -92,19 +95,21 @@ class MolState
   void Read_normal_modes_reorder(xml_node &);
   void Read_atoms_reorder(xml_node &);
 
-  // -- helpers to the MolState::Read_normal_modes function --
+  // -- helper of the MolState::Read_normal_modes function --
   void Read_normal_modes_atoms(std::string &);
 
-  // ==  Helpers of the MolState::Transform function ==
+  // ==  Helpers of the MolState::ApplyKeyWords function ==
   void convert_atomic_names_to_masses(xml_node &);
   void un_mass_weight_nm();
   void create_mass_matrix();
   void create_matrices();
-  void calculate_vertical_gradient_geometry();
+  void test_vertical_gradient_dimension();
+  void vertical_gradient_method();
   void apply_manual_coord_transformation();
   void reorder_normal_modes();
   void reorder_atoms();
 
+  // TODO: Check if this function is ever needed
   bool ifLetterOrNumber(char Ch);
 
 public:
@@ -112,16 +117,22 @@ public:
   MolState (const MolState& other);
   //  ~MolState();
   MolState& operator=(const MolState& other);
-  // TODO: the rule of three
+  // TODO: the rule of three...
 
   //! Read the state data from file
-  bool Read(xml_node& node_state, xml_node& node_amu_table);
+  void Read(xml_node& node_state);
   void Print();
   void printGeometry(); 
   void printNormalModes(); 
-  void printGradient(); 
-  // returns true if the overlap matrix is diagonal; makes a list of normal modes which form a non-diagonal minor.
-  bool getNormalModeOverlapWithOtherState(MolState& other, arma::Mat<double>& overlap, std::vector<int>& normal_modes_list);
+  void printGradient();
+  // returns true if the overlap matrix is diagonal; makes a list of normal
+  // modes which form a non-diagonal submatirx.
+  bool getNormalModeOverlapWithOtherState(MolState &other,
+                                          arma::Mat<double> &overlap,
+                                          std::vector<int> &normal_modes_list);
+
+  //! Tests and Processing of the molecular state properties
+  void ApplyKeyWords(xml_node& node_amu_table);
 
   //--- interface ---------------------------------------------------
 
@@ -132,8 +143,6 @@ public:
   NormalMode& getNormMode(int i) { return normModes[i]; } 
   //! Returns NormalMode order index
   int getNormModeIndex(int i) { return normModesOrder[i]; } 
-  //! Linear?
-  bool IfLinear () const { return ifLinear; }
   //! Excitation Energy (formerly IP)
   double Energy () const { return energy; }
   //! Returns number of atoms
@@ -144,12 +153,15 @@ public:
   bool IfGradient() const { return IfGradientAvailable; }
 
   //--- alignment ------------- ------------------------------------
-  //! align each state: center of mass in the coordinates origin, moment of ineretia principal axes along the coordinate axes:
+  //! align each state: center of mass in the coordinates origin, moment of
+  //! ineretia principal axes along the coordinate axes:
   void align();
-  //! align the state with the "other" state by rotating around every axes (x,y,z) by pi/2;
-  void align(MolState& other);
-  //! check that states are similar (same number of atoms and same "liniarity", i.e. same number of normal modes); 
-  bool ifSimilar(MolState& other);
+  //! align the state with the "other" state by rotating around every axes
+  //! (x,y,z) by pi/2;
+  void align(MolState &other);
+  //! check that states are similar (same number of atoms and same "liniarity",
+  //! i.e. same number of normal modes);
+  bool ifSimilar(MolState &other);
 
   //--- Geometry transformations ------------------------------------
   // Center eof mass vector:

@@ -24,7 +24,6 @@ MolState::MolState (const MolState& other) {
   atoms=other.atoms;
   normModes=other.normModes;
   gradient=other.gradient;
-  ifLinear=other.ifLinear;
   energy=other.energy;
   centerOfMass = other.centerOfMass;
   momentOfInertiaTensor = other.momentOfInertiaTensor;
@@ -42,7 +41,6 @@ MolState& MolState::operator=(const MolState& other) {
     atoms=other.atoms;
     normModes=other.normModes;
     gradient=other.gradient;
-    ifLinear=other.ifLinear;
     energy=other.energy;
     centerOfMass = other.centerOfMass;
     momentOfInertiaTensor = other.momentOfInertiaTensor;
@@ -333,7 +331,7 @@ bool MolState::getNormalModeOverlapWithOtherState(MolState& other, arma::Mat<dou
       for (int a=0; a<NAtoms(); a++)
         for (int i=0; i<CARTDIM; i++ )
         {
-          // TODO: there are only two variabels here. Define them separately to make it a clean read.
+          // TODO: there are only two variables here. Define them separately to make it a clean read.
           //x1*x1+y1*y1+..
           norm_ini+= getNormMode(nm1).getDisplacement()(a*CARTDIM+i) * getNormMode(nm1).getDisplacement()(a*CARTDIM+i);
           //x2*x2+y2*y2+..
@@ -466,7 +464,8 @@ bool MolState::ifLetterOrNumber(char Ch)
 
 /* Parser of the "excitation_energy" subnode of the "initial_state" or
  * "target_state" node. Helper of MolState::Read function.
- * If the node is not presents (e.g. `initial_state`), set it to zero.*/
+ * If the node is not presents (e.g. `initial_state`), set it to zero.
+ * Populates the energy variable of MolState.*/
 void MolState::Read_excitation_energy(xml_node &node_state) {
 
   // excitation energy, previously called IP
@@ -498,8 +497,10 @@ void MolState::Read_excitation_energy(xml_node &node_state) {
   std::cout << energy_text << energy << " eV " << std::endl;
 }
 
-/* Parser of the "geometry" subnode of the "initial_state" or
- * "target_state" node. Helper of MolState::Read function. */
+/* Parser of the "geometry" subnode of the "initial_state" or "target_state"
+ * node. Helper of `MolState::Read` function. Populates the `n_molecular_nm`,
+ * and `atoms` variables of `MolState`. The `atoms` variable stores the three 
+ * cartesian components of each atom (in Angstroms). */
 void MolState::Read_molecular_geometry(xml_node &node_state) {
   xml_node node_geometry(node_state, "geometry", 0);
 
@@ -507,7 +508,7 @@ void MolState::Read_molecular_geometry(xml_node &node_state) {
   nAtoms = node_geometry.read_int_value("number_of_atoms");
 
   n_molecular_nm = 3 * nAtoms - 6;
-  ifLinear = node_geometry.read_bool_value("linear");
+  bool ifLinear = node_geometry.read_bool_value("linear");
   if (ifLinear) {
     n_molecular_nm = 3 * nAtoms - 5;
   }
@@ -525,10 +526,7 @@ void MolState::Read_molecular_geometry(xml_node &node_state) {
     geom_iStr.getNextWord(tmp_atomName);
     tmp_atom.Name() = tmp_atomName;
 
-    // get coordinates & convert to a.u.
-
-    // TODO: `coeff` converts to Angstroms. The comment from line above is
-    // confusing. Pawel Feb '22
+    // get coordinates & convert to Angstroms
     tmp_atom.Coord(0) = geom_iStr.getNextDouble() * coeff;
     tmp_atom.Coord(1) = geom_iStr.getNextDouble() * coeff;
     tmp_atom.Coord(2) = geom_iStr.getNextDouble() * coeff;
@@ -560,7 +558,15 @@ void MolState::Read_normal_modes_atoms(std::string &atoms_text) {
 }
 
 /* Parser of the "normal_modes" subnode of the "initial_state" or "target_state"
- * node. Helper of MolState::Read function. */
+ * node. Normal modes are stored in the mass-un-weiged cartesian coordinates in
+ * Angstroms. At this point they are read from the input xml where sometimes
+ * they are still in the mass-weighted form, for these cases the function
+ * MolState::un_mass_weight_nm() is later triggered by the variable
+ * ifInputNMmassweighted. 
+ *
+ * Helper of MolState::Read function.
+ * Populates normModes, ifInputNMmassweighted, and nm_atoms variables of
+ * MolState.*/
 void MolState::Read_normal_modes(xml_node &node_state) {
   normModes.clear();
   NormalMode nMode(NAtoms(), 0);
@@ -656,9 +662,10 @@ void MolState::Read_vertical_gradient(xml_node &node_state) {
   std::string grad_text = node_gradient.read_string_value("text");
   std::istringstream grad_istr(trim(grad_text));
 
-  // Read gradient withouth knowing the number of atoms in the molecule.
-  // TODO: check that the size of the gradient matches the number of 
-  // atoms in the molecule in the tests section.
+  // Read gradient withouth assuming number of it's components. This approach
+  // allows to detect incorrect input no only if too few coordinates are given
+  // but also if there were too many. This is checked in the
+  // `test_vertical_gradient_dimension` function.
   std::queue<double> grad_queue;
   double cartesian_component;
   while (grad_istr.good()) {
@@ -807,6 +814,27 @@ void MolState::Read_atoms_reorder(xml_node &node_state) {
   }
 }
 
+/* The function that read all keywords passed to the `initial_state` or
+   `target_state` nodes. Arguments:
+   -  a node pointing out to initial_state or target_state node
+   -  a file where all masses are tabulated
+   Collected input is saved into private variables of `MolState` processed
+   as need in the `MolState::ApplyKeyWords` function.
+   */
+void MolState::Read(xml_node& node_state)
+{
+  // Presence of the "gradient" node triggers the vertical gradient calculations
+  Read_vertical_gradient(node_state);
+  Read_excitation_energy(node_state);
+  // TODO: add a separate node for the vertical gradient energy
+  Read_molecular_geometry(node_state);
+  Read_normal_modes(node_state);
+  Read_frequencies(node_state);
+  Read_manual_coord_transformations(node_state);
+  Read_normal_modes_reorder(node_state);
+  Read_atoms_reorder(node_state);
+}
+
 /* MolState object stores two vectors of atoms: one from the "geometry" node and
  * one from the "normal_modes" node. After sucessful reading of the xml input,
  * each vector stores the atoms' names. This function uses the atomic_masses.xml
@@ -821,13 +849,13 @@ void MolState::convert_atomic_names_to_masses(xml_node &node_amu_table) {
         node_amu_table.read_node_double_value(nm_atoms[i].Name().c_str());
 }
 
-/* Helper of MolState::Transform function.
- * Populates the
- * arma::Col<double> mass_matrix variable of MolState. */
+/* Some ab-initio programs report mass-weighed normal modes other report the
+ * regular cartesian coordinates. MolState stores the normal modes in the regual
+ * (mass-un-weighed) form. This function transforms the mass-weighed normal
+ * modes into the mass-un-weighed nodes used in the reminder of the program.
+ * Helper of MolState::ApplyKeyWords function. Populates the reduced_masses variable
+ * of MolState. */
 void MolState::un_mass_weight_nm() {
-
-  reduced_masses = arma::Col<double>(NNormModes(), arma::fill::ones);
-
   // Mass-un-weight normal modes, using the nm_atoms' masses 
   for (int nm = 0; nm < NNormModes(); nm++)
     for (int a = 0; a < NAtoms(); a++)
@@ -839,6 +867,7 @@ void MolState::un_mass_weight_nm() {
   // division by sqrt(reduced mass))
 
   // Prepare reduced masses:
+  reduced_masses = arma::Col<double>(NNormModes(), arma::fill::ones);
   for (int nm = 0; nm < NNormModes(); nm++) {
     reduced_masses(nm) = 0;
     for (int a = 0; a < NAtoms(); a++)
@@ -856,13 +885,18 @@ void MolState::un_mass_weight_nm() {
             sqrt(reduced_masses(nm));
 }
 
-/* Helper of MolState::Transform function.
+/* Helper of MolState::ApplyKeyWords function.
  * Populates the MolState variables:
  * 1) mass_matrix
  * 2) omega_matrix
  * 3) d_matrix
- * For mass_matrix uses the order of atoms from MolState::atoms.
- * Stores masses in AU (not amu!) and frequncies as well in AU. */
+ * `mass_matrix` is a diagonal matrix of atomic masses of dimension 3*(# atoms).
+ * Masses are stored in AU (not amu!). `mass_matrix` uses the order of atoms
+ * from `atoms`. The diagonal matrix `omega_matrix` stores harmonic frequencies
+ * also in AU (not cm-1), it has the dimension matching the number of normal
+ * modes, `n_molecular_nm`. `d_matrix` is a rectangular matrix that stores the
+ * normal modes in its columns which implies the matrix dimensions: 3*(# atoms)
+ * by n_molecular_nm. Normal modes matrix `d_matrix` is dimensionless. */
 void MolState::create_matrices() {
   // TODO: make sure that the mass matrix and the normal modes
   // use the same order of atoms.
@@ -895,10 +929,23 @@ void MolState::create_matrices() {
   }
 }
 
-/* Helper of MolState::Transform function. Main part of the Vertical Gradient
- * implementation. Calculates the target state geometry which can be forwarded
- * to the parallel mode approximation code. */
-void MolState::calculate_vertical_gradient_geometry() {
+/* The `Read_vertical_gradient` function read the gradient node input without
+ * restricing the number of elements that are parsed. If contians too few or too
+ * many coordinates, this function captures it.*/
+void MolState::test_vertical_gradient_dimension() {
+  size_t gradient_dim = gradient.n_rows;
+  if (gradient_dim != 3 * NAtoms()) {
+    std::cout << " Error. Gradient dimension (" << gradient_dim
+              << ") doesn't match 3*(# atoms) = " << 3 * NAtoms() << "\n";
+    gradient.print("Gradient");
+    exit(1);
+  }
+}
+
+/* Helper of MolState::ApplyKeyWords function. Main part of the Vertical Gradient
+ * implementation. Calculates the target state geometry and excitation energy
+ * which can be forwarded to the parallel mode approximation code. */
+void MolState::vertical_gradient_method() {
   /* $$ \Delta = \Omega ^{-2} D ^{-1} M ^{-1/2} g _{(2)} ^{(x)} $$
    * $\Delta$ is a vector of displacement between the target state normal
    * coordinates $q ^{(2)}$ and the initial state normal coordinates
@@ -978,16 +1025,17 @@ void MolState::calculate_vertical_gradient_geometry() {
         0.5 * delta(i) * delta(i) / Omega_matrix_minus2(i, i) / EV2HARTREE;
   }
 
-  // HINT: Vertical gradient works within paralle approximation wo/ frequency
-  // shifts. The adiabatic excitation energy is equal to the E^a _{00}, i.e.,
-  // ZPE of the initial to the ZPE of the target states.
-  // This is the energy used in the guts of the program where the intentities
-  // are calculated.
+  // TODO: Introduce a new keyword vg_excitation_energy and use this one when
+  // gradient is given. HINT: Vertical gradient works within paralle
+  // approximation wo/ frequency shifts. The adiabatic excitation energy is
+  // equal to the E^a _{00}, i.e., ZPE of the initial to the ZPE of the target
+  // states. This is the energy used in the guts of the program where the
+  // intentities are calculated.
   std::cout << "Adiabatic excitation energy (within VG) = " << energy << " eV "
             << std::endl;
 }
 
-/* Helper of MolState::Transform function. Applies manual shifts and rotations
+/* Helper of MolState::ApplyKeyWords function. Applies manual shifts and rotations
  * of the molecular geometry, which were specified in the
  * `manual_coordinates_transformation` nodes. */
 void MolState::apply_manual_coord_transformation() {
@@ -1019,7 +1067,7 @@ void MolState::apply_manual_coord_transformation() {
   }
 }
 
-/* Helper of MolState::Transform function. Applies manual reodering of normal
+/* Helper of MolState::ApplyKeyWords function. Applies manual reodering of normal
  * modes specified in the `manual_normal_modes_reordering` node. */
 void MolState::reorder_normal_modes() {
   // backup normal modes
@@ -1032,7 +1080,7 @@ void MolState::reorder_normal_modes() {
   std::cout << "Normal modes reordered.\n";
 }
 
-/* Helper of MolState::Transform function. Applies manual reodering of atoms
+/* Helper of MolState::ApplyKeyWords function. Applies manual reodering of atoms
  * specified in the `manual_atoms_reordering` node.
  * The atoms reordergin has to be applied to both geometry and normal modes. */
 void MolState::reorder_atoms() {
@@ -1055,71 +1103,35 @@ void MolState::reorder_atoms() {
   std::cout << "Atoms reordered in both molecular geometry and normal modes.\n";
 }
 
-//------------------------------
-/* The function that read all keywords passed to the `initial_state` or
-   `target_state` nodes. Arguments:
-   -  a node pointing out to initial_state or target_state node
-   -  a file where all masses are tabulated
-   */
-bool MolState::Read(xml_node& node_state, xml_node& node_amu_table)
-{
-  // Presence of the "gradient" node triggers the vertical gradient calculations
-  Read_vertical_gradient(node_state);
-
-  // When available, read the excitation energy (formerly IP)
-  Read_excitation_energy(node_state);
-
-  // Read the molecular geometry 
-  Read_molecular_geometry(node_state);
-
-  // Read Normal Modes
-  Read_normal_modes(node_state);
-
-  // Read Frequencies
-  Read_frequencies(node_state);
-
-  Read_manual_coord_transformations(node_state);
-  Read_normal_modes_reorder(node_state);
-  Read_atoms_reorder(node_state);
-
-  // Now MolState is in a good shape, and some transformations can be performed
-
-  // TODO: The transformations deserve a function that is separate from
-  // MolState::Read
-
-  // ------------ 0. Convert atomic names to masses --------------------------
+/* This function runs most of the actions requested by `initial_state` or
+ * `target_state` subnodes and keywords. Additionaly this function applies
+ * translations necessary for keeping `MolState` variables aligned with the
+ * ezFCF conventions.*/
+void MolState::ApplyKeyWords(xml_node &node_amu_table) {
   convert_atomic_names_to_masses(node_amu_table);
 
-  // ------------ 1. Un-mass-weight normal modes ------------------------------
   if (ifInputNMmassweighted) {
     un_mass_weight_nm();
   }
 
-  // ------------ 1.5 Find geometry from the vertial gradient if available ----
   // Create diagonal matrices of atomic masses, harmonic frequencies and a
   // rectangular matrix of normal modes: these are used thorughout the program.
   create_matrices();
 
+  // Find geometry and excitation_energy using VG method
   if (IfGradientAvailable) {
-    calculate_vertical_gradient_geometry();
+    test_vertical_gradient_dimension();
+    vertical_gradient_method();
   }
-
-  //------------ 2. Align geometry if requested ----------------------------
   // TODO: A sample job that presents how to use the
   // manual_coordinates_transformation is missing. A problem also for testing.
-  if (! manual_transformations.empty()) {
+  if (!manual_transformations.empty()) {
     apply_manual_coord_transformation();
   }
-
-  //------------ 3. Reorder normal modes if requested --------------------
-  if (if_nm_reordered_manually){
+  if (if_nm_reordered_manually) {
     reorder_normal_modes();
   }
-
-  //------------ 4. Reorder atoms if requested --------------------
   if (if_atoms_reordered_manually) {
     reorder_atoms();
   }
-
-  return true;
 }
