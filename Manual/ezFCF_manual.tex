@@ -660,22 +660,14 @@ An example of the {\tt{}gradient} node
   <gradient
       units = "a.u."
       text = "
-        -0.00000000  
-         0.00000000  
-        -0.13653498  
-         0.00148260  
-        -0.00000000  
-         0.00362732  
-        -0.00148260  
-         0.00000000  
-         0.00362732  
-         0.00000000
-        -0.00000000
-         0.12928034
-      " />
+        -0.00000000  0.00000000 -0.13653498  
+         0.00148260 -0.00000000  0.00362732  
+        -0.00148260  0.00000000  0.00362732  
+         0.00000000 -0.00000000  0.12928034"
+  >
   </gradient>
 \end{lstlisting}
-The {\tt{}text} argument contains 3N lines with the gradient components, for each atom (in the same order as they appear in the {\tt{}geometry} node) the listing shows the $x$, $y$, and $z$ components.
+The \texttt{text} argument contains $3*(\textrm{\# atoms})$ numbers -- the gradient components. The order of the components must stick to the coordinate system used throughout the \texttt{geometry} and \texttt{normal\_modes} nodes, i.e., it must be a list of the $x$, $y$, and $z$ gradient components corresponding to the first atom, followed by the $x$, $y$, and $z$ components of the second atoms and so on; the order of atoms must be the same as the order of atoms appearing in the \texttt{geometry} node. The value of the \texttt{text} argument is read as a series of floating point number separated by whitespaces.
 
 %----------------------------------------------------------------------
 \section{Duschinsky rotations}
