@@ -37,8 +37,6 @@ bool harmonic_pes_main (const char *InputFileName, xml_node& node_input, xml_nod
   elSt.ApplyKeyWords(node_amu_table);
   elStates.push_back(elSt);
 
-  //std::cout << "\n====== Reading the initial state: Done ======\n";
-
   size_t n_target_states=node_input.find_subnode("target_state");
 
   for (int state_i=0; state_i<n_target_states; state_i++) {

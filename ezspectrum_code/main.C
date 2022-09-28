@@ -3,9 +3,6 @@
 #include "harmonic_pes_main.h"
 #include "aik_xml_parser.h"
 
-// TODO: manual allows mass weighted to be either 'true' or 'y' check if this works 
-// TODO: revert the atomic masses! They are needed for the isotope mass-effect
-
 int main(int argc, char *argv[]) {
 
   if ((argc - 1) < 1) {
@@ -27,10 +24,11 @@ int main(int argc, char *argv[]) {
 
   bool if_web_version = node_input.read_flag_value("if_web_version");
   if (not(if_web_version)) {
+    std::string line(80, '-');
     std::cout << "A copy of the \"" << argv[1] << "\" input:\n";
-    std::cout << "------------------------------------------------------------------------------\n";
+    std::cout << line << "\n";
     node_input.print(std::cout);
-    std::cout << "------------------------------------------------------------------------------\n \n";
+    std::cout << line << "\n\n";
   }
 
   std::string job = node_input.read_string_value("job");
