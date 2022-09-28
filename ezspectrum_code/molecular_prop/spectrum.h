@@ -16,8 +16,6 @@ Sould be done soon:
 */
 #include "genincludes.h"
 #include "spectralpoint.h"
-#include <vector>
-#include <algorithm>
 
 class Spectrum
 {

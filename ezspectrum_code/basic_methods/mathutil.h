@@ -6,7 +6,6 @@
 */
 
 #include "genincludes.h"
-#include <vector>
 
 //! Factorial; N=(-inf..0..+inf)  
 double Factorial(const int N); 

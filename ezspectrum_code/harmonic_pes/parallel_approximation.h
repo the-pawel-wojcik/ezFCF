@@ -18,8 +18,6 @@ To initialize provide:
 #include "vibronic_state.h"
 #include "vibrational_indexing.h"
 
-#include <vector>
-
 #include "franck_condon.h"
 
 #include "spectrum.h"

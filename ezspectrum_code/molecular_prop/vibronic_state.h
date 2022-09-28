@@ -10,7 +10,6 @@ and excitation quantum number along each normal mode;
 */
 
 #include "genincludes.h"
-#include <vector>
 
 class VibronicState
 {

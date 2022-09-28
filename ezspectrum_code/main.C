@@ -3,6 +3,9 @@
 #include "harmonic_pes_main.h"
 #include "aik_xml_parser.h"
 
+// TODO: manual allows mass weighted to be either 'true' or 'y' check if this works 
+// TODO: revert the atomic masses! They are needed for the isotope mass-effect
+
 int main(int argc, char *argv[]) {
 
   if ((argc - 1) < 1) {

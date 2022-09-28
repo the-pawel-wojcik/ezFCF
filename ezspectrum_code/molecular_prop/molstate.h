@@ -13,10 +13,6 @@
 #include "aik_xml_parser.h"
 #include "atom.h"
 #include "normalmode.h"
-#include <vector>
-#include <queue>
-#include <set>
-#include <algorithm>
 
 
 class MolState

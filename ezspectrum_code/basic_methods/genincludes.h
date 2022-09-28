@@ -6,9 +6,6 @@
 \ingroup (BASIC_METHODS)
 */
 
-// TODO: define is not a moder c++ way of constants
-#define ATOMIC_MASSES_FILE ("atomicMasses.xml")
-
 #include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -19,12 +16,22 @@
 
 #include <float.h> // used for DBL_MAX constant
 
+#include <string>
+#include <vector>
+#include <queue>
+#include <set>
+
+#include <algorithm>
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <cstdlib>
 #include <iomanip>
 
+
 #include <armadillo>
+
+const std::string ATOMIC_MASSES_FILE("atomicMasses.xml");
 
 #endif
