@@ -7,6 +7,14 @@
 ezFCF="../ezspectrum_code/ezFCF_linux.exe" # use this one if you compiled the program
 # ezFCF="../bin/ezFCF_linux.exe"
 
+if [[ $1 == "clean" ]]
+then
+    cd ../ezspectrum_code
+    make clean
+    make
+    cd ../Pawel_Samples
+fi
+
 # Check if ezFCF file exists and is executable
 if [ ! -x $ezFCF ]
 then
