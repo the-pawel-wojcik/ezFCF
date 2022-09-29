@@ -18,27 +18,8 @@ time_t GetRawTime(){
   return  rawtime;
 }
 
-
 void error(const char *const msg)
 {
   std::cout << "\nError! " << msg <<"\n\n";
   exit(1);
-}
-
-//! Swap two integers
-void Swap(int& i, int& j)
-{
-  static int tmp;
-  tmp=i;
-  i=j;
-  j=tmp;
-}
-
-//! Swap two doubles
-void Swap(double& i, double& j)
-{
-  static double tmp;
-  tmp=i;
-  i=j;
-  j=tmp;
 }

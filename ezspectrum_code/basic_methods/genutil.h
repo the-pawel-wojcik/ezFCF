@@ -23,14 +23,6 @@ inline void check(const bool expr, const char *const msg)
 std::string GetTime();
 time_t GetRawTime();
 
-//! Swap two integers
-//! TODO: replace it with std::swap
-void Swap(int& i, int& j);
-
-//! Swap two doubles
-//! TODO: replace it with std::swap
-void Swap(double& i, double& j);
-
 // Whitespace trimming functions from
 // https://stackoverflow.com/questions/1798112/removing-leading-and-trailing-spaces-from-a-string
 // trim whitespaces from left

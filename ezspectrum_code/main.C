@@ -3,8 +3,6 @@
 #include "harmonic_pes_main.h"
 #include "aik_xml_parser.h"
 
-// TODO: fix new lines in make_xml.py
-
 int main(int argc, char *argv[]) {
 
   if ((argc - 1) < 1) {
