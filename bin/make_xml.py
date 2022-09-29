@@ -156,7 +156,6 @@ def parse_qchem(StateF, data: dict):
                 data['NormalModes'] += Line[2:]
             data['NormalModes'] += '\n'
 
-        # remove end of the line symbols!!!
         if Line.find('Frequency: ') >= 0:
             data['Frequencies'] += Line.replace('Frequency:', '')
             no_lines_with_frequencies += 1
@@ -880,7 +879,7 @@ def parse_NWChem(StateF, data: dict, run_type: str):
         line = StateF.readline()
 
     # Delete the zero-frequency modes
-    # TODO: Should a linear molecule detection be implemented, change this part
+    # TODO: Change here when linear molecules detection is added
     data['ifLinear'] = False
     frequencies = frequencies[6:]
     normal_coordinates = normal_coordinates[6:]
@@ -1069,7 +1068,6 @@ def write_state_xml_file(xmlF, data: dict, which_state: str, run_type: str):
     xmlF.write('  <geometry\n')
     no_atoms = data["NAtoms"]
     xmlF.write(f'    number_of_atoms = "{str(no_atoms)}"\n')
-    # linear?
     is_linear = data['ifLinear']
     if is_linear:
         xmlF.write('    linear = "true"\n')
@@ -1082,7 +1080,7 @@ def write_state_xml_file(xmlF, data: dict, which_state: str, run_type: str):
     xmlF.write('    text   = "\n')
     geometry = data['Geometry']
     xmlF.write(geometry)
-    xmlF.write('             ">\n')
+    xmlF.write('"\n  >\n')
     xmlF.write('  </geometry>\n\n')
 
     atoms_order = " ".join([f"{str(nm)}" for nm in range(no_atoms)])
@@ -1097,11 +1095,11 @@ def write_state_xml_file(xmlF, data: dict, which_state: str, run_type: str):
     xmlF.write('    text = "\n')
     normal_modes = data['NormalModes']
     xmlF.write(normal_modes)
-    xmlF.write('           "\n')
+    xmlF.write('"\n\n')
     xmlF.write('   atoms = "')
     atoms_list = data['atoms_list']
     xmlF.write(atoms_list)
-    xmlF.write('           ">\n')
+    xmlF.write('"\n  >\n')
     xmlF.write('  </normal_modes>\n\n')
 
     if is_linear:
@@ -1123,7 +1121,7 @@ def write_state_xml_file(xmlF, data: dict, which_state: str, run_type: str):
     xmlF.write('    text = "\n')
     frequencies = data['Frequencies']
     xmlF.write(frequencies)
-    xmlF.write('             ">\n')
+    xmlF.write('"\n  >\n')
     xmlF.write('  </frequencies>\n\n')
 
 def read_write_state(file_name, run_type: str, which_state: str, xmlF):
@@ -1139,6 +1137,11 @@ def read_write_state(file_name, run_type: str, which_state: str, xmlF):
             'if_normal_modes_weighted': None,
             'geometry_units': None}
     read_state(file_name, data, run_type)
+    # remove new lines at the end of the entries
+    data['Geometry'] = data['Geometry'].rstrip()
+    data['atoms_list'] = data['atoms_list'].strip()
+    data['NormalModes'] = data['NormalModes'].rstrip()
+    data['Frequencies'] = data['Frequencies'].rstrip()
     write_state_xml_file(xmlF, data, which_state, run_type)
 
 
