@@ -56,8 +56,8 @@ bool harmonic_pes_main (const char *InputFileName, xml_node& node_input, xml_nod
   }
 
   if (elStates[0].IfGradient()) {
-    std::cout 
-      << "\nError! Use of the vertical gradient method is allowed only in target states.\n\n";
+    std::cout << "\nError! Use of the vertical gradient method is allowed only "
+                 "in target states.\n\n";
     exit(2);
   }
 

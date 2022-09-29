@@ -541,37 +541,41 @@ void MolState::Read_molecular_geometry(xml_node &node_state) {
   }
 }
 
-// TODO: Why normal modes are allowed to have different order of atoms
-void MolState::Read_normal_modes_atoms(std::string &atoms_text) {
+// Helper of `Read_normal_modes`
+void MolState::Read_abinitio_atoms_masses(std::string &atoms_text) {
   My_istringstream atoms_iStr(atoms_text);
 
-  nm_atoms.clear();
+  ab_intio_atoms_masses.clear();
   Atom tmp_atom;
   for (int i = 0; i < NAtoms(); i++) {
     std::string tmp_atomName;
     // Get atomic name:
     atoms_iStr.getNextWord(tmp_atomName);
     tmp_atom.Name() = tmp_atomName;
-    nm_atoms.push_back(tmp_atom);
+    ab_intio_atoms_masses.push_back(tmp_atom);
   }
-
 }
 
 /* Parser of the "normal_modes" subnode of the "initial_state" or "target_state"
  * node. Normal modes are stored in the mass-un-weiged cartesian coordinates in
  * Angstroms. At this point they are read from the input xml where sometimes
  * they are still in the mass-weighted form, for these cases the function
- * MolState::un_mass_weight_nm() is later triggered by the variable
+ * `un_mass_weight_nm` is later triggered by the variable
  * ifInputNMmassweighted. 
  *
  * Helper of MolState::Read function.
- * Populates normModes, ifInputNMmassweighted, and nm_atoms variables of
- * MolState.*/
+ * Populates normModes, ifInputNMmassweighted, and nm_atoms variables.*/
 void MolState::Read_normal_modes(xml_node &node_state) {
-  normModes.clear();
-  NormalMode nMode(NAtoms(), 0);
-  for (int i = 0; i < n_molecular_nm; i++)
-    normModes.push_back(nMode);
+
+  xml_node node_nmodes(node_state, "normal_modes", 0);
+
+  ifInputNMmassweighted = node_nmodes.read_bool_value("if_mass_weighted");
+
+  std::string nm_atoms_list = node_nmodes.read_string_value("atoms");
+  Read_abinitio_atoms_masses(nm_atoms_list);
+
+  // the key node atribute
+  My_istringstream nmodes_iStr(node_nmodes.read_string_value("text"));
 
   // number of normal modes per Line in the xml input
   int nModesPerLine = 3;
@@ -580,10 +584,9 @@ void MolState::Read_normal_modes(xml_node &node_state) {
   if (n_molecular_nm % nModesPerLine != 0)
     nLines++;
 
-  xml_node node_nmodes(node_state, "normal_modes", 0);
-  ifInputNMmassweighted = node_nmodes.read_bool_value("if_mass_weighted");
-  My_istringstream nmodes_iStr(node_nmodes.read_string_value("text"));
-
+  // initilize the container to empty values
+  NormalMode nMode(NAtoms(), 0);
+  normModes = std::vector<NormalMode> (n_molecular_nm, nMode);
   // number of blocks with 3 norm.modes. ("lines")
   for (int k = 0; k < nLines; k++) {
     int current_nModesPerLine = nModesPerLine;
@@ -606,10 +609,6 @@ void MolState::Read_normal_modes(xml_node &node_state) {
           }
         }
   }
-
-  // parse atoms argument
-  std::string nm_atoms_list = node_nmodes.read_string_value("atoms");
-  Read_normal_modes_atoms(nm_atoms_list);
 }
 
 /* Parser of the "frequencies" subnode of the "initial_state" or "target_state"
@@ -845,8 +844,8 @@ void MolState::convert_atomic_names_to_masses(xml_node &node_amu_table) {
         node_amu_table.read_node_double_value(atoms[i].Name().c_str());
 
   for (int i = 0; i < NAtoms(); i++)
-    nm_atoms[i].Mass() =
-        node_amu_table.read_node_double_value(nm_atoms[i].Name().c_str());
+    ab_intio_atoms_masses[i].Mass() =
+        node_amu_table.read_node_double_value(ab_intio_atoms_masses[i].Name().c_str());
 }
 
 /* Some ab-initio programs report mass-weighed normal modes other report the
@@ -856,12 +855,12 @@ void MolState::convert_atomic_names_to_masses(xml_node &node_amu_table) {
  * Helper of MolState::ApplyKeyWords function. Populates the reduced_masses variable
  * of MolState. */
 void MolState::un_mass_weight_nm() {
-  // Mass-un-weight normal modes, using the nm_atoms' masses 
+  // Mass-un-weight normal modes, using the ab_intio_atoms_masses
   for (int nm = 0; nm < NNormModes(); nm++)
     for (int a = 0; a < NAtoms(); a++)
       for (int i = 0; i < CARTDIM; i++)
         getNormMode(nm).getDisplacement()(a * CARTDIM + i) *=
-            sqrt(nm_atoms[a].Mass());
+            sqrt(ab_intio_atoms_masses[a].Mass());
 
   // Normalize each normal mode (divide by sqrt(norm) which is the same as
   // division by sqrt(reduced mass))
@@ -895,7 +894,7 @@ void MolState::un_mass_weight_nm() {
  * from `atoms`. The diagonal matrix `omega_matrix` stores harmonic frequencies
  * also in AU (not cm-1), it has the dimension matching the number of normal
  * modes, `n_molecular_nm`. `d_matrix` is a rectangular matrix that stores the
- * normal modes in its columns which implies the matrix dimensions: 3*(# atoms)
+ * normal modes in its columns which implies the matrix dimensions: 3*(#atoms)
  * by n_molecular_nm. Normal modes matrix `d_matrix` is dimensionless. */
 void MolState::create_matrices() {
   // TODO: make sure that the mass matrix and the normal modes

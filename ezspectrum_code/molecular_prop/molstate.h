@@ -21,14 +21,9 @@ class MolState
   //! Geometry is stored in Angstoms.
   std::vector<Atom> atoms;
   //! N Atoms: these atoms come from parsing the "normal_modes" node.
-  //! TODO: `atoms` and `nm_atoms` must be in the same order,
-  //! otherwise mismatch between normal modes and geometry coordinates
-  //! will cause incorrect results
-  //! Why the two are allowed?
-  //! If there are many the same atoms (e.g. many carbons or hydrogens),
-  //! the atoms can be reshuffled therfore detecting these differences 
-  //! is possible from the level of ezFCF
-  std::vector<Atom> nm_atoms;
+  //! They don't store atomic geometries, but instead are used for reading
+  //! masses in calculations with isotope substitution. (see Manual)
+  std::vector<Atom> ab_intio_atoms_masses;
   //! Stored normal modes in the mass unweighted format (i.e. as in ACESII)
   std::vector<NormalMode> normModes;
   //! The xml input may store the normal modes using mass weighted coordinates.
@@ -92,7 +87,7 @@ class MolState
   void Read_atoms_reorder(xml_node &);
 
   // -- helper of the MolState::Read_normal_modes function --
-  void Read_normal_modes_atoms(std::string &);
+  void Read_abinitio_atoms_masses(std::string &);
 
   // ==  Helpers of the MolState::ApplyKeyWords function ==
   void convert_atomic_names_to_masses(xml_node &);
