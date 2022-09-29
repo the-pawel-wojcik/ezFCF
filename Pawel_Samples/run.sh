@@ -71,16 +71,16 @@ compare () {
 }
 
 # Diff parallel spectra
-parallel="adenine.xml.spectrum_parallel cis_hcoh.xml.spectrum_parallel formaldehyde.xml.spectrum_parallel the_only_initial_state.xml.spectrum_parallel trans_hcoh_small.xml.spectrum_parallel trans_hcoh.xml.spectrum_parallel vg_phenolate.xml.spectrum_parallel"
+parallel="adenine.xml cis_hcoh.xml formaldehyde.xml the_only_initial_state.xml trans_hcoh_small.xml trans_hcoh.xml vg_phenolate.xml"
 for spectrum in $parallel
 do
-    compare $spectrum
+    compare ${spectrum}.spectrum_parallel
 done
 
-duschinsky="adenine.xml.spectrum_dushinsky cis_hcoh.xml.spectrum_dushinsky formaldehyde.xml.spectrum_dushinsky the_only_initial_state.xml.spectrum_dushinsky thymine.xml.spectrum_dushinsky"
+duschinsky="adenine.xml cis_hcoh.xml formaldehyde.xml the_only_initial_state.xml thymine.xml"
 for spectrum in $duschinsky
 do
-    compare $spectrum
+    compare ${spectrum}.spectrum_dushinsky
 done
 
 compare test.xml InputScripts
