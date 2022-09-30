@@ -152,7 +152,7 @@ public:
   void align();
   //! align the state with the "other" state by rotating around every axes
   //! (x,y,z) by pi/2;
-  void align(MolState &other);
+  void align(const MolState &other);
   //! check that states are similar (same number of atoms and same
   //! "liniarity", i.e. same number of normal modes);
   bool ifSimilar(MolState &other);

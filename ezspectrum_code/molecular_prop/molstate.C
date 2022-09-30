@@ -98,7 +98,7 @@ void MolState::align()
 
 
 //------------------------------
-void MolState::align(MolState& other)
+void MolState::align(const MolState& other)
 {
   //align the state with the "other" state by rotating around every axes (x,y,z) by pi/2;
   // by minimizing the "sum" of distances between the same atoms: SUM[i=1..Natoms](deltaRi)
@@ -113,9 +113,8 @@ void MolState::align(MolState& other)
     {
       for (int x_rot=0;  x_rot<4; x_rot++)
       {
-        double diff=getGeomDifference(other);
-        if (diff<=min_diff)
-        {
+        double diff = getGeomDifference(other);
+        if (diff <= min_diff) {
           min_diff=diff;
           min_x_rot=x_rot;
           min_y_rot=y_rot;
@@ -131,11 +130,11 @@ void MolState::align(MolState& other)
   // rotate to the angles with the min norm of the deltaRi differences (min_x_rot, min_y_rot, min_z_rot):
   rotate(min_x_rot*PI/2.0, min_y_rot*PI/2.0, min_z_rot*PI/2.0);
 
-  std::cout << "Also rotated by " << min_x_rot <<"/2*pi, " 
-    << min_y_rot <<"/2*pi, and " << min_z_rot <<"/2*pi CCW around x, y, and z.\n";
-  std::cout << "The norm of the geometry difference from the initial state is " << sqrt(min_diff)<<"\n";
+  std::cout << "Also rotated by " << min_x_rot << "/2*pi, " << min_y_rot
+            << "/2*pi, and " << min_z_rot << "/2*pi CCW around x, y, and z.\n";
+  std::cout << "The norm of the geometry difference from the initial state is "
+            << sqrt(min_diff) << "\n";
 }
-
 
 //------------------------------
 bool MolState::ifSimilar(MolState& other)
@@ -300,10 +299,11 @@ bool MolState::ifNMReorderedManually()
 double MolState::getGeomDifference(const MolState &other) const {
   double diff = 0;
   for (int i = 0; i < atoms.size(); i++)
-    for (int j = 0; j < CARTDIM; j++)
-      // diff+=DeltaR^2[=DetaX^2+DeltaY^2+DeltaZ^2]
-      diff += (getAtom(i).getCoord(j) - other.getAtom(i).getCoord(j)) *
-              (getAtom(i).getCoord(j) - other.getAtom(i).getCoord(j));
+    for (int j = 0; j < CARTDIM; j++) {
+      // diff += DeltaR ^ 2 [=DetaX^2+DeltaY^2+DeltaZ^2]
+      double coord_diff = getAtom(i).getCoord(j) - other.getAtom(i).getCoord(j);
+      diff += coord_diff * coord_diff;
+    }
   return diff;
 }
 
