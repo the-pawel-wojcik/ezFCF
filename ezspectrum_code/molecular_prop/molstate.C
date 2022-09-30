@@ -451,17 +451,6 @@ void MolState::printGradient()
   }
 }
 
-//------------------------------
-bool MolState::ifLetterOrNumber(char Ch)
-{
-  if ( ((int(Ch)<=int('Z'))&&(int(Ch)>=int('A')))  
-      || ((int(Ch)<=int('z'))&&(int(Ch)>=int('a'))) 
-      || ((int(Ch)<=int('9'))&&(int(Ch)>=int('0'))) )
-    return true;
-  else return false;
-}
-
-
 void check_and_convert_energy(double &energy, const std::string &energy_text,
                               const std::string &units) {
   // print energy with its unit before conversion to eV

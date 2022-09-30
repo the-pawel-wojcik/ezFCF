@@ -104,9 +104,6 @@ class MolState {
                     const arma::vec &);
   void vg_calc_energy(const arma::vec &, const arma::Mat<double> &);
 
-  // TODO: Check if this function is ever needed
-  bool ifLetterOrNumber(char Ch);
-
 public:
   MolState();
   MolState(const MolState &other);
