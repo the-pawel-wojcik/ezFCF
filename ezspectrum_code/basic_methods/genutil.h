@@ -2,21 +2,20 @@
 #define _genutil_h_
 
 /*! \file genutil.h
-\brief General utilities (get Time; error messages )  
+\brief General utilities (get Time; error messages )
 \ingroup BASIC_METHODS
 */
 
-#include <time.h>
 #include "genincludes.h"
-
+#include <time.h>
 
 //! Error handling (print msg, exit(1))
 void error(const char *const msg);
 
 //! if expr -> error(msg);
-inline void check(const bool expr, const char *const msg)
-{
-  if (expr) error(msg);
+inline void check(const bool expr, const char *const msg) {
+  if (expr)
+    error(msg);
 }
 
 //! Returns string with the current time:
@@ -41,6 +40,5 @@ inline std::string &rtrim(std::string &s, const char *t = " \t\n\r\f\v") {
 inline std::string &trim(std::string &s, const char *t = " \t\n\r\f\v") {
   return ltrim(rtrim(s, t), t);
 }
-
 
 #endif

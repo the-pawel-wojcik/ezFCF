@@ -20,30 +20,32 @@ NormalMode& NormalMode::operator=(const NormalMode& other)
   return *this;
 }
 
+// does matrix_3x3 * (x y z) ^T to every atoms' coordinates
+// matrix_3x3 has eigen vectors of the transformation in rows.
 void NormalMode::transformCoordinates(const arma::Mat<double>& matrix_3x3)
 {
   arma::Col<double> old_displacement = displacement;
   displacement.fill(0.0);
 
-  for (int a=0; a<nAtoms; a++) // for each atom take (x,y,z) vector and transform it as in Atom class
+  for (int a=0; a<nAtoms; a++)
     for (int i=0; i<CARTDIM; i++) // columns #, i.e. i=0 is x, i=1 is y, i=2 is z;
       for (int j=0; j<CARTDIM; j++) // rows #, i.e. eigen vectors, wich are in rows;
         displacement(a*CARTDIM + i) += old_displacement(a*CARTDIM + j) * matrix_3x3(i, j);
 }
 
+// set zero for every displacement element smaller than threshold
 void NormalMode::applyCoordinateThreshold(const double threshold)
 {
-  for (int a=0; a<nAtoms; a++)// for each atom take (x,y,z) vector and transform it as in Atom class
+  for (int a=0; a<nAtoms; a++)
     for (int j=0; j<CARTDIM; j++ )
       if (fabs(displacement(a*CARTDIM+j))< threshold)
         displacement(a*CARTDIM+j)=0.0;
 }
 
-void NormalMode::rotateX_90deg()
-{
+void NormalMode::rotateX_90deg() {
   double coord_tmp;
-  for (int a=0; a<nAtoms; a++)// for each atom take (x,y,z) vector and transform it as in Atom class
-  {
+  // for each atom take (x,y,z) vector and transform it as in Atom class
+  for (int a = 0; a < nAtoms; a++) {
     // x'=x; y'=z; z'=-y;
     coord_tmp=-displacement(a*CARTDIM+1);// =-y
     displacement(a*CARTDIM+1)=displacement(a*CARTDIM+2);  // y'=z

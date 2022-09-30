@@ -2,21 +2,19 @@
 #define _molstate_h_
 
 /*! \file molstate.h
-  \brief Molecular state: Stores Geometry, Normal Modes & Frequencies. 
+  \brief Molecular state: Stores Geometry, Normal Modes & Frequencies.
   Also reads input data from the XML file (vm'06)
-  20-12-30: Replace parser by aik_xml_parser 
+  20-12-30: Replace parser by aik_xml_parser
   \ingroup MOLECULAR_PROP
   */
 
-#include "genincludes.h"
-#include "genutil.h"
 #include "aik_xml_parser.h"
 #include "atom.h"
+#include "genincludes.h"
+#include "genutil.h"
 #include "normalmode.h"
 
-
-class MolState
-{
+class MolState {
   //! N Atoms: these atoms come from parsing the "geometry" node
   //! Geometry is stored in Angstoms.
   std::vector<Atom> atoms;
@@ -48,7 +46,7 @@ class MolState
   arma::Mat<double> mass_matrix;
   //! diagonal matrix of harmonic frequencies stored in AU
   arma::Mat<double> omega_matrix;
-  //! matrix that stores normal modes as its columns  
+  //! matrix that stores normal modes as its columns
   arma::Mat<double> d_matrix;
 
   arma::Col<double> centerOfMass;
@@ -56,7 +54,6 @@ class MolState
 
   //! reduced masses
   arma::Col<double> reduced_masses;
-
 
   // == Variables for manual tweaks ==
 
@@ -104,17 +101,17 @@ class MolState
   bool ifLetterOrNumber(char Ch);
 
 public:
-  MolState ();
-  MolState (const MolState& other);
+  MolState();
+  MolState(const MolState &other);
   //  ~MolState();
-  MolState& operator=(const MolState& other);
+  MolState &operator=(const MolState &other);
   // TODO: the rule of three...
 
   //! Read the state data from file
-  void Read(xml_node& node_state);
+  void Read(xml_node &node_state);
   void Print();
-  void printGeometry(); 
-  void printNormalModes(); 
+  void printGeometry();
+  void printNormalModes();
   void printGradient();
   // returns true if the overlap matrix is diagonal; makes a list of normal
   // modes which form a non-diagonal submatirx.
@@ -123,19 +120,20 @@ public:
                                           std::vector<int> &normal_modes_list);
 
   //! Tests and Processing of the molecular state properties
-  void ApplyKeyWords(xml_node& node_amu_table);
+  void ApplyKeyWords(xml_node &node_amu_table);
 
   //--- interface ---------------------------------------------------
 
-  //! Returns Atom #i (this atoms can be different/isotops from the normal mode section)
-  Atom& getAtom(int i){ return atoms[i]; } 
-  //! Returns NormalMode #i 
+  //! Returns Atom #i (this atoms can be different/isotops from the normal mode
+  //! section)
+  Atom &getAtom(int i) { return atoms[i]; }
+  //! Returns NormalMode #i
   //! Stored in the mass unweighted format in Angstoms (i.e as in ACESII)
-  NormalMode& getNormMode(int i) { return normModes[i]; } 
+  NormalMode &getNormMode(int i) { return normModes[i]; }
   //! Returns NormalMode order index
-  int getNormModeIndex(int i) { return normModesOrder[i]; } 
+  int getNormModeIndex(int i) { return normModesOrder[i]; }
   //! Excitation Energy (formerly IP)
-  double Energy () const { return energy; }
+  double Energy() const { return energy; }
   //! Returns number of atoms
   int NAtoms() const { return atoms.size(); }
   //! Returns number of molecular normal modes, i.e., 3N - 5/6
@@ -156,28 +154,26 @@ public:
 
   //--- Geometry transformations ------------------------------------
   // Center eof mass vector:
-  arma::Col<double>& getCenterOfMass();
+  arma::Col<double> &getCenterOfMass();
   // Moment of inertia tensor:
-  arma::Mat<double>& getMomentOfInertiaTensor();
-  // Shifts coordinate's origin by "vector" 
-  void shiftCoordinates(arma::Col<double>& vector);
-  // matrix multiplication coordinates*matrix_3x3; 
-  // "coordinates" matrix is of 3 columns: x,y,z. 
+  arma::Mat<double> &getMomentOfInertiaTensor();
+  // Shifts coordinate's origin by "vector"
+  void shiftCoordinates(arma::Col<double> &vector);
+  // matrix multiplication coordinates*matrix_3x3;
+  // "coordinates" matrix is of 3 columns: x,y,z.
   // matrix_3x3 has eigen vectors of the transformation in rows.
-  void transformCoordinates(const arma::Mat<double>& matrix_3x3);
+  void transformCoordinates(const arma::Mat<double> &matrix_3x3);
   void applyCoordinateThreshold(const double threshold);
-  double getGeomDifference(MolState& other);
+  double getGeomDifference(MolState &other);
   // three rotations around x, y, z by PI/2:
   void rotateX_90deg();
   void rotateY_90deg();
   void rotateZ_90deg();
-  // arbitrary rotation around x ,y, z axes by angles alpha_x, alpha_y,alpha_z respectevly:
-  void rotate(const double alpha_x,const double alpha_y,const double alpha_z);
+  // arbitrary rotation around x ,y, z axes by angles alpha_x, alpha_y,alpha_z
+  // respectevly:
+  void rotate(const double alpha_x, const double alpha_y, const double alpha_z);
   bool ifAlignedManually();
   bool ifNMReorderedManually();
-
 };
 
-
 #endif
-
