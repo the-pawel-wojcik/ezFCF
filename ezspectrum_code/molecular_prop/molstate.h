@@ -33,6 +33,8 @@ class MolState {
   //! excitation energy (formerly IP), the adiabatic energy gap to the initial
   //! state (bottom to bottom)
   double energy;
+  //! vertical excitation energy, only for use within vertical gradient approx
+  double vertical_energy;
   //! Gradient calculated in the caresian (NOT mass-weighted!) coordinates
   arma::Col<double> gradient;
   //! calculate the state's properties using the vertical gradient method
@@ -75,6 +77,7 @@ class MolState {
 
   // ==  Helpers of the MolState::Read function ==
   void Read_excitation_energy(xml_node &);
+  void Read_vertical_energy(xml_node &);
   void Read_molecular_geometry(xml_node &);
   void Read_normal_modes(xml_node &);
   void Read_frequencies(xml_node &);
@@ -89,13 +92,17 @@ class MolState {
   // ==  Helpers of the MolState::ApplyKeyWords function ==
   void convert_atomic_names_to_masses(xml_node &);
   void un_mass_weight_nm();
-  void create_mass_matrix();
   void create_matrices();
   void test_vertical_gradient_dimension();
   void vertical_gradient_method();
   void apply_manual_coord_transformation();
   void reorder_normal_modes();
   void reorder_atoms();
+
+  // -- helpers of `vertical_gradient_method` --
+  void vg_calc_geom(const arma::Mat<double> &, const arma::Mat<double> &,
+                    const arma::vec &);
+  void vg_calc_energy(const arma::vec &, const arma::Mat<double> &);
 
   // TODO: Check if this function is ever needed
   bool ifLetterOrNumber(char Ch);
@@ -124,8 +131,8 @@ public:
 
   //--- interface ---------------------------------------------------
 
-  //! Returns Atom #i (this atoms can be different/isotops from the normal mode
-  //! section)
+  //! Returns Atom #i (this atoms can be different/isotops from the normal
+  //! mode section)
   Atom &getAtom(int i) { return atoms[i]; }
   //! Returns NormalMode #i
   //! Stored in the mass unweighted format in Angstoms (i.e as in ACESII)
@@ -148,8 +155,8 @@ public:
   //! align the state with the "other" state by rotating around every axes
   //! (x,y,z) by pi/2;
   void align(MolState &other);
-  //! check that states are similar (same number of atoms and same "liniarity",
-  //! i.e. same number of normal modes);
+  //! check that states are similar (same number of atoms and same
+  //! "liniarity", i.e. same number of normal modes);
   bool ifSimilar(MolState &other);
 
   //--- Geometry transformations ------------------------------------

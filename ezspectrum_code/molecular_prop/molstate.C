@@ -462,27 +462,10 @@ bool MolState::ifLetterOrNumber(char Ch)
   else return false;
 }
 
-/* Parser of the "excitation_energy" subnode of the "initial_state" or
- * "target_state" node. Helper of MolState::Read function.
- * If the node is not presents (e.g. `initial_state`), set it to zero.
- * Populates the energy variable of MolState.*/
-void MolState::Read_excitation_energy(xml_node &node_state) {
 
-  // excitation energy, previously called IP
-  energy = 0.0; // eV
-  if (! node_state.find_subnode("excitation_energy"))
-    return;
-
-  xml_node node_eenergy(node_state, "excitation_energy", 0);
-  std::string units = node_eenergy.read_string_value("units");
-  energy = node_eenergy.read_node_double_value();
-
-  std::string energy_text = "Excitation energy = ";
-  // The meaning of the "energy" node changes in the Vertical Gradient mode
-  if (IfGradientAvailable) {
-    energy_text = "Vertical excitation energy = ";
-  }
-
+void check_and_convert_energy(double &energy, const std::string &energy_text,
+                              const std::string &units) {
+  // print energy with its unit before conversion to eV
   if (units != "eV") {
     std::cout << std::fixed << std::setprecision(6) << energy_text << energy
               << " " << units << std::endl;
@@ -494,7 +477,61 @@ void MolState::Read_excitation_energy(xml_node &node_state) {
     exit(1);
   }
 
+  // print energy in eV
   std::cout << energy_text << energy << " eV " << std::endl;
+}
+
+/* Parser of the "excitation_energy" subnode of the "initial_state" or
+ * "target_state" node. Helper of MolState::Read function.
+ * If the node is not presents (e.g. `initial_state`), set it to zero.
+ * Populates the energy variable of MolState.*/
+void MolState::Read_excitation_energy(xml_node &node_state) {
+
+  // excitation energy, previously called IP
+  energy = 0.0; // eV
+
+  // If the node is not present there is nothing to read
+  if (! node_state.find_subnode("excitation_energy"))
+    return;
+
+  // If the node is used together with the 'gradient' node -> it's an error
+  if (IfGradientAvailable) {
+    error("Vertical gradient method uses the 'vertical_excitation_energy' "
+          "input node instead of the 'excitation_energy' node which is "
+          "reserved for other types of calculations.");
+  }
+
+  xml_node node_eenergy(node_state, "excitation_energy", 0);
+  std::string units = node_eenergy.read_string_value("units");
+  energy = node_eenergy.read_node_double_value();
+  std::string energy_text = "Excitation energy = ";
+
+  check_and_convert_energy(energy, energy_text, units);
+}
+
+/* Parser of the "vertical_energy" subnode of the "target_state" node. Helper of
+ * MolState::Read function. If the node is not presents set it to zero.
+ * Populates the `vertical_energy` variable.
+ * Returns error unless "gradient" is available. */
+void MolState::Read_vertical_energy(xml_node &node_state) {
+
+  // vertical excitation energy
+  vertical_energy = 0.0; // eV
+                         //
+  // If the node is not present there is nothing to read
+  if (! node_state.find_subnode("vertical_excitation_energy"))
+    return;
+
+  if (! IfGradientAvailable) {
+    error("Use `vertical_excitation_energy` node only in calculations using "
+          "the vertical gradient approximation.");
+  }
+  xml_node node_venergy(node_state, "vertical_excitation_energy", 0);
+  std::string units = node_venergy.read_string_value("units");
+  vertical_energy = node_venergy.read_node_double_value();
+  std::string energy_text = "Vertical excitation energy = ";
+
+  check_and_convert_energy(vertical_energy, energy_text, units);
 }
 
 /* Parser of the "geometry" subnode of the "initial_state" or "target_state"
@@ -825,7 +862,7 @@ void MolState::Read(xml_node& node_state)
   // Presence of the "gradient" node triggers the vertical gradient calculations
   Read_vertical_gradient(node_state);
   Read_excitation_energy(node_state);
-  // TODO: add a separate node for the vertical gradient energy
+  Read_vertical_energy(node_state);
   Read_molecular_geometry(node_state);
   Read_normal_modes(node_state);
   Read_frequencies(node_state);
@@ -941,19 +978,78 @@ void MolState::test_vertical_gradient_dimension() {
   }
 }
 
+/* Helper of the `vertical_gradient_method` function. Calculates the VG
+ * geometry. 
+ * `mmmh` is matrix of atomic masses to power minus half
+ * `d` is a matrix with normal modes as its columns
+ * `delta` is vector with displacement along normal modes
+ * See comments in the `vertical_gradient_method` for more detail. */
+void MolState::vg_calc_geom(const arma::Mat<double> &mmmh,
+                            const arma::Mat<double> &d,
+                            const arma::vec &delta) {
+  // R _e ^{(2)} = R _e ^{(1)} - M ^{-1/2} D \Delta
+  arma::Col<double> geometry_shift;
+  geometry_shift = mmmh * d * delta;
+  geometry_shift *= AU2ANGSTROM;
+
+  for (int i = 0; i < NAtoms(); i++) {
+    for (int j = 0; j < CARTDIM; j++) {
+      atoms[i].Coord(j) -= geometry_shift(CARTDIM * i + j);
+    }
+  }
+  std::cout << "Target-state VG geometry:" << std::endl;
+  printGeometry();
+}
+
+/* Helper of the `vertical_gradient_method` function. Calculates the correction
+ * to the adiabatic excitation energy coming from the VG method.
+ * `omm2` is the diagonal matrix of harmonic frequencies to power minus 2.
+ * `delta` is a vector of geometry displacement in normal modes (see comments to
+ * the `vertical_gradient_method`.) */
+void MolState::vg_calc_energy(const arma::vec &delta,
+                              const arma::Mat<double> &omm2) {
+  double vg_e_shift = 0.0;
+  for (int i = 0; i < NNormModes(); i++) {
+    vg_e_shift -= 0.5 * delta(i) * delta(i) / omm2(i, i) / EV2HARTREE;
+  }
+  energy = vertical_energy + vg_e_shift;
+
+  // HINT: Vertical gradient works within parallel approximation wo/ frequency
+  // shifts. The adiabatic excitation energy is equal to the E^a _{00}, i.e.,
+  // ZPE of the initial to the ZPE of the target states. This is the energy used
+  // in the guts of the program where the intentities are calculated.
+  std::cout << "Adiabatic excitation energy (within VG) = " << energy << " eV "
+            << std::endl;
+}
+
 /* Helper of MolState::ApplyKeyWords function. Main part of the Vertical Gradient
  * implementation. Calculates the target state geometry and excitation energy
  * which can be forwarded to the parallel mode approximation code. */
 void MolState::vertical_gradient_method() {
-  /* $$ \Delta = \Omega ^{-2} D ^{-1} M ^{-1/2} g _{(2)} ^{(x)} $$
-   * $\Delta$ is a vector of displacement between the target state normal
-   * coordinates $q ^{(2)}$ and the initial state normal coordinates
-   * $q ^{(1)}$:
+  /* The equilibrium geometry of the second (target) state) $R _e ^(2)$ is
+   * derived from a vector $\Delta$ (defined below)
+   * $$ R _e ^(2) = R _e ^{(1)} - M ^{-1/2} D \Delta $$
+   * or in terms of a gradient
+   * $$
+   * R _e ^(2)
+   * =
+   * R _e ^{(1)}
+   * -
+   * M ^{-1/2} D \Omega ^{-2} D ^{-1} M ^{-1/2} g _{(2)} ^{(x)}.
+   * $$
+   *
+   * The vector $\Delta$ is defined as
+   * $$ \Delta = \Omega ^{-2} D ^{-1} M ^{-1/2} g _{(2)} ^{(x)} $$
+   * it is a vector that allows for a transformation between the target
+   * state normal coordinates $q ^{(2)}$ and the initial state normal
+   * coordinates $q ^{(1)}$:
    * $$ q ^{(2)} = q ^{(1)} + \Delta $$
    * (in parallel approximation without frequency shifts there is no
-   * Duschinsky matrix in the last equation, and as the two sets of normal
-   * modes are parallel, $\Delta$ is also the shift between the two geometries
-   * in the normal mode coordinates of the (1) state).
+   * Duschinsky matrix in the last equation).
+   *
+   * The two sets of normal modes are parallel, therfore $\Delta$ is also the
+   * shift vector between two equilibrium geometries expressed in the normal
+   * mode coordinates of the (1) state.
    *
    * $\Omega$ is a diagonal matrix (3N - 5/6 x 3N - 5/6) of harmonic
    * frequencies. $D$ stores normal modes as its columns. $D$ is a rectangular
@@ -969,18 +1065,6 @@ void MolState::vertical_gradient_method() {
    * (${}^{(x)}$). The number ${}_(2)$ indicates that the value was calculated
    * at the second (target) state.
    *
-   * The equilibrium geometry of the second (target) state) $R _e ^(2)$ is
-   * derived from  $\Delta$
-   * $$ R _e ^(2) = R _e ^{(1)} - M ^{-1/2} D \Delta $$
-   * or in terms of a gradient
-   * $$
-   * R _e ^(2)
-   * =
-   * R _e ^{(1)}
-   * -
-   * M ^{-1/2} D \Omega ^{-2} D ^{-1} M ^{-1/2} g _{(2)} ^{(x)}
-   * $$
-   *
    * $M$ is in the $-1/2$ power in both cases as the right most is a
    * transformation of the **gradient** from cartesian to mass-weighted
    * coordinates, while the leftmost is a transfromation of **coordinates**
@@ -992,7 +1076,7 @@ void MolState::vertical_gradient_method() {
    * $M$) and the gradient vector have values stored in the atomic units.
    */
 
-  std::cout << " State geometry will be calculated with the vertical "
+  std::cout << " State geometry will be calculated within the vertical "
                "gradient (VG) approximation."
             << std::endl;
 
@@ -1004,34 +1088,8 @@ void MolState::vertical_gradient_method() {
   delta =
       Omega_matrix_minus2 * d_matrix.t() * mass_matrix_minus_half * gradient;
 
-  // R _e ^{(2)} = R _e ^{(1)} - M ^{-1/2} D \Delta
-  arma::Col<double> geometry_shift;
-  geometry_shift = mass_matrix_minus_half * d_matrix * delta;
-  geometry_shift *= AU2ANGSTROM;
-
-  for (int i = 0; i < NAtoms(); i++) {
-    for (int j = 0; j < CARTDIM; j++) {
-      atoms[i].Coord(j) -= geometry_shift(CARTDIM * i + j);
-    }
-  }
-  std::cout
-      << "Target-state VG geometry:"
-      << std::endl;
-  printGeometry();
-
-  for (int i = 0; i < NNormModes(); i++) {
-    energy -=
-        0.5 * delta(i) * delta(i) / Omega_matrix_minus2(i, i) / EV2HARTREE;
-  }
-
-  // TODO: Introduce a new keyword vg_excitation_energy and use this one when
-  // gradient is given. HINT: Vertical gradient works within paralle
-  // approximation wo/ frequency shifts. The adiabatic excitation energy is
-  // equal to the E^a _{00}, i.e., ZPE of the initial to the ZPE of the target
-  // states. This is the energy used in the guts of the program where the
-  // intentities are calculated.
-  std::cout << "Adiabatic excitation energy (within VG) = " << energy << " eV "
-            << std::endl;
+  vg_calc_geom(mass_matrix_minus_half, d_matrix, delta);
+  vg_calc_energy(delta, Omega_matrix_minus2);
 }
 
 /* Helper of MolState::ApplyKeyWords function. Applies manual shifts and rotations

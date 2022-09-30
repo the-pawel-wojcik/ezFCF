@@ -14,7 +14,6 @@
     runcolor=black
 }
 
-
 \begin{document}
 
 \newcommand{\ezS}{\texttt{ezSpectrum} }
@@ -620,19 +619,24 @@ The argument of {\tt{}text} contains a string representing one initial vibration
 \label{sec:para:vertical_gradient}
 One can compute a full spectrum without target state geometry optimizations 
 by instead calculating the excited states' nuclear gradient. The respective 
-relaxed geometries can be extrapolated using the gradients computed at the 
-equilibrium geometry of the initial state. This approach is exactly when 
+relaxed geometries can be extrapolated using both the gradients of the target 
+state computed at the equilibrium geometry of the initial state and the initial 
+state's Hessian. This approach is exact when both
 (i) the potential energy surfaces are harmonic and 
 (ii) normal modes are the same in the initial and target states.
 The vertical gradient approximation is also known as the linear coupling model.
 
-The vertical gradient approximation is triggered when a {\tt{}gradient} node 
+The vertical gradient approximation (VGA) is triggered when a {\tt{}gradient} node 
 is detected inside the {\tt{}target\_state} node. In that case, 
 the {\tt{}geometry} node \emph{must} describe the initial state geometry. 
-The {\tt{}normal\_modes} and {\tt{}frequencies} nodes must also correspond to the initial state (usually, the ground state), just as expected in the parallel mode
-approximation without frequency shifts. The meaning of the {\tt{}excitation\_energy} node changes
-as well---it now represents the vertical excitation energy. 
-The gradient must be given in atomic units {\tt{}a.u.} (Hartree/Bohr).
+The {\tt{}normal\_modes} and {\tt{}frequencies} nodes must also correspond 
+to the initial state (usually, the ground state), just as expected in the 
+parallel mode approximation without frequency shifts. The gradient must 
+be given in atomic units {\tt{}a.u.} (Hartree/Bohr).
+
+If the VGA is used the {\tt{}excitation\_energy} node is not allowed (it is also 
+not available as the target state optimization is omitted), instead 
+one has to use the analog \texttt{vertical\_excitation\_energy} node. 
 
 Within the vertical gradient approximation, the Cartesian geometry of the target state 
 is given by
@@ -655,15 +659,27 @@ of  the potential energy surface of the target state in Cartesian coordinates ev
 \end{equation}
 where $\omega _i$ is the $i$th harmonic frequency and $d _i$ is the $i$th element of the displacement vector from Eq.~\eqref{eq:displacement_vec}.
 
-An example of the {\tt{}gradient} node
+An example of the \texttt{gradient} node
 \begin{lstlisting}[frame=single,framerule=0pt]
+  <vertical_excitation_energy 
+      units="eV"> 
+      2.32 
+  </vertical_excitation_energy>
   <gradient
       units = "a.u."
       text = "
-        -0.00000000  0.00000000 -0.13653498  
-         0.00148260 -0.00000000  0.00362732  
-        -0.00148260  0.00000000  0.00362732  
-         0.00000000 -0.00000000  0.12928034"
+        -0.00000000
+         0.00000000
+        -0.13653498
+         0.00148260
+        -0.00000000
+         0.00362732
+        -0.00148260
+         0.00000000
+         0.00362732
+         0.00000000
+        -0.00000000
+         0.12928034"
   >
   </gradient>
 \end{lstlisting}
