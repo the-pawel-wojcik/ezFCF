@@ -909,21 +909,25 @@ void MolState::un_mass_weight_nm() {
             sqrt(reduced_masses(nm));
 }
 
-/* Helper of MolState::ApplyKeyWords function.
- * Populates the MolState variables:
+/* Helper of the `ApplyKeyWords` function.
+ * Assigns variables:
  * 1) mass_matrix
  * 2) omega_matrix
  * 3) d_matrix
+ *
  * `mass_matrix` is a diagonal matrix of atomic masses of dimension 3*(# atoms).
  * Masses are stored in AU (not amu!). `mass_matrix` uses the order of atoms
- * from `atoms`. The diagonal matrix `omega_matrix` stores harmonic frequencies
- * also in AU (not cm-1), it has the dimension matching the number of normal
- * modes, `n_molecular_nm`. `d_matrix` is a rectangular matrix that stores the
- * normal modes in its columns which implies the matrix dimensions: 3*(#atoms)
- * by n_molecular_nm. Normal modes matrix `d_matrix` is dimensionless. */
+ * from `atoms` which in turn are read from the "geometry" node of an input xml
+ * file. These masses can be defined by user to account for an isotope effect.
+ *
+ * The diagonal matrix `omega_matrix` stores harmonic frequencies also in AU
+ * (not cm-1), it has the dimension matching the number of normal modes,
+ * `n_molecular_nm`.
+ *
+ * `d_matrix` is a rectangular matrix that stores the normal modes as its
+ * columns which implies the matrix dimensions: 3*(#atoms) x n_molecular_nm.
+ * Normal modes matrix `d_matrix` is dimensionless. */
 void MolState::create_matrices() {
-  // TODO: make sure that the mass matrix and the normal modes
-  // use the same order of atoms.
   int threeN = CARTDIM * NAtoms();
   mass_matrix = arma::Mat<double>(threeN, threeN, arma::fill::zeros);
 
