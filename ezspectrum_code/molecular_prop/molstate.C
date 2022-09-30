@@ -331,13 +331,14 @@ bool MolState::getNormalModeOverlapWithOtherState(MolState& other, arma::Mat<dou
       for (int a=0; a<NAtoms(); a++)
         for (int i=0; i<CARTDIM; i++ )
         {
-          // TODO: there are only two variables here. Define them separately to make it a clean read.
+          double dispnm1 = getNormMode(nm1).getDisplacement()(a*CARTDIM+i);
+          double dispnm2 = other.getNormMode(nm2).getDisplacement()(a*CARTDIM+i);
           //x1*x1+y1*y1+..
-          norm_ini+= getNormMode(nm1).getDisplacement()(a*CARTDIM+i) * getNormMode(nm1).getDisplacement()(a*CARTDIM+i);
+          norm_ini+= dispnm1 * dispnm1;
           //x2*x2+y2*y2+..
-          norm_targ+= other.getNormMode(nm2).getDisplacement()(a*CARTDIM+i) * other.getNormMode(nm2).getDisplacement()(a*CARTDIM+i);
+          norm_targ+= dispnm2 * dispnm2;
           //x1*x2+y1*y2+...
-          overlap(nm1, nm2)+= getNormMode(nm1).getDisplacement()(a*CARTDIM+i) * other.getNormMode(nm2).getDisplacement()(a*CARTDIM+i);
+          overlap(nm1, nm2)+= dispnm1 * dispnm2;
         }
       overlap(nm1, nm2)/= sqrt(norm_ini) * sqrt(norm_targ);
     }
@@ -449,8 +450,6 @@ void MolState::printGradient()
     std::cout << '\n';
   }
 }
-
-
 
 //------------------------------
 bool MolState::ifLetterOrNumber(char Ch)
