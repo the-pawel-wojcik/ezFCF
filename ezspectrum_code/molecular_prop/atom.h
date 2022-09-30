@@ -25,6 +25,7 @@ public:
 
   double &Coord(int i) { return coord[i]; }
   double &getCoord(int i) { return coord[i]; }
+  const double &getCoord(int i) const { return coord[i]; }
 
   double getR(); // distance from the origin
   double getCoordMass(const int axis);

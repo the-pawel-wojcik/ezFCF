@@ -95,7 +95,7 @@ class MolState {
   void create_matrices();
   void test_vertical_gradient_dimension();
   void vertical_gradient_method();
-  void apply_manual_coord_transformation(MolState &);
+  void apply_manual_coord_transformation(const MolState &);
   void reorder_normal_modes();
   void reorder_atoms();
 
@@ -131,6 +131,7 @@ public:
   //! Returns Atom #i (this atoms can be different/isotops from the normal
   //! mode section)
   Atom &getAtom(int i) { return atoms[i]; }
+  const Atom &getAtom(int i) const { return atoms[i]; }
   //! Returns NormalMode #i
   //! Stored in the mass unweighted format in Angstoms (i.e as in ACESII)
   NormalMode &getNormMode(int i) { return normModes[i]; }
@@ -168,7 +169,7 @@ public:
   // matrix_3x3 has eigen vectors of the transformation in rows.
   void transformCoordinates(const arma::Mat<double> &matrix_3x3);
   void applyCoordinateThreshold(const double threshold);
-  double getGeomDifference(MolState &other);
+  double getGeomDifference(const MolState &other) const;
   // three rotations around x, y, z by PI/2:
   void rotateX_90deg();
   void rotateY_90deg();

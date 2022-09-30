@@ -297,7 +297,7 @@ bool MolState::ifNMReorderedManually()
 }
 
 //------------------------------
-double MolState::getGeomDifference(MolState &other) {
+double MolState::getGeomDifference(const MolState &other) const {
   double diff = 0;
   for (int i = 0; i < atoms.size(); i++)
     for (int j = 0; j < CARTDIM; j++)
@@ -1088,9 +1088,7 @@ void MolState::vertical_gradient_method() {
  * of the molecular geometry, which were specified in the
  * `manual_coordinates_transformation` nodes. 
  * Requires the ground state to print geometry difference. */
-// TODO: ground should be const 
-void MolState::apply_manual_coord_transformation(MolState & ground) {
-
+void MolState::apply_manual_coord_transformation(const MolState & ground) {
   if_aligned_manually = false;
 
   while (! manual_transformations.empty()) {
