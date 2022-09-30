@@ -95,7 +95,7 @@ class MolState {
   void create_matrices();
   void test_vertical_gradient_dimension();
   void vertical_gradient_method();
-  void apply_manual_coord_transformation();
+  void apply_manual_coord_transformation(MolState &);
   void reorder_normal_modes();
   void reorder_atoms();
 
@@ -124,7 +124,7 @@ public:
                                           std::vector<int> &normal_modes_list);
 
   //! Tests and Processing of the molecular state properties
-  void ApplyKeyWords(xml_node &node_amu_table);
+  void ApplyKeyWords(xml_node &node_amu_table, MolState & ground);
 
   //--- interface ---------------------------------------------------
 

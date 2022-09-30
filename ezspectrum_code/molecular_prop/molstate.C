@@ -297,13 +297,13 @@ bool MolState::ifNMReorderedManually()
 }
 
 //------------------------------
-double MolState::getGeomDifference(MolState& other)
-{
-  double diff=0;
-  for (int i=0; i<atoms.size(); i++)
-    for (int j=0; j<CARTDIM; j++) 
+double MolState::getGeomDifference(MolState &other) {
+  double diff = 0;
+  for (int i = 0; i < atoms.size(); i++)
+    for (int j = 0; j < CARTDIM; j++)
       // diff+=DeltaR^2[=DetaX^2+DeltaY^2+DeltaZ^2]
-      diff+= (getAtom(i).getCoord(j)-other.getAtom(i).getCoord(j)) * (getAtom(i).getCoord(j)-other.getAtom(i).getCoord(j));
+      diff += (getAtom(i).getCoord(j) - other.getAtom(i).getCoord(j)) *
+              (getAtom(i).getCoord(j) - other.getAtom(i).getCoord(j));
   return diff;
 }
 
@@ -1084,10 +1084,12 @@ void MolState::vertical_gradient_method() {
   vg_calc_energy(delta, Omega_matrix_minus2);
 }
 
-/* Helper of MolState::ApplyKeyWords function. Applies manual shifts and rotations
+/* Helper of the `ApplyKeyWords` function. Applies manual shifts and rotations
  * of the molecular geometry, which were specified in the
- * `manual_coordinates_transformation` nodes. */
-void MolState::apply_manual_coord_transformation() {
+ * `manual_coordinates_transformation` nodes. 
+ * Requires the ground state to print geometry difference. */
+// TODO: ground should be const 
+void MolState::apply_manual_coord_transformation(MolState & ground) {
 
   if_aligned_manually = false;
 
@@ -1107,12 +1109,11 @@ void MolState::apply_manual_coord_transformation() {
     std::cout << "Also rotated by " << rotation(0) << "*pi, " << rotation(1)
               << "*pi, and " << rotation(2) << "*pi around x, y, and z axes.\n";
 
+    double diff_from_ground = this->getGeomDifference(ground);
+    std::cout << "Norm of the geometry difference to the initial state: "
+              << sqrt(diff_from_ground) << "\n";
+
     if_aligned_manually = true;
-    // TODO: Try to add printing the difference to the ground state, just like in
-    // the automated geometry alignment:
-    /* double diff_from_ground = this->getGeomDifference(ground); */
-    /* std::cout << "The norm of the geometry difference from the initial state is
-     * " << sqrt(diff_from_ground) <<"\n"; */
   }
 }
 
@@ -1154,9 +1155,9 @@ void MolState::reorder_atoms() {
 
 /* This function runs most of the actions requested by `initial_state` or
  * `target_state` subnodes and keywords. Additionaly this function applies
- * translations necessary for keeping `MolState` variables aligned with the
- * ezFCF conventions.*/
-void MolState::ApplyKeyWords(xml_node &node_amu_table) {
+ * transformations necessary for keeping `MolState` variables in line with the
+ * ezFCF storage conventions.*/
+void MolState::ApplyKeyWords(xml_node &node_amu_table, MolState & ground) {
   convert_atomic_names_to_masses(node_amu_table);
 
   if (ifInputNMmassweighted) {
@@ -1175,7 +1176,7 @@ void MolState::ApplyKeyWords(xml_node &node_amu_table) {
   // TODO: A sample job that presents how to use the
   // manual_coordinates_transformation is missing. A problem also for testing.
   if (!manual_transformations.empty()) {
-    apply_manual_coord_transformation();
+    apply_manual_coord_transformation(ground);
   }
   if (if_nm_reordered_manually) {
     reorder_normal_modes();

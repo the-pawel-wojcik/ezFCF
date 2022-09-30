@@ -34,17 +34,17 @@ bool harmonic_pes_main (const char *InputFileName, xml_node& node_input, xml_nod
   MolState elSt;
   std::cout << "\n====== Reading the initial state ======\n";
   elSt.Read(node_istate);
-  elSt.ApplyKeyWords(node_amu_table);
+  elSt.ApplyKeyWords(node_amu_table, elSt);
   elStates.push_back(elSt);
 
-  size_t n_target_states=node_input.find_subnode("target_state");
+  size_t n_target_states = node_input.find_subnode("target_state");
 
   for (int state_i=0; state_i<n_target_states; state_i++) {
     MolState elSt_t;
     xml_node node_t_state(node_input,"target_state",state_i);
     std::cout << "===== Reading the target state #" << state_i << " =====\n";
     elSt_t.Read(node_t_state);
-    elSt_t.ApplyKeyWords(node_amu_table);
+    elSt_t.ApplyKeyWords(node_amu_table, elStates[0]);
     elStates.push_back(elSt_t);
   }    
   std::cout << "Done reading states" << std::endl << std::endl;
