@@ -451,6 +451,7 @@ void MolState::printGradient()
   }
 }
 
+// Helper of 'Read_excitation_energy' and 'Read_vertical_energy' functions
 void check_and_convert_energy(double &energy, const std::string &energy_text,
                               const std::string &units) {
   // print energy with its unit before conversion to eV
@@ -470,12 +471,13 @@ void check_and_convert_energy(double &energy, const std::string &energy_text,
 }
 
 /* Parser of the "excitation_energy" subnode of the "initial_state" or
- * "target_state" node. Helper of MolState::Read function.
- * If the node is not presents (e.g. `initial_state`), set it to zero.
- * Populates the energy variable of MolState.*/
+ * "target_state" node. Assigns value to the `energy` variable. Helper of the
+ * `Read` function. If the node is not presents (e.g. `initial_state`), the
+ * `energy` variable is set to zero. */
 void MolState::Read_excitation_energy(xml_node &node_state) {
 
-  // excitation energy, previously called IP
+  // adiabatic ionization/excitation energy (bottom to bottom), previously
+  // called IP
   energy = 0.0; // eV
 
   // If the node is not present there is nothing to read
@@ -498,9 +500,10 @@ void MolState::Read_excitation_energy(xml_node &node_state) {
 }
 
 /* Parser of the "vertical_energy" subnode of the "target_state" node. Helper of
- * MolState::Read function. If the node is not presents set it to zero.
- * Populates the `vertical_energy` variable.
- * Returns error unless "gradient" is available. */
+ * the `Read` function. Assigns values to the `vertical_energy` variable. If the
+ * node is not presents the variable is set to zero. If the
+ * "vertical_excitation_energy" node is present, this function returns error
+ * unless the "gradient" node is also present in the state node. */
 void MolState::Read_vertical_energy(xml_node &node_state) {
 
   // vertical excitation energy
@@ -523,9 +526,11 @@ void MolState::Read_vertical_energy(xml_node &node_state) {
 }
 
 /* Parser of the "geometry" subnode of the "initial_state" or "target_state"
- * node. Helper of `MolState::Read` function. Populates the `n_molecular_nm`,
- * and `atoms` variables of `MolState`. The `atoms` variable stores the three 
- * cartesian components of each atom (in Angstroms). */
+ * node. Helper of the `Read` function. Assigns value to the `n_molecular_nm`,
+ * and `atoms` variables. The `atoms` variable stores three cartesian components
+ * of each atom (in Angstroms) and the name of the atom, the name is important
+ * as it is used in conjunction with 'atomicMasses.xml' to tell the atom's mass.
+ */
 void MolState::Read_molecular_geometry(xml_node &node_state) {
   xml_node node_geometry(node_state, "geometry", 0);
 
@@ -582,14 +587,15 @@ void MolState::Read_abinitio_atoms_masses(std::string &atoms_text) {
 }
 
 /* Parser of the "normal_modes" subnode of the "initial_state" or "target_state"
- * node. Normal modes are stored in the mass-un-weiged cartesian coordinates in
- * Angstroms. At this point they are read from the input xml where sometimes
- * they are still in the mass-weighted form, for these cases the function
+ * node. Normal modes are stored in the mass-un-weiged cartesian coordinates.
+ * At this point the nms are read from the input xml file where sometimes they
+ * are still in the mass-weighted form, for these cases the function
  * `un_mass_weight_nm` is later triggered by the variable
- * ifInputNMmassweighted. 
+ * `ifInputNMmassweighted`.
  *
- * Helper of MolState::Read function.
- * Populates normModes, ifInputNMmassweighted, and nm_atoms variables.*/
+ * Helper of the `Read` function.
+ * Assigns values to the `normModes`, `ifInputNMmassweighted`, and `nm_atoms`
+ * variables.*/
 void MolState::Read_normal_modes(xml_node &node_state) {
 
   xml_node node_nmodes(node_state, "normal_modes", 0);
@@ -637,7 +643,7 @@ void MolState::Read_normal_modes(xml_node &node_state) {
 }
 
 /* Parser of the "frequencies" subnode of the "initial_state" or "target_state"
- * node. Helper of MolState::Read function. */
+ * node. Helper of the `Read` function. */
 void MolState::Read_frequencies(xml_node &node_state) {
   xml_node node_freq(node_state, "frequencies", 0);
   My_istringstream freq_iStr(node_freq.read_string_value("text"));
@@ -659,10 +665,9 @@ void MolState::Read_frequencies(xml_node &node_state) {
 }
 
 /* Parser of the "gradient" subnode of the "initial_state" or "target_state"
- * node. Helper of MolState::Read function.
- * Populates 'IfGradientAvailable' and `gradient` variables of MolState, while
- * the latter only if available, otherwise the `gradient` variable is left
- * uninitilized. */
+ * node. Helper of the `Read` function. Assigns values to the
+ * 'IfGradientAvailable' and `gradient` (if available) variables. If not
+ * available the `gradient` variable is left unassigned. */
 void MolState::Read_vertical_gradient(xml_node &node_state) {
 
   IfGradientAvailable = bool(node_state.find_subnode("gradient"));
@@ -713,8 +718,8 @@ void MolState::Read_vertical_gradient(xml_node &node_state) {
 }
 
 /* Parser of the "manual_coord_transform" subnode of the "initial_state" or
- * "target_state" node. Helper of MolState::Read function. Populates the
- * `manual_transofrmations` variable of MolState. */
+ * "target_state" node. Helper of the `Read` function. Assigns values to the
+ * `manual_transofrmations` variable. */
 void MolState::Read_manual_coord_transformations(xml_node &node_state) {
 
   size_t manual_coord_transform =
@@ -739,8 +744,8 @@ void MolState::Read_manual_coord_transformations(xml_node &node_state) {
 }
 
 /* Parser of the "manual_normal_modes_reordering" subnode of the "initial_state"
- * or "target_state" node. Helper of MolState::Read function. Populates the
- * `normModesOrder` and 'if_nm_reordered_manually` variables of MolState. */
+ * or "target_state" node. Helper of the `Read` function. Assigns values to the 
+ * `normModesOrder` and 'if_nm_reordered_manually` variables. */
 void MolState::Read_normal_modes_reorder(xml_node &node_state) {
   size_t reorder_nmodes =
       node_state.find_subnode("manual_normal_modes_reordering");
@@ -787,9 +792,9 @@ void MolState::Read_normal_modes_reorder(xml_node &node_state) {
   }
 }
 
-/* Parser of the "manual_atoms_reordering" subnode of the "initial_state"
- * or "target_state" node. Helper of MolState::Read function. Populates the
- * `atomOrder` and 'if_atoms_reordered_manually` variables of MolState. */
+/* Parser of the "manual_atoms_reordering" subnode of the "initial_state" or
+ * "target_state" node. Helper of the `Read` function. Assigns values to the
+ * `atomOrder` and 'if_atoms_reordered_manually` variables. */
 void MolState::Read_atoms_reorder(xml_node &node_state) {
   if_atoms_reordered_manually =
       bool(node_state.find_subnode("manual_atoms_reordering"));
@@ -838,15 +843,14 @@ void MolState::Read_atoms_reorder(xml_node &node_state) {
   }
 }
 
-/* The function that read all keywords passed to the `initial_state` or
-   `target_state` nodes. Arguments:
+/* The function that read all keywords passed to the "initial_state" or
+   "target_state" nodes. Arguments:
    -  a node pointing out to initial_state or target_state node
    -  a file where all masses are tabulated
    Collected input is saved into private variables of `MolState` processed
-   as need in the `MolState::ApplyKeyWords` function.
+   as need in the `ApplyKeyWords` function.
    */
-void MolState::Read(xml_node& node_state)
-{
+void MolState::Read(xml_node &node_state) {
   // Presence of the "gradient" node triggers the vertical gradient calculations
   Read_vertical_gradient(node_state);
   Read_excitation_energy(node_state);
@@ -877,8 +881,8 @@ void MolState::convert_atomic_names_to_masses(xml_node &node_amu_table) {
  * regular cartesian coordinates. MolState stores the normal modes in the regual
  * (mass-un-weighed) form. This function transforms the mass-weighed normal
  * modes into the mass-un-weighed nodes used in the reminder of the program.
- * Helper of MolState::ApplyKeyWords function. Populates the reduced_masses variable
- * of MolState. */
+ * Helper of the `ApplyKeyWords` function. Assigns value to the `reduced_masses`
+ * variable */
 void MolState::un_mass_weight_nm() {
   // Mass-un-weight normal modes, using the ab_intio_atoms_masses
   for (int nm = 0; nm < NNormModes(); nm++)
@@ -1014,7 +1018,7 @@ void MolState::vg_calc_energy(const arma::vec &delta,
             << std::endl;
 }
 
-/* Helper of MolState::ApplyKeyWords function. Main part of the Vertical Gradient
+/* Helper of the `ApplyKeyWords` function. Main part of the Vertical Gradient
  * implementation. Calculates the target state geometry and excitation energy
  * which can be forwarded to the parallel mode approximation code. */
 void MolState::vertical_gradient_method() {
@@ -1086,9 +1090,10 @@ void MolState::vertical_gradient_method() {
 
 /* Helper of the `ApplyKeyWords` function. Applies manual shifts and rotations
  * of the molecular geometry, which were specified in the
- * `manual_coordinates_transformation` nodes. 
- * Requires the ground state to print geometry difference. */
-void MolState::apply_manual_coord_transformation(const MolState & ground) {
+ * `manual_coordinates_transformation` nodes. `ground` is a `MolState` object
+ * corresponig to the initial state (needed for printing geometry difference).
+ */
+void MolState::apply_manual_coord_transformation(const MolState &ground) {
   if_aligned_manually = false;
 
   while (! manual_transformations.empty()) {
@@ -1115,7 +1120,7 @@ void MolState::apply_manual_coord_transformation(const MolState & ground) {
   }
 }
 
-/* Helper of MolState::ApplyKeyWords function. Applies manual reodering of normal
+/* Helper of the `ApplyKeyWords` function. Applies manual reodering of normal
  * modes specified in the `manual_normal_modes_reordering` node. */
 void MolState::reorder_normal_modes() {
   // backup normal modes
@@ -1128,7 +1133,7 @@ void MolState::reorder_normal_modes() {
   std::cout << "Normal modes reordered.\n";
 }
 
-/* Helper of MolState::ApplyKeyWords function. Applies manual reodering of atoms
+/* Helper of the `ApplyKeyWords` function. Applies manual reodering of atoms
  * specified in the `manual_atoms_reordering` node.
  * The atoms reordergin has to be applied to both geometry and normal modes. */
 void MolState::reorder_atoms() {
@@ -1151,8 +1156,8 @@ void MolState::reorder_atoms() {
   std::cout << "Atoms reordered in both molecular geometry and normal modes.\n";
 }
 
-/* This function runs most of the actions requested by `initial_state` or
- * `target_state` subnodes and keywords. Additionaly this function applies
+/* This function runs most of the actions requested by "initial_state" or
+ * "target_state" subnodes and keywords. Additionaly this function applies
  * transformations necessary for keeping `MolState` variables in line with the
  * ezFCF storage conventions.*/
 void MolState::ApplyKeyWords(xml_node &node_amu_table, MolState & ground) {
