@@ -21,5 +21,5 @@ time_t GetRawTime(){
 void error(const char *const msg)
 {
   std::cout << "\nError! " << msg <<"\n\n";
-  exit(1);
+  exit(EXIT_FAILURE);
 }
