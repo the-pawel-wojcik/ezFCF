@@ -21,33 +21,27 @@ void harmonic_pes_dushinksy(xml_node& node_input, std::vector <MolState>& elStat
 
 bool harmonic_pes_main (const char *InputFileName, xml_node& node_input, xml_node& node_amu_table)
 {
-  //======= read "global" job variables  =====================================================
-  xml_node node_jobparams(node_input,"job_parameters",0);
-  // check if print normal modes after transformations & overlap matrix
-  bool if_print_normal_modes=node_input.read_flag_value("print_normal_modes");
+  //============================================================================
+  // Read initial state and N target states; i.e. (N+1) electronic states total
+  std::vector<MolState> elStates;
 
-  //===========================================================================================
-  //Read initial state and N target states; i.e. (N+1) electronic states total
-  std::vector <MolState> elStates;
-
-  xml_node node_istate(node_input,"initial_state",0);
-  MolState elSt;
   std::cout << "\n====== Reading the initial state ======\n";
+  xml_node node_istate(node_input, "initial_state", 0);
+  MolState elSt;
   elSt.Read(node_istate);
   elSt.ApplyKeyWords(node_amu_table, elSt);
   elStates.push_back(elSt);
 
   size_t n_target_states = node_input.find_subnode("target_state");
-
-  for (int state_i=0; state_i<n_target_states; state_i++) {
+  for (int state_i = 0; state_i < n_target_states; state_i++) {
     MolState elSt_t;
-    xml_node node_t_state(node_input,"target_state",state_i);
+    xml_node node_t_state(node_input, "target_state", state_i);
     std::cout << "===== Reading the target state #" << state_i << " =====\n";
     elSt_t.Read(node_t_state);
     elSt_t.ApplyKeyWords(node_amu_table, elStates[0]);
     elStates.push_back(elSt_t);
-  }    
-  std::cout << "Done reading states" << std::endl << std::endl;
+  }
+  std::cout << "===== Done reading states =====\n\n";
 
   // Perform various checks and transformations
   if (elStates.size() <= 1) {
@@ -107,6 +101,9 @@ bool harmonic_pes_main (const char *InputFileName, xml_node& node_input, xml_nod
     // Armadillo's `raw_print` uses cout flags
     elStates[state_i].getMomentOfInertiaTensor().raw_print("\nMOI tensor:");
 
+    // check if print normal modes after transformations & overlap matrix
+    bool if_print_normal_modes =
+        node_input.read_flag_value("print_normal_modes");
     if (if_print_normal_modes) {
       std::cout << "Normal modes after the geometry transformations:\n\n";
       elStates[state_i].printNormalModes();
@@ -114,10 +111,8 @@ bool harmonic_pes_main (const char *InputFileName, xml_node& node_input, xml_nod
   } 
 
   std::cout << "Done with the transformations" << std::endl;
-  std::cout << "------------------------------------------------------------------------------\n";
-
-  // total number of normal modes (in the initial state)
-  int n_norm_modes = elStates[0].NNormModes();
+  std::string line(80, '-');
+  std::cout << line << "\n";
 
   // if parallel or dushinsky
   bool if_something_to_do=false;
@@ -131,10 +126,9 @@ bool harmonic_pes_main (const char *InputFileName, xml_node& node_input, xml_nod
   }
 
   //=========================================================================
-  // Dushinski rotation (nonparallel approximation)
+  // Dushinski rotation (reach exact solution within harmonic approximation)
   //=========================================================================
-  // the notation and equations are from [Berger et al. JPCA 102:7157(1998)]
-  //
+  // Notation and equations are from [Berger et al. JPCA 102:7157(1998)]
 
   if(node_input.find_subnode("dushinsky_rotations")) {
     if_something_to_do=true;
