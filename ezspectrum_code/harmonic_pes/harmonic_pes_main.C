@@ -108,7 +108,7 @@ bool harmonic_pes_main (const char *InputFileName, xml_node& node_input, xml_nod
       std::cout << "Normal modes after the geometry transformations:\n\n";
       elStates[state_i].printNormalModes();
     }
-  } 
+  }
 
   std::cout << "Done with the transformations" << std::endl;
   std::string line(80, '-');
@@ -120,9 +120,9 @@ bool harmonic_pes_main (const char *InputFileName, xml_node& node_input, xml_nod
   //======================================================================
   // Parallel approximation section
 
-  if ( node_input.find_subnode("parallel_approximation")) {
-    if_something_to_do=true;
-    harmonic_pes_parallel(node_input,elStates,InputFileName);
+  if (node_input.find_subnode("parallel_approximation")) {
+    if_something_to_do = true;
+    harmonic_pes_parallel(node_input, elStates, InputFileName);
   }
 
   //=========================================================================
@@ -295,12 +295,13 @@ void harmonic_pes_parallel(xml_node& node_input, std::vector <MolState>& elState
   // check if the web version format of the output (do not print the input file & create a ".nmoverlap" file)
   bool if_web_version=node_input.read_flag_value("if_web_version");
 
-  bool ifAnyNormalModesReordered=false;
-  for (int state_i=0; state_i<elStates.size(); state_i++) {
-    if ( elStates[state_i].ifNMReorderedManually() ) {
-      ifAnyNormalModesReordered=true;
-      if (state_i==0) {
-        std::cout<<"\nError! Manual reordering of the normal modes is not allowed for the initial state\n\n";
+  bool ifAnyNormalModesReordered = false;
+  for (int state_i = 0; state_i < elStates.size(); state_i++) {
+    if (elStates[state_i].ifNMReorderedManually()) {
+      ifAnyNormalModesReordered = true;
+      if (state_i == 0) {
+        std::cout << "\nError! Manual reordering of the normal modes is not "
+                     "allowed for the initial state\n\n";
         exit(2);
       }
     }
@@ -422,10 +423,15 @@ void harmonic_pes_parallel(xml_node& node_input, std::vector <MolState>& elState
     }
   }
 
-  //check that numbers in do_not_excite_subspace are less than the number_of_normal_modes
-  if ((do_not_excite_subspace_max >= n_norm_modes)and(if_use_do_not_excite_subspace==true)) {
-    std::cout << "\nError! Maximum normal mode number in \"do_not_excite_subspace\" is ["<< do_not_excite_subspace_max<<"],\n"
-      << "  which is greater than (number_of_normal_modes-1)="<< n_norm_modes-1 <<"\n\n";
+  // check that numbers in `do_not_excite_subspace` are samller than the
+  // `number_of_normal_modes`
+  if ((do_not_excite_subspace_max >= n_norm_modes) and
+      (if_use_do_not_excite_subspace == true)) {
+    std::cout << "\nError! Maximum normal mode number in "
+                 "\"do_not_excite_subspace\" is ["
+              << do_not_excite_subspace_max << "],\n"
+              << "  which is greater than (number_of_normal_modes-1)="
+              << n_norm_modes - 1 << "\n\n";
     exit(2);
   }
 
@@ -442,10 +448,11 @@ void harmonic_pes_parallel(xml_node& node_input, std::vector <MolState>& elState
   //================================================================================
   // print the overlap matrix with the initial state for each target states:
 
-  for (int state=1; state<elStates.size(); state++) {
-    std::cout << "\n===== Overlap matrix of the target state #" << state << " with the initial state =====\n";
+  for (int state = 1; state < elStates.size(); state++) {
+    std::cout << "\n===== Overlap matrix of the target state #" << state
+              << " with the initial state =====\n";
 
-    std::vector <int> normal_modes_list;
+    std::vector<int> normal_modes_list;
     arma::Mat<double> NMoverlap;  //normal modes overlap matrix (for each target state the same matrix is used)
     bool if_overlap_diagonal;
 
@@ -499,27 +506,31 @@ void harmonic_pes_parallel(xml_node& node_input, std::vector <MolState>& elState
     }
 
     // print in a "fit 80 chars wide terminal" form
-    if(if_print_normal_modes)
-      NMoverlap.print("Normal modes overlap matrix with the initial state \n(if significantly non diagonal, please consider normal modes reordering)");
+    if (if_print_normal_modes)
+      NMoverlap.print("Normal modes overlap matrix with the initial state "
+                      "\n(if significantly non diagonal, please consider "
+                      "normal modes reordering)");
   }
 
   // for the web version: save the overlap matrix (with displacements) in an xml file
   std::stringstream nmoverlapFName; 
   nmoverlapFName << InputFileName << ".nmoverlap";
 
-
-  std::cout << "------------------------------------------------------------------------------\n\n";
-  std::cout << "Photoelectron spectrum in the parallel approximation will be evaluated\n\n"<< std::flush;
+  std::string line(80, '-');
+  std::cout << line << "\n\n";
+  std::cout << "Begining parallel approximation computations.\n\n"
+            << std::flush;
 
   //================================================================================
   //================================================================================
   //================================================================================
   //================================================================================
 
-  // create a new parallel approximation object (evaluates and stores FCFs in the harmonic approximation)
-  Parallel* parallel_ptr;
+  // create a new parallel approximation object (evaluates and stores FCFs in
+  // the harmonic approximation)
+  Parallel *parallel_ptr;
 
-  // Process the_only_initial_state node and prepare input
+  // Process `the_only_initial_state` node and prepare input
   bool if_the_only_initial_state = false;
 
   // container for the only initial state

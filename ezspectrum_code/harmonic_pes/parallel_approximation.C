@@ -8,10 +8,10 @@ Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int>& active_n
     bool if_web_version, const char* nmoverlapFName,
     double energy_threshold_initial,  double energy_threshold_target)
 {
-  double intens_threshold=fcf_threshold*fcf_threshold;
+  double intens_threshold = fcf_threshold * fcf_threshold;
 
   // initial state index
-  int iniN=0;
+  int iniN = 0;
 
   // number of atoms in the molecule
   n_atoms = molStates[iniN].NAtoms();
@@ -19,8 +19,8 @@ Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int>& active_n
   // number of normal modes in the molecule
   n_molecule_nm = molStates[iniN].NNormModes();
   int default_value = -1;
-  std::vector <int> state_ini(n_molecule_nm, default_value);
-  std::vector <int> state_targ(n_molecule_nm, default_value);
+  std::vector<int> state_ini(n_molecule_nm, default_value);
+  std::vector<int> state_targ(n_molecule_nm, default_value);
 
   // Normal modes in the "excite subspace" = molecular normal modes - do_not_excite
   n_active_nm = active_nms.size();
@@ -47,8 +47,8 @@ Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int>& active_n
   // energy position of each transition for a given normal mode; 
   // 1D; ofset by IP; 
   // when add for N dimensions, substract IP from each energy;
-  arma::Mat<double> E_position_tmp (max_n_initial+1, max_n_target+1);
-  std::vector <arma::Mat<double>> E_position;
+  arma::Mat<double> E_position_tmp(max_n_initial + 1, max_n_target + 1);
+  std::vector<arma::Mat<double>> E_position;
 
   // ==========================================================================================
   // Calculate transformation matrix "cartesian->normal mode" coordinates (for each state):
@@ -65,9 +65,9 @@ Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int>& active_n
           NormModes(j*CARTDIM+k, i) = molStates[state].getNormMode(i).getDisplacement()(j*CARTDIM+k);
 
     // Make sqrt(T)-matrix (diagonal matrix with sqrt(atomic masses) in cartesian coordinates):
-    arma::Mat<double> SqrtT( CARTDIM * n_atoms, CARTDIM * n_atoms, arma::fill::zeros);
-    for (int i=0; i<n_atoms; i++) 
-    {
+    arma::Mat<double> SqrtT(CARTDIM * n_atoms, CARTDIM * n_atoms,
+                            arma::fill::zeros);
+    for (int i = 0; i < n_atoms; i++) {
       SqrtT(i*CARTDIM, i*CARTDIM) 
         = SqrtT(i*CARTDIM+1, i*CARTDIM+1)
         = SqrtT(i*CARTDIM+2, i*CARTDIM+2)
@@ -148,7 +148,7 @@ Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int>& active_n
       << "  number      state coord.  state coord.    initial      target\n\n";
     for (int nm=0; nm<n_molecule_nm; nm++)
     {
-      std::cout << "     " << std::fixed << std::setw(3) << nm <<"      " 
+      std::cout << "     " << std::fixed << std::setw(3) << nm << "      " 
         << std::setprecision(6) 
         << std::setw(9) <<  NormModeShift_ini[nm] << "       " 
         << std::setw(9) << NormModeShift_targ[nm] << "      " 
