@@ -41,6 +41,7 @@ echo ""
 
 # Run a local copy of samples and print timing 
 samples="adenine.xml cis_hcoh.xml formaldehyde.xml the_only_initial_state.xml thymine.xml trans_hcoh_small.xml trans_hcoh.xml vg_phenolate.xml"
+# samples=""
 for sample in $samples
 do
     echo ""
@@ -83,7 +84,7 @@ do
     compare ${spectrum}.spectrum_dushinsky
 done
 
-compare test.xml InputScripts
+compare test.xml.spectrum_parallel InputScripts
 
 echo ""
 echo " = = = = = = = = = = ="
