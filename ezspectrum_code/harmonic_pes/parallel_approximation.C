@@ -162,7 +162,6 @@ Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int>& active_n
     //----------------------------------------------------------------------
     // save the spectrum overlap to a file 
     // (for normal mode reordering tool in the web interface)
-    // TODO: web version
     if (if_web_version)
     {
       std::vector <int> nondiagonal_list;

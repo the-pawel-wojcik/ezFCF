@@ -25,6 +25,8 @@ bool harmonic_pes_main (const char *InputFileName, xml_node& node_input, xml_nod
   // Read initial state and N target states; i.e. (N+1) electronic states total
   std::vector<MolState> elStates;
 
+  // TODO: separate Reading from processing 
+  // TODO: Read what's recomended depending on if VG requested or not
   std::cout << "\n====== Reading the initial state ======\n";
   xml_node node_istate(node_input, "initial_state", 0);
   MolState elSt;
@@ -517,7 +519,7 @@ void harmonic_pes_parallel(xml_node& node_input, std::vector <MolState>& elState
 
   std::string line(80, '-');
   std::cout << line << "\n\n";
-  std::cout << "Begining parallel approximation computations.\n\n"
+  std::cout << "Begining the parallel mode approximation computations.\n\n"
             << std::flush;
 
   //================================================================================
