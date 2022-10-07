@@ -29,9 +29,14 @@ class Parallel {
   //! spectrum which stores all the points above the intensity threshold
   Spectrum spectrum;
 
-  int n_atoms;
-  int n_molecule_nm;
-  int n_active_nm;
+  // index of the initial state in the list of electronic states
+  const int iniN;
+  // number of atoms in the molecule
+  const int n_atoms;
+  // number of normal modes in the molecule, i.e., 3*n_atoms-6 or -5 for linear
+  const int n_molecule_nm;
+  // size of the "excite subspace" = n_molecule_nm - "do_not_excite_subsp.size"
+  const int n_active_nm;
 
 public:
   Parallel(std::vector<MolState> &molStates, std::vector<int> &active_nm,

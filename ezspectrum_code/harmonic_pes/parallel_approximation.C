@@ -1,36 +1,23 @@
 #include "parallel_approximation.h"
 
-Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int>& active_nms, 
-    double fcf_threshold, double temperature, 
-    int max_n_initial, int max_n_target, 
-    bool if_the_only_initial_state, std::vector<int> the_only_initial_state,
-    bool if_comb_bands, bool if_use_target_nm, bool if_print_fcfs, 
-    bool if_web_version, const char* nmoverlapFName,
-    double energy_threshold_initial,  double energy_threshold_target)
-{
+Parallel::Parallel(std::vector<MolState> &molStates,
+                   std::vector<int> &active_nms, double fcf_threshold,
+                   double temperature, int max_n_initial, int max_n_target,
+                   bool if_the_only_initial_state,
+                   std::vector<int> the_only_initial_state, bool if_comb_bands,
+                   bool if_use_target_nm, bool if_print_fcfs,
+                   bool if_web_version, const char *nmoverlapFName,
+                   double energy_threshold_initial,
+                   double energy_threshold_target)
+    : iniN(0), n_atoms(molStates[iniN].NAtoms()),
+      n_molecule_nm(molStates[iniN].NNormModes()),
+      n_active_nm(active_nms.size()) {
   double intens_threshold = fcf_threshold * fcf_threshold;
 
-  // initial state index
-  int iniN = 0;
-
-  // number of atoms in the molecule
-  n_atoms = molStates[iniN].NAtoms();
-
-  // number of normal modes in the molecule
-  n_molecule_nm = molStates[iniN].NNormModes();
-  int default_value = -1;
-  std::vector<int> state_ini(n_molecule_nm, default_value);
-  std::vector<int> state_targ(n_molecule_nm, default_value);
-
-  // Normal modes in the "excite subspace" = molecular normal modes - do_not_excite
-  n_active_nm = active_nms.size();
-  std::vector <int> state_ini_subspace(n_active_nm, default_value);
-  std::vector <int> state_targ_subspace(n_active_nm, default_value);
-
-  // stores set of the inital and target vibrational states 
-  // (for each electronic state) -- after energy threshold applied
-  // Every vibrational state is of `n_molecule_nm` length, i.e., full space
-  std::vector < std::vector <int> > selected_states_ini, selected_states_targ;
+  // An "invalid" occupation number for an excitation in a vibrational state
+  // Used in the function `enumerateVibrStates` as an idication that 
+  // the state is "empty"
+  const int default_value = -1;
 
   // matrix with FC factors (use the same variable for every target state)
   // max_n_initial stands for maximum allowed excitations in a single mode in the initial state
@@ -217,14 +204,14 @@ Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int>& active_n
         "along each normal mode:\n\n";
 
     // for each normal mode of the initial state
-    for (int nm=0; nm<n_molecule_nm; nm++) 
-    {      
-      // TODO: wrap this into a function
+    for (int nm = 0; nm < n_molecule_nm; nm++) {
+      // TODO: wrap this into functions
       // Calculate the energy positions:
-      for (int i=0; i<max_n_initial+1; i++) {
-        for (int j=0; j<max_n_target+1; j++) {
-          // energy position of each transition for a given normal mode; 
-          // 1D; ofset by IP; when add for N dimensions, substract IP from each energy;
+      for (int i = 0; i < max_n_initial + 1; i++) {
+        for (int j = 0; j < max_n_target + 1; j++) {
+          // energy position of each transition for a given normal mode;
+          // 1D; ofset by IP; when add for N dimensions, substract IP from each
+          // energy;
           E_position_tmp(i, j)
             =
             - molStates[targN].Energy()
@@ -237,46 +224,41 @@ Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int>& active_n
       E_position.push_back(E_position_tmp);
 
       // Calculate the Franck-Condon factors
-      // which normal modes (displacements) to use: of the initial or the target state?
       if (if_use_target_nm) {
         harmonic_FCf(FCFs_tmp, reducedMass, NormModeShift_targ[nm],
-            molStates[iniN].getNormMode(nm).getFreq(), 
-            molStates[targN].getNormMode(nm).getFreq());
-      }
-      else {
+                     molStates[iniN].getNormMode(nm).getFreq(),
+                     molStates[targN].getNormMode(nm).getFreq());
+      } else {
         harmonic_FCf(FCFs_tmp, reducedMass, NormModeShift_ini[nm],
-            molStates[iniN].getNormMode(nm).getFreq(), 
-            molStates[targN].getNormMode(nm).getFreq());
+                     molStates[iniN].getNormMode(nm).getFreq(),
+                     molStates[targN].getNormMode(nm).getFreq());
       }
 
       FCFs.push_back(FCFs_tmp);
 
-      // Calculate the line intensities: 
+      // Calculate the line intensities:
       //   FCF^2 * the temperature distribution in the initial state
-      for (int i=0; i<max_n_initial+1; i++)
-      { 
-        double IExponent=100*i; //(intensity < 10e-44 for non ground states if temperature=0)
-        if (temperature>0)
-        {
-          IExponent = molStates[iniN].getNormMode(nm).getFreq() * WAVENUMBERS2EV * i 
-            / (temperature * KELVINS2EV);
-          if (IExponent > 100) 
-            IExponent=100; // keep the intensity >= 10e-44 == exp(-100)
+      for (int i = 0; i < max_n_initial + 1; i++) {
+        // intensity < 10e-44 for non ground states if temperature=0
+        double IExponent = 100 * i;
+        if (temperature > 0) {
+          IExponent = molStates[iniN].getNormMode(nm).getFreq() *
+                      WAVENUMBERS2EV * i / (temperature * KELVINS2EV);
+          if (IExponent > 100)
+            IExponent = 100; // keep the intensity >= 10e-44 == exp(-100)
         }
 
-        for (int j=0; j<max_n_target+1; j++)
+        for (int j = 0; j < max_n_target + 1; j++)
           I_tmp(i, j) = FCFs_tmp(i, j) * FCFs_tmp(i, j) * exp(-IExponent);
       }
       I.push_back(I_tmp);
 
-      if (if_print_fcfs)
-      {
-        std::cout << "NORMAL MODE #" << nm
-          << " (" 
-          << std::fixed << std::setw(8) << std::setprecision(2)
-          << molStates[iniN].getNormMode(nm).getFreq() << "cm-1 --> " 
-          << molStates[targN].getNormMode(nm).getFreq() << "cm-1, dQ="
-          << std::setw(6) << std::setprecision(4);
+      if (if_print_fcfs) {
+        std::cout << "NORMAL MODE #" << nm << " (" << std::fixed << std::setw(8)
+                  << std::setprecision(2)
+                  << molStates[iniN].getNormMode(nm).getFreq() << "cm-1 --> "
+                  << molStates[targN].getNormMode(nm).getFreq()
+                  << "cm-1, dQ=" << std::setw(6) << std::setprecision(4);
         if (if_use_target_nm)
           std::cout << NormModeShift_targ[nm];
         else
@@ -290,7 +272,6 @@ Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int>& active_n
 
     } // end for each normal mode
 
-
     //==========================================================================
     // evaluate the overal intensities as all possible products of 1D 
     // intensities (including combination bands)
@@ -298,18 +279,19 @@ Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int>& active_n
       << max_n_initial << " and "<< max_n_target 
       << "\n in the initial and each target state, respectively.\n\n";
 
-    unsigned long total_combs_ini=0, total_combs_targ=0;
+    unsigned long total_combs_ini = 0, total_combs_targ = 0;
     if (if_the_only_initial_state) {
       total_combs_ini = 1;
-    }
+    } 
     else {
-      for (int curr_max_ini=0; curr_max_ini<=max_n_initial; curr_max_ini++)
+      for (int curr_max_ini = 0; curr_max_ini <= max_n_initial; curr_max_ini++)
         total_combs_ini +=
             nChoosek(curr_max_ini + n_active_nm - 1, n_active_nm - 1);
     }
 
-    for (int curr_max_targ=0; curr_max_targ<=max_n_target; curr_max_targ++)
-      total_combs_targ += nChoosek(curr_max_targ + n_active_nm - 1, n_active_nm - 1);
+    for (int curr_max_targ = 0; curr_max_targ <= max_n_target; curr_max_targ++)
+      total_combs_targ +=
+          nChoosek(curr_max_targ + n_active_nm - 1, n_active_nm - 1);
 
     std::cout << "Maximum number of combination bands = " 
       << total_combs_ini * total_combs_targ  
@@ -318,12 +300,6 @@ Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int>& active_n
       << "\n   * " << total_combs_targ  
       << " (# of vibrational states in the target electronic state)\n\n" << std::flush;
 
-    // This is just a reseting of these variables for a use with the next molecular state. 
-    // TODO: It would be an easier read if definitions of these variabes were here. Paweł Apr '22
-    for (int i=0; i<state_ini_subspace.size(); i++)
-      state_ini_subspace[i]=-1;
-    for (int i=0; i<state_targ_subspace.size(); i++)
-      state_targ_subspace[i]=-1;
 
     // find INITIAL states with up to 'max_n_initial' vibrational quanta and 
     // with energy below 'energy_threshold_initial':
@@ -339,48 +315,36 @@ Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int>& active_n
       std::cout << "  energy threshold is not specified in the input\n"<<std::flush;
     }
 
-    // TODO: It's easier to read when a variable is defined where it is used. Paweł Apr '22
-    selected_states_ini.clear();
+    // Container for the set of inital vibrational states (for each electronic state) 
+    // -- after energy threshold applied
+    // Every vibrational state is of `n_molecule_nm` length, i.e., full space
+    std::vector < std::vector <int> > selected_states_ini;
+
+    // Containers for a single vibrational states in the "excite subspace"
+    std::vector <int> state_ini_subspace(n_active_nm, default_value);
     for (int curr_max_ini=0; curr_max_ini<=max_n_initial; curr_max_ini++)
     {
-      // state_targ_subspace.size() is the number of normal modes in the 'excite subspace'
-      // TODO: replace state_targ_subspace.size() with n_active_nm
-      while (enumerateVibrStates(state_targ_subspace.size(), curr_max_ini, state_ini_subspace, if_comb_bands))
+      while (enumerateVibrStates(n_active_nm, curr_max_ini, state_ini_subspace, if_comb_bands))
       {
-        // reset the index list state_ini
-        // TODO: use std to do this
-        for (int nm=0; nm < state_ini.size(); nm++)
-          state_ini[nm]=0;
-
+        // state_ini is a full-space version of the 'state_ini_subspace'
+        // initlize the state to zero excitation
+        std::vector<int> state_ini(n_molecule_nm, 0);
         // copy indexes from the subspace state_ini_subspace into 
         // the full space state_ini (the rest stays=0):
-        int index=0;
-        for (int nm=0; nm<n_active_nm; nm++)
-          state_ini[ active_nms[nm] ] = state_ini_subspace[nm];
+        for (int nm = 0; nm < n_active_nm; nm++)
+          state_ini[active_nms[nm]] = state_ini_subspace[nm];
 
         double energy = 0;
         for (int nm=0; nm < n_molecule_nm; nm++) 
-          energy += E_position[nm](state_ini[nm], 0) + molStates[targN].Energy(); 
+          energy += E_position[nm](state_ini[nm], 0) + molStates[targN].Energy();
 
-        if (energy < energy_threshold_initial)
-        {
-          // TODO: Is the commented code still valuable? Paweł Apr '22
-          // check memory available (dirty, but anyway one copying of the state is requared...)
-          //int * buffer = (int*) malloc ( sizeof(int)*n_molecule_nm*100 );
-          //if (buffer==NULL)
-          //  {
-          //    std::cout << "\nError: not enough memory available to store all initial vibrational states\n\n";
-          //    exit(2);
-          //  }
-          //free(buffer);
-
+        if (energy < energy_threshold_initial) {
           selected_states_ini.push_back(state_ini);
         }
-
       }
-      //reset the initial state's vibration "population"
-      // TODO: check this 
-      state_ini_subspace[0]=-1;
+      // reset the initial state's vibration "population"
+      // see the `enumerateVibrStates` function the the top of the loop
+      state_ini_subspace[0] = default_value;
     }
     std::cout << "  " << selected_states_ini.size() 
       << " vibrational states below the energy threshold\n\n"<<std::flush;
@@ -394,16 +358,15 @@ Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int>& active_n
     else
       std::cout << "  energy threshold is not specified in the input\n"<<std::flush;
 
+    std::vector<std::vector<int>> selected_states_targ;
+    std::vector<int> state_targ_subspace(n_active_nm, default_value);
     selected_states_targ.clear();
     for (int curr_max_targ=0; curr_max_targ<=max_n_target; curr_max_targ++)
     {
-      while (enumerateVibrStates(state_targ_subspace.size(), curr_max_targ, state_targ_subspace, if_comb_bands))
+      while (enumerateVibrStates(n_active_nm, curr_max_targ, state_targ_subspace, if_comb_bands))
       {
-        // reset the index list state_targ
-        for (int nm=0; nm < state_targ.size(); nm++)
-          state_targ[nm]=0;
+        std::vector<int> state_targ(n_molecule_nm, 0);
         //copy indexes from the subspace state_targ_subspace into the full space state_targ (the rest stays=0):
-        int index=0;
         for (int nm=0; nm<n_active_nm; nm++)
           state_targ[ active_nms[nm] ] = state_targ_subspace[nm];
 
@@ -412,23 +375,11 @@ Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int>& active_n
 
         for (int nm=0; nm < n_molecule_nm; nm++)
           // threshold -- energy above the ground state:
-          energy += E_position[nm](0, state_targ[nm])+molStates[targN].Energy(); 
+          energy += E_position[nm](0, state_targ[nm])+molStates[targN].Energy();
 
-        if ( -energy < energy_threshold_target )
-        {
-          // check memory available (dirty, but anyway one copying of the state is requared...)
-          //VibronicState * state_tmp = (VibronicState*) malloc ( sizeof(VibronicState)*2 );
-          //if (state_tmp==NULL)
-          //  {
-          //    std::cout << "\nError: not enough memory available to store all target vibrational states\n\n";
-          //    exit(2);
-          //  }
-          //free (state_tmp);
-
+        if (-energy < energy_threshold_target) {
           selected_states_targ.push_back(state_targ);
         }
-
-
       }
       //reset the target state's vibration "population"
       state_targ_subspace[0]=-1;
