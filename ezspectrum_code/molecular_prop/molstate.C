@@ -7,20 +7,27 @@
   */
 
 //------------------------------
-MolState::MolState () {
-
-  centerOfMass = arma::Col<double> (CARTDIM, arma::fill::zeros);
-  momentOfInertiaTensor = arma::Mat<double> (CARTDIM, CARTDIM);
-  if_aligned_manually=false;
-  if_nm_reordered_manually=false;
+MolState::MolState ():
+  atoms(),
+  normModes(),
+  gradient(),
+  energy(0.0),
+  centerOfMass(),
+  momentOfInertiaTensor(),
+  normModesOrder(),
+  reduced_masses(),
+  mass_matrix(),
+  omega_matrix(),
+  d_matrix()
+{
+  if_aligned_manually = false;
   IfGradientAvailable = false;
+  if_nm_reordered_manually = false;
   normModesOrder.clear();
 }
 
-
 //------------------------------
 MolState::MolState (const MolState& other) {
-
   atoms=other.atoms;
   normModes=other.normModes;
   gradient=other.gradient;
@@ -32,6 +39,9 @@ MolState::MolState (const MolState& other) {
   if_nm_reordered_manually =other.if_nm_reordered_manually;
   normModesOrder = other.normModesOrder;
   reduced_masses=other.reduced_masses;
+  mass_matrix=other.mass_matrix;
+  omega_matrix=other.omega_matrix;
+  d_matrix=other.d_matrix;
 }
 
 //------------------------------
@@ -49,6 +59,9 @@ MolState& MolState::operator=(const MolState& other) {
     if_nm_reordered_manually =other.if_nm_reordered_manually;
     normModesOrder = other.normModesOrder;
     reduced_masses=other.reduced_masses;
+    mass_matrix=other.mass_matrix;
+    omega_matrix=other.omega_matrix;
+    d_matrix=other.d_matrix;
   }
   return *this;
 }
@@ -159,7 +172,7 @@ bool MolState::ifSimilar(MolState& other)
 //------------------------------
 arma::Col<double>& MolState::getCenterOfMass()
 {
-  centerOfMass.fill(0.0);
+  centerOfMass = arma::Col<double> (CARTDIM, arma::fill::zeros);
   double totalMass = 0.0;
   for (int i=0; i<atoms.size(); i++)
   {
@@ -172,21 +185,21 @@ arma::Col<double>& MolState::getCenterOfMass()
 }
 
 //------------------------------
-arma::Mat<double>& MolState::getMomentOfInertiaTensor()
-{
+arma::Mat<double> &MolState::getMomentOfInertiaTensor() {
+  momentOfInertiaTensor =
+      arma::Mat<double>(CARTDIM, CARTDIM, arma::fill::zeros);
+
   // I_ij = SUM_k[m_k * (r_k^2*delta_ij-r_ki*r_kj)]
-  for (int i=0; i< CARTDIM; i++)
-  {
-    for (int j=0; j<CARTDIM; j++)
-    {
-      momentOfInertiaTensor(i, j) = 0.0;
-      for (int atom=0; atom<NAtoms(); atom++)
-      { 
+  for (int i = 0; i < CARTDIM; i++) {
+    for (int j = 0; j < CARTDIM; j++) {
+      for (int atom = 0; atom < NAtoms(); atom++) {
         double atom_mass = atoms[atom].getMass();
-        momentOfInertiaTensor(i, j) -= atoms[atom].getCoord(i) * atoms[atom].getCoord(j) * atom_mass;
+        momentOfInertiaTensor(i, j) -=
+            atoms[atom].getCoord(i) * atoms[atom].getCoord(j) * atom_mass;
         // add R^2, i.e. I_zz = m * (R^2 - r_z^2) = m * (r_x^2 + r_y^2)
-        if (i==j)
-          momentOfInertiaTensor(i, j) += atoms[atom].getR() * atoms[atom].getR() * atom_mass;
+        if (i == j)
+          momentOfInertiaTensor(i, j) +=
+              atoms[atom].getR() * atoms[atom].getR() * atom_mass;
       }
     }
   }
@@ -196,7 +209,6 @@ arma::Mat<double>& MolState::getMomentOfInertiaTensor()
 
   return momentOfInertiaTensor;
 }
-
 
 //------------------------------
 void MolState::shiftCoordinates(arma::Col<double>& vector)
@@ -281,18 +293,12 @@ void MolState::rotate(const double alpha_x, const double alpha_y, const double a
 //------------------------------
 bool MolState::ifAlignedManually()
 {
-  if (if_aligned_manually)
-    return true;
-  else
-    return false;
+  return if_aligned_manually;
 }
 //------------------------------
 bool MolState::ifNMReorderedManually()
 {
-  if (if_nm_reordered_manually)
-    return true;
-  else
-    return false;
+  return if_nm_reordered_manually;
 }
 
 //------------------------------
@@ -456,7 +462,7 @@ void check_and_convert_energy(double &energy, const std::string &energy_text,
                               const std::string &units) {
   // print energy with its unit before conversion to eV
   if (units != "eV") {
-    std::cout << std::fixed << std::setprecision(6) << energy_text << energy
+    std::cout << energy_text << std::fixed << std::setprecision(6) << energy
               << " " << units << std::endl;
   }
 
@@ -467,7 +473,8 @@ void check_and_convert_energy(double &energy, const std::string &energy_text,
   }
 
   // print energy in eV
-  std::cout << energy_text << energy << " eV " << std::endl;
+  std::cout << energy_text << std::fixed << std::setprecision(6) << energy
+            << " eV" << std::endl;
 }
 
 /* Parser of the "excitation_energy" subnode of the "initial_state" or
@@ -966,12 +973,29 @@ void MolState::create_matrices() {
  * many coordinates, this function captures it.*/
 void MolState::test_vertical_gradient_dimension() {
   size_t gradient_dim = gradient.n_rows;
-  if (gradient_dim != 3 * NAtoms()) {
+  if (gradient_dim != CARTDIM * NAtoms()) {
     std::cout << " Error. Gradient dimension (" << gradient_dim
-              << ") doesn't match 3*(# atoms) = " << 3 * NAtoms() << "\n";
+              << ") doesn't match 3*(# atoms) = " << CARTDIM * NAtoms() << "\n";
     gradient.print("Gradient");
     exit(1);
   }
+}
+
+/* Copies data from the initial state for the VG calculations
+  */
+void MolState::copy_data_from_the_initial_state(const MolState &is){
+  std::cout << " For the VG use the following properties are copied from the "
+               "initial state:\n"
+            << " - molecular geometry\n"
+            << " - normal modes\n"
+            << " - frequencies\n";
+  atoms = is.atoms;
+  normModes = is.normModes;
+  normModesOrder = is.normModesOrder;
+  reduced_masses = is.reduced_masses;
+  mass_matrix = is.mass_matrix;
+  omega_matrix = is.omega_matrix;
+  d_matrix = is.d_matrix;
 }
 
 /* Helper of the `vertical_gradient_method` function. Calculates the VG
@@ -1110,11 +1134,12 @@ void MolState::apply_manual_coord_transformation(const MolState &ground) {
               << ", " << shift(2) << " in x, y, and z." << std::endl;
 
     std::cout << "Also rotated by " << rotation(0) << "*pi, " << rotation(1)
-              << "*pi, and " << rotation(2) << "*pi around x, y, and z axes.\n";
+              << "*pi, and " << rotation(2) << "*pi around x, y, and z axes."
+              << std::endl;
 
     double diff_from_ground = this->getGeomDifference(ground);
     std::cout << "Norm of the geometry difference to the initial state: "
-              << sqrt(diff_from_ground) << "\n";
+              << sqrt(diff_from_ground) << std::endl;
 
     if_aligned_manually = true;
   }
@@ -1130,7 +1155,7 @@ void MolState::reorder_normal_modes() {
   for (int nm = 0; nm < NNormModes(); nm++)
     getNormMode(nm) = oldNormModes[normModesOrder[nm]];
 
-  std::cout << "Normal modes reordered.\n";
+  std::cout << "Normal modes reordered." << std::endl;
 }
 
 /* Helper of the `ApplyKeyWords` function. Applies manual reodering of atoms
@@ -1153,38 +1178,41 @@ void MolState::reorder_atoms() {
         getNormMode(nm).getDisplacement()(a * CARTDIM + k) =
             oldNormModes[nm].getDisplacement()(atomsOrder[a] * CARTDIM + k);
 
-  std::cout << "Atoms reordered in both molecular geometry and normal modes.\n";
+  std::cout << "Atoms reordered in both molecular geometry and normal modes."
+            << std::endl;
 }
 
 /* This function runs most of the actions requested by "initial_state" or
  * "target_state" subnodes and keywords. Additionaly this function applies
  * transformations necessary for keeping `MolState` variables in line with the
  * ezFCF storage conventions.*/
-void MolState::ApplyKeyWords(xml_node &node_amu_table, MolState & ground) {
+void MolState::ApplyKeyWords(xml_node &node_amu_table, MolState & initial_state) {
   convert_atomic_names_to_masses(node_amu_table);
 
-  if (ifInputNMmassweighted) {
-    un_mass_weight_nm();
+  if (!IfGradientAvailable) {
+    if (ifInputNMmassweighted) {
+      un_mass_weight_nm();
+    }
+    // TODO: A sample job that presents how to use the
+    // manual_coordinates_transformation is missing. A problem also for testing.
+    if (!manual_transformations.empty()) {
+      apply_manual_coord_transformation(initial_state);
+    }
+    if (if_nm_reordered_manually) {
+      reorder_normal_modes();
+    }
+    if (if_atoms_reordered_manually) {
+      reorder_atoms();
+    }
+    // Create diagonal matrices of atomic masses, harmonic frequencies and a
+    // rectangular matrix of normal modes: these are used thorughout the program.
+    create_matrices();
   }
-
-  // Create diagonal matrices of atomic masses, harmonic frequencies and a
-  // rectangular matrix of normal modes: these are used thorughout the program.
-  create_matrices();
 
   // Find geometry and excitation_energy using VG method
   if (IfGradientAvailable) {
+    copy_data_from_the_initial_state(initial_state);
     test_vertical_gradient_dimension();
     vertical_gradient_method();
-  }
-  // TODO: A sample job that presents how to use the
-  // manual_coordinates_transformation is missing. A problem also for testing.
-  if (!manual_transformations.empty()) {
-    apply_manual_coord_transformation(ground);
-  }
-  if (if_nm_reordered_manually) {
-    reorder_normal_modes();
-  }
-  if (if_atoms_reordered_manually) {
-    reorder_atoms();
   }
 }

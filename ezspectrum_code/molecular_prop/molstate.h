@@ -99,7 +99,8 @@ class MolState {
   void reorder_normal_modes();
   void reorder_atoms();
 
-  // -- helpers of `vertical_gradient_method` --
+  // -- helpers for the Vertical gradient method --
+  void copy_data_from_the_initial_state(const MolState &);
   void vg_calc_geom(const arma::Mat<double> &, const arma::Mat<double> &,
                     const arma::vec &);
   void vg_calc_energy(const arma::vec &, const arma::Mat<double> &);
@@ -145,6 +146,10 @@ public:
   int NNormModes() const { return normModes.size(); }
   //! returns True if vertical gradient was used
   bool IfGradient() const { return IfGradientAvailable; }
+
+  //! returns diagonal matirx of dimension 3*NAtoms() with atomic masses in
+  //! atomic units (not amu)
+  const arma::Mat<double> &getMassMatrix() const { return mass_matrix; }
 
   //--- alignment ------------- ------------------------------------
   //! align each state: center of mass in the coordinates origin, moment of

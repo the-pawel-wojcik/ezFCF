@@ -27,7 +27,7 @@ Parallel::Parallel(std::vector<MolState> &molStates,
   std::vector <arma::Mat<double>> FCFs;
 
   // matrix with intensities of FC transitions:
-  //  FCFs * population_of_initial_vibrational_levels(Temperature distrib.)
+  //  FCFs * Boltzmann_factor(E, T) 
   arma::Mat<double> I_tmp (max_n_initial+1, max_n_target+1);
   std::vector <arma::Mat<double>> I;
 
@@ -51,15 +51,12 @@ Parallel::Parallel(std::vector<MolState> &molStates,
         for (int k=0; k < CARTDIM; k++)
           NormModes(j*CARTDIM+k, i) = molStates[state].getNormMode(i).getDisplacement()(j*CARTDIM+k);
 
-    // Make sqrt(T)-matrix (diagonal matrix with sqrt(atomic masses) in cartesian coordinates):
-    arma::Mat<double> SqrtT(CARTDIM * n_atoms, CARTDIM * n_atoms,
-                            arma::fill::zeros);
-    for (int i = 0; i < n_atoms; i++) {
-      SqrtT(i*CARTDIM, i*CARTDIM) 
-        = SqrtT(i*CARTDIM+1, i*CARTDIM+1)
-        = SqrtT(i*CARTDIM+2, i*CARTDIM+2)
-        = sqrt(molStates[state].getAtom(i).Mass());
-    }
+    // Make sqrt(T)-matrix (diagonal matrix with sqrt(atomic masses) in
+    // cartesian coordinates)
+    arma::Mat<double> mass_matrix = molStates[state].getMassMatrix();
+    // revert it back to amu as the legacy code didn't use atomic units
+    mass_matrix /= AMU_2_ELECTRONMASS;
+    arma::Mat<double> SqrtT = arma::sqrt(mass_matrix);
 
     // Cart->NormalModes transformation matrix R=L^T*sqrt(T)
     // q' = q+d = q+R*(x-x') (for the parallel normal mode approximation)
@@ -349,7 +346,6 @@ Parallel::Parallel(std::vector<MolState> &molStates,
     std::cout << "  " << selected_states_ini.size() 
       << " vibrational states below the energy threshold\n\n"<<std::flush;
 
-
     // TODO: This is a duplicate of the above code. It should be a function. Paweł Apr '22
     // find TARGET states with up to 'max_n_target' vibrational quanta and with energy below 'energy_threshold_target':
     std::cout << "A set of target vibrational states is being created...\n";
@@ -401,21 +397,26 @@ Parallel::Parallel(std::vector<MolState> &molStates,
 
     std::cout << "Intensities of combination bands are being calculated...\n" <<std::flush;
 
-    for (int curr_ini=0; curr_ini<selected_states_ini.size(); curr_ini++)
-      for (int curr_targ=0; curr_targ<selected_states_targ.size(); curr_targ++)
+    for (const auto & ini_state: selected_states_ini)
+      for (const auto & targ_state: selected_states_targ)
       {
-        double intens = 1;
-        double FCF = 1;
+        double intens = 1.0;
+        double FCF = 1.0;
         double energy = -molStates[targN].Energy();
-        double E_prime_prime = 0;
+        double E_prime_prime = 0.0;
 
-        for (int nm=0; nm < n_molecule_nm; nm++)
-        {
-          intens *= I[nm](selected_states_ini[curr_ini][nm], selected_states_targ[curr_targ][nm]);
-          FCF *= FCFs[nm](selected_states_ini[curr_ini][nm], selected_states_targ[curr_targ][nm]);
-          energy += E_position[nm](selected_states_ini[curr_ini][nm], selected_states_targ[curr_targ][nm]) + molStates[targN].Energy(); 
-          E_prime_prime += E_position[nm](selected_states_ini[curr_ini][nm], 0) + molStates[targN].Energy(); 
-          // [ cancell the IE in each energy, which is stupid but inexpensive; probably should be eliminated ]
+        for (int nm = 0; nm < n_molecule_nm; nm++) {
+          int ini_occupation = ini_state[nm];
+          int targ_occupation = targ_state[nm];
+          double ex_energy = molStates[targN].Energy();
+
+          intens *= I[nm](ini_occupation, targ_occupation);
+          FCF *= FCFs[nm](ini_occupation, targ_occupation);
+
+          // [ cancell the IE in each energy, which is stupid but inexpensive;
+          // probably should be eliminated ]
+          energy += E_position[nm](ini_occupation, targ_occupation) + ex_energy;
+          E_prime_prime += E_position[nm](ini_occupation, 0) + ex_energy;
         }
 
         // add the point to the spectrum if its intensity is above the threshold
@@ -431,8 +432,8 @@ Parallel::Parallel(std::vector<MolState> &molStates,
           tmpPoint.getVibrState2().setElStateIndex(targN);
           for (int nm=0; nm<n_active_nm; nm++)
           {
-            tmpPoint.getVibrState1().setVibrQuanta(nm, selected_states_ini[curr_ini][  active_nms[nm]  ]);
-            tmpPoint.getVibrState2().setVibrQuanta(nm, selected_states_targ[curr_targ][  active_nms[nm]  ]);
+            tmpPoint.getVibrState1().setVibrQuanta(nm, ini_state[ active_nms[nm] ]);
+            tmpPoint.getVibrState2().setVibrQuanta(nm, targ_state[ active_nms[nm] ]);
           }
           spectrum.AddSpectralPoint( tmpPoint );
         }
