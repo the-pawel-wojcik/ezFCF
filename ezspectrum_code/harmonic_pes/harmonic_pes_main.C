@@ -324,9 +324,8 @@ void harmonic_pes_parallel(xml_node& node_input, std::vector <MolState>& elState
     std::cout << "\nSince temperature=0, \"max_vibr_excitations_in_initial_el_state\" has been set to 0.\n"<< std::flush;
   }
 
-  // check if print normal modes after transformations & overlap matrix
-  //FIXIT: check if loc is correct
-  // TODO: Does this still require any work? Pawel, Feb '22
+  // TODO: add documentation in the manual
+  // TODO: Add a use example to Samples/
   bool if_print_fcfs= node_parallel_approx.read_flag_value("print_franck_condon_matrices");
 
   // read energy thresholds (if provided)

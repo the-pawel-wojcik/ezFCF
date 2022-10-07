@@ -376,7 +376,7 @@ bool xml_node::read_flag_value(std::string field) {
 
   bool flag_value=false;
   if(find_subnode(field)) 
-    flag_value=xml_node(*this,field,1).read_bool_value("flag");
+    flag_value=xml_node(*this,field,0).read_bool_value("flag");
   
   return flag_value;
 }
