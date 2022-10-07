@@ -65,7 +65,23 @@ unsigned long Combination(const int n, const int k)
       return  FactorialRatioInt(n,n-k)/FactorialInt(k);
 }
 
+//! Combination function (both parts should be less than max-unsigned-int)
+// Combination(n, k) gives the binomial coeff
+// $$ \binom{n}{k} = \frac{n!}{k!(n-k)!} $$
+// This implementation avoids division of large numbers
+// https://stackoverflow.com/questions/9330915/number-of-combinations-n-choose-r-in-c
+unsigned long nChoosek(int n, int k) {
+  if (k > n) return 0;
+  if (k * 2 > n) k = n-k;
+  if (k == 0) return 1;
 
+  unsigned long result = n;
+  for (int i = 2; i <= k; ++i) {
+    result *= (n - i + 1);
+    result /= i;
+  }
+  return result;
+}
 
 //! provide next combination once previous is given in j (total number is C_n^k)
 bool enumerateCombinations(int n, int k, std::vector <int>& j)

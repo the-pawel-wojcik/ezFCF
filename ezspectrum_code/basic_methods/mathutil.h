@@ -19,6 +19,9 @@ unsigned long  FactorialRatioInt(const int n1, const int n2);
 //! Combination, C_n^k  
 unsigned long Combination(const int n, const int k); 
 
+//! Combination, C_n^k
+unsigned long nChoosek(int n, int k);
+
 //! provide next combination once previous is given in j (total number is C_n^k) -- see comments in  .C
 bool enumerateCombinations(int n, int k, std::vector <int>& j);
 

@@ -305,11 +305,12 @@ Parallel::Parallel(std::vector <MolState>& molStates, std::vector<int>& active_n
     }
     else {
       for (int curr_max_ini=0; curr_max_ini<=max_n_initial; curr_max_ini++)
-        total_combs_ini += Combination(  (curr_max_ini + n_active_nm - 1), (n_active_nm - 1)  );
+        total_combs_ini +=
+            nChoosek(curr_max_ini + n_active_nm - 1, n_active_nm - 1);
     }
 
     for (int curr_max_targ=0; curr_max_targ<=max_n_target; curr_max_targ++)
-      total_combs_targ += Combination( (curr_max_targ + n_active_nm - 1), (n_active_nm - 1) );
+      total_combs_targ += nChoosek(curr_max_targ + n_active_nm - 1, n_active_nm - 1);
 
     std::cout << "Maximum number of combination bands = " 
       << total_combs_ini * total_combs_targ  
