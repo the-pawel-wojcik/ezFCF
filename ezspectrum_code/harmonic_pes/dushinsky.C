@@ -236,21 +236,12 @@ Dushinsky::Dushinsky(std::vector <MolState>& molStates, std::vector<int>& nm_lis
     addSpectralPoint(zero_zero, state0, state);
 
 
-  // fill matrix C with combinations C(n,k)=C_n^k=n!/(k!*(n-k)!); 
-  // n=0..N+K-1; k=0..N-1=0..min(n,N-1); matrix (N+K)x(N) -- N is known everywhere;
-  // Combination(n,k)=C(n,k)=C[n*N+k]
+  // combinations nChoosek(n,k) = C_n^k = n!/(k!*(n-k)!); 
+  // n=0..N+K-1; k=0..N-1=0..min(n,N-1);
   // N-total number of normal modes; K -- max number of quanta in target state
 
   int K = max_quanta_target;
   int size=(N)*(N+K);
-
-  /* // ZZZ 4/11/2012 removed, and the combinations are calculated now on the fly
-     C=new unsigned long[size];
-     memset(C,0,sizeof(unsigned long)*size);
-     for (int n=0; n<N+K; n++)
-     for (int k=0; k<MIN(n+1,N); k++)
-     C[n*N+k]=Combination(n,k);
-     */
 
   // Create an array of sqrt() 0..K+1
   K = MAX(max_quanta_target, max_quanta_initial);
@@ -297,7 +288,7 @@ int Dushinsky::evalNextLayer(const bool if_save)
   //check the memory avaliability (dirty):
   if (if_save)
   {
-    unsigned long total_combs = Combination(  (Kp_max+1 + state.getVibrQuantaSize() - 1), (state.getVibrQuantaSize() - 1)  );
+    unsigned long total_combs = nChoosek(  (Kp_max+1 + state.getVibrQuantaSize() - 1), (state.getVibrQuantaSize() - 1)  );
     double * buffer = (double*) malloc (total_combs*sizeof(double));
     if (buffer==NULL)
     {
@@ -321,7 +312,7 @@ int Dushinsky::evalNextLayer(const bool if_save)
     // check if the reverse index is ok
     if (index_rev!=index_counter) 
     {
-      // if numbers are too large, factorials in Combination() fanction will be out of "unsigned long" range ...
+      // if numbers are too large, factorials in nChoosek() function will be out of "unsigned long" range ...
       std::cout << "\n Error!\n[Debug info: reverse index function convVibrState2Index(state.getV()) for the state:\n";
       state.print();
       std::cout <<"\n"<<"returns index=" << index_rev<< "; should be index="<< index_counter<<"]\n\n"
@@ -381,7 +372,7 @@ int Dushinsky::add_the_only_intial_state_transitions(const int Kp, VibronicState
     // check if the reverse index is ok
     if (index_rev!=index_counter) 
     {
-      // if numbers are too large, factorials in Combination() fanction will be out of "unsigned long" range ...
+      // if numbers are too large, factorials in nChoosek() function will be out of "unsigned long" range ...
       std::cout << "\n Error!\n[Debug info: reverse index function convVibrState2Index(state.getV()) for the state:\n";
       state.print();
       std::cout <<"\n"<<"returns index=" << index_rev<< "; should be index="<< index_counter<<"]\n\n"
@@ -598,9 +589,9 @@ int Dushinsky::addHotBands(std::vector <MolState>& molStates, std::vector<int>& 
 
   unsigned long total_combs_ini=0, total_combs_targ=0;
   for (int curr_max_ini=0; curr_max_ini<=max_n_initial; curr_max_ini++)
-    total_combs_ini += Combination(  (curr_max_ini + nm_list.size() - 1), (nm_list.size() - 1)  );
+    total_combs_ini += nChoosek(  (curr_max_ini + nm_list.size() - 1), (nm_list.size() - 1)  );
   for (int curr_max_targ=0; curr_max_targ<=max_n_target; curr_max_targ++)
-    total_combs_targ += Combination(  (curr_max_targ + nm_list.size() -1), (nm_list.size() - 1)  );
+    total_combs_targ += nChoosek(  (curr_max_targ + nm_list.size() -1), (nm_list.size() - 1)  );
   std::cout << "Maximum number of combination bands = " << total_combs_ini*total_combs_targ  
     << "\n   = " << total_combs_ini << " (# of vibrational states in the initial electronic state)"
     << "\n   * " << total_combs_targ  << " (# of vibrational states in the target electronic state)\n\n" << std::flush;
@@ -732,7 +723,7 @@ void Dushinsky::printLayersSizes(const int uptoKp)
 
   for (int Kp=0; Kp<=uptoKp; Kp++)
   {
-    elements_per_layer = Combination(Kp+N-1, N-1 );
+    elements_per_layer = nChoosek(Kp+N-1, N-1 );
     size_per_layer_prev = size_per_layer;
     size_per_layer = elements_per_layer * sizeof(double);
 

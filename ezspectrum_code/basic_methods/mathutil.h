@@ -10,15 +10,6 @@
 //! Factorial; N=(-inf..0..+inf)  
 double Factorial(const int N); 
 
-//! Factorial function INTEGER
-unsigned long FactorialInt(const int N);
-
-//! Factorial ratio function n1!/(n1-n2)!=(n1-n2+1)*(n1-n2+2)*...*(n1)
-unsigned long  FactorialRatioInt(const int n1, const int n2);
-
-//! Combination, C_n^k  
-unsigned long Combination(const int n, const int k); 
-
 //! Combination, C_n^k
 unsigned long nChoosek(int n, int k);
 

@@ -18,55 +18,8 @@ double Factorial(const int N)
   return tmp;
 }
 
-//! Factorial function INTEGER
-unsigned long FactorialInt(const int N)
-{
-  unsigned long tmp=abs(N);
-  
-  if(tmp==0)
-    return 1;
-  
-  for(int j=abs(N)-1;j>1;j--)
-    tmp*=j;
-  
-  return tmp;
-}
-
-//! Factorial ratio function n1!/(n1-n2)!=(n1-n2+1)*(n1-n2+2)*...*(n1)
-unsigned long FactorialRatioInt(const int n1, const int n2)
-{
-  if ((n1<0)or((n1-n2)<0))
-    {
-      std::cout << "\n DEBUG message: FactorialRatio() call error.\n\n";
-      exit(2);
-    }
-
-  if (n1==0)
-    return 1;
-
-  unsigned long tmp=1;
- 
-  for(int j=n1;j>n2;j--)
-    tmp*=j;
-  
-  return tmp;
-}
-
-
 //! Combination function (both parts should be less than max-unsigned-int)
-// Combination(n, k) gives the binomial coeff
-// $$ \binom{n}{k} = \frac{n!}{k!(n-k)!} $$
-// This implementation avoids division of large numbers
-unsigned long Combination(const int n, const int k)
-{
-  if (k>(n-k))
-      return  FactorialRatioInt(n,k)/FactorialInt(n-k);
-  else
-      return  FactorialRatioInt(n,n-k)/FactorialInt(k);
-}
-
-//! Combination function (both parts should be less than max-unsigned-int)
-// Combination(n, k) gives the binomial coeff
+// nChoosek(n, k) gives the binomial coeff
 // $$ \binom{n}{k} = \frac{n!}{k!(n-k)!} $$
 // This implementation avoids division of large numbers
 // https://stackoverflow.com/questions/9330915/number-of-combinations-n-choose-r-in-c

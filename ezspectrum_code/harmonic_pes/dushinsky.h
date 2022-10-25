@@ -64,12 +64,6 @@ class Dushinsky {
   //! spectrum which stores all the points
   Spectrum spectrum;
 
-  // matrix C: combinations C(n,k)=C_n^k=n!/(k!*(n-k)!);
-  // n=0..N+K-1; k=0..N-1=0..min(n,N-1); matrix (N+K)x(N) -- N is known
-  // everywhere; Combination(n,k)=C(n,k)=C[n*N+k] N-total number of normal
-  // modes; K -- max number of quanta in target state ZZZ  4/11/2012 removed,
-  // and the combinations are calculated now on the fly unsigned long *C;
-
   // array of sqrt: sqrtArray[i]=sqrt(i);
   double *sqrtArray;
 

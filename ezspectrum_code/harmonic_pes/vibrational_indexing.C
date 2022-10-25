@@ -97,10 +97,7 @@ unsigned long convVibrState2Index(std::vector <int>& state, int N, int k)
 
     for (alpha=0; alpha<state[i]; alpha++)
     {
-      // ZZZ 4/11/2012 removed, and the combinations are calculated now on the fly
-      //  number+=C[(k-alpha+n-1)*N+(n-1)];//==Combination(k-alpha+n-1, n-1)
-      // std::cout << k-alpha+n-1 << " " << n-1 << "\n";
-      number+=Combination( k-alpha+n-1 , n-1 );
+      number += nChoosek(k-alpha+n-1, n-1);
     }
     k-=alpha;
   }
