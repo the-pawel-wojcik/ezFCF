@@ -1,6 +1,6 @@
-CC=gcc-mp-6
+CC=gcc
 
-CCFLAGS = -O3 -fopenmp
+CCFLAGS = -O3
 
 INC = -I /usr/local/include/
 LSTD = -lstdc++
@@ -31,7 +31,7 @@ $(CODE): $(CXXBINOBJ)
 	$(CXX) $^ $(LDFLAGS) $(INCLUDES) -o $(CODE)
 
 %.o: %.C
-	$(CXX) $(CXX_WNO_DEPRECATED) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+	$(CXX) $(CXX_WNO_DEPRECATED) $(CCFLAGS) $(INCLUDES) -c $< -o $@
 
 clean:
 	/bin/rm -f $(CODE) *.o $(CXXBINOBJ)	

@@ -7,67 +7,6 @@
   */
 
 //------------------------------
-MolState::MolState ():
-  atoms(),
-  normModes(),
-  gradient(),
-  energy(0.0),
-  centerOfMass(),
-  momentOfInertiaTensor(),
-  normModesOrder(),
-  reduced_masses(),
-  mass_matrix(),
-  omega_matrix(),
-  d_matrix()
-{
-  if_aligned_manually = false;
-  IfGradientAvailable = false;
-  if_nm_reordered_manually = false;
-  normModesOrder.clear();
-}
-
-//------------------------------
-MolState::MolState (const MolState& other) {
-  atoms=other.atoms;
-  normModes=other.normModes;
-  gradient=other.gradient;
-  energy=other.energy;
-  centerOfMass = other.centerOfMass;
-  momentOfInertiaTensor = other.momentOfInertiaTensor;
-  if_aligned_manually = other.if_aligned_manually;
-  IfGradientAvailable = other.IfGradientAvailable;
-  if_nm_reordered_manually =other.if_nm_reordered_manually;
-  normModesOrder = other.normModesOrder;
-  reduced_masses=other.reduced_masses;
-  mass_matrix=other.mass_matrix;
-  omega_matrix=other.omega_matrix;
-  d_matrix=other.d_matrix;
-}
-
-//------------------------------
-MolState& MolState::operator=(const MolState& other) {
-  if (this != &other) {
-
-    atoms=other.atoms;
-    normModes=other.normModes;
-    gradient=other.gradient;
-    energy=other.energy;
-    centerOfMass = other.centerOfMass;
-    momentOfInertiaTensor = other.momentOfInertiaTensor;
-    if_aligned_manually = other.if_aligned_manually;
-    IfGradientAvailable = other.IfGradientAvailable;
-    if_nm_reordered_manually =other.if_nm_reordered_manually;
-    normModesOrder = other.normModesOrder;
-    reduced_masses=other.reduced_masses;
-    mass_matrix=other.mass_matrix;
-    omega_matrix=other.omega_matrix;
-    d_matrix=other.d_matrix;
-  }
-  return *this;
-}
-
-
-//------------------------------
 void MolState::align()
 {
   // Shift center of mass to the origin:
@@ -741,8 +680,9 @@ void MolState::Read_vertical_gradient(xml_node &node_state) {
 
 /* Parser of the "manual_coord_transform" subnode of the "initial_state" or
  * "target_state" node. Helper of the `Read` function. Assigns values to the
- * `manual_transofrmations` variable. */
+ * `manual_transofrmations` variable and sets 'if_aligned_manually' to false. */
 void MolState::Read_manual_coord_transformations(xml_node &node_state) {
+  if_aligned_manually = false;
 
   size_t manual_coord_transform =
       node_state.find_subnode("manual_coordinates_transformation");
@@ -769,6 +709,8 @@ void MolState::Read_manual_coord_transformations(xml_node &node_state) {
  * or "target_state" node. Helper of the `Read` function. Assigns values to the 
  * `normModesOrder` and 'if_nm_reordered_manually` variables. */
 void MolState::Read_normal_modes_reorder(xml_node &node_state) {
+
+  if_nm_reordered_manually = false;
   size_t reorder_nmodes =
       node_state.find_subnode("manual_normal_modes_reordering");
 
@@ -1136,7 +1078,6 @@ void MolState::vertical_gradient_method() {
  * corresponig to the initial state (needed for printing geometry difference).
  */
 void MolState::apply_manual_coord_transformation(const MolState &ground) {
-  if_aligned_manually = false;
 
   while (! manual_transformations.empty()) {
     arma::Col<double> shift = manual_transformations.front().first;

@@ -106,11 +106,7 @@ class MolState {
   void vg_calc_energy(const arma::vec &, const arma::Mat<double> &);
 
 public:
-  MolState();
-  MolState(const MolState &other);
-  //  ~MolState();
-  MolState &operator=(const MolState &other);
-  // TODO: the rule of three...
+  // HINT: don't add constructors unless changes to the default ones are needed
 
   //! Read the state data from file
   void Read(xml_node &node_state);
