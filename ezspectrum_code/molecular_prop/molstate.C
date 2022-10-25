@@ -539,6 +539,11 @@ void MolState::Read_vertical_energy(xml_node &node_state) {
  * as it is used in conjunction with 'atomicMasses.xml' to tell the atom's mass.
  */
 void MolState::Read_molecular_geometry(xml_node &node_state) {
+
+  // If the node is not present there is nothing to read
+  if (! node_state.find_subnode("geometry"))
+    return;
+
   xml_node node_geometry(node_state, "geometry", 0);
 
   int nAtoms;
@@ -601,9 +606,13 @@ void MolState::Read_abinitio_atoms_masses(std::string &atoms_text) {
  * `ifInputNMmassweighted`.
  *
  * Helper of the `Read` function.
- * Assigns values to the `normModes`, `ifInputNMmassweighted`, and `nm_atoms`
- * variables.*/
+ * Assigns values to the `normModes`, `ifInputNMmassweighted`, and
+ * `ab_intio_atoms_masses` variables.*/
 void MolState::Read_normal_modes(xml_node &node_state) {
+
+  // If the node is not present there is nothing to read
+  if (! node_state.find_subnode("normal_modes"))
+    return;
 
   xml_node node_nmodes(node_state, "normal_modes", 0);
 
@@ -650,8 +659,14 @@ void MolState::Read_normal_modes(xml_node &node_state) {
 }
 
 /* Parser of the "frequencies" subnode of the "initial_state" or "target_state"
- * node. Helper of the `Read` function. */
+ * node. Helper of the `Read` function. Assigns frequency values to the
+ * `NormalModes` in the `normModes` container. */
 void MolState::Read_frequencies(xml_node &node_state) {
+
+  // If the node is not present there is nothing to read
+  if (! node_state.find_subnode("frequencies"))
+    return;
+
   xml_node node_freq(node_state, "frequencies", 0);
   My_istringstream freq_iStr(node_freq.read_string_value("text"));
 
@@ -989,8 +1004,11 @@ void MolState::copy_data_from_the_initial_state(const MolState &is){
             << " - molecular geometry\n"
             << " - normal modes\n"
             << " - frequencies\n";
+
   atoms = is.atoms;
   normModes = is.normModes;
+  n_molecular_nm = is.n_molecular_nm;
+  ab_intio_atoms_masses = is.ab_intio_atoms_masses;
   normModesOrder = is.normModesOrder;
   reduced_masses = is.reduced_masses;
   mass_matrix = is.mass_matrix;
@@ -1187,9 +1205,10 @@ void MolState::reorder_atoms() {
  * transformations necessary for keeping `MolState` variables in line with the
  * ezFCF storage conventions.*/
 void MolState::ApplyKeyWords(xml_node &node_amu_table, MolState & initial_state) {
-  convert_atomic_names_to_masses(node_amu_table);
 
   if (!IfGradientAvailable) {
+    convert_atomic_names_to_masses(node_amu_table);
+
     if (ifInputNMmassweighted) {
       un_mass_weight_nm();
     }
