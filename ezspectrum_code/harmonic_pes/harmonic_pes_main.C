@@ -59,11 +59,13 @@ bool harmonic_pes_main (const char *InputFileName, xml_node& node_input, xml_nod
 
   for (int state_i=0; state_i<elStates.size(); state_i++) {
     // ifSimilar checks:
-    // - same number of atoms, 
-    // - same order of the atomic names, 
+    // - same number of atoms,
+    // - same order of the atomic names,
     // - same "linearity"
     // Check for a consistent use of the vertical gradient method
-    if (state_i>0) {
+    // TODO: make sure that the program aborts if any of geometry, nm, or freqs
+    // were not read in the non-VG node
+    if (state_i > 0) {
       if ( not(elStates[state_i].ifSimilar(elStates[0])) ) {
         std::cout << "Error: target state #" 
           << state_i 

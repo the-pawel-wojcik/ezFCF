@@ -12,14 +12,17 @@ cleanProgress () {
     # remove if the file exists and print progress bar
     if [ -e ${file} ]
     then
-        echo -n "."
         rm ${file}
-    else
-        echo ""
-        echo "Cannot remove missing ${file}"
     fi
+    echo -n "."
 }
 
+
+echo ""
+echo " = = = = = = = = = = = ="
+echo "  Cleaning local copies"
+echo " = = = = = = = = = = = ="
+echo "" 
 
 # Makse sure that dependencies are satisifed
 if [ -e atomicMasses.xml ]
@@ -54,3 +57,9 @@ do
     cleanProgress $spectrum "spectrum_dushinsky"
 done
 echo " done."
+
+echo ""
+echo " = = = = = = = = = = = = = ="
+echo "  Done cleaning local copies"
+echo " = = = = = = = = = = = = = ="
+echo "" 

@@ -9,6 +9,7 @@ ezFCF="../ezspectrum_code/ezFCF_linux.exe" # use this one if you compiled the pr
 
 if [[ $1 == "clean" ]]
 then
+    ./clean.sh
     cd ../ezspectrum_code
     make clean
     make
@@ -19,7 +20,7 @@ fi
 if [ ! -x $ezFCF ]
 then
     echo "Error."
-    echo "  The ezFCF exacutable at $ezFCF does not exist."
+    echo "  Missing executable ezFCF at $ezFCF."
     echo "  Make sure the file exists and is executable (chmod +x)"
     echo "  or fix the path and filename inside this scirpt."
     exit 1
@@ -29,8 +30,7 @@ fi
 if [ ! -e atomicMasses.xml ]
 then 
     cp ../atomicMasses.xml ./
-    echo " Local copy of atomicMasses.xml created."
-    echo ""
+    echo -e " Local copy of atomicMasses.xml created.\n"
 fi
 
 echo ""
