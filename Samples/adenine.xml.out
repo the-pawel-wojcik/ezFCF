@@ -1,7 +1,7 @@
-Job "../ezspectrum_code/ezFCF_linux.exe adenine.xml" has been started: Thu Aug 25 14:35:28 2022
+Job "../ezspectrum_code/ezFCF_linux.exe adenine.xml" has been started: Mon Oct 24 17:50:35 2022
 
 A copy of the "adenine.xml" input:
-------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 Node input
 <input
   job = "harmonic_pes">
@@ -593,20 +593,19 @@ Node input
 </target_state>
 
 </input>
-------------------------------------------------------------------------------
- 
+--------------------------------------------------------------------------------
+
 
 ====== Reading the initial state ======
 ===== Reading the target state #0 =====
 Excitation energy = 8.900000 eV
-Excitation energy = 8.900000 eV 
 New normal modes order was requested:
  11 0 1 3 2 10 6 5 9 4 8 7 12 13 14 17 15 16 19 18 21 20 22 23 24 25 26 28 27 30 29 31 32 33 34 35 36 37 38 
-Normal modes were reordered accordingly.
-New order of atoms was requested:
+New atoms order:
 0 6 7 8 9 10 11 12 13 14 4 5 2 3 1
-Atoms were reordered accordingly.
-Done reading states
+Normal modes reordered.
+Atoms reordered in both molecular geometry and normal modes.
+===== Done reading states =====
 
 Coordinate axes were aligned with MOI principal axes; center mass was shifted to the origin.
 
@@ -626,14 +625,14 @@ New molecular geometry:
    C     -0.7091      -0.0007      -2.3060 
    H     -1.0879      -0.0007      -3.3181 
    N     -1.4449      -0.0013      -1.2268 
-
+ 
 MOI tensor:
-   3.2050e+02           0.           0.
-           0.   5.3264e+02           0.
-           0.           0.   2.1214e+02
+   320.496518     0.000000     0.000000
+     0.000000   532.636909     0.000000
+     0.000000     0.000000   212.140862
 Coordinate axes were aligned with MOI principal axes; center mass was shifted to the origin.
 Also rotated by 0/2*pi, 0/2*pi, and 3/2*pi CCW around x, y, and z.
-The norm of the geometry difference from the initial state is 0.2086
+The norm of the geometry difference from the initial state is 0.208636
 
 New molecular geometry:
    C     -0.5478      -0.0000      -0.2011 
@@ -651,13 +650,13 @@ New molecular geometry:
    C     -0.7239      -0.0001      -2.3020 
    H     -1.1439      -0.0001      -3.2988 
    N     -1.4577       0.0000      -1.1779 
-
+ 
 MOI tensor:
-   3.2480e+02   1.2858e-07           0.
-   1.2858e-07   5.3377e+02           0.
-           0.           0.   2.0897e+02
+   324.801082     0.000000     0.000000
+     0.000000   533.768319     0.000000
+     0.000000     0.000000   208.967239
 Done with the transformations
-------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 === Reading the parallel approximation job parameters ===
 Reading energy thresholds. 
@@ -680,9 +679,9 @@ WARNING! The normal modes overlap matrix with the initial state
    32      --      --      --      --  -0.009  -0.033  -0.161   0.013   0.082   0.653  -0.459
    33   0.001  -0.002      --      --  -0.066  -0.109  -0.056  -0.050   0.197   0.644   0.638
 
-------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
-Photoelectron spectrum in the parallel approximation will be evaluated
+Begining the parallel mode approximation computations.
 
 ===== Target state #1 =====
 
@@ -1091,9 +1090,9 @@ WARNING! The normal modes of the target state were reordered!
          New order is used for the single transitions.
 
 The following single transitions were added to the spectrum:
-FCF=4.735618e-02 0(0)->1(4v0)
-FCF=5.363579e-02 0(0)->1(3v0,1v12)
-FCF=4.402473e-02 0(0)->1(2v0,2v12)
+FCF=4.735618e-02 0(0)->0(4v0)
+FCF=5.363579e-02 0(0)->0(3v0,1v12)
+FCF=4.402473e-02 0(0)->0(2v0,2v12)
 
 Updating the energies and applying the Boltzmann distribution...Done
   921 hot bands were removed from the spectrum
@@ -1399,5 +1398,5 @@ Stick spectrum was also saved in "adenine.xml.spectrum_dushinsky" file
 
 
 
-Job "../ezspectrum_code/ezFCF_linux.exe adenine.xml" has finished: Thu Aug 25 14:35:29 2022
+Job "../ezspectrum_code/ezFCF_linux.exe adenine.xml" has finished: Mon Oct 24 17:50:36 2022
 

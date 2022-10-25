@@ -1,7 +1,7 @@
-Job "../ezspectrum_code/ezFCF_linux.exe the_only_initial_state.xml" has been started: Thu Aug 25 14:35:30 2022
+Job "../ezspectrum_code/ezFCF_linux.exe the_only_initial_state.xml" has been started: Mon Oct 24 17:50:37 2022
 
 A copy of the "the_only_initial_state.xml" input:
-------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 Node input
 <input
   job = "harmonic_pes" >
@@ -136,17 +136,16 @@ Node input
 </target_state>
 
 </input>
-------------------------------------------------------------------------------
- 
+--------------------------------------------------------------------------------
+
 
 ====== Reading the initial state ======
 ===== Reading the target state #0 =====
 Excitation energy = 10.868000 eV
-Excitation energy = 10.868000 eV 
 New normal modes order was requested:
 1 0 2 3 4 5
-Normal modes were reordered accordingly.
-Done reading states
+Normal modes reordered.
+===== Done reading states =====
 
 Coordinate axes were aligned with MOI principal axes; center mass was shifted to the origin.
 
@@ -155,27 +154,27 @@ New molecular geometry:
    O      0.0000       0.0000       0.6033 
    H      0.0000       0.9201      -1.1752 
    H      0.0000      -0.9201      -1.1752 
-
+ 
 MOI tensor:
-   14.7312        0.        0.
-        0.   13.0248        0.
-        0.        0.    1.7064
+    14.731157     0.000000     0.000000
+     0.000000    13.024798     0.000000
+     0.000000     0.000000     1.706359
 Coordinate axes were aligned with MOI principal axes; center mass was shifted to the origin.
 Also rotated by 0/2*pi, 2/2*pi, and 3/2*pi CCW around x, y, and z.
-The norm of the geometry difference from the initial state is 0.0724
+The norm of the geometry difference from the initial state is 0.072368
 
 New molecular geometry:
    C      0.0000       0.0000      -0.6244 
    O      0.0000       0.0000       0.6120 
    H      0.0000       0.9535      -1.1391 
    H      0.0000      -0.9535      -1.1391 
-
+ 
 MOI tensor:
-   15.1163        0.        0.
-        0.   13.2836        0.
-        0.        0.    1.8327
+    15.116307     0.000000     0.000000
+     0.000000    13.283623     0.000000
+     0.000000     0.000000     1.832684
 Done with the transformations
-------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 === Reading the parallel approximation job parameters ===
 Reading energy thresholds. 
@@ -184,9 +183,9 @@ Reading energy thresholds.
 The normal modes overlap matrix with the initial state is diagonal
   (do_not_excite_subspace is excluded)
 
-------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
-Photoelectron spectrum in the parallel approximation will be evaluated
+Begining the parallel mode approximation computations.
 
 ===== Target state #1 =====
 
@@ -206,15 +205,23 @@ normal mode  dQ in initial  dQ in target   frequency   frequency   comments
 
 TARGET state normal coordinates (displacements dQ) will be used.
 
-Maximum number of vibrational excitations in each target state: 4.
+Maximum number of vibrational excitations: 3 and 4
+ in the initial and each target state, respectively.
 
 Maximum number of combination bands = 210
-   =  (# of vibrational states in the target electronic state)
+   = 1 (# of vibrational states in the initial electronic state)
+   * 210 (# of vibrational states in the target electronic state)
 
-The SINGLE initial vibrational state is read from the input.
+A set of initial vibrational states is being created...
+  energy threshold = 0.69 eV (8000.00 K)
+  44 vibrational states below the energy threshold
+
 A set of target vibrational states is being created...
   energy threshold = 1.20 eV (9678.57 cm-1)
   183 vibrational states below the energy threshold
+
+ The only initial state active:
+    The initial state contains only ONE vibrational state.
 
 Total number of combination bands with thresholds applied: 183
 
@@ -316,5 +323,5 @@ Stick spectrum was also saved in "the_only_initial_state.xml.spectrum_dushinsky"
 
 
 
-Job "../ezspectrum_code/ezFCF_linux.exe the_only_initial_state.xml" has finished: Thu Aug 25 14:35:30 2022
+Job "../ezspectrum_code/ezFCF_linux.exe the_only_initial_state.xml" has finished: Mon Oct 24 17:50:37 2022
 

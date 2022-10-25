@@ -1,7 +1,7 @@
-Job "../ezspectrum_code/ezFCF_linux.exe trans_hcoh_small.xml" has been started: Thu Aug 25 14:36:42 2022
+Job "../ezspectrum_code/ezFCF_linux.exe trans_hcoh_small.xml" has been started: Mon Oct 24 17:51:53 2022
 
 A copy of the "trans_hcoh_small.xml" input:
-------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 Node input
 <input
    job="harmonic_pes">
@@ -113,17 +113,17 @@ Node input
 </target_state>
 
 </input>
-------------------------------------------------------------------------------
- 
+--------------------------------------------------------------------------------
+
 
 ====== Reading the initial state ======
 ===== Reading the target state #0 =====
 Excitation energy = 8.790000 
-Excitation energy = 8.790000 eV 
+Excitation energy = 8.790000 eV
 New normal modes order was requested:
 0 1 3 2 4 5
-Normal modes were reordered accordingly.
-Done reading states
+Normal modes reordered.
+===== Done reading states =====
 
 Coordinate axes were aligned with MOI principal axes; center mass was shifted to the origin.
 
@@ -132,27 +132,27 @@ New molecular geometry:
    O      0.0000      -0.0831       0.5617 
    H      0.0000      -0.9104      -1.1360 
    H      0.0000       0.7818       0.9890 
-
+ 
 MOI tensor:
-   15.5787        0.        0.
-        0.   13.8394        0.
-        0.        0.    1.7394
+    15.578733     0.000000     0.000000
+     0.000000    13.839364     0.000000
+     0.000000     0.000000     1.739369
 Coordinate axes were aligned with MOI principal axes; center mass was shifted to the origin.
 Also rotated by 2/2*pi, 2/2*pi, and 2/2*pi CCW around x, y, and z.
-The norm of the geometry difference from the initial state is 0.4350
+The norm of the geometry difference from the initial state is 0.434969
 
 New molecular geometry:
    C      0.0000       0.1194      -0.6757 
    O      0.0000      -0.0919       0.5270 
    H      0.0000      -0.6578      -1.4431 
    H      0.0000       0.6938       1.1245 
-
+ 
 MOI tensor:
-   14.5231        0.        0.
-        0.   13.2957        0.
-        0.        0.    1.2274
+    14.523102     0.000000     0.000000
+     0.000000    13.295704     0.000000
+     0.000000     0.000000     1.227398
 Done with the transformations
-------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 === Reading the parallel approximation job parameters ===
 
@@ -167,9 +167,9 @@ The following normal modes will have no vibrational excitations:
 The normal modes overlap matrix with the initial state is diagonal
   (do_not_excite_subspace is excluded)
 
-------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
-Photoelectron spectrum in the parallel approximation will be evaluated
+Begining the parallel mode approximation computations.
 
 ===== Target state #1 =====
 
@@ -246,5 +246,5 @@ Stick spectrum was also saved in "trans_hcoh_small.xml.spectrum_parallel" file
 ------------------------------------------------------------------------------
 
 
-Job "../ezspectrum_code/ezFCF_linux.exe trans_hcoh_small.xml" has finished: Thu Aug 25 14:36:42 2022
+Job "../ezspectrum_code/ezFCF_linux.exe trans_hcoh_small.xml" has finished: Mon Oct 24 17:51:53 2022
 

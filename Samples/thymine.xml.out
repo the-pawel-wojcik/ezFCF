@@ -1,7 +1,7 @@
-Job "../ezspectrum_code/ezFCF_linux.exe thymine.xml" has been started: Thu Aug 25 14:35:30 2022
+Job "../ezspectrum_code/ezFCF_linux.exe thymine.xml" has been started: Mon Oct 24 17:50:37 2022
 
 A copy of the "thymine.xml" input:
-------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 Node input
 <input
   job = "harmonic_pes" >
@@ -579,14 +579,13 @@ Node input
 </target_state>
 
 </input>
-------------------------------------------------------------------------------
- 
+--------------------------------------------------------------------------------
+
 
 ====== Reading the initial state ======
 ===== Reading the target state #0 =====
 Excitation energy = 8.910000 eV
-Excitation energy = 8.910000 eV 
-Done reading states
+===== Done reading states =====
 
 Coordinate axes were aligned with MOI principal axes; center mass was shifted to the origin.
 
@@ -606,14 +605,14 @@ New molecular geometry:
    H      0.0005      -1.9278      -2.8546 
    H     -0.8807      -0.4026      -3.1437 
    H      0.8799      -0.4016      -3.1440 
-
+ 
 MOI tensor:
-   5.1604e+02           0.           0.
-           0.   3.6100e+02           0.
-           0.           0.   1.5816e+02
+   516.038328     0.000000     0.000000
+     0.000000   361.003522     0.000000
+     0.000000     0.000000   158.158876
 Coordinate axes were aligned with MOI principal axes; center mass was shifted to the origin.
 Also rotated by 2/2*pi, 2/2*pi, and 3/2*pi CCW around x, y, and z.
-The norm of the geometry difference from the initial state is 0.1678
+The norm of the geometry difference from the initial state is 0.167773
 
 New molecular geometry:
    N      0.0000       1.0593       0.6335 
@@ -631,13 +630,13 @@ New molecular geometry:
    H      0.0000      -1.9361      -2.8411 
    H     -0.8697      -0.3918      -3.0967 
    H      0.8694      -0.3915      -3.0969 
-
+ 
 MOI tensor:
-   5.1355e+02  -9.6928e-08  -1.4479e-07
-  -9.6928e-08   3.5602e+02  -8.0175e-08
-  -1.4479e-07  -8.0175e-08   1.6057e+02
+   513.550478    -0.000000    -0.000000
+    -0.000000   356.023877    -0.000000
+    -0.000000    -0.000000   160.574861
 Done with the transformations
-------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 
 === Reading the Dushinsky rotations job parameters ===
@@ -2193,5 +2192,5 @@ Stick spectrum was also saved in "thymine.xml.spectrum_dushinsky" file
 
 
 
-Job "../ezspectrum_code/ezFCF_linux.exe thymine.xml" has finished: Thu Aug 25 14:36:42 2022
+Job "../ezspectrum_code/ezFCF_linux.exe thymine.xml" has finished: Mon Oct 24 17:51:53 2022
 

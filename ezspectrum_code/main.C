@@ -3,8 +3,6 @@
 #include "harmonic_pes_main.h"
 #include "aik_xml_parser.h"
 
-// TODO: copy input files to Samples/
-// TODO: make sure that program abors if any of geometry, nm, or freqs are missing
 int main(int argc, char *argv[]) {
 
   if ((argc - 1) < 1) {

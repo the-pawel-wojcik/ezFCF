@@ -1,7 +1,7 @@
-Job "../ezspectrum_code/ezFCF_linux.exe formaldehyde.xml" has been started: Thu Aug 25 14:35:30 2022
+Job "../ezspectrum_code/ezFCF_linux.exe formaldehyde.xml" has been started: Mon Oct 24 17:50:37 2022
 
 A copy of the "formaldehyde.xml" input:
-------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 Node input
 <input
   job = "harmonic_pes" >
@@ -130,17 +130,16 @@ Node input
 </target_state>
 
 </input>
-------------------------------------------------------------------------------
- 
+--------------------------------------------------------------------------------
+
 
 ====== Reading the initial state ======
 ===== Reading the target state #0 =====
 Excitation energy = 10.868000 eV
-Excitation energy = 10.868000 eV 
 New normal modes order was requested:
 1 0 2 3 4 5
-Normal modes were reordered accordingly.
-Done reading states
+Normal modes reordered.
+===== Done reading states =====
 
 Coordinate axes were aligned with MOI principal axes; center mass was shifted to the origin.
 
@@ -149,27 +148,27 @@ New molecular geometry:
    O      0.0000       0.0000       0.6033 
    H      0.0000       0.9201      -1.1752 
    H      0.0000      -0.9201      -1.1752 
-
+ 
 MOI tensor:
-   14.7312        0.        0.
-        0.   13.0248        0.
-        0.        0.    1.7064
+    14.731157     0.000000     0.000000
+     0.000000    13.024798     0.000000
+     0.000000     0.000000     1.706359
 Coordinate axes were aligned with MOI principal axes; center mass was shifted to the origin.
 Also rotated by 0/2*pi, 2/2*pi, and 3/2*pi CCW around x, y, and z.
-The norm of the geometry difference from the initial state is 0.0724
+The norm of the geometry difference from the initial state is 0.072368
 
 New molecular geometry:
    C      0.0000       0.0000      -0.6244 
    O      0.0000       0.0000       0.6120 
    H      0.0000       0.9535      -1.1391 
    H      0.0000      -0.9535      -1.1391 
-
+ 
 MOI tensor:
-   15.1163        0.        0.
-        0.   13.2836        0.
-        0.        0.    1.8327
+    15.116307     0.000000     0.000000
+     0.000000    13.283623     0.000000
+     0.000000     0.000000     1.832684
 Done with the transformations
-------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 === Reading the parallel approximation job parameters ===
 Reading energy thresholds. 
@@ -178,9 +177,9 @@ Reading energy thresholds.
 The normal modes overlap matrix with the initial state is diagonal
   (do_not_excite_subspace is excluded)
 
-------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
-Photoelectron spectrum in the parallel approximation will be evaluated
+Begining the parallel mode approximation computations.
 
 ===== Target state #1 =====
 
@@ -417,5 +416,5 @@ Stick spectrum was also saved in "formaldehyde.xml.spectrum_dushinsky" file
 
 
 
-Job "../ezspectrum_code/ezFCF_linux.exe formaldehyde.xml" has finished: Thu Aug 25 14:35:30 2022
+Job "../ezspectrum_code/ezFCF_linux.exe formaldehyde.xml" has finished: Mon Oct 24 17:50:37 2022
 
