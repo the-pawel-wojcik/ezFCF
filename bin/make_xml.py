@@ -153,7 +153,7 @@ def parse_qchem(StateF, data: dict):
             StateF.readline()
             for _ in range(data['NAtoms']):
                 Line = StateF.readline()
-                data['NormalModes'] += Line[2:]
+                data['NormalModes'] += Line[3:]
             data['NormalModes'] += '\n'
 
         if Line.find('Frequency: ') >= 0:
