@@ -1,4 +1,4 @@
-Job "../ezspectrum_code/ezFCF_linux.exe trans_hcoh.xml" has been started: Mon Oct 24 17:51:53 2022
+Job "../ezspectrum_code/ezFCF_linux.exe trans_hcoh.xml" has been started: Thu Nov  3 11:29:08 2022
 
 A copy of the "trans_hcoh.xml" input:
 --------------------------------------------------------------------------------
@@ -374,7 +374,7 @@ Energy,eV    Intensity     FC factor         E",K   Transition
 10.0814      3.047365e-03  +5.520295e-02     0.000  0(0)->1(1v2,2v3,2v4)
 10.0861      8.971524e-04  +2.995250e-02     0.000  0(0)->1(1v1,2v2,2v3,1v5)
 10.0883      1.217428e-03  -3.489166e-02     0.000  0(0)->1(1v1,3v2,1v3,1v4)
-10.0980      4.839535e-04  -2.199894e-02     0.000  0(0)->1(1v3,3v4)
+10.0980      4.839536e-04  -2.199894e-02     0.000  0(0)->1(1v3,3v4)
 10.1028      4.677381e-04  -2.162725e-02     0.000  0(0)->1(1v1,1v2,1v3,1v4,1v5)
 10.1049      2.259741e-04  +1.503243e-02     0.000  0(0)->1(1v1,2v2,2v4)
 10.1174      1.261328e-04  +1.123089e-02     0.000  0(0)->1(2v1,2v3,2v4)
@@ -432,5 +432,5 @@ Stick spectrum was also saved in "trans_hcoh.xml.spectrum_parallel" file
 ------------------------------------------------------------------------------
 
 
-Job "../ezspectrum_code/ezFCF_linux.exe trans_hcoh.xml" has finished: Mon Oct 24 17:51:53 2022
+Job "../ezspectrum_code/ezFCF_linux.exe trans_hcoh.xml" has finished: Thu Nov  3 11:29:08 2022
 
