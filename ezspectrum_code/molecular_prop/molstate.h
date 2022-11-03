@@ -146,6 +146,8 @@ public:
   //! returns diagonal matirx of dimension 3*NAtoms() with atomic masses in
   //! atomic units (not amu)
   const arma::Mat<double> &getMassMatrix() const { return mass_matrix; }
+  //! returns a 3*NAtoms() vector with molecular geometry
+  arma::Col<double> get_geometry_as_col();
 
   //--- alignment ------------- ------------------------------------
   //! align each state: center of mass in the coordinates origin, moment of

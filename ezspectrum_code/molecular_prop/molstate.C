@@ -337,15 +337,27 @@ void MolState::Print()
 
 void MolState::printGeometry()
 {
-  for (int i=0; i<NAtoms(); i++)
-  {
-    std::cout << std::setw(4) << std::right  << getAtom(i).Name();
-    for (int k=0; k<CARTDIM; k++)
-      std::cout << std::setw(12) << std::right << std::fixed << std::setprecision(4) << std::showpoint << getAtom(i).Coord(k) << ' '; 
+  for (int i = 0; i < NAtoms(); i++) {
+    std::cout << std::setw(4) << std::right << getAtom(i).Name();
+    for (int k = 0; k < CARTDIM; k++)
+      std::cout << std::setw(12) << std::right << std::fixed
+                << std::setprecision(4) << std::showpoint << getAtom(i).Coord(k)
+                << ' ';
     std::cout << '\n';
   }
 }
 
+arma::Col<double> MolState::get_geometry_as_col()
+{
+  arma::Col<double> geo_vec(this->NAtoms() * CARTDIM, arma::fill::zeros);
+
+  for (int atm_idx = 0; atm_idx < NAtoms(); ++atm_idx) {
+    for (int xyz_idx = 0; xyz_idx < CARTDIM; ++xyz_idx)
+      geo_vec(atm_idx * 3 + xyz_idx) = getAtom(atm_idx).Coord(xyz_idx);
+  }
+
+  return geo_vec;
+}
 
 void MolState::printNormalModes()
 {
