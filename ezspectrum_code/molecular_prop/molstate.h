@@ -35,7 +35,7 @@ class MolState {
   double energy;
   //! vertical excitation energy, only for use within vertical gradient approx
   double vertical_energy;
-  //! Gradient calculated in the caresian (NOT mass-weighted!) coordinates
+  //! Gradient calculated in the caresian (NOT mass-weighted!) coordinates, a.u.
   arma::Col<double> gradient;
   //! calculate the state's properties using the vertical gradient method
   bool IfGradientAvailable;

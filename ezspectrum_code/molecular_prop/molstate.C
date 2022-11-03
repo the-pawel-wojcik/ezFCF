@@ -953,8 +953,8 @@ void MolState::test_vertical_gradient_dimension() {
 /* Copies data from the initial state for the VG calculations
   */
 void MolState::copy_data_from_the_initial_state(const MolState &is){
-  std::cout << "\n Using vertical gradient approximation (VGA).\nThe following "
-               "properties are copied from the initial state:\n"
+  std::cout << "\n Using vertical gradient approximation (VGA).\n"
+               "Properties copied from the initial state:\n"
             << " - molecular geometry\n"
             << " - normal modes\n"
             << " - frequencies.\n\n";
@@ -1010,7 +1010,7 @@ void MolState::vg_calc_energy(const arma::vec &delta,
   // shifts. The adiabatic excitation energy is equal to the E^a _{00}, i.e.,
   // ZPE of the initial to the ZPE of the target states. This is the energy used
   // in the guts of the program where the intentities are calculated.
-  std::cout << "Adiabatic excitation energy (within VGA) = " << energy << " eV "
+  std::cout << "\nAdiabatic excitation energy (within VGA) = " << energy << " eV "
             << std::endl;
 }
 
