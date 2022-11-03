@@ -244,7 +244,7 @@ Dushinsky::Dushinsky(std::vector <MolState>& molStates, std::vector<int>& nm_lis
   int size=(N)*(N+K);
 
   // Create an array of sqrt() 0..K+1
-  K = MAX(max_quanta_target, max_quanta_initial);
+  K = std::max(max_quanta_target, max_quanta_initial);
   sqrtArray=new double[K+2];
   for (int i=0; i<K+1; i++)
     sqrtArray[i]=sqrt(i);

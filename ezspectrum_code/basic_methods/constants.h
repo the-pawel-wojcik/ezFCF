@@ -2,51 +2,46 @@
 #define _constants_h_
 
 /*! \file constants.h
-  \brief Simple math functions and constants 
+  \brief Math constants 
   \ingroup METHODS
   */
 
 #include <string>
 #include <algorithm>
 
-//! PI CHECK THIS
-#define PI 3.141592654
+
+const double PI = 3.14159265358979323846;
+
 //! Dimension of Cartesian 3D world
-#define CARTDIM 3
-//! Normalized random numbers
-#define RANDMAX ((double)pow(2.,31.)-1.)
-//! random number in [0,1] 
-#define RANDOM ((double)random()/RANDMAX) 
+const int CARTDIM = 3;
 
-//! Pi
-#define C_Pi  3.141592654
 //! c (speed of light) cm/second
-#define SPEEDOFLIGHT_CM_SEC  2.99792458E10
+const double SPEEDOFLIGHT_CM_SEC =  2.99792458e10;
 //! c (speed of light) bohr/a.time.u
-#define SPEEDOFLIGHT_AU 137.0359996
+const double SPEEDOFLIGHT_AU = 137.0359996;
 
-#define BOHR_2_CM 0.00000000529177249
+const double BOHR_2_CM = 0.00000000529177249;
 //! h, erg-seconds 
-#define PLANKCONSTANT_ERGxSEC  6.626176E-27
+const double PLANKCONSTANT_ERGxSEC = 6.626176e-27;
 
-#define KELVINS2EV 8.61735E-05
+const double KELVINS2EV = 8.61735e-05;
 
-#define AMU2GRAM 1.6605655E-24
-#define AU2ANGSTROM  0.52918
-#define ANGSTROM2AU 1.889716
-#define WAVENUMBERS2EV (1.0/8065.479)
-#define EV2HARTREE (1.0/27.211386245988)
+const double AMU2GRAM = 1.6605655e-24;
+const double AU2ANGSTROM =  0.52918;
+const double ANGSTROM2AU = 1.889716;
+const double WAVENUMBERS2EV = (1.0/8065.479);
+const double EV2HARTREE = (1.0/27.211386245988);
 
-#define HBAR 1.054572669E-34
-#define C_IN_SI  2.99792458E8
+const double HBAR = 1.054572669e-34;
+const double C_IN_SI =  2.99792458e8;
 
-#define AMU_2_ELECTRONMASS (1822.8884843)
+const double AMU_2_ELECTRONMASS = (1822.8884843);
 
 //! if less than threshold, considered to be zero
-#define COORDINATE_THRESHOLD 0.00000001 //Angstrom
+const double COORDINATE_THRESHOLD = 0.00000001; //Angstrom
 //! if less than threshold, considered to be zero
 // threshold for moment of intertia tensor
-#define MOI_THRESHOLD 0.00000001
+const double MOI_THRESHOLD = 0.00000001;
 
 
 //! Convert energy to eV

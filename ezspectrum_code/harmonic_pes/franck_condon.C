@@ -24,7 +24,7 @@ void harmonic_FCf(arma::Mat<double> & FCf, double Mass, double dQ,
     for (int n_targ=0; n_targ < FCf.n_cols; n_targ++ ) // for each vibr level of the target state
     {
       FCf(n_ini,n_targ) = 0;
-      for (int L=0; L <= MIN (n_ini, n_targ); L++)
+      for (int L=0; L <= std::min(n_ini, n_targ); L++)
       {
         for (int I=0; I <= ( ((n_targ-L)%2==0) ? (n_targ-L)/2 : (n_targ-L-1)/2 ) ; I++)
         {
