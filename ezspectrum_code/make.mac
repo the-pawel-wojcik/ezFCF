@@ -1,9 +1,6 @@
 CC=gcc-6
 
-CCFLAGS = -O3 -fopenmp
-#-static
-#static option causes linking error: ld: library not found for -lcrt0.o
-
+CCFLAGS = -O3
 
 INC = -I /usr/local/include/
 LSTD = -lstdc++
@@ -25,7 +22,7 @@ CXX_WNO_DEPRECATED = -Wno-deprecated
 INCLUDES_COMMON = -I molecular_prop/ -I basic_methods/ 
 INCLUDES_HARMONIC_PES = -I harmonic_pes/
 
-INCLUDES = $(linux_flag) $(INCLUDES_COMMON) $(INCLUDES_HARMONIC_PES)  
+INCLUDES = $(INCLUDES_COMMON) $(INCLUDES_HARMONIC_PES)  
 
 CXXBINOBJ = $(CXX_SRC:%.C=%.o)
 
@@ -33,10 +30,8 @@ CXXBINOBJ = $(CXX_SRC:%.C=%.o)
 $(CODE): $(CXXBINOBJ)
 	$(CXX) $^ $(LDFLAGS) $(INCLUDES) -o $(CODE)
 
-# uncomment if on linux
-linux = -D UNDERSCORE
 %.o: %.C
-	$(CXX) $(CXX_WNO_DEPRECATED) $(CXXFLAGS) $(linux) $(INCLUDES) -c $< -o $@
+	$(CXX) $(CXX_WNO_DEPRECATED) $(CCFLAGS) $(INCLUDES) -c $< -o $@
 
 clean:
 	/bin/rm -f $(CODE) *.o $(CXXBINOBJ)	
