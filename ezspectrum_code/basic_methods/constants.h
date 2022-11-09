@@ -43,6 +43,9 @@ const double COORDINATE_THRESHOLD = 0.00000001; //Angstrom
 // threshold for moment of intertia tensor
 const double MOI_THRESHOLD = 0.00000001;
 
+//! Prints warning during VGA calculation if normal modes of frequencies lower
+//! than this value are detected
+const double SMALL_FREQ_WARNING = 150.0;
 
 //! Convert energy to eV
 bool covert_energy_to_eV(double& ene, const std::string& units);

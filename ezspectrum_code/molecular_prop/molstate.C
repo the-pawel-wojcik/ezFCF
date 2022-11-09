@@ -950,15 +950,36 @@ void MolState::test_vertical_gradient_dimension() {
   }
 }
 
-/* Copies data from the initial state for the VG calculations
-  */
+/* The `Read_vertical_gradient` function reads the gradient node input without
+ * restricing the number of elements that are parsed. If it contains too few or
+ * too many coordinates, this function captures it.*/
+void MolState::test_for_small_frequencies_in_VGA() {
+
+  auto min_nmod = std::min_element(normModes.begin(), normModes.end());
+  double min_frequency = min_nmod->getFreq();
+
+  if (min_frequency <= SMALL_FREQ_WARNING) {
+    std::cout << " Warning!\n"
+                 "State contains small frequencies (<"
+              << std::fixed << std::setw(4) << std::setprecision(0)
+              << SMALL_FREQ_WARNING
+              << " wavenumbers)."
+                 "\nVGA can overestimate displacement along the "
+                 "corresponding modes.\n"
+                 "Consider a separate treatment of these nodes.\n"
+              << std::endl;
+  }
+}
+
+/* Copies the bare minimum of data from the initial state for the VG
+ * calculations. */
 void MolState::copy_data_from_the_initial_state(const MolState &is){
   std::cout << "\n Using vertical gradient approximation (VGA).\n"
                "Properties copied from the initial state:\n"
-            << " - molecular geometry\n"
-            << " - normal modes\n"
-            << " - frequencies.\n\n";
-
+               " - molecular geometry\n"
+               " - normal modes\n"
+               " - frequencies.\n\n";
+  
   atoms = is.atoms;
   normModes = is.normModes;
   n_molecular_nm = is.n_molecular_nm;
@@ -1184,6 +1205,7 @@ void MolState::ApplyKeyWords(xml_node &node_amu_table, MolState & initial_state)
   if (IfGradientAvailable) {
     copy_data_from_the_initial_state(initial_state);
     test_vertical_gradient_dimension();
+    test_for_small_frequencies_in_VGA();
     vertical_gradient_method();
   }
 }

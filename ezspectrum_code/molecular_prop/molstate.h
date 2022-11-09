@@ -94,6 +94,7 @@ class MolState {
   void un_mass_weight_nm();
   void create_matrices();
   void test_vertical_gradient_dimension();
+  void test_for_small_frequencies_in_VGA();
   void vertical_gradient_method();
   void apply_manual_coord_transformation(const MolState &);
   void reorder_normal_modes();

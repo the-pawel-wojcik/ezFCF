@@ -21,9 +21,13 @@ public:
       : displacement(n * CARTDIM, arma::fill::zeros), freq(fr), nAtoms(n){};
   NormalMode(const NormalMode &other);
   NormalMode& operator=(const NormalMode &other);
+  inline bool operator<(const NormalMode &other) const {
+    return this->getFreq() < other.getFreq();
+  }
 
   //! Returns frequency
   double &getFreq() { return freq; }
+  const double &getFreq() const { return freq; }
   // 3N displacements (x,y,z for N atoms)
   arma::Col<double> &getDisplacement() { return displacement; }
 

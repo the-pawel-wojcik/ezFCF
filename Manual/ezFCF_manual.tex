@@ -121,7 +121,7 @@ if you have suggestions, questions, or bugs to report. Have fun!
 \subsection*{ezFCF v.1.2 versus ezFCF v.1.1}
 This version includes the following new features:
 \begin{itemize}
-\item Vertical gradient approximation (see Section \ref{sec:para:vertical_gradient});
+\item Vertical gradient approximation (see Section \ref{sec:vga});
 \item Ability to compute FCFs for transitions originating from a single vibrational level (see Sec.~\ref{sec:para:subspace:single_state} and \ref{sec:dush:the_only_initial_state});
 \item Fixes to the scripts mostly extending the range of accepted \abinitio{} outputs.
 \end{itemize}  
@@ -615,53 +615,26 @@ The argument of {\tt{}text} contains a string representing one initial vibration
 
 
 %----------------------------------------------------------------------
-\subsection{Vertical gradient approximation}
-\label{sec:para:vertical_gradient}
-One can compute a full spectrum without target state geometry optimizations 
-by instead calculating the excited states' nuclear gradient. The respective 
-relaxed geometries can be extrapolated using both the gradients of the target 
-state computed at the equilibrium geometry of the initial state and the initial 
-state's Hessian. This approach called the vertical gradient approximation (VGA) 
-is exact when both
-(i) the potential energy surfaces are harmonic and 
-(ii) normal modes are the same in the initial and target states.
-VGA is also known as the linear coupling model.
+\section{Vertical gradient approximation}
+\label{sec:vga}
 
-VGA is triggered when the {\tt{}gradient} node is detected inside the 
-{\tt{}target\_state} node. In that case, the {\tt{}geometry}, 
-{\tt{}normal\_modes} and {\tt{}frequencies} nodes are ignored by the parser 
-and do not need to be specified. The corresponding quantities are copied
-from the \texttt{initial\_state} node just as expected in the 
-parallel mode approximation without frequency shifts, after which the gradient
-is used to find the VGA equilibrium geometry (as described below). The gradient must 
-be given in atomic units \texttt{a.u.} (Hartree/Bohr).
+\subsection{Overview and keywords}
+\label{sec:vga:overview}
+One of the challenges in the parallel approximation (Sec.~\ref{sec:parallel}) is
+the requirement to optimize the target state geometry. The vertical gradient 
+approximation (VGA) offers a way to extrapolate this geometry using only 
+knowledge of the initial state's Hessian and the target state's gradient.
 
-If the VGA is used the \texttt{excitation\_energy} node is not allowed (it is also 
-not available as the target state optimization is omitted), instead 
-one has to use the analog \texttt{vertical\_excitation\_energy} node. 
+\ezFCF{} calculates a full vibronic spectrum within the parallel mode 
+approximation (without frequency shifts) by using target state geometry from 
+VGA. This is why the VGA are set up in the same way as parallel mode 
+calculations, with the only difference in that the target state nodes contain 
+the \texttt{gradient} node instead of \texttt{geometry}, \texttt{normal\_modes} 
+and \texttt{frequencies}, as well as \texttt{vertical\_excitation\_energy} node 
+in place of \texttt{excitation\_energy}.
 
-Within VGA, the Cartesian geometry of the target state 
-is given by
-\begin{equation}
-    \label{eq:VG_geometry}
-    \vec{x _0 '}
-    =
-    \vec{x _0 ''}
-    -
-    T ^{-\frac{1}{2}} L 
-    \Omega ^{-2} 
-    L ^{-1} T ^{-\frac{1}{2}} 
-    \vec{g}.
-\end{equation}
-where $\Omega$ is an $N \times N$ diagonal matrix of harmonic frequencies, $\vec{g}$ is the gradient
-of  the potential energy surface of the target state in Cartesian coordinates evaluated at the geometry of the ground state. The other symbols are explained in Sec.~\ref{sec:dhush:overview}. The adiabatic excitation energy (bottom to bottom) extrapolated by the vertical gradient method is given by
-\begin{equation}
-    \label{eq:VG_energy}
-    E _\text{ad} = E _\text{vert} - \frac{1}{2} \sum _{i = 1} ^N \omega _i ^2 d _i ^2,
-\end{equation}
-where $\omega _i$ is the $i$th harmonic frequency and $d _i$ is the $i$th element of the displacement vector from Eq.~\eqref{eq:displacement_vec}.
-
-An example of the \texttt{vertical\_excitation\_energy} and \texttt{gradient} nodes
+An example of the \texttt{vertical\_excitation\_energy} and \texttt{gradient} 
+nodes
 \begin{lstlisting}[frame=single,framerule=0pt]
   <vertical_excitation_energy 
       units="eV"> 
@@ -685,7 +658,61 @@ An example of the \texttt{vertical\_excitation\_energy} and \texttt{gradient} no
   >
   </gradient>
 \end{lstlisting}
-The \texttt{text} argument contains $3*(\textrm{\# atoms})$ numbers -- the gradient components. The order of the components must stick to the coordinate system used throughout the \texttt{geometry} and \texttt{normal\_modes} nodes, i.e., it must be a list of the $x$, $y$, and $z$ gradient components corresponding to the first atom, followed by the $x$, $y$, and $z$ components of the second atoms and so on; the order of atoms must be the same as the order of atoms appearing in the \texttt{geometry} node. The value of the \texttt{text} argument is read as a series of floating point number separated by white-spaces.
+The \texttt{text} argument contains $3*(\textrm{\# atoms})$ numbers -- the gradient components. The order of the components must stick to the coordinate system used throughout the \texttt{geometry} and \texttt{normal\_modes} nodes of the \texttt{initial\_state}, i.e., it must be a list of the $x$, $y$, and $z$ gradient components corresponding to the first atom, followed by the $x$, $y$, and $z$ components of the second atoms and so on; the order of atoms must be the same as the order of atoms appearing in the \texttt{geometry} node of the \texttt{initial\_state}. The value of the \texttt{text} argument is read as a series of floating point number separated by white-spaces.  The gradient must be given in atomic units \texttt{a.u.} (Hartree/Bohr).
+
+The VGA calculations do not allow for \texttt{excitation\_energy} node (its 
+value is also not available as the target state optimization is omitted), 
+instead user has to use the analog \texttt{vertical\_excitation\_energy} 
+node.
+
+\subsection{Warnings}
+\label{sec:vga:equations}
+The VGA is an approximation to the parallel mode approximation, therefore it 
+inherits all limitations of the latter method. Additionally VGA relies on the 
+extrapolation of the target state geometry using harmonic potential.
+
+\ezFCF{} prints a warning if at least one the harmonic frequencies is 
+small ($< 150$ wavenumbers). The reason for that can be seen in 
+Eq.~\eqref{eq:VG_geometry}, where the gradient is divided by the inverse
+of squared frequencies. Division by small number generates large numbers,
+that translates to large VGA displacements along the corresponding nodes.
+The large displacement along the small frequencies nodes can be unphysical
+as molecular modes with small frequencies (e.g., rotations of alkyl groups)
+can show anharmonicities which yield much smaller displacement than the 
+ones extrapolated within the harmonic approach.
+
+\subsection{Theoretical background}
+\label{sec:vga:equations}
+VGA computes a full vibronic spectrum without target state geometry as an input.
+Instead, VGA calculations require the excited states' nuclear gradient. The target 
+state geometry is extrapolated from the ground state geometry, using both the 
+input gradient of the target state computed at the equilibrium geometry of the 
+initial state, and the initial state's Hessian. This approach is exact when both
+(i) the potential energy surfaces are harmonic and 
+(ii) normal modes are the same in the initial and target states.
+VGA is also known as the linear coupling model.
+
+
+Within VGA, the Cartesian geometry of the target state 
+is given by
+\begin{equation}
+    \label{eq:VG_geometry}
+    \vec{x _0 '}
+    =
+    \vec{x _0 ''}
+    -
+    T ^{-\frac{1}{2}} L 
+    \Omega ^{-2} 
+    L ^{-1} T ^{-\frac{1}{2}} 
+    \vec{g}.
+\end{equation}
+where $\Omega$ is an $N \times N$ diagonal matrix of harmonic frequencies, $\vec{g}$ is the gradient
+of  the potential energy surface of the target state in Cartesian coordinates evaluated at the geometry of the ground state. The other symbols are explained in Sec.~\ref{sec:dhush:overview}. The adiabatic excitation energy (bottom to bottom) extrapolated by the vertical gradient method is given by
+\begin{equation}
+    \label{eq:VG_energy}
+    E _\text{ad} = E _\text{vert} - \frac{1}{2} \sum _{i = 1} ^N \omega _i ^2 d _i ^2,
+\end{equation}
+where $\omega _i$ is the $i$th harmonic frequency and $d _i$ is the $i$th element of the displacement vector from Eq.~\eqref{eq:displacement_vec}.
 
 %----------------------------------------------------------------------
 \section{Duschinsky rotations}
@@ -1030,7 +1057,7 @@ The optional elements of the electronic state element are:
 \item {\tt manual\underline{~}atoms\underline{~}reordering} (Sec.~\ref{sec:geometry});
 \item {\tt manual\underline{~}coordinates\underline{~}transformation} (Sec.~\ref{sec:alignment});
 \item {\tt manual\underline{~}normal\underline{~}modes\underline{~}reordering} (Sec.~\ref{sec:nmodes});
-\item {\tt gradient} (allowed only in target states) (Sec.~\ref{sec:para:vertical_gradient}).
+\item {\tt gradient} (allowed only in target states) (Sec.~\ref{sec:vga}).
 \end{enumerate}
 
 %----------------------------------------------------------------------
