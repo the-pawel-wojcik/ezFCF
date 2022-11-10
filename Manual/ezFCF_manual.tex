@@ -287,6 +287,19 @@ and with the Duschinsky rotations will be saved in the \ul{cis}{hcoh.xml}\ul{.sp
 \ul{cis}{hcoh.xml}\ul{.spectrum}{dushinsky} files, respectively as well as in the \ul{cis}{hcoh.xml.out} output file. 
 The format of the spectrum and the output files is briefly described in Sec.~\ref{sec:output}
 
+%----------------------------------------------------------------------
+\subsection{Flexibility of calculations}
+\label{sec:quick_start:approximations}
+
+\ezFCF{} offers calculations of FCFs within harmonic approximation. The 
+\emph{Duschinsky rotations}, Sec.~\ref{sec:dushinsky}, allows to find 
+these factors exactly (within harmonic approximation). In the case that the 
+normal modes of initial and target state are aligned in pairs almost along 
+each other, the \emph{parallel approximation}, Sec.~\ref{sec:parallel}, which 
+neglects the Duschinsky effect, offers much faster calculations. The 
+\emph{vertical gradient approximation}, Sec.~\ref{sec:vga}, introduces
+further approximations, but reduced requested input data. Parallel 
+approximation is usually best place to start.
 
 %----------------------------------------------------------------------
 \subsection{Job parameters}
@@ -540,7 +553,6 @@ the initial ground states' vibrational wavefunction does not significantly chang
 the target state (see Fig~\ref{fig:rotations}); on the other hand, rotation of target state's vibrational wavefunctions with many 
 nodes strongly affects the overlap matrices.
 
-
 \begin{figure}[h!]
   \centering
   \caption{The effect of normal coordinate's rotation on the FCFs within the parallel mode
@@ -551,6 +563,9 @@ More detailed discussion can be found in Ref.~\cite{Koziol:HCOH:2009}.}
   \includegraphics[width=0.9\textwidth]{nm_rotations.pdf}
   \label{fig:rotations}
 \end{figure}
+
+The \texttt{print\_franck\_condon\_matrices} keyword enables printing of 
+the matrix of FCFs for each target state.
 
 
 %----------------------------------------------------------------------
@@ -620,24 +635,29 @@ The argument of {\tt{}text} contains a string representing one initial vibration
 
 \subsection{Overview and keywords}
 \label{sec:vga:overview}
-One of the challenges in the parallel approximation (Sec.~\ref{sec:parallel}) is
-the requirement to optimize the target state geometry. The vertical gradient 
-approximation (VGA) offers a way to extrapolate this geometry using only 
-knowledge of the initial state's Hessian and the target state's gradient.
+Calculations within the parallel approximation (Sec.~\ref{sec:parallel})
+require optimized target state geometry as an input. The vertical gradient 
+approximation (VGA) lifts this requirements but instead needs as an input 
+the target state gradient. 
+However, to find the spectrum the target state geometry is still necessary. 
+VGA at a cost of introducing additional assumptions, allows to extrapolate
+the unknown geometry.
 
-\ezFCF{} calculates a full vibronic spectrum within the parallel mode 
-approximation (without frequency shifts) by using target state geometry from 
-VGA. This is why the VGA are set up in the same way as parallel mode 
-calculations, with the only difference in that the target state nodes contain 
-the \texttt{gradient} node instead of \texttt{geometry}, \texttt{normal\_modes} 
-and \texttt{frequencies}, as well as \texttt{vertical\_excitation\_energy} node 
-in place of \texttt{excitation\_energy}.
+Implementation of VGA in \ezFCF{} allows to use it just like the parallel 
+mode method. To active VGA calculations one has to replace in the target 
+state nodes the \texttt{geometry}, \texttt{normal\_modes} and 
+\texttt{frequencies} subnodes by a single \texttt{gradient} subnode. 
+Additionally, the \texttt{excitation\_energy} subnode is has to be replaced 
+by \texttt{vertical\_excitation\_energy}.
+Calculations which use VGA find the full vibronic spectrum within the 
+parallel mode approximation (without frequency shifts) by extrapolating
+the target state geometry from the target state gradient and the initial 
+state Hessian (Sec.~\ref{sec:vga:equations}).
 
-An example of the \texttt{vertical\_excitation\_energy} and \texttt{gradient} 
-nodes
+An example use of VGA
 \begin{lstlisting}[frame=single,framerule=0pt]
-  <vertical_excitation_energy 
-      units="eV"> 
+<target_state>
+  <vertical_excitation_energy units="eV"> 
       2.32 
   </vertical_excitation_energy>
   <gradient
@@ -657,6 +677,7 @@ nodes
          0.12928034"
   >
   </gradient>
+</target_state>
 \end{lstlisting}
 The \texttt{text} argument contains $3*(\textrm{\# atoms})$ numbers -- the gradient components. The order of the components must stick to the coordinate system used throughout the \texttt{geometry} and \texttt{normal\_modes} nodes of the \texttt{initial\_state}, i.e., it must be a list of the $x$, $y$, and $z$ gradient components corresponding to the first atom, followed by the $x$, $y$, and $z$ components of the second atoms and so on; the order of atoms must be the same as the order of atoms appearing in the \texttt{geometry} node of the \texttt{initial\_state}. The value of the \texttt{text} argument is read as a series of floating point number separated by white-spaces.  The gradient must be given in atomic units \texttt{a.u.} (Hartree/Bohr).
 
@@ -689,7 +710,7 @@ state geometry is extrapolated from the ground state geometry, using both the
 input gradient of the target state computed at the equilibrium geometry of the 
 initial state, and the initial state's Hessian. This approach is exact when both
 (i) the potential energy surfaces are harmonic and 
-(ii) normal modes are the same in the initial and target states.
+(ii) normal modes and frequencies are the same in the initial and target states.
 VGA is also known as the linear coupling model.
 
 
