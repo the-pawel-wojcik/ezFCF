@@ -1,8 +1,7 @@
 CC=gcc-6
 
-CCFLAGS = -O3
+CCFLAGS = -O3 --std=c++11
 
-INC = -I /usr/local/include/
 LSTD = -lstdc++
 LARMA=-L/usr/local/lib/ -larmadillo
 LDFLAGS =  $(LSTD) $(LARMA) -lm 
@@ -19,10 +18,11 @@ CXX_SRC = main.C $(CXX_COMMON) $(CXX_HARMONIC_PES)
 
 CXX_WNO_DEPRECATED = -Wno-deprecated
 
+INC = -I /usr/local/include/
 INCLUDES_COMMON = -I molecular_prop/ -I basic_methods/ 
 INCLUDES_HARMONIC_PES = -I harmonic_pes/
 
-INCLUDES = $(INCLUDES_COMMON) $(INCLUDES_HARMONIC_PES)  
+INCLUDES = $(INC) $(INCLUDES_COMMON) $(INCLUDES_HARMONIC_PES)  
 
 CXXBINOBJ = $(CXX_SRC:%.C=%.o)
 
