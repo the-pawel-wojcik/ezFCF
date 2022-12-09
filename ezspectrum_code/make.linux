@@ -1,11 +1,9 @@
 CC=gcc
 
-CCFLAGS = -O3
+CCFLAGS = -O3 --std=c++11
 
-INC = -I /usr/local/include/
-LSTD = -lstdc++
-LARMA=-L/usr/local/lib/ -larmadillo
-LDFLAGS = $(LSTD) $(LARMA) -lm 
+LARMA= -larmadillo
+LDFLAGS = $(LARMA) -lm 
 
 CODE = ezFCF_linux.exe
 
@@ -25,7 +23,6 @@ INCLUDES_HARMONIC_PES = -I harmonic_pes/
 INCLUDES = $(INCLUDES_COMMON) $(INCLUDES_HARMONIC_PES)  
 
 CXXBINOBJ = $(CXX_SRC:%.C=%.o)
-
 
 $(CODE): $(CXXBINOBJ)
 	$(CXX) $^ $(LDFLAGS) $(INCLUDES) -o $(CODE)
