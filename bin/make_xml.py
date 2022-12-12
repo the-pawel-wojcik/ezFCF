@@ -94,9 +94,13 @@ DEFAULT_JOB_PARAMETERS = """<input
 
  -->\n\n"""
 
-OPT_GRADIENT_SECTION = """  <!-- To active the vertical gradient method (aka linear
-coupling method)
-       remove the 'OPT_' strings and fill in the 'text' node -->
+OPT_GRADIENT_SECTION = """  
+  <!-- Template for the vertical gradient approximation (VGA) -->
+
+  <OPT_vertical_excitation_energy units="eV">
+    1.0
+  </OPT_vertical_excitation_energy>
+
   <OPT_gradient
     units = "a.u."
     text   = " 
