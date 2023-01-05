@@ -10,7 +10,8 @@
 #include <time.h>
 
 //! Error handling (print msg, exit(1))
-void error(const char *const msg);
+void error(const std::string msg);
+void error(const char *const msg); // old one
 
 //! if expr -> error(msg);
 inline void check(const bool expr, const char *const msg) {
