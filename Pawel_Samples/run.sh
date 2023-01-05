@@ -51,6 +51,8 @@ do
 done
 
 # run an extra test from InputScripts
+echo ""
+echo test.xml
 cp ../InputScripts/test.xml ./
 time $ezFCF test.xml > test.xml.out
 
