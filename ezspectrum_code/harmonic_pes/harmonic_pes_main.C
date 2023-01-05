@@ -19,13 +19,103 @@ void vib_state_to_vec_int(std::string& text, std::vector<int>& v_state);
 void harmonic_pes_parallel(xml_node& node_input, std::vector <MolState>& elStates, const char *InputFileName);
 void harmonic_pes_dushinksy(xml_node& node_input, std::vector <MolState>& elStates, const char *InputFileName);
 
-bool harmonic_pes_main (const char *InputFileName, xml_node& node_input, xml_node& node_amu_table)
-{
+
+/* *** Check functions *** */
+
+/* Don't continue without at least one target state. */
+void require_target_states(std::vector<MolState> &elStates) {
+  if (elStates.size() <= 1) {
+    error("\nError! No target states found in the input.\n\n");
+  }
+}
+
+/* VGA doesn't make sense for the initial states. */
+void disallow_initial_state_gradient(std::vector<MolState> &elStates) {
+  if (elStates[0].IfGradient()) {
+    error("\nError! Use of the vertical gradient method is allowed only "
+          "in target states.\n\n");
+  }
+}
+
+/*
+  Checks for:
+  - the same number of atoms,
+  - the same order of the atomic names,
+  - the same "linearity"
+*/
+void require_similarity(std::vector<MolState> & elStates, int state_i) {
+  if (not(elStates[state_i].ifSimilar(elStates[0]))) {
+      std::string msg = std::string("target state #");
+      msg += std::to_string(state_i);
+      msg += std::string(
+          " has different # of atoms, their order or \"linear\" flag.");
+      error(msg);
+  }
+}
+
+/* VGA is allowed in all or none of the target states */
+void require_consistent_VGA(std::vector<MolState> &elStates, int state_i) {
+  // ^ is a binary XOR: returns True if the two bools are different
+  bool gradient_used_in_the_first_target = elStates[1].IfGradient();
+  if (elStates[state_i].IfGradient() ^ gradient_used_in_the_first_target) {
+    std::string msg = std::string("Error: target state #");
+    msg += std::to_string(state_i);
+    msg += std::string(
+        " breaks the consistent use of the VGA in target states.\n\n"
+        " Make sure to use vertical gradient in all target states.");
+    error(msg);
+  }
+}
+
+/* Input states have to satisfy some constraints. */
+void run_checks(std::vector<MolState> &elStates) {
+  require_target_states(elStates);
+  disallow_initial_state_gradient(elStates);
+
+  // run target state checks
+  for (int state_i = 1; state_i < elStates.size(); state_i++) {
+    // TODO: make sure that the program aborts if any of geometry, nm, or freqs
+    // were not read in the non-VG node
+    require_similarity(elStates, state_i);
+    require_consistent_VGA(elStates, state_i);
+  }
+}
+
+/* Reorient and shift molecular geometries. Print new ones. 
+ * The print_nms variable prints transformed normal modes. */
+void run_transformations(std::vector<MolState> &elStates, bool print_nms) {
+  for (int state_i = 0; state_i < elStates.size(); state_i++) {
+
+    // unless manual transformations were requested, run the default ones
+    if (not(elStates[state_i].ifAlignedManually())) {
+      elStates[state_i].align();
+      // align each target state with the initial one
+      if (state_i > 0)
+        elStates[state_i].align(elStates[0]);
+      // get clean zeros
+      elStates[state_i].applyCoordinateThreshold(COORDINATE_THRESHOLD);
+    }
+
+    std::cout << "\nNew molecular geometry:\n";
+    elStates[state_i].printGeometry();
+    std::cout << std::fixed << std::setprecision(6) << std::setw(13);
+    // Armadillo's `raw_print` respects cout flags
+    elStates[state_i].getMomentOfInertiaTensor().raw_print("\nMOI tensor:");
+
+    if (print_nms) {
+      std::cout << "Normal modes after the geometry transformations:\n\n";
+      elStates[state_i].printNormalModes();
+    }
+  }
+}
+
+bool harmonic_pes_main(const char *InputFileName, xml_node &node_input,
+                       xml_node &node_amu_table) {
   //============================================================================
   // Read initial state and N target states; i.e. (N+1) electronic states total
   std::vector<MolState> elStates;
 
-  // TODO: separate Reading from processing 
+  // TODO: separate Reading from processing
   // TODO: Read what's recomended depending on if VG requested or not
   std::cout << "\n====== Reading the initial state ======\n";
   xml_node node_istate(node_input, "initial_state", 0);
@@ -45,108 +135,39 @@ bool harmonic_pes_main (const char *InputFileName, xml_node& node_input, xml_nod
   }
   std::cout << "===== Done reading states =====\n\n";
 
+  // check if print normal modes after transformations & overlap matrix
+  bool if_print_normal_modes = node_input.read_flag_value("print_normal_modes");
+
   // Perform various checks and transformations
-  if (elStates.size() <= 1) {
-    std::cout << "\nError! No target states found in the input.\n\n";
-    exit(2);
-  }
-
-  if (elStates[0].IfGradient()) {
-    std::cout << "\nError! Use of the vertical gradient method is allowed only "
-                 "in target states.\n\n";
-    exit(2);
-  }
-
-  for (int state_i=0; state_i<elStates.size(); state_i++) {
-    // ifSimilar checks:
-    // - same number of atoms,
-    // - same order of the atomic names,
-    // - same "linearity"
-    // Check for a consistent use of the vertical gradient method
-    // TODO: make sure that the program aborts if any of geometry, nm, or freqs
-    // were not read in the non-VG node
-    if (state_i > 0) {
-      if ( not(elStates[state_i].ifSimilar(elStates[0])) ) {
-        std::cout << "Error: target state #" 
-          << state_i 
-          << " is different from the initial state\n\n";
-        exit(2);
-      }
-      // ^ is a binary XOR: returns True if the two bools are different
-      bool gradient_used_in_the_first_target = elStates[1].IfGradient();
-      if (elStates[state_i].IfGradient() ^ gradient_used_in_the_first_target) {
-        std::cout << "Error: target state #" 
-          << state_i 
-          << " breaks the consistent use of the VG method in target states.\n\n"
-          << " Make sure to use vertical gradient in all target states.\n\n";
-        exit(2);
-      }
-    }
-
-    // apply automatic transformations to the last loaded state (if no manual were requested):
-    if ( not(elStates[state_i].ifAlignedManually()) ) {
-
-      // align each state: 
-      // 1. center of mass in the coordinates origin
-      // 2. moment of ineretia principal axes along the coordinate axes
-      elStates[state_i].align();
-
-      // align each target state with the initial one
-      if (state_i>0)
-        elStates[state_i].align(elStates[0]);
-
-      // get clean zeros
-      elStates[state_i].applyCoordinateThreshold(COORDINATE_THRESHOLD);
-    }
-
-    std::cout << "\nNew molecular geometry:\n";
-    elStates[state_i].printGeometry();
-    std::cout << std::fixed << std::setprecision(6) << std::setw(13);
-    // Armadillo's `raw_print` uses cout flags
-    elStates[state_i].getMomentOfInertiaTensor().raw_print("\nMOI tensor:");
-
-    // check if print normal modes after transformations & overlap matrix
-    bool if_print_normal_modes =
-        node_input.read_flag_value("print_normal_modes");
-    if (if_print_normal_modes) {
-      std::cout << "Normal modes after the geometry transformations:\n\n";
-      elStates[state_i].printNormalModes();
-    }
-  }
+  run_checks(elStates);
+  run_transformations(elStates, if_print_normal_modes);
 
   std::cout << "Done with the transformations" << std::endl;
   std::string line(80, '-');
   std::cout << line << "\n";
 
   // if parallel or dushinsky
-  bool if_something_to_do=false;
-
-  //======================================================================
-  // Parallel approximation section
+  bool if_something_to_do = false;
 
   if (node_input.find_subnode("parallel_approximation")) {
     if_something_to_do = true;
     harmonic_pes_parallel(node_input, elStates, InputFileName);
   }
 
-  //=========================================================================
-  // Dushinski rotation (reach exact solution within harmonic approximation)
-  //=========================================================================
-  // Notation and equations are from [Berger et al. JPCA 102:7157(1998)]
-
-  if(node_input.find_subnode("dushinsky_rotations")) {
-    if_something_to_do=true;
-    harmonic_pes_dushinksy(node_input,elStates,InputFileName);
+  if (node_input.find_subnode("dushinsky_rotations")) {
+    if_something_to_do = true;
+    harmonic_pes_dushinksy(node_input, elStates, InputFileName);
   }
 
-  if (!if_something_to_do) {                 
-    std::cout << "\nError! No \"parallel_approximation\" or \"dushinsky_rotations\" section\n       was found in the input. Nothing to do.\n\n";
-    exit(2);
+  if (!if_something_to_do) {
+    std::string msg =
+        std::string("Input is missing both \"parallel_approximation\" and "
+                    "\"dushinsky_rotations\" sections.\n Nothing to do.");
+    error(msg);
   }
 
   return true;
-};
-
+}
 
 //! splits string of type "3v21" into two integers 3 and 21
 void get_qnt_nm(std::string& ex_str, int& qnt, int& nm ) {
@@ -285,6 +306,9 @@ void fillVibrState(My_istringstream& vibr_str, VibronicState& v_state, const int
 }
 
 
+//======================================================================
+// Parallel approximation
+//======================================================================
 void harmonic_pes_parallel(xml_node& node_input, std::vector <MolState>& elStates, const char *InputFileName) {
 
   xml_node node_parallel_approx(node_input,"parallel_approximation",0);
@@ -606,8 +630,16 @@ void harmonic_pes_parallel(xml_node& node_input, std::vector <MolState>& elState
   delete parallel_ptr;
 }
 
-
-void harmonic_pes_dushinksy(xml_node& node_input, std::vector <MolState>& elStates, const char *InputFileName) {
+/*
+ * =============================================================================
+ *  Dushinski rotation (reach exact solution within harmonic approximation)
+ * =============================================================================
+ *  Notation and equations are from [Berger et al. JPCA 102:7157(1998)]
+ * =============================================================================
+*/
+void harmonic_pes_dushinksy(xml_node &node_input,
+                            std::vector<MolState> &elStates,
+                            const char *InputFileName) {
 
   xml_node node_dushinsky_rotations(node_input,"dushinsky_rotations",0);
   xml_node node_jobparams(node_input,"job_parameters",0);
@@ -1020,5 +1052,4 @@ void harmonic_pes_dushinksy(xml_node& node_input, std::vector <MolState>& elStat
   std::cout << "\n\n";
 
   delete dushinsky_ptr;
-
 }
