@@ -7,6 +7,9 @@
   */
 
 //------------------------------
+// align each state:
+// 1. center of mass in the coordinates origin
+// 2. moment of ineretia principal axes along the coordinate axes
 void MolState::align()
 {
   // Shift center of mass to the origin:
@@ -841,8 +844,8 @@ void MolState::Read(xml_node &node_state) {
 
 /* MolState object stores two vectors of atoms: one from the "geometry" node and
  * one from the "normal_modes" node. After sucessful reading of the xml input,
- * each vector stores the atoms' names. This function uses the atomic_masses.xml
- * file to add the information about the atoms mass to the Atom containers. */
+ * each vector stores the atom names. This function uses the atomic_masses.xml
+ * file to add the information about the atom mass to the Atom containers. */
 void MolState::convert_atomic_names_to_masses(xml_node &node_amu_table) {
   for (int i = 0; i < NAtoms(); i++)
     atoms[i].Mass() =
@@ -853,40 +856,43 @@ void MolState::convert_atomic_names_to_masses(xml_node &node_amu_table) {
         node_amu_table.read_node_double_value(ab_intio_atoms_masses[i].Name().c_str());
 }
 
-/* Some ab-initio programs report mass-weighed normal modes other report the
- * regular cartesian coordinates. MolState stores the normal modes in the regual
- * (mass-un-weighed) form. This function transforms the mass-weighed normal
- * modes into the mass-un-weighed nodes used in the reminder of the program.
+/* Some ab-initio programs report mass-weighed normal modes while other report
+ * the regular cartesian coordinates. MolState stores the normal modes in the
+ * regual (mass-un-weighed) form. This function transforms the mass-weighed
+ * normal modes into the mass-un-weighed nodes used in the reminder of the
+ * program.
+ *
  * Helper of the `ApplyKeyWords` function. Assigns value to the `reduced_masses`
- * variable */
+ * variable. */
 void MolState::un_mass_weight_nm() {
   // Mass-un-weight normal modes, using the ab_intio_atoms_masses
   for (int nm = 0; nm < NNormModes(); nm++)
-    for (int a = 0; a < NAtoms(); a++)
+    for (int a = 0; a < NAtoms(); a++) {
+      double sqrt_mass = sqrt(ab_intio_atoms_masses[a].Mass());
       for (int i = 0; i < CARTDIM; i++)
-        getNormMode(nm).getDisplacement()(a * CARTDIM + i) *=
-            sqrt(ab_intio_atoms_masses[a].Mass());
+        getNormMode(nm).getDisplacement()(a * CARTDIM + i) *= sqrt_mass;
+    }
 
   // Normalize each normal mode (divide by sqrt(norm) which is the same as
   // division by sqrt(reduced mass))
 
   // Prepare reduced masses:
-  reduced_masses = arma::Col<double>(NNormModes(), arma::fill::ones);
+  reduced_masses = arma::Col<double>(NNormModes(), arma::fill::zeros);
   for (int nm = 0; nm < NNormModes(); nm++) {
-    reduced_masses(nm) = 0;
     for (int a = 0; a < NAtoms(); a++)
-      for (int i = 0; i < CARTDIM; i++)
-        reduced_masses(nm) +=
-            getNormMode(nm).getDisplacement()(a * CARTDIM + i) *
-            getNormMode(nm).getDisplacement()(a * CARTDIM + i);
+      for (int i = 0; i < CARTDIM; i++) {
+        double nm_displacement = getNormMode(nm).getDisplacement()(a * CARTDIM + i);
+        reduced_masses(nm) += nm_displacement * nm_displacement;
+      }
   }
 
   // Normalize:
-  for (int nm = 0; nm < NNormModes(); nm++)
+  for (int nm = 0; nm < NNormModes(); nm++) {
+    double sqrt_rm = sqrt(reduced_masses(nm));
     for (int a = 0; a < NAtoms(); a++)
       for (int i = 0; i < CARTDIM; i++)
-        getNormMode(nm).getDisplacement()(a * CARTDIM + i) /=
-            sqrt(reduced_masses(nm));
+        getNormMode(nm).getDisplacement()(a * CARTDIM + i) /= sqrt_rm;
+  }
 }
 
 /* Helper of the `ApplyKeyWords` function.
@@ -937,9 +943,9 @@ void MolState::create_matrices() {
   }
 }
 
-/* The `Read_vertical_gradient` function read the gradient node input without
- * restricing the number of elements that are parsed. If contians too few or too
- * many coordinates, this function captures it.*/
+/* The `Read_vertical_gradient` function reads the gradient node input without
+ * restricting the number of elements that are parsed. If it contains too few or
+ * too many coordinates, this function captures it.*/
 void MolState::test_vertical_gradient_dimension() {
   size_t gradient_dim = gradient.n_rows;
   if (gradient_dim != CARTDIM * NAtoms()) {
@@ -1173,10 +1179,10 @@ void MolState::reorder_atoms() {
             << std::endl;
 }
 
-/* This function runs most of the actions requested by "initial_state" or
- * "target_state" subnodes and keywords. Additionaly this function applies
- * transformations necessary for keeping `MolState` variables in line with the
- * ezFCF storage conventions.*/
+/* The "initial_state" or "target_state" include have keywords that modify the
+ * state. This function complese requested changes. Additionaly this function
+ * applies transformations necessary for keeping `MolState` variables in line
+ * with the ezFCF storage conventions. */
 void MolState::ApplyKeyWords(xml_node &node_amu_table, MolState & initial_state) {
 
   if (!IfGradientAvailable) {
