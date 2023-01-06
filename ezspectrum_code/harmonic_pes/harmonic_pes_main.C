@@ -161,53 +161,6 @@ bool harmonic_pes_main(const char *InputFileName, xml_node &node_input,
   return true;
 }
 
-//! converts string of type "1v1,1v2,1v3,3v19" into a vibrational state (i.e. vector of integers)
-void fillVibrState(My_istringstream& vibr_str, VibronicState& v_state, const int nm_max) {
-  // set all excitations back to 0
-  v_state.reset();
-
-  // string like 3v19"
-  std::string ex_str;
-
-  // string like "1v1,1v2,1v3,3v19"
-  // getNextWord skips untill the first letter or number (A-Z, a-z, 0-9)
-  // and keeps reading for as long as only letters and numbers appear,
-  // i.e., stops reading at a comma ",".
-  bool if_read=vibr_str.getNextWord(ex_str);
-
-  if (ex_str.empty()) {
-    std::cout 
-      << "\nError! Empty specification of a vibrational state." 
-      << std::endl;
-    exit(1);
-  }
-
-  // quanta & normal mode number (for parsing "3v19" to qnt=3 and nm=19)
-  int qnt=0, nm=0;
-
-  // fill vibrational state (if == 0 -- nothing to do)
-  if (ex_str!="0") {
-    get_qnt_nm(ex_str, qnt, nm);
-
-    // TODO: make run stronger tests as a function here
-    if (nm>nm_max) {
-      std::cout << "\nError! Normal mode " << nm 
-        << " (in [" << qnt << 'v' << nm << "] excitation) is out of range.\n\n";
-      exit(1);
-    }
-    v_state.setVibrQuanta(nm, qnt);
-
-    // repeat
-    while (not(vibr_str.fail())) {
-      vibr_str.getNextWord(ex_str);
-      get_qnt_nm(ex_str, qnt, nm);
-      v_state.setVibrQuanta(nm,qnt);
-    }
-
-  }
-}
-
-
 //======================================================================
 // Parallel approximation
 //======================================================================
@@ -530,6 +483,52 @@ void harmonic_pes_parallel(xml_node& node_input, std::vector <MolState>& elState
   std::cout << "------------------------------------------------------------------------------\n\n";
 
   delete parallel_ptr;
+}
+
+//! converts string of type "1v1,1v2,1v3,3v19" into a vibrational state (i.e. vector of integers)
+void fillVibrState(My_istringstream& vibr_str, VibronicState& v_state, const int nm_max) {
+  // set all excitations back to 0
+  v_state.reset();
+
+  // string like 3v19"
+  std::string ex_str;
+
+  // string like "1v1,1v2,1v3,3v19"
+  // getNextWord skips untill the first letter or number (A-Z, a-z, 0-9)
+  // and keeps reading for as long as only letters and numbers appear,
+  // i.e., stops reading at a comma ",".
+  bool if_read=vibr_str.getNextWord(ex_str);
+
+  if (ex_str.empty()) {
+    std::cout 
+      << "\nError! Empty specification of a vibrational state." 
+      << std::endl;
+    exit(1);
+  }
+
+  // quanta & normal mode number (for parsing "3v19" to qnt=3 and nm=19)
+  int qnt=0, nm=0;
+
+  // fill vibrational state (if == 0 -- nothing to do)
+  if (ex_str!="0") {
+    get_qnt_nm(ex_str, qnt, nm);
+
+    // TODO: make run stronger tests as a function here
+    if (nm>nm_max) {
+      std::cout << "\nError! Normal mode " << nm 
+        << " (in [" << qnt << 'v' << nm << "] excitation) is out of range.\n\n";
+      exit(1);
+    }
+    v_state.setVibrQuanta(nm, qnt);
+
+    // repeat
+    while (not(vibr_str.fail())) {
+      vibr_str.getNextWord(ex_str);
+      get_qnt_nm(ex_str, qnt, nm);
+      v_state.setVibrQuanta(nm,qnt);
+    }
+
+  }
 }
 
 /*
