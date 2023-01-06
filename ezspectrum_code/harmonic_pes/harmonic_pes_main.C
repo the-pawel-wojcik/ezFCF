@@ -1,20 +1,9 @@
 #include "harmonic_pes_main.h"
 
-//! splits string of type "3v21" into two integers 3 and 21
-//! qnt = 3; nm = 21
-void get_qnt_nm(std::string& ex_str, int& qnt, int& nm );
 
 //! converts string of type "1v1,1v2,1v3,3v19" into a vibrational state 
 //! stored as an object of the VibronicState class.
 void fillVibrState(My_istringstream& vibr_str, VibronicState& v_state, const int nm_max);
-
-//! converts string of type "1v1,1v2,1v3,3v19" into a vibrational state 
-//! stored as a vector of integers. This is an alternative to the
-//! fillVibronicState which stores the vibrational state as 
-//! an object of VibronicState
-//! v_state should be initilized to zeros. Each index of v_state is the number
-//! of a normal mode in use
-void vib_state_to_vec_int(std::string& text, std::vector<int>& v_state);
 
 void harmonic_pes_parallel(xml_node& node_input, std::vector <MolState>& elStates, const char *InputFileName);
 void harmonic_pes_dushinksy(xml_node& node_input, std::vector <MolState>& elStates, const char *InputFileName);
@@ -81,6 +70,8 @@ void run_checks(std::vector<MolState> &elStates) {
   }
 }
 
+/* *** End of check functions *** */
+
 /* Reorient and shift molecular geometries. Print new ones. 
  * The print_nms variable prints transformed normal modes. */
 void run_transformations(std::vector<MolState> &elStates, bool print_nms) {
@@ -107,8 +98,13 @@ void run_transformations(std::vector<MolState> &elStates, bool print_nms) {
       elStates[state_i].printNormalModes();
     }
   }
+
+  std::cout << "Done with the transformations" << std::endl;
+  std::string line(80, '-');
+  std::cout << line << "\n";
 }
 
+/* *** Constructor *** */
 bool harmonic_pes_main(const char *InputFileName, xml_node &node_input,
                        xml_node &node_amu_table) {
   //============================================================================
@@ -142,10 +138,6 @@ bool harmonic_pes_main(const char *InputFileName, xml_node &node_input,
   run_checks(elStates);
   run_transformations(elStates, if_print_normal_modes);
 
-  std::cout << "Done with the transformations" << std::endl;
-  std::string line(80, '-');
-  std::cout << line << "\n";
-
   // if parallel or dushinsky
   bool if_something_to_do = false;
 
@@ -167,96 +159,6 @@ bool harmonic_pes_main(const char *InputFileName, xml_node &node_input,
   }
 
   return true;
-}
-
-//! splits string of type "3v21" into two integers 3 and 21
-void get_qnt_nm(std::string& ex_str, int& qnt, int& nm ) {
-  if (ex_str.find("v")==std::string::npos) {
-    std::cout << "\nFormat error in [" << ex_str << "] excitation: should contain symbol \'v\'\n\n";
-    exit(1);
-  }
-  ex_str.replace( ex_str.find("v"), 1, " " );
-  std::istringstream ex_strs(ex_str);
-  ex_strs>>qnt>>nm;
-
-  if (ex_strs.fail()) {
-    ex_str.replace( ex_str.find(" "), 1, "v" );
-    std::cout << "\nFormat error in [" << ex_str << "] excitation. Should be two integers separated by the symbol 'v' \n\n";
-    exit(1);
-  }
-}
-
-//! converts string of type "1v1,1v2,1v3,3v19" into a vibrational state 
-//! stored as a vector of integers. This is an alternative to the
-//! fillVibronicState which stores the vibrational state as 
-//! an object of VibronicState
-//! v_state should be initilized to zeros. Each index of v_state is the number
-//! of a normal mode in use
-void vib_state_to_vec_int(std::string& text, std::vector<int>& v_state) { 
-
-  if (text.empty()) {
-    std::cout 
-      << "\nError! Empty specification of a vibrational state." 
-      << std::endl;
-    exit(1);
-  }
-
-  // number of molecule's normal modes: 3N - 5/6
-  const int max_nm = v_state.size();
-
-  std::queue<std::string> non_zero_modes;
-
-  std::string non_zero_mode;
-  size_t pos = text.find(",");
-  while (true) {
-    non_zero_mode = text.substr(0, pos);
-    non_zero_modes.push(non_zero_mode);
-    if (pos == std::string::npos) 
-      break;
-    text.erase(0, pos + 1);
-    pos = text.find(",");
-  } 
-
-
-  while (non_zero_modes.size()) {
-    std::string excitation = non_zero_modes.front();
-    non_zero_modes.pop();
-    // parse "10v3" into 
-    // no_of_quanta = 10 
-    // mode_number = 3
-    int no_of_quanta = -1;
-    int mode_number = -1;
-    get_qnt_nm(excitation, no_of_quanta, mode_number);
-
-    if (mode_number >= max_nm || mode_number < 0) {
-      std::cout << "Error in processing the_only_initial_state." 
-        << std::endl
-        << " Please pick normal mode from the range 0 to " 
-        << max_nm - 1 
-        << "." 
-        << std::endl;
-      exit(1);
-    }
-    if (no_of_quanta < 0) {
-      std::cout << "Error in processing the_only_initial_state." 
-        << std::endl
-        << " Please pick a positive number of vibrational quanta in all excited modes."
-        << std::endl;
-      exit(1);
-    }
-    if (v_state[mode_number] != 0) {
-      std::cout << "Error in processing the_only_initial_state." 
-        << std::endl
-        << " The number of vibrational quanta in mode #"
-        << mode_number
-        << " is defined more than once."
-        << std::endl
-        << " Please define each normal mode excitations only once."
-        << std::endl;
-      exit(1);
-    }
-    v_state[mode_number] = no_of_quanta;
-  }
 }
 
 //! converts string of type "1v1,1v2,1v3,3v19" into a vibrational state (i.e. vector of integers)

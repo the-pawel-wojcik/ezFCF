@@ -12,6 +12,7 @@
 #include "dushinsky.h"
 #include "vibrational_indexing.h"
 #include "aik_xml_parser.h"
+#include "vib_state_parser.h"
 
 #include <limits>
 
