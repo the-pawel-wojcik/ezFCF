@@ -543,9 +543,9 @@ Four attributes of the \ul{parallel}{approximation} element are always required:
 \item maximum number of the vibrational excitations in the initial and target electronic states
 (the total number of quanta in all normal modes);
 \item flag to include the combination bands (vibrational states with several normal modes excited at the same time);
-\item the flag whether to use the normal modes of the target ({\tt true}) or the initial ({\tt false}) state.
+\item the flag indicating whether to use the normal modes of the target ({\tt true}) or the initial ({\tt false}) state.
 \end{itemize}
-The latter requires clarification. In general, if there are no hot bands in the spectrum 
+The last point requires clarification. In general, if there are no hot bands in the spectrum 
 (0 K, and only the ground vibrational state of the initial electronic state is populated),
 using the normal modes of the target electronic state is preferred. 
 Indeed, rotation of
@@ -564,9 +564,9 @@ More detailed discussion can be found in Ref.~\cite{Koziol:HCOH:2009}.}
   \label{fig:rotations}
 \end{figure}
 
-The \texttt{print\_franck\_condon\_matrices} keyword enables printing of 
-the matrix of FCFs for each target state.
-
+If the flag of the \texttt{print\_franck\_condon\_matrices} keyword is set to 
+\texttt{true}, \ezFCF{} will additionally print in its output the matrices of 
+FCFs.
 
 %----------------------------------------------------------------------
 \subsection{Reduced dimensionality calculations and energy thresholds}

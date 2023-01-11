@@ -238,7 +238,7 @@ bool MolState::ifAlignedManually()
   return if_aligned_manually;
 }
 //------------------------------
-bool MolState::ifNMReorderedManually()
+bool MolState::ifNMReorderedManually() const
 {
   return if_nm_reordered_manually;
 }

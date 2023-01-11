@@ -182,7 +182,7 @@ public:
   // respectevly:
   void rotate(const double alpha_x, const double alpha_y, const double alpha_z);
   bool ifAlignedManually();
-  bool ifNMReorderedManually();
+  bool ifNMReorderedManually() const;
 };
 
 #endif

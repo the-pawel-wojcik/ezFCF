@@ -26,6 +26,15 @@ void disallow_initial_state_gradient(std::vector<MolState> &elStates) {
   }
 }
 
+/* Normal modes reordering is allowed in target states. */
+void disallow_initial_state_nm_reordering(std::vector<MolState> &elStates) {
+  if (elStates[0].ifNMReorderedManually()) {
+    std::string msg("Manual reordering of normal modes is not "
+                    "allowed in the initial state.");
+    error(msg);
+  }
+}
+
 /*
   Checks for:
   - the same number of atoms,
@@ -60,6 +69,7 @@ void require_consistent_VGA(std::vector<MolState> &elStates, int state_i) {
 void run_checks(std::vector<MolState> &elStates) {
   require_target_states(elStates);
   disallow_initial_state_gradient(elStates);
+  disallow_initial_state_nm_reordering(elStates);
 
   // run target state checks
   for (int state_i = 1; state_i < elStates.size(); state_i++) {
@@ -161,61 +171,83 @@ bool harmonic_pes_main(const char *InputFileName, xml_node &node_input,
   return true;
 }
 
+/* Returns true if for at least one state normal modes reordering was requested.
+ */
+bool normal_modes_reordered(std::vector<MolState> &elStates) {
+  for (const auto &state : elStates) {
+    if (state.ifNMReorderedManually())
+      return true;
+  }
+
+  return false;
+}
+
 //======================================================================
 // Parallel approximation
 //======================================================================
-void harmonic_pes_parallel(xml_node& node_input, std::vector <MolState>& elStates, const char *InputFileName) {
+void harmonic_pes_parallel(xml_node &node_input,
+                           std::vector<MolState> &elStates,
+                           const char *InputFileName) {
 
-  xml_node node_parallel_approx(node_input,"parallel_approximation",0);
-  xml_node node_jobparams(node_input,"job_parameters",0);
+  xml_node node_jobparams(node_input, "job_parameters", 0);
 
   // read global paramters
-  double temperature=node_jobparams.read_double_value("temperature");
+  double temperature = node_jobparams.read_double_value("temperature");
   // fcf threshold (from the <job_parameters> tag)
-  double fcf_threshold=sqrt(node_jobparams.read_double_value("spectrum_intensity_threshold"));
+  double fcf_threshold =
+      sqrt(node_jobparams.read_double_value("spectrum_intensity_threshold"));
   // check if print normal modes after transformations & overlap matrix
-  bool if_print_normal_modes=node_input.read_flag_value("print_normal_modes");
-  // check if the web version format of the output (do not print the input file & create a ".nmoverlap" file)
-  bool if_web_version=node_input.read_flag_value("if_web_version");
+  bool if_print_normal_modes = node_input.read_flag_value("print_normal_modes");
+  // check if the web version format of the output (do not print the input file
+  // & create a ".nmoverlap" file)
+  bool if_web_version = node_input.read_flag_value("if_web_version");
 
-  bool ifAnyNormalModesReordered = false;
-  for (int state_i = 0; state_i < elStates.size(); state_i++) {
-    if (elStates[state_i].ifNMReorderedManually()) {
-      ifAnyNormalModesReordered = true;
-      if (state_i == 0) {
-        std::cout << "\nError! Manual reordering of the normal modes is not "
-                     "allowed for the initial state\n\n";
-        exit(2);
-      }
-    }
-  }
+  // TODO: this should be a call to the pes_main once it turns into a class
+  bool ifAnyNormalModesReordered = normal_modes_reordered(elStates);
 
   // total number of the normal modes (in the initial state)
-  int n_norm_modes = elStates[0].NNormModes();
+  int n_molecular_nms = elStates[0].NNormModes();
 
-  std::cout << "\n=== Reading the parallel approximation job parameters ===\n"<< std::flush;
+  std::cout << "\n=== Reading the parallel approximation job parameters ===\n"
+            << std::flush;
 
-  // Maximum number of vibrational levels to take:
-  int max_n_initial, max_n_target;  //maximum number of vibrational levels for initial and target state
-  max_n_initial = node_parallel_approx.read_int_value("max_vibr_excitations_in_initial_el_state"); // i.e. =2 <=> three vibr. states GS and two excited states
-  max_n_target  = node_parallel_approx.read_int_value("max_vibr_excitations_in_target_el_state");
-  bool if_comb_bands = node_parallel_approx.read_bool_value("combination_bands");
-  bool if_use_target_nm = node_parallel_approx.read_bool_value("use_normal_coordinates_of_target_states");
+  xml_node node_parallel_approx(node_input, "parallel_approximation", 0);
 
-  if(temperature==0) {
-    max_n_initial = 0 ;
-    std::cout << "\nSince temperature=0, \"max_vibr_excitations_in_initial_el_state\" has been set to 0.\n"<< std::flush;
+  // maximum number of vibrational levels for initial and target state
+  // i.e. 2 means three vibr. states: ground and two excited states
+  int max_n_initial = node_parallel_approx.read_int_value(
+      "max_vibr_excitations_in_initial_el_state"); 
+  int max_n_target = node_parallel_approx.read_int_value(
+      "max_vibr_excitations_in_target_el_state");
+
+  // states with excitations in more than one mode
+  bool if_comb_bands =
+      node_parallel_approx.read_bool_value("combination_bands");
+
+  // Use normal modes of the target state
+  bool if_use_target_nm = node_parallel_approx.read_bool_value(
+      "use_normal_coordinates_of_target_states");
+
+  // TODO: move it to processing 
+  if (temperature == 0) {
+    max_n_initial = 0;
+    std::cout
+        << "\nSince temperature=0, "
+           "\"max_vibr_excitations_in_initial_el_state\" has been set to 0.\n"
+        << std::flush;
   }
 
-  // TODO: add documentation in the manual
   // TODO: Add a use example to Samples/
-  bool if_print_fcfs= node_parallel_approx.read_flag_value("print_franck_condon_matrices");
+  bool if_print_fcfs =
+      node_parallel_approx.read_flag_value("print_franck_condon_matrices");
 
-  // read energy thresholds (if provided)
-  double energy_threshold_initial = DBL_MAX;//eV
-  double energy_threshold_target = DBL_MAX; //eV
-                                            // TODO: the next two ifs should be two functions;
-  if(node_parallel_approx.find_subnode("energy_thresholds")) {
+  // read energy thresholds in eV (if provided)
+  double energy_threshold_initial = DBL_MAX;
+  double energy_threshold_target = DBL_MAX;
+
+  //  TODO: the next two ifs should be two functions;
+  //  TODO: continue here
+  if (node_parallel_approx.find_subnode("energy_thresholds")) {
 
     xml_node node_energy_thresholds(node_parallel_approx,"energy_thresholds",0);
 
@@ -307,25 +339,24 @@ void harmonic_pes_parallel(xml_node& node_input, std::vector <MolState>& elState
 
   // check that numbers in `do_not_excite_subspace` are samller than the
   // `number_of_normal_modes`
-  if ((do_not_excite_subspace_max >= n_norm_modes) and
+  if ((do_not_excite_subspace_max >= n_molecular_nms) and
       (if_use_do_not_excite_subspace == true)) {
     std::cout << "\nError! Maximum normal mode number in "
                  "\"do_not_excite_subspace\" is ["
               << do_not_excite_subspace_max << "],\n"
               << "  which is greater than (number_of_normal_modes-1)="
-              << n_norm_modes - 1 << "\n\n";
+              << n_molecular_nms - 1 << "\n\n";
     exit(2);
   }
 
   //create active_nm -- "excite subspace" (full_space-do_not_excite_subspace)
   std::vector<int> active_nm_parallel;
-  for (int nm=0; nm<n_norm_modes; nm++) {
+  for (int nm=0; nm<n_molecular_nms; nm++) {
     std::set<int>::const_iterator intSet_iter;
     intSet_iter = do_not_excite_subspace.find(nm);
     if ( intSet_iter == do_not_excite_subspace.end( ) )
       active_nm_parallel.push_back(nm);
   }
-
 
   //================================================================================
   // print the overlap matrix with the initial state for each target states:
@@ -417,7 +448,7 @@ void harmonic_pes_parallel(xml_node& node_input, std::vector <MolState>& elState
 
   // container for the only initial state
   // initialized as a state which has every mode with zero excitations 
-  std::vector<int> the_only_initial_state(n_norm_modes, 0); 
+  std::vector<int> the_only_initial_state(n_molecular_nms, 0); 
   if (node_parallel_approx.find_subnode("the_only_initial_state")) {
     if_the_only_initial_state = true;
 
@@ -450,7 +481,7 @@ void harmonic_pes_parallel(xml_node& node_input, std::vector <MolState>& elState
   if (ifAnyNormalModesReordered)
     std::cout <<"\nWARNING! The normal modes of one of the target states were reordered!\n"
       <<"         New order is used for the target state assignment.\n";
-  if( active_nm_parallel.size()!=n_norm_modes )
+  if( active_nm_parallel.size()!=n_molecular_nms )
   {
     std::cout << "\nNOTE: only the following normal modes were excited: (\"excite subspace\"):\n  ";
     for (int nm=0; nm< active_nm_parallel.size(); nm++)
