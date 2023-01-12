@@ -16,6 +16,14 @@ then
     cd ../Pawel_Samples
 fi
 
+if [[ $1 == "make" ]]
+then
+    ./clean.sh
+    cd ../ezspectrum_code
+    make
+    cd ../Pawel_Samples
+fi
+
 # Check if ezFCF file exists and is executable
 if [ ! -x $ezFCF ]
 then
