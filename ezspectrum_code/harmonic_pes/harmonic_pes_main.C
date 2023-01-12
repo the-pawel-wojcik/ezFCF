@@ -229,6 +229,96 @@ void read_energy_tresholds(const xml_node &node_parallel_approx,
   }
 }
 
+class DoNotExcite {
+private:
+  int size;
+  std::set<int> subspace;
+  int max_mode_no; // largest mode in the set; TODO: don't store, calculate as needed
+  std::istringstream nmodes_stream;
+  void parse_normal_modes_string();
+
+public:
+  /* `node` is bound to the "do_not_excite_subspace" subnode of 
+   * "parallel_approximation" node. */
+  DoNotExcite(const xml_node &node): max_mode_no(0) {
+    size = node.read_int_value("size");
+    nmodes_stream = std::istringstream(node.read_string_value("normal_modes"));
+    parse_normal_modes_string();
+  }
+  /* Get number of modes that will be excluded, i.e., the size of the do not
+   * excite subspace. */
+  const int get_size() const { return size; }
+  /* from the set of all excluded modes get the one with the largest number */
+  const int get_max_mode_no() const { return max_mode_no; }
+  const std::set<int> get_as_int_set() const { return subspace; }
+  void print_summary(bool nm_were_reordered) const;
+};
+
+/* The "normal_modes" string is a list of integers. Each integer is a normal
+ * number of normal mode that has to be excluded from later calculations.
+ * The "normal_modes" string is put into the `nmodes_stream` as an
+ * istringstream. */
+void DoNotExcite::parse_normal_modes_string() {
+
+  int mode_no;
+  for (int nm = 0; nm < size; nm++) {
+    nmodes_stream >> mode_no;
+
+    // read check
+    if (nmodes_stream.fail()) {
+      std::string msg("Format error in "
+                      "\"input\"->\"do_not_excite_subspace\"->\"normal_"
+                      "modes\"\n(non numeric symbol or less entries then "
+                      "specified by the \"size\" value)");
+      error(msg);
+    }
+
+    // in ezFCF convention normal modes are labelled 0, 1, ...
+    if (mode_no < 0) {
+      std::stringstream msg;
+      msg << "Format error in "
+          << "\"input\"->\"do_not_excite_subspace\"->\"normal_modes\"\n"
+          << "Entry [" << mode_no << "] is negative.";
+      error(msg);
+    }
+
+    // keep the maximum value of the list
+    if (mode_no > max_mode_no)
+      max_mode_no = mode_no;
+
+    // assure that each mode_no is given just once 
+    std::set<int>::const_iterator intSet_iter;
+    intSet_iter = subspace.find(mode_no);
+    if (intSet_iter != subspace.end()) {
+      std::stringstream msg;
+      msg << "Format error in "
+             "\"input\"->\"do_not_excite_subspace\"->\"normal_modes\"\n"
+          << "Entry [" << mode_no << "] is not unique.";
+      error(msg);
+    }
+    subspace.insert(mode_no);
+  }
+}
+
+/* Prints summary to the standard output about parsed normal modes. */
+void DoNotExcite::print_summary(bool nm_were_reordered) const {
+  if (subspace.size() == 0)
+    return;
+
+  if (nm_were_reordered)
+    std::cout
+        << "WARNING! The normal modes of the target state were reordered!\n"
+        << "         New order is used for the "
+           "\"do_not_excite_subspace\".\n\n";
+
+  std::cout << "The following normal modes will have no vibrational "
+               "excitations:\n";
+
+  for (const auto &mode_no : subspace)
+    std::cout << mode_no << ' ';
+  std::cout << std::endl;
+}
+
 //======================================================================
 // Parallel approximation
 //======================================================================
@@ -298,10 +388,10 @@ void harmonic_pes_parallel(xml_node &node_input,
   }
 
   // read normal modes do_not_excite subspace
-  std::set<int> do_not_excite_subspace;
   bool if_use_do_not_excite_subspace = false;
   int do_not_excite_subspace_size = 0;
   int do_not_excite_subspace_max = 0; // maximum value in lists
+  std::set<int> do_not_excite_subspace;
 
   if (node_parallel_approx.find_subnode("do_not_excite_subspace")) {
 
@@ -309,64 +399,13 @@ void harmonic_pes_parallel(xml_node &node_input,
                                          "do_not_excite_subspace", 0);
 
     if_use_do_not_excite_subspace = true;
-    do_not_excite_subspace_size =
-        node_do_not_excite_subspace.read_int_value("size");
-    std::istringstream tmp_iStr(
-        node_do_not_excite_subspace.read_string_value("normal_modes"));
 
-    int tmpInt;
-    for (int nm = 0; nm < do_not_excite_subspace_size; nm++) {
-      tmp_iStr >> tmpInt;
-      // input error check:
-      if (tmp_iStr.fail()) {
-        std::string msg("Format error in "
-                        "\"input\"->\"do_not_excite_subspace\"->\"normal_"
-                        "modes\"\n(non numeric symbol or less entries then "
-                        "specified by the \"size\" value)");
-        error(msg);
-      }
+    DoNotExcite subspace(node_do_not_excite_subspace);
+    do_not_excite_subspace_size = subspace.get_size();
+    do_not_excite_subspace_max = subspace.get_max_mode_no();
+    subspace.print_summary(ifAnyNormalModesReordered);
 
-      if (tmpInt < 0) {
-        std::string msg(
-            "Format error in "
-            "\"input\"->\"do_not_excite_subspace\"->\"normal_modes\"\nEntry [");
-        msg += std::to_string(tmpInt);
-        msg += std::string("] is negative.");
-        error(msg);
-      }
-
-      // keep the maximum value of the list
-      if (tmpInt > do_not_excite_subspace_max)
-        do_not_excite_subspace_max = tmpInt;
-
-      // check if tmpInt is already in the set:
-      std::set<int>::const_iterator intSet_iter;
-      intSet_iter = do_not_excite_subspace.find(tmpInt);
-      if (intSet_iter != do_not_excite_subspace.end()) {
-        std::stringstream msg;
-        msg << "Format error in "
-               "\"input\"->\"do_not_excite_subspace\"->\"normal_modes\"\n"
-            << "Entry [" << tmpInt << "] is not unique.";
-        error(msg);
-      }
-      do_not_excite_subspace.insert(tmpInt);
-    }
-
-    if (do_not_excite_subspace.size()!=0) {
-
-      if (ifAnyNormalModesReordered)
-        std::cout
-            << "WARNING! The normal modes of the target state were reordered!\n"
-            << "         New order is used for the "
-               "\"do_not_excite_subspace\".\n\n";
-
-      std::cout << "The following normal modes will have no vibrational "
-                   "excitations:\n";
-
-      for (const auto & subspace_elem: do_not_excite_subspace)
-        std::cout << subspace_elem << ' ';
-      std::cout << std::endl;
-    }
+    do_not_excite_subspace = subspace.get_as_int_set();
   }
 
   // check that numbers in `do_not_excite_subspace` are samller than the
@@ -524,18 +563,20 @@ void harmonic_pes_parallel(xml_node &node_input,
   std::cout << "           Stick photoelectron spectrum (parallel approximation)\n";
   std::cout << "------------------------------------------------------------------------------\n";
   if (ifAnyNormalModesReordered)
-    std::cout <<"\nWARNING! The normal modes of one of the target states were reordered!\n"
-      <<"         New order is used for the target state assignment.\n";
-  if( active_nm_parallel.size()!=n_molecular_nms )
-  {
-    std::cout << "\nNOTE: only the following normal modes were excited: (\"excite subspace\"):\n  ";
-    for (int nm=0; nm< active_nm_parallel.size(); nm++)
+    std::cout
+        << "\nWARNING! The normal modes of one of the target states were "
+           "reordered!\n"
+        << "         New order is used for the target state assignment.\n";
+  if (active_nm_parallel.size() != n_molecular_nms) {
+    std::cout << "\nNOTE: only the following normal modes were excited: "
+                 "(\"excite subspace\"):\n  ";
+    for (int nm = 0; nm < active_nm_parallel.size(); nm++)
       std::cout << active_nm_parallel[nm] << ' ';
     std::cout << "\n";
     if (ifAnyNormalModesReordered)
-      std::cout <<"\nWARNING! The normal modes of one of the target states were reordered!\n"
-        <<"         New order is used for the \"excite subspace\"\n";
-
+      std::cout << "\nWARNING! The normal modes of one of the target states "
+                   "were reordered!\n"
+                << "         New order is used for the \"excite subspace\"\n";
   }
   std::cout << "\n";
   if ( (*parallel_ptr).getSpectrum().getNSpectralPoints()>0)
