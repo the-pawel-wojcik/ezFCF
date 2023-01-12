@@ -11,7 +11,7 @@
 
 //! Error handling (print msg, exit(1))
 void error(const std::string msg);
-void error(const char *const msg); // old one
+void error(const std::stringstream & msg);
 
 //! if expr -> error(msg);
 inline void check(const bool expr, const char *const msg) {

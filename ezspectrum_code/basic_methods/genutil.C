@@ -25,10 +25,10 @@ void error(const std::string msg)
   exit(EXIT_FAILURE);
 }
 
-void error(const char *const msg)
+/* Sometimes a string stream is more convenient */
+void error(const std::stringstream & msg)
 {
-  std::cout << "\nezFCF: Error!\n" << msg <<"\n\n";
-  exit(EXIT_FAILURE);
+  error(msg.str());
 }
 
 // Prints a vector using a compact q-chem's format for gradient
