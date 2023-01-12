@@ -182,6 +182,53 @@ bool normal_modes_reordered(std::vector<MolState> &elStates) {
   return false;
 }
 
+/* A helper function used in parsing of the "parallel_approximation" node of the
+ * input xml file. `label` is one of "initial_state" or or "target_state" */
+double get_energy_thresh(const xml_node &node_energy_thresh,
+                         const std::string label) {
+
+  if (label != std::string("initial_state") &&
+      label != std::string("target_state")) {
+    std::string msg("get_energy_thresh: unknonw state label: ");
+    msg += label;
+    error(msg);
+  }
+
+  xml_node node_state_thresh(node_energy_thresh, label, 0);
+  std::string units = node_state_thresh.read_string_value("units");
+  double energy_thresh = node_state_thresh.read_node_double_value();
+
+  if (!covert_energy_to_eV(energy_thresh, units)) {
+    std::stringstream msg;
+    msg << "get_energy_thresh: Unknown units of the " << label
+        << " threshold: \"" << units << "\"\n"
+        << "  (should be equal to \"eV\", \"K\", or \"cm-1\").";
+    error(msg);
+  }
+
+  return energy_thresh;
+}
+
+/* A helper function used for parsing of the 'parallel_approximation' node of
+ * the input */
+void read_energy_tresholds(const xml_node &node_parallel_approx,
+                           double &energy_threshold_initial,
+                           double &energy_threshold_target) {
+
+  std::cout << "Reading energy thresholds." << std::endl;
+  xml_node node_energy_thresh(node_parallel_approx, "energy_thresholds", 0);
+
+  if (node_energy_thresh.find_subnode("initial_state")) {
+    energy_threshold_initial =
+        get_energy_thresh(node_energy_thresh, "initial_state");
+  }
+
+  if (node_energy_thresh.find_subnode("target_state")) {
+    energy_threshold_target =
+        get_energy_thresh(node_energy_thresh, "target_state");
+  }
+}
+
 //======================================================================
 // Parallel approximation
 //======================================================================
@@ -245,95 +292,80 @@ void harmonic_pes_parallel(xml_node &node_input,
   double energy_threshold_initial = DBL_MAX;
   double energy_threshold_target = DBL_MAX;
 
-  //  TODO: the next two ifs should be two functions;
-  //  TODO: continue here
   if (node_parallel_approx.find_subnode("energy_thresholds")) {
-
-    xml_node node_energy_thresholds(node_parallel_approx,"energy_thresholds",0);
-
-    if( node_energy_thresholds.find_subnode("initial_state")) {
-
-      std::cout << "Reading energy thresholds. " <<  std::endl;
-      xml_node node_istate(node_energy_thresholds,"initial_state",0);
-
-      std::string units=node_istate.read_string_value("units");
-      energy_threshold_initial=node_istate.read_node_double_value();
-      //std::cout << "Thresh=" << energy_threshold_initial << " " << units << std::endl;
-      if ( !covert_energy_to_eV(energy_threshold_initial,units) ) {
-        std::cout << "\nError! Unknown units of the initial state threshold: \"" << units <<"\"\n  (should be equal to \"eV\", \"K\", or \"cm-1\")\n\n";
-        exit(1);
-      }
-    }
-
-    if( node_energy_thresholds.find_subnode("target_state")) {
-
-      xml_node node_tstate(node_energy_thresholds,"target_state",0);
-
-      std::string units=node_tstate.read_string_value("units");
-      energy_threshold_target=node_tstate.read_node_double_value();
-      //std::cout << "Thresh=" << energy_threshold_target << " " << units << std::endl;
-      if ( !covert_energy_to_eV(energy_threshold_target,units) ) {
-        std::cout << "\nError! Unknown units of the target state threshold: \"" << units <<"\"\n  (should be equal to \"eV\", \"K\", or \"cm-1\")\n\n";
-        exit(1);
-      }
-    }
+    read_energy_tresholds(node_parallel_approx, energy_threshold_initial,
+                          energy_threshold_target);
   }
 
-  // read normal modes do_not_excite subspace (for parallel approximation only):
+  // read normal modes do_not_excite subspace
   std::set<int> do_not_excite_subspace;
-  bool if_use_do_not_excite_subspace=false;
-  int do_not_excite_subspace_size=0;
-  int do_not_excite_subspace_max=0; // maximum value in lists -- error check later (dirty)
+  bool if_use_do_not_excite_subspace = false;
+  int do_not_excite_subspace_size = 0;
+  int do_not_excite_subspace_max = 0; // maximum value in lists
 
-  if(node_parallel_approx.find_subnode("do_not_excite_subspace")) {
+  if (node_parallel_approx.find_subnode("do_not_excite_subspace")) {
 
-    xml_node node_do_not_excite_subspace(node_parallel_approx,"do_not_excite_subspace",0);
+    xml_node node_do_not_excite_subspace(node_parallel_approx,
+                                         "do_not_excite_subspace", 0);
 
-    if_use_do_not_excite_subspace=true;
-    do_not_excite_subspace_size=node_do_not_excite_subspace.read_int_value("size");
-    std::istringstream tmp_iStr(node_do_not_excite_subspace.read_string_value("normal_modes"));
+    if_use_do_not_excite_subspace = true;
+    do_not_excite_subspace_size =
+        node_do_not_excite_subspace.read_int_value("size");
+    std::istringstream tmp_iStr(
+        node_do_not_excite_subspace.read_string_value("normal_modes"));
 
     int tmpInt;
-
-    for (int nm=0; nm<do_not_excite_subspace_size; nm++)  {
+    for (int nm = 0; nm < do_not_excite_subspace_size; nm++) {
       tmp_iStr >> tmpInt;
-      //input error check:
+      // input error check:
       if (tmp_iStr.fail()) {
-        std::cout << "\nFormat error in \"input\"->\"do_not_excite_subspace\"->\"normal_modes\"\n"
-          << "(non numeric symbol or less entries then specified by the \"size\" value)\n\n";
-        exit(1);
+        std::string msg("Format error in "
+                        "\"input\"->\"do_not_excite_subspace\"->\"normal_"
+                        "modes\"\n(non numeric symbol or less entries then "
+                        "specified by the \"size\" value)");
+        error(msg);
       }
-      if (tmpInt<0) {
-        std::cout << "\nFormat error in \"input\"->\"do_not_excite_subspace\"->\"normal_modes\"\n"
-          << "Entry ["<< tmpInt<<"] is negative.\n\n";
-        exit(1);
-      }
-      // keep the maximum value of the list
-      if (tmpInt>do_not_excite_subspace_max)
-        do_not_excite_subspace_max=tmpInt;
 
-      //check if tmpInt is already in the set:
+      if (tmpInt < 0) {
+        std::string msg(
+            "Format error in "
+            "\"input\"->\"do_not_excite_subspace\"->\"normal_modes\"\nEntry [");
+        msg += std::to_string(tmpInt);
+        msg += std::string("] is negative.");
+        error(msg);
+      }
+
+      // keep the maximum value of the list
+      if (tmpInt > do_not_excite_subspace_max)
+        do_not_excite_subspace_max = tmpInt;
+
+      // check if tmpInt is already in the set:
       std::set<int>::const_iterator intSet_iter;
       intSet_iter = do_not_excite_subspace.find(tmpInt);
-      if ( intSet_iter != do_not_excite_subspace.end() ) {
-        std::cout << "\nFormat error in \"input\"->\"do_not_excite_subspace\"->\"normal_modes\"\n"
-          << "Entry ["<< tmpInt<<"] is not unique.\n\n";
-        exit(1);
+      if (intSet_iter != do_not_excite_subspace.end()) {
+        std::stringstream msg;
+        msg << "Format error in "
+               "\"input\"->\"do_not_excite_subspace\"->\"normal_modes\"\n"
+            << "Entry [" << tmpInt << "] is not unique.";
+        error(msg);
       }
       do_not_excite_subspace.insert(tmpInt);
     }
 
     if (do_not_excite_subspace.size()!=0) {
 
-      if(ifAnyNormalModesReordered)
-        std::cout <<"WARNING! The normal modes of the target state were reordered!\n"
-          <<"         New order is used for the \"do_not_excite_subspace\".\n\n";
+      if (ifAnyNormalModesReordered)
+        std::cout
+            << "WARNING! The normal modes of the target state were reordered!\n"
+            << "         New order is used for the "
+               "\"do_not_excite_subspace\".\n\n";
 
-      std::cout << "The following normal modes will have no vibrational excitations:\n";
+      std::cout << "The following normal modes will have no vibrational "
+                   "excitations:\n";
 
-      for (std::set<int>::const_iterator intSet_iter=do_not_excite_subspace.begin(); intSet_iter!=do_not_excite_subspace.end(); intSet_iter++)
-        std::cout << *intSet_iter << ' ';
-      std::cout<<"\n";
+      for (const auto & subspace_elem: do_not_excite_subspace)
+        std::cout << subspace_elem << ' ';
+      std::cout << std::endl;
     }
   }
 
@@ -349,12 +381,12 @@ void harmonic_pes_parallel(xml_node &node_input,
     exit(2);
   }
 
-  //create active_nm -- "excite subspace" (full_space-do_not_excite_subspace)
+  // create active_nm -- "excite subspace" (full_space-do_not_excite_subspace)
   std::vector<int> active_nm_parallel;
-  for (int nm=0; nm<n_molecular_nms; nm++) {
+  for (int nm = 0; nm < n_molecular_nms; nm++) {
     std::set<int>::const_iterator intSet_iter;
     intSet_iter = do_not_excite_subspace.find(nm);
-    if ( intSet_iter == do_not_excite_subspace.end( ) )
+    if (intSet_iter == do_not_excite_subspace.end())
       active_nm_parallel.push_back(nm);
   }
 
@@ -366,12 +398,15 @@ void harmonic_pes_parallel(xml_node &node_input,
               << " with the initial state =====\n";
 
     std::vector<int> normal_modes_list;
-    arma::Mat<double> NMoverlap;  //normal modes overlap matrix (for each target state the same matrix is used)
+    arma::Mat<double> NMoverlap; // normal modes overlap matrix (for each target
+                                 // state the same matrix is used)
     bool if_overlap_diagonal;
 
     // select nondiagonal submatrix of the overlap matrix:
-    if_overlap_diagonal=elStates[state].getNormalModeOverlapWithOtherState(elStates[0], NMoverlap, normal_modes_list);
-    // rows -- norm modes of the target state; colums norm modes of the initial state;
+    if_overlap_diagonal = elStates[state].getNormalModeOverlapWithOtherState(
+        elStates[0], NMoverlap, normal_modes_list);
+    // rows -- norm modes of the target state; colums norm modes of the initial
+    // state;
 
     // remove normal modes from normal_modes_list that are in the do_not_excite_subspace:
     std::set<int>::iterator iter_set;
@@ -391,31 +426,40 @@ void harmonic_pes_parallel(xml_node &node_input,
       if (new_normal_modes_list.size()<=1)
         std::cout<<"  (do_not_excite_subspace is excluded)\n";
       std::cout<<"\n";
-    }
-    else {        
-      std::cout << "WARNING! The normal modes overlap matrix with the initial state\n"
-        << "         is non-diagonal! Consider reordering the normal modes.\n\n";
+    } 
+    else {
+      std::cout
+          << "WARNING! The normal modes overlap matrix with the initial state\n"
+          << "         is non-diagonal! Consider reordering the normal "
+             "modes.\n\n";
       // create a normal mode submatrix:
-      arma::Mat<double> overlap_submatrix(new_normal_modes_list.size(), new_normal_modes_list.size(), arma::fill::zeros);
-      for (int nm1=0; nm1<new_normal_modes_list.size(); nm1++)
-        for (int nm2=0; nm2<new_normal_modes_list.size(); nm2++)
-          overlap_submatrix(nm1, nm2) = NMoverlap(new_normal_modes_list[nm1],new_normal_modes_list[nm2]);
+      arma::Mat<double> overlap_submatrix(new_normal_modes_list.size(),
+                                          new_normal_modes_list.size(),
+                                          arma::fill::zeros);
+      for (int nm1 = 0; nm1 < new_normal_modes_list.size(); nm1++)
+        for (int nm2 = 0; nm2 < new_normal_modes_list.size(); nm2++)
+          overlap_submatrix(nm1, nm2) =
+              NMoverlap(new_normal_modes_list[nm1], new_normal_modes_list[nm2]);
 
-      //print the overlap_submatrix (with correct column/row labbels):
-      std::cout << "  The non-diagonal part of the normal modes overlap matrix (do_not_excite_subspace is excluded):";
+      // print the overlap_submatrix (with correct column/row labbels):
+      std::cout << "  The non-diagonal part of the normal modes overlap matrix "
+                   "(do_not_excite_subspace is excluded):";
       std::cout << "\n     ";
 
-      for (int j=0; j<new_normal_modes_list.size(); j++)
-        std::cout << std::fixed << std::setprecision(0) << std::setw(8) << new_normal_modes_list[j];
-      for (int i=0; i<new_normal_modes_list.size(); i++) {
-        std::cout << "\n  "<< std::fixed << std::setprecision(0) << std::setw(3) << new_normal_modes_list[i];
-        for (int j=0; j<new_normal_modes_list.size(); j++)
+      for (int j = 0; j < new_normal_modes_list.size(); j++)
+        std::cout << std::fixed << std::setprecision(0) << std::setw(8)
+                  << new_normal_modes_list[j];
+      for (int i = 0; i < new_normal_modes_list.size(); i++) {
+        std::cout << "\n  " << std::fixed << std::setprecision(0)
+                  << std::setw(3) << new_normal_modes_list[i];
+        for (int j = 0; j < new_normal_modes_list.size(); j++)
           if (fabs(overlap_submatrix(i, j)) >= 0.001)
-            std::cout << std::fixed << std::setprecision(3) << std::setw(8) << overlap_submatrix(i, j);
+            std::cout << std::fixed << std::setprecision(3) << std::setw(8)
+                      << overlap_submatrix(i, j);
           else
             std::cout << "      --";
       }
-      std::cout <<"\n\n";
+      std::cout << "\n\n";
     }
 
     // print in a "fit 80 chars wide terminal" form
@@ -425,11 +469,12 @@ void harmonic_pes_parallel(xml_node &node_input,
                       "normal modes reordering)");
   }
 
-  // for the web version: save the overlap matrix (with displacements) in an xml file
-  std::stringstream nmoverlapFName; 
+  // for the web version: save the overlap matrix (with displacements) in an xml
+  // file
+  std::stringstream nmoverlapFName;
   nmoverlapFName << InputFileName << ".nmoverlap";
 
-  std::string line(80, '-');
+  const std::string line(80, '-');
   std::cout << line << "\n\n";
   std::cout << "Begining the parallel mode approximation computations.\n\n"
             << std::flush;
