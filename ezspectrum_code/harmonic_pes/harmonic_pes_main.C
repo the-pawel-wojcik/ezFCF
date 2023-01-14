@@ -231,16 +231,22 @@ void read_energy_tresholds(const xml_node &node_parallel_approx,
 
 class DoNotExcite {
 private:
+  /* Two containers for arguments passed to the input node */
   int size;
   std::set<int> subspace;
-  int max_mode_no; // largest mode in the set; TODO: don't store, calculate as needed
+
+  /* Helpers */
   std::istringstream nmodes_stream;
   void parse_normal_modes_string();
+
+  int largest_exclude_nm_no; // largest mode in the set; TODO: don't store, calculate as needed
+  void check_the_largest(const int n_mol_nms) const;
+  void check_the_smallest() const;
 
 public:
   /* `node` is bound to the "do_not_excite_subspace" subnode of 
    * "parallel_approximation" node. */
-  DoNotExcite(const xml_node &node): max_mode_no(0) {
+  DoNotExcite(const xml_node &node): largest_exclude_nm_no(-1) {
     size = node.read_int_value("size");
     nmodes_stream = std::istringstream(node.read_string_value("normal_modes"));
     parse_normal_modes_string();
@@ -249,9 +255,10 @@ public:
    * excite subspace. */
   const int get_size() const { return size; }
   /* from the set of all excluded modes get the one with the largest number */
-  const int get_max_mode_no() const { return max_mode_no; }
+  const int get_max_mode_no() const { return largest_exclude_nm_no; }
   const std::set<int> get_as_int_set() const { return subspace; }
-  void print_summary(bool nm_were_reordered) const;
+  void print_summary(const bool nm_were_reordered) const;
+  void run_tests(const int n_molecular_normal_modes) const;
 };
 
 /* The "normal_modes" string is a list of integers. Each integer is a normal
@@ -273,19 +280,11 @@ void DoNotExcite::parse_normal_modes_string() {
       error(msg);
     }
 
-    // in ezFCF convention normal modes are labelled 0, 1, ...
-    if (mode_no < 0) {
-      std::stringstream msg;
-      msg << "Format error in "
-          << "\"input\"->\"do_not_excite_subspace\"->\"normal_modes\"\n"
-          << "Entry [" << mode_no << "] is negative.";
-      error(msg);
-    }
-
     // keep the maximum value of the list
-    if (mode_no > max_mode_no)
-      max_mode_no = mode_no;
+    if (mode_no > largest_exclude_nm_no)
+      largest_exclude_nm_no = mode_no;
 
+    // TODO: push this to the errors processing section
     // assure that each mode_no is given just once 
     std::set<int>::const_iterator intSet_iter;
     intSet_iter = subspace.find(mode_no);
@@ -301,7 +300,7 @@ void DoNotExcite::parse_normal_modes_string() {
 }
 
 /* Prints summary to the standard output about parsed normal modes. */
-void DoNotExcite::print_summary(bool nm_were_reordered) const {
+void DoNotExcite::print_summary(const bool nm_were_reordered) const {
   if (subspace.size() == 0)
     return;
 
@@ -317,6 +316,43 @@ void DoNotExcite::print_summary(bool nm_were_reordered) const {
   for (const auto &mode_no : subspace)
     std::cout << mode_no << ' ';
   std::cout << std::endl;
+}
+
+/* Make sure that the list of modes to be excluded makes sense. */
+void DoNotExcite::run_tests(int n_molecular_normal_modes) const {
+  check_the_largest(n_molecular_normal_modes);
+  check_the_smallest();
+}
+
+/* Helper of `DoNotExcite::run_tests`. Make sure that the largest normal mode in
+ * the "do_not_excite_subspace" is smaller than number of molecular normal
+ * modes. */
+void DoNotExcite::check_the_largest(const int n_mol_nms) const {
+  if (largest_exclude_nm_no < n_mol_nms)
+    return;
+
+  std::stringstream msg;
+  msg << "A normal mode number " << largest_exclude_nm_no
+      << " in the \"do_not_excite_subspace\" is too large.\n"
+      << " This molecule has " << n_mol_nms  << " normal modes.\n"
+      << " Numbering of normal modes starts at 0.";
+  error(msg);
+}
+
+/* Helper of `DoNotExcite::run_tests`. Make sure numbers of modes to be excluded
+ * are not negative. */
+void DoNotExcite::check_the_smallest() const {
+  auto smallest_mode = std::min_element(subspace.begin(), subspace.end());
+  int smallest_mode_number = *smallest_mode;
+
+  if (smallest_mode_number >= 0)
+    return;
+
+  std::stringstream msg;
+  msg << "The normal mode number " << smallest_mode_number
+      << " in the \"do_not_excite_subspace\" is negative.\n"
+      << " Numbering of normal modes starts at 0.";
+  error(msg);
 }
 
 //======================================================================
@@ -335,8 +371,8 @@ void harmonic_pes_parallel(xml_node &node_input,
       sqrt(node_jobparams.read_double_value("spectrum_intensity_threshold"));
   // check if print normal modes after transformations & overlap matrix
   bool if_print_normal_modes = node_input.read_flag_value("print_normal_modes");
-  // check if the web version format of the output (do not print the input file
-  // & create a ".nmoverlap" file)
+  // check if the web version format of the output (do not print the input
+  // file & create a ".nmoverlap" file)
   bool if_web_version = node_input.read_flag_value("if_web_version");
 
   // TODO: this should be a call to the pes_main once it turns into a class
@@ -353,7 +389,7 @@ void harmonic_pes_parallel(xml_node &node_input,
   // maximum number of vibrational levels for initial and target state
   // i.e. 2 means three vibr. states: ground and two excited states
   int max_n_initial = node_parallel_approx.read_int_value(
-      "max_vibr_excitations_in_initial_el_state"); 
+      "max_vibr_excitations_in_initial_el_state");
   int max_n_target = node_parallel_approx.read_int_value(
       "max_vibr_excitations_in_target_el_state");
 
@@ -365,7 +401,7 @@ void harmonic_pes_parallel(xml_node &node_input,
   bool if_use_target_nm = node_parallel_approx.read_bool_value(
       "use_normal_coordinates_of_target_states");
 
-  // TODO: move it to processing 
+  // TODO: move it to processing
   if (temperature == 0) {
     max_n_initial = 0;
     std::cout
@@ -403,21 +439,10 @@ void harmonic_pes_parallel(xml_node &node_input,
     DoNotExcite subspace(node_do_not_excite_subspace);
     do_not_excite_subspace_size = subspace.get_size();
     do_not_excite_subspace_max = subspace.get_max_mode_no();
+    subspace.run_tests(n_molecular_nms);
     subspace.print_summary(ifAnyNormalModesReordered);
 
     do_not_excite_subspace = subspace.get_as_int_set();
-  }
-
-  // check that numbers in `do_not_excite_subspace` are samller than the
-  // `number_of_normal_modes`
-  if ((do_not_excite_subspace_max >= n_molecular_nms) and
-      (if_use_do_not_excite_subspace == true)) {
-    std::cout << "\nError! Maximum normal mode number in "
-                 "\"do_not_excite_subspace\" is ["
-              << do_not_excite_subspace_max << "],\n"
-              << "  which is greater than (number_of_normal_modes-1)="
-              << n_molecular_nms - 1 << "\n\n";
-    exit(2);
   }
 
   // create active_nm -- "excite subspace" (full_space-do_not_excite_subspace)
@@ -437,40 +462,41 @@ void harmonic_pes_parallel(xml_node &node_input,
               << " with the initial state =====\n";
 
     std::vector<int> normal_modes_list;
-    arma::Mat<double> NMoverlap; // normal modes overlap matrix (for each target
-                                 // state the same matrix is used)
+    arma::Mat<double> NMoverlap; // normal modes overlap matrix (for each
+                                 // target state the same matrix is used)
     bool if_overlap_diagonal;
 
     // select nondiagonal submatrix of the overlap matrix:
     if_overlap_diagonal = elStates[state].getNormalModeOverlapWithOtherState(
         elStates[0], NMoverlap, normal_modes_list);
-    // rows -- norm modes of the target state; colums norm modes of the initial
-    // state;
+    // rows -- norm modes of the target state; colums norm modes of the
+    // initial state;
 
-    // remove normal modes from normal_modes_list that are in the do_not_excite_subspace:
+    // remove normal modes from normal_modes_list that are in the
+    // do_not_excite_subspace:
     std::set<int>::iterator iter_set;
-    std::vector<int> new_normal_modes_list; 
+    std::vector<int> new_normal_modes_list;
 
-    for (int nm=0; nm<normal_modes_list.size(); nm++) {
+    for (int nm = 0; nm < normal_modes_list.size(); nm++) {
       // if nm is not in the do_not_excite set:
       iter_set = do_not_excite_subspace.find(normal_modes_list[nm]);
-      if ( iter_set == do_not_excite_subspace.end( ) )
+      if (iter_set == do_not_excite_subspace.end())
         // then copy it to the new list:
         new_normal_modes_list.push_back(normal_modes_list[nm]);
     }
 
-    //Create an overlap submatrix:
-    if ((if_overlap_diagonal) or (new_normal_modes_list.size()<=1)) {
-      std::cout << "The normal modes overlap matrix with the initial state is diagonal\n";
-      if (new_normal_modes_list.size()<=1)
-        std::cout<<"  (do_not_excite_subspace is excluded)\n";
-      std::cout<<"\n";
-    } 
-    else {
-      std::cout
-          << "WARNING! The normal modes overlap matrix with the initial state\n"
-          << "         is non-diagonal! Consider reordering the normal "
-             "modes.\n\n";
+    // Create an overlap submatrix:
+    if ((if_overlap_diagonal) or (new_normal_modes_list.size() <= 1)) {
+      std::cout << "The normal modes overlap matrix with the initial state "
+                   "is diagonal\n";
+      if (new_normal_modes_list.size() <= 1)
+        std::cout << "  (do_not_excite_subspace is excluded)\n";
+      std::cout << "\n";
+    } else {
+      std::cout << "WARNING! The normal modes overlap matrix with the "
+                   "initial state\n"
+                << "         is non-diagonal! Consider reordering the normal "
+                   "modes.\n\n";
       // create a normal mode submatrix:
       arma::Mat<double> overlap_submatrix(new_normal_modes_list.size(),
                                           new_normal_modes_list.size(),
@@ -508,8 +534,8 @@ void harmonic_pes_parallel(xml_node &node_input,
                       "normal modes reordering)");
   }
 
-  // for the web version: save the overlap matrix (with displacements) in an xml
-  // file
+  // for the web version: save the overlap matrix (with displacements) in an
+  // xml file
   std::stringstream nmoverlapFName;
   nmoverlapFName << InputFileName << ".nmoverlap";
 
