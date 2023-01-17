@@ -237,31 +237,34 @@ private:
   int size;
   std::set<int> subspace;
 
+  /* Number of molecular normal modes, i.e., 3 N_{atoms} - 5/6. */
+  const int n_molecular_nms;
+
   /* Helpers */
   std::istringstream nmodes_stream;
   void parse_normal_modes_string();
 
-  int largest_exclude_nm_no; // largest mode in the set; TODO: don't store,
-                             // calculate as needed
+  /* Functions testing user's input */
+  void run_tests() const;
   void check_the_largest(const int n_mol_nms) const;
   void check_the_smallest() const;
+  void check_for_duplicates() const;
 
 public:
   /* `node` is bound to the "do_not_excite_subspace" subnode of
    * "parallel_approximation" node. */
-  DoNotExcite(const xml_node &node) : largest_exclude_nm_no(-1) {
+  DoNotExcite(const xml_node &node, int n_mol_nms): size(0), n_molecular_nms(n_mol_nms) {
     size = node.read_int_value("size");
     nmodes_stream = std::istringstream(node.read_string_value("normal_modes"));
     parse_normal_modes_string();
+    run_tests();
   }
   /* Get number of modes that will be excluded, i.e., the size of the do not
    * excite subspace. */
   const int get_size() const { return size; }
-  /* from the set of all excluded modes get the one with the largest number */
-  const int get_max_mode_no() const { return largest_exclude_nm_no; }
   const std::set<int> get_as_int_set() const { return subspace; }
+  const std::set<int> get_active_subspace() const;
   void print_summary(const bool nm_were_reordered) const;
-  void run_tests(const int n_molecular_normal_modes) const;
 };
 
 /* The "normal_modes" string is a list of integers. Each integer is a normal
@@ -283,21 +286,6 @@ void DoNotExcite::parse_normal_modes_string() {
       error(msg);
     }
 
-    // keep the maximum value of the list
-    if (mode_no > largest_exclude_nm_no)
-      largest_exclude_nm_no = mode_no;
-
-    // TODO: push this to the errors processing section
-    // assure that each mode_no is given just once
-    std::set<int>::const_iterator intSet_iter;
-    intSet_iter = subspace.find(mode_no);
-    if (intSet_iter != subspace.end()) {
-      std::stringstream msg;
-      msg << "Format error in "
-             "\"input\"->\"do_not_excite_subspace\"->\"normal_modes\"\n"
-          << "Entry [" << mode_no << "] is not unique.";
-      error(msg);
-    }
     subspace.insert(mode_no);
   }
 }
@@ -322,15 +310,19 @@ void DoNotExcite::print_summary(const bool nm_were_reordered) const {
 }
 
 /* Make sure that the list of modes to be excluded makes sense. */
-void DoNotExcite::run_tests(int n_molecular_normal_modes) const {
-  check_the_largest(n_molecular_normal_modes);
+void DoNotExcite::run_tests() const {
+  check_the_largest(n_molecular_nms);
   check_the_smallest();
+  check_for_duplicates();
 }
 
 /* Helper of `DoNotExcite::run_tests`. Make sure that the largest normal mode in
  * the "do_not_excite_subspace" is smaller than number of molecular normal
  * modes. */
 void DoNotExcite::check_the_largest(const int n_mol_nms) const {
+  auto largest_mode = std::max_element(subspace.begin(), subspace.end());
+  int largest_exclude_nm_no = *largest_mode;
+
   if (largest_exclude_nm_no < n_mol_nms)
     return;
 
@@ -355,6 +347,25 @@ void DoNotExcite::check_the_smallest() const {
   msg << "The normal mode number " << smallest_mode_number
       << " in the \"do_not_excite_subspace\" is negative.\n"
       << " Numbering of normal modes starts at 0.";
+  error(msg);
+}
+
+/* Helper of `DoNotExcite::run_tests`. Assure that the user did not input
+ * duplicates in the list of modes to be excluded. */
+void DoNotExcite::check_for_duplicates() const {
+  int subspace_size = subspace.size();
+
+  if (subspace_size == size)
+    return;
+
+  std::stringstream msg;
+  msg << "duplicates dected in\n"
+      << "\"input\"->\"do_not_excite_subspace\"->\"normal_modes\".\n"
+      << " Input contains " << subspace_size << " unique elements:\n";
+  for (auto i : subspace) {
+    msg << " " << i;
+  }
+  msg << "\n";
   error(msg);
 }
 
@@ -428,10 +439,9 @@ void harmonic_pes_parallel(xml_node &node_input,
 
   // read normal modes do_not_excite subspace
   bool if_use_do_not_excite_subspace = false;
-  int do_not_excite_subspace_size = 0;
-  int do_not_excite_subspace_max = 0; // maximum value in lists
   std::set<int> do_not_excite_subspace;
 
+  // TODO: run this check inside of the DoNotExcite
   if (node_parallel_approx.find_subnode("do_not_excite_subspace")) {
 
     xml_node node_do_not_excite_subspace(node_parallel_approx,
@@ -439,20 +449,17 @@ void harmonic_pes_parallel(xml_node &node_input,
 
     if_use_do_not_excite_subspace = true;
 
-    DoNotExcite subspace(node_do_not_excite_subspace);
-    do_not_excite_subspace_size = subspace.get_size();
-    do_not_excite_subspace_max = subspace.get_max_mode_no();
-    subspace.run_tests(n_molecular_nms);
+    DoNotExcite subspace(node_do_not_excite_subspace, n_molecular_nms);
     subspace.print_summary(ifAnyNormalModesReordered);
 
     do_not_excite_subspace = subspace.get_as_int_set();
   }
 
+  // TODO: expand DoNotExcite
   // create active_nm -- "excite subspace" (full_space-do_not_excite_subspace)
   std::vector<int> active_nm_parallel;
   for (int nm = 0; nm < n_molecular_nms; nm++) {
-    std::set<int>::const_iterator intSet_iter;
-    intSet_iter = do_not_excite_subspace.find(nm);
+    auto intSet_iter = do_not_excite_subspace.find(nm);
     if (intSet_iter == do_not_excite_subspace.end())
       active_nm_parallel.push_back(nm);
   }
