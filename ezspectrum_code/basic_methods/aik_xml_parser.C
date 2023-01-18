@@ -300,7 +300,7 @@ void xml_node::print_toc(std::ostream& out) const {
   }
 }
 
-std::size_t xml_node::find_subnode(std::string subname) {
+std::size_t xml_node::find_subnode(std::string subname) const {
 
   //std::cout << "Find subnode "<< subname << " in node " << xml_node_name << std::endl;
   std::size_t nodes_found=0;

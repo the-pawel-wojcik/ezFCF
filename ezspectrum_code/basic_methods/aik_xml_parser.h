@@ -69,7 +69,7 @@ class xml_node
   xml_node& operator=(const xml_node& other);
   
   //For recursive use: find how many subnodes are in the node
-  std::size_t find_subnode(std::string name); 
+  std::size_t find_subnode(std::string name) const; 
   
   //Access functions to read content, e.g., read values such as number_of_atoms="4", units="au", etc
   //FIXIT: how to handle correctly  the case when field is not found
