@@ -202,8 +202,8 @@ double get_energy_thresh(const xml_node &node_energy_thresh,
   if (!covert_energy_to_eV(energy_thresh, units)) {
     std::stringstream msg;
     msg << "get_energy_thresh: Unknown units of the " << label
-        << " threshold: \"" << units << "\"\n"
-        << "  (should be equal to \"eV\", \"K\", or \"cm-1\").";
+        << " energy threshold: \"" << units << "\"\n"
+        << "  (accepted units: \"eV\", \"K\", or \"cm-1\").";
     error(msg);
   }
 
@@ -226,6 +226,94 @@ void read_energy_tresholds(const xml_node &node_parallel_approx,
   if (node_energy_thresh.find_subnode("target_state")) {
     energy_threshold_target =
         get_energy_thresh(node_energy_thresh, "target_state");
+  }
+}
+
+/* print the overlap matrix with the initial state for each target states 
+ * TODO: getNormalModeOverlapWithOtherState should be const. */
+void print_overlap_matrix(std::vector<MolState> &elStates,
+                          std::set<int> do_not_excite_subspace,
+                          bool if_print_normal_modes) {
+  for (int state = 1; state < elStates.size(); state++) {
+    std::cout << "\n===== Overlap matrix of the target state #" << state
+              << " with the initial state =====\n";
+
+    std::vector<int> normal_modes_list;
+    arma::Mat<double> NMoverlap; // normal modes overlap matrix (for each
+                                 // target state the same matrix is used)
+    bool if_overlap_diagonal;
+
+    // select nondiagonal submatrix of the overlap matrix:
+    if_overlap_diagonal = elStates[state].getNormalModeOverlapWithOtherState(
+        elStates[0], NMoverlap, normal_modes_list);
+    // rows -- norm modes of the target state; colums norm modes of the
+    // initial state;
+
+    // remove normal modes from normal_modes_list that are in the
+    // do_not_excite_subspace:
+    std::vector<int> new_normal_modes_list;
+
+    for (int nm = 0; nm < normal_modes_list.size(); nm++) {
+      // if nm is not in the do_not_excite set:
+      auto iter_set = do_not_excite_subspace.find(normal_modes_list[nm]);
+      if (iter_set == do_not_excite_subspace.end())
+        // then copy it to the new list:
+        new_normal_modes_list.push_back(normal_modes_list[nm]);
+    }
+
+    // Create an overlap submatrix:
+    if ((if_overlap_diagonal) or (new_normal_modes_list.size() <= 1)) {
+      std::cout << "The normal modes overlap matrix with the initial state "
+                   "is diagonal\n";
+      if (do_not_excite_subspace.size() > 0)
+        std::cout << "  (do_not_excite_subspace is excluded)\n";
+      std::cout << "\n";
+    } else {
+      std::cout << "WARNING! The normal modes overlap matrix with the "
+                   "initial state\n"
+                << "         is non-diagonal! Consider reordering the normal "
+                   "modes.\n\n";
+      // create a normal mode submatrix:
+      arma::Mat<double> overlap_submatrix(new_normal_modes_list.size(),
+                                          new_normal_modes_list.size(),
+                                          arma::fill::zeros);
+      for (int nm1 = 0; nm1 < new_normal_modes_list.size(); nm1++)
+        for (int nm2 = 0; nm2 < new_normal_modes_list.size(); nm2++)
+          overlap_submatrix(nm1, nm2) =
+              NMoverlap(new_normal_modes_list[nm1], new_normal_modes_list[nm2]);
+
+      // print the overlap_submatrix (with correct column/row labels):
+      std::cout << "  The non-diagonal part of the normal modes overlap matrix "
+                   "(do_not_excite_subspace is excluded):";
+      std::cout << "\n     ";
+
+      // print header row: column numbers
+      for (int j = 0; j < new_normal_modes_list.size(); j++)
+        std::cout << std::fixed << std::setprecision(0) << std::setw(8)
+                  << new_normal_modes_list[j];
+
+      // print rows
+      for (int i = 0; i < new_normal_modes_list.size(); i++) {
+        // print row number
+        std::cout << "\n  " << std::fixed << std::setprecision(0)
+                  << std::setw(3) << new_normal_modes_list[i];
+
+        // print overlap values
+        for (int j = 0; j < new_normal_modes_list.size(); j++)
+          if (fabs(overlap_submatrix(i, j)) >= 0.001)
+            std::cout << std::fixed << std::setprecision(3) << std::setw(8)
+                      << overlap_submatrix(i, j);
+          else
+            std::cout << "      --";
+      }
+      std::cout << "\n\n";
+    }
+
+    // print in a "fit 80 chars wide terminal" form
+    if (if_print_normal_modes)
+      NMoverlap.print("Normal modes overlap matrix with the initial state "
+                      "\n(if significantly non diagonal, please consider "
+                      "normal modes reordering)");
   }
 }
 
@@ -307,85 +395,7 @@ void harmonic_pes_parallel(xml_node &node_input,
   // create active_nm -- "excite subspace" (full_space-do_not_excite_subspace)
   std::vector<int> active_nm_parallel = no_excite_subspace.get_active_subspace();
 
-  //================================================================================
-  // print the overlap matrix with the initial state for each target states:
-
-  for (int state = 1; state < elStates.size(); state++) {
-    std::cout << "\n===== Overlap matrix of the target state #" << state
-              << " with the initial state =====\n";
-
-    std::vector<int> normal_modes_list;
-    arma::Mat<double> NMoverlap; // normal modes overlap matrix (for each
-                                 // target state the same matrix is used)
-    bool if_overlap_diagonal;
-
-    // select nondiagonal submatrix of the overlap matrix:
-    if_overlap_diagonal = elStates[state].getNormalModeOverlapWithOtherState(
-        elStates[0], NMoverlap, normal_modes_list);
-    // rows -- norm modes of the target state; colums norm modes of the
-    // initial state;
-
-    // remove normal modes from normal_modes_list that are in the
-    // do_not_excite_subspace:
-    std::set<int>::iterator iter_set;
-    std::vector<int> new_normal_modes_list;
-
-    for (int nm = 0; nm < normal_modes_list.size(); nm++) {
-      // if nm is not in the do_not_excite set:
-      iter_set = do_not_excite_subspace.find(normal_modes_list[nm]);
-      if (iter_set == do_not_excite_subspace.end())
-        // then copy it to the new list:
-        new_normal_modes_list.push_back(normal_modes_list[nm]);
-    }
-
-    // Create an overlap submatrix:
-    if ((if_overlap_diagonal) or (new_normal_modes_list.size() <= 1)) {
-      std::cout << "The normal modes overlap matrix with the initial state "
-                   "is diagonal\n";
-      if (new_normal_modes_list.size() <= 1)
-        std::cout << "  (do_not_excite_subspace is excluded)\n";
-      std::cout << "\n";
-    } else {
-      std::cout << "WARNING! The normal modes overlap matrix with the "
-                   "initial state\n"
-                << "         is non-diagonal! Consider reordering the normal "
-                   "modes.\n\n";
-      // create a normal mode submatrix:
-      arma::Mat<double> overlap_submatrix(new_normal_modes_list.size(),
-                                          new_normal_modes_list.size(),
-                                          arma::fill::zeros);
-      for (int nm1 = 0; nm1 < new_normal_modes_list.size(); nm1++)
-        for (int nm2 = 0; nm2 < new_normal_modes_list.size(); nm2++)
-          overlap_submatrix(nm1, nm2) =
-              NMoverlap(new_normal_modes_list[nm1], new_normal_modes_list[nm2]);
-
-      // print the overlap_submatrix (with correct column/row labbels):
-      std::cout << "  The non-diagonal part of the normal modes overlap matrix "
-                   "(do_not_excite_subspace is excluded):";
-      std::cout << "\n     ";
-
-      for (int j = 0; j < new_normal_modes_list.size(); j++)
-        std::cout << std::fixed << std::setprecision(0) << std::setw(8)
-                  << new_normal_modes_list[j];
-      for (int i = 0; i < new_normal_modes_list.size(); i++) {
-        std::cout << "\n  " << std::fixed << std::setprecision(0)
-                  << std::setw(3) << new_normal_modes_list[i];
-        for (int j = 0; j < new_normal_modes_list.size(); j++)
-          if (fabs(overlap_submatrix(i, j)) >= 0.001)
-            std::cout << std::fixed << std::setprecision(3) << std::setw(8)
-                      << overlap_submatrix(i, j);
-          else
-            std::cout << "      --";
-      }
-      std::cout << "\n\n";
-    }
-
-    // print in a "fit 80 chars wide terminal" form
-    if (if_print_normal_modes)
-      NMoverlap.print("Normal modes overlap matrix with the initial state "
-                      "\n(if significantly non diagonal, please consider "
-                      "normal modes reordering)");
-  }
+  print_overlap_matrix(elStates, do_not_excite_subspace, if_print_normal_modes);
 
   // for the web version: save the overlap matrix (with displacements) in an
   // xml file
@@ -397,15 +407,8 @@ void harmonic_pes_parallel(xml_node &node_input,
   std::cout << "Begining the parallel mode approximation computations.\n\n"
             << std::flush;
 
-  //================================================================================
-  //================================================================================
-  //================================================================================
-  //================================================================================
 
-  // create a new parallel approximation object (evaluates and stores FCFs in
-  // the harmonic approximation)
-  Parallel *parallel_ptr;
-
+  // TODO: continue here
   // Process `the_only_initial_state` node and prepare input
   bool if_the_only_initial_state = false;
 
@@ -421,12 +424,11 @@ void harmonic_pes_parallel(xml_node &node_input,
     vib_state_to_vec_int(text, the_only_initial_state);
   }
 
-  parallel_ptr =
-      new Parallel(elStates, active_nm_parallel, fcf_threshold, temperature,
-                   max_n_initial, max_n_target, if_the_only_initial_state,
-                   the_only_initial_state, if_comb_bands, if_use_target_nm,
-                   if_print_fcfs, if_web_version, nmoverlapFName.str().c_str(),
-                   energy_threshold_initial, energy_threshold_target);
+  Parallel parallel(elStates, active_nm_parallel, fcf_threshold, temperature,
+                    max_n_initial, max_n_target, if_the_only_initial_state,
+                    the_only_initial_state, if_comb_bands, if_use_target_nm,
+                    if_print_fcfs, if_web_version, nmoverlapFName.str().c_str(),
+                    energy_threshold_initial, energy_threshold_target);
 
   //================================================================================
   //================================================================================
@@ -435,7 +437,7 @@ void harmonic_pes_parallel(xml_node &node_input,
 
   //--------------------------------------------------------------------------------
   // Print the updated spectrum:
-  (*parallel_ptr).getSpectrum().Sort();
+  parallel.getSpectrum().Sort();
   std::cout << "-------------------------------------------------------------"
                "-----------------\n";
   std::cout
@@ -459,8 +461,8 @@ void harmonic_pes_parallel(xml_node &node_input,
                 << "         New order is used for the \"excite subspace\"\n";
   }
   std::cout << "\n";
-  if ((*parallel_ptr).getSpectrum().getNSpectralPoints() > 0)
-    (*parallel_ptr).getSpectrum().PrintStickTable();
+  if (parallel.getSpectrum().getNSpectralPoints() > 0)
+    parallel.getSpectrum().PrintStickTable();
   else
     std::cout << "\n\n\n"
               << "WARNING! The spectrum is empty.\n\n"
@@ -473,7 +475,7 @@ void harmonic_pes_parallel(xml_node &node_input,
   // save this spectrum to the file
   std::stringstream spectrumFName;
   spectrumFName << InputFileName << ".spectrum_parallel";
-  (*parallel_ptr).getSpectrum().PrintStickTable(spectrumFName.str().c_str());
+  parallel.getSpectrum().PrintStickTable(spectrumFName.str().c_str());
   std::cout << "\nStick spectrum was also saved in \"" << spectrumFName.str()
             << "\" file \n";
   if (if_use_do_not_excite_subspace)
@@ -482,8 +484,6 @@ void harmonic_pes_parallel(xml_node &node_input,
 
   std::cout << "-------------------------------------------------------------"
                "-----------------\n\n";
-
-  delete parallel_ptr;
 }
 
 //! converts string of type "1v1,1v2,1v3,3v19" into a vibrational state (i.e.
