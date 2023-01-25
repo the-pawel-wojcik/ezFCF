@@ -24,6 +24,8 @@ To initialize provide:
 #include "spectrum.h"
 
 #include "molstate.h"
+#include "vib_state_parser.h"
+#include "the_only_initial_state.h"
 
 class Parallel {
   //! spectrum which stores all the points above the intensity threshold
@@ -41,11 +43,10 @@ class Parallel {
 public:
   Parallel(std::vector<MolState> &molStates, std::vector<int> &active_nm,
            double fcf_threshold, double temperature, int max_n_initial,
-           int max_n_target, bool if_the_only_initial_state,
-           std::vector<int> the_only_initial_state, bool if_comb_bands,
-           bool if_use_target_nm, bool if_print_fcfs, bool if_web_version,
-           const char *nmoverlapFName, double energy_threshold_initial,
-           double energy_threshold_target);
+           int max_n_target, TheOnlyInitialState initial_vibrational_state,
+           bool if_comb_bands, bool if_use_target_nm, bool if_print_fcfs,
+           bool if_web_version, const char *nmoverlapFName,
+           double energy_threshold_initial, double energy_threshold_target);
 
   //! returns the up to date spectrum
   Spectrum &getSpectrum() { return spectrum; };

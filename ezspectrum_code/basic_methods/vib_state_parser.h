@@ -9,6 +9,8 @@
 #include "genincludes.h"
 #include "genutil.h"
 
+// TODO: unite it either with VibronicState or with TheOnlyInitialState
+
 //! splits string of type "3v21" into two integers 3 and 21
 //! qnt = 3; nm = 21
 void get_qnt_nm(std::string& ex_str, int& qnt, int& nm );

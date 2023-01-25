@@ -408,26 +408,13 @@ void harmonic_pes_parallel(xml_node &node_input,
             << std::flush;
 
 
-  // TODO: continue here
   // Process `the_only_initial_state` node and prepare input
-  bool if_the_only_initial_state = false;
-
-  // container for the only initial state
-  // initialized as a state which has every mode with zero excitations
-  std::vector<int> the_only_initial_state(n_molecular_nms, 0);
-  if (node_parallel_approx.find_subnode("the_only_initial_state")) {
-    if_the_only_initial_state = true;
-
-    xml_node node_the_only_initial_state(node_parallel_approx,
-                                         "the_only_initial_state", 0);
-    std::string text = node_the_only_initial_state.read_string_value("text");
-    vib_state_to_vec_int(text, the_only_initial_state);
-  }
+  TheOnlyInitialState initial_vibrational_state(node_parallel_approx, n_molecular_nms);
 
   Parallel parallel(elStates, active_nm_parallel, fcf_threshold, temperature,
-                    max_n_initial, max_n_target, if_the_only_initial_state,
-                    the_only_initial_state, if_comb_bands, if_use_target_nm,
-                    if_print_fcfs, if_web_version, nmoverlapFName.str().c_str(),
+                    max_n_initial, max_n_target, initial_vibrational_state,
+                    if_comb_bands, if_use_target_nm, if_print_fcfs,
+                    if_web_version, nmoverlapFName.str().c_str(),
                     energy_threshold_initial, energy_threshold_target);
 
   //================================================================================

@@ -3,16 +3,18 @@
 Parallel::Parallel(std::vector<MolState> &molStates,
                    std::vector<int> &active_nms, double fcf_threshold,
                    double temperature, int max_n_initial, int max_n_target,
-                   bool if_the_only_initial_state,
-                   std::vector<int> the_only_initial_state, bool if_comb_bands,
-                   bool if_use_target_nm, bool if_print_fcfs,
-                   bool if_web_version, const char *nmoverlapFName,
-                   double energy_threshold_initial,
+                   TheOnlyInitialState initial_vibrational_state,
+                   bool if_comb_bands, bool if_use_target_nm,
+                   bool if_print_fcfs, bool if_web_version,
+                   const char *nmoverlapFName, double energy_threshold_initial,
                    double energy_threshold_target)
     : iniN(0), n_atoms(molStates[iniN].NAtoms()),
       n_molecule_nm(molStates[iniN].NNormModes()),
       n_active_nm(active_nms.size()) {
   double intens_threshold = fcf_threshold * fcf_threshold;
+
+  bool if_the_only_initial_state = initial_vibrational_state.non_empty();
+  std::vector<int> the_only_initial_state = initial_vibrational_state.get_state();
 
   // An "invalid" occupation number for an excitation in a vibrational state
   // Used in the function `enumerateVibrStates` as an idication that 
