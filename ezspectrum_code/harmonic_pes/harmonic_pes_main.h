@@ -20,8 +20,7 @@
 #include <limits>
 
 //! program itself:
-// TODO: InputFileName should be a string
-bool harmonic_pes_main(const char *InputFileName, xml_node &node_input,
+bool harmonic_pes_main(const std::string InputFileName, xml_node &node_input,
                        xml_node &node_amu_table);
 
 #endif

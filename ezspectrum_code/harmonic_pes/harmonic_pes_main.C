@@ -7,10 +7,10 @@ void fillVibrState(My_istringstream &vibr_str, VibronicState &v_state,
 
 void harmonic_pes_parallel(xml_node &node_input,
                            std::vector<MolState> &elStates,
-                           const char *InputFileName);
+                           const std::string InputFileName);
 void harmonic_pes_dushinksy(xml_node &node_input,
                             std::vector<MolState> &elStates,
-                            const char *InputFileName);
+                            const std::string InputFileName);
 
 /* *** Check functions *** */
 
@@ -118,7 +118,7 @@ void run_transformations(std::vector<MolState> &elStates, bool print_nms) {
 }
 
 /* *** Constructor *** */
-bool harmonic_pes_main(const char *InputFileName, xml_node &node_input,
+bool harmonic_pes_main(const std::string InputFileName, xml_node &node_input,
                        xml_node &node_amu_table) {
   //============================================================================
   // Read initial state and N target states; i.e. (N+1) electronic states total
@@ -350,7 +350,7 @@ void print_warnings(bool ifAnyNormalModesReordered,
 //======================================================================
 void harmonic_pes_parallel(xml_node &node_input,
                            std::vector<MolState> &elStates,
-                           const char *InputFileName) {
+                           const std::string InputFileName) {
 
   xml_node node_jobparams(node_input, "job_parameters", 0);
 
@@ -426,8 +426,7 @@ void harmonic_pes_parallel(xml_node &node_input,
 
   // for the web version: save the overlap matrix (with displacements) in an
   // xml file
-  std::stringstream nmoverlapFName;
-  nmoverlapFName << InputFileName << ".nmoverlap";
+  std::string nmoverlapFName = InputFileName + std::string(".nmoverlap");
 
   std::cout << line << "\n\n";
   std::cout << "Begining the parallel mode approximation computations.\n\n"
@@ -439,8 +438,8 @@ void harmonic_pes_parallel(xml_node &node_input,
   Parallel parallel(elStates, active_nm_parallel, fcf_threshold, temperature,
                     max_n_initial, max_n_target, initial_vibrational_state,
                     if_comb_bands, if_use_target_nm, if_print_fcfs,
-                    if_web_version, nmoverlapFName.str().c_str(),
-                    energy_threshold_initial, energy_threshold_target);
+                    if_web_version, nmoverlapFName, energy_threshold_initial,
+                    energy_threshold_target);
 
   //--------------------------------------------------------------------------------
   // Print the updated spectrum:
@@ -455,10 +454,9 @@ void harmonic_pes_parallel(xml_node &node_input,
   parallel.getSpectrum().PrintStickTable();
 
   // save this spectrum to the file
-  std::stringstream spectrumFName;
-  spectrumFName << InputFileName << ".spectrum_parallel";
-  parallel.getSpectrum().PrintStickTable(spectrumFName.str().c_str());
-  std::cout << "\nStick spectrum was also saved in \"" << spectrumFName.str()
+  std::string spectrumFName = InputFileName + std::string(".spectrum_parallel");
+  parallel.getSpectrum().PrintStickTable(spectrumFName);
+  std::cout << "\nStick spectrum was also saved in \"" << spectrumFName
             << "\" file \n";
   if (no_excite_subspace.non_empty())
     std::cout << " (Full list of the normal modes was used for assigning "
@@ -522,7 +520,7 @@ void fillVibrState(My_istringstream &vibr_str, VibronicState &v_state,
  */
 void harmonic_pes_dushinksy(xml_node &node_input,
                             std::vector<MolState> &elStates,
-                            const char *InputFileName) {
+                            const std::string InputFileName) {
 
   xml_node node_dushinsky_rotations(node_input, "dushinsky_rotations", 0);
   xml_node node_jobparams(node_input, "job_parameters", 0);
@@ -1010,10 +1008,9 @@ void harmonic_pes_dushinksy(xml_node &node_input,
   (*dushinsky_ptr).getSpectrum().PrintStickTable();
 
   // save the spectrum to the file
-  std::stringstream spectrumFName;
-  spectrumFName << InputFileName << ".spectrum_dushinsky";
-  (*dushinsky_ptr).getSpectrum().PrintStickTable(spectrumFName.str().c_str());
-  std::cout << "\nStick spectrum was also saved in \"" << spectrumFName.str()
+  std::string spectrumFName = InputFileName + std::string(".spectrum_dushinsky");
+  (*dushinsky_ptr).getSpectrum().PrintStickTable(spectrumFName);
+  std::cout << "\nStick spectrum was also saved in \"" << spectrumFName
             << "\" file \n";
   if (nms_dushinsky.size() != n_norm_modes)
     std::cout << " (Full list of the normal modes was used for assigning "

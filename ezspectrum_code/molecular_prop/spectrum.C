@@ -18,7 +18,7 @@ void Spectrum::PrintStickTable()
   std::cout << line << std::endl;
 }
 
-void Spectrum::PrintStickTable( const char* spectrumFileName )
+void Spectrum::PrintStickTable( const std::string spectrumFileName )
 {
   int quanta_printed;
   std::ofstream spectrumF;     

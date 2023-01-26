@@ -45,7 +45,7 @@ public:
            double fcf_threshold, double temperature, int max_n_initial,
            int max_n_target, TheOnlyInitialState initial_vibrational_state,
            bool if_comb_bands, bool if_use_target_nm, bool if_print_fcfs,
-           bool if_web_version, const char *nmoverlapFName,
+           bool if_web_version, const std::string nmoverlapFName,
            double energy_threshold_initial, double energy_threshold_target);
 
   //! returns the up to date spectrum

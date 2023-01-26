@@ -44,7 +44,7 @@ class Spectrum
   void Sort() { sort( spectralPoints.begin(), spectralPoints.end(), SortByEnergy() );};
 
   void PrintStickTable();
-  void PrintStickTable(const char* spectrumFileName);
+  void PrintStickTable(const std::string spectrumFileName);
  
 };
 

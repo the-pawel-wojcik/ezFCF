@@ -43,7 +43,7 @@ int main(int argc, char *argv[]) {
 
   bool done = false;
   if (job == "harmonic_pes")
-    done = harmonic_pes_main(arg.c_str(), node_input, node_amu_table);
+    done = harmonic_pes_main(arg, node_input, node_amu_table);
 
   if (!done)
     std::cout << "Method \"" << job << "\" is unknown, or it has failed. \n";
