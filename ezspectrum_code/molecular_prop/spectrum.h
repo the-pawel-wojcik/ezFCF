@@ -16,6 +16,7 @@ Sould be done soon:
 */
 #include "genincludes.h"
 #include "spectralpoint.h"
+#include "genutil.h"
 
 class Spectrum
 {

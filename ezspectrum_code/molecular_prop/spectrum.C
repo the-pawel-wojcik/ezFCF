@@ -2,10 +2,20 @@
 
 void Spectrum::PrintStickTable()
 {
-  std::cout << "Energy,eV    Intensity     FC factor         E\",K   Transition\n\n" ;
-  for (int i=0; i<spectralPoints.size(); i++)
-    if ( spectralPoints[i].getIfPrint() )
-      getSpectralPoint(i).print();
+  if (getNSpectralPoints() > 0) {
+    std::cout
+        << "Energy,eV    Intensity     FC factor         E\",K   Transition"
+        << "\n\n";
+    for (int i = 0; i < spectralPoints.size(); i++)
+      if (spectralPoints[i].getIfPrint())
+        getSpectralPoint(i).print();
+  } else {
+    std::cout << "\n\n\n"
+              << "WARNING! The spectrum is empty.\n\n"
+              << "         Please refer to \"My spectrum is empty!\" in the\n"
+              << "         \"Common problems\" section of the manual.\n\n\n\n";
+  }
+  std::cout << line << std::endl;
 }
 
 void Spectrum::PrintStickTable( const char* spectrumFileName )

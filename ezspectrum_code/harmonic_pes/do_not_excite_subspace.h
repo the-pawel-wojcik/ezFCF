@@ -37,6 +37,7 @@ public:
 
   /* Check if there are any modes to be excluded in the calculations. */
   bool empty() const { return subspace.empty(); }
+  bool non_empty() const { return !empty(); }
 
   void print_summary(const bool nm_were_reordered) const;
 };

@@ -230,7 +230,8 @@ void read_energy_tresholds(const xml_node &node_parallel_approx,
 }
 
 /* print the overlap matrix with the initial state for each target states 
- * TODO: getNormalModeOverlapWithOtherState should be const. */
+ * TODO: getNormalModeOverlapWithOtherState should be const. 
+ * TODO: should use const DoNotExcite & insted of the set. */
 void print_overlap_matrix(std::vector<MolState> &elStates,
                           std::set<int> do_not_excite_subspace,
                           bool if_print_normal_modes) {
@@ -317,6 +318,33 @@ void print_overlap_matrix(std::vector<MolState> &elStates,
   }
 }
 
+void print_warnings(bool ifAnyNormalModesReordered,
+                    DoNotExcite no_excite_subspace) {
+
+  if (ifAnyNormalModesReordered)
+    std::cout
+        << "\n"
+        << "WARNING! The normal modes of one of the target states were "
+           "reordered!\n"
+        << "         New order is used for the target state assignment.\n";
+
+  if (no_excite_subspace.non_empty()) {
+
+    std::cout << "\nNOTE: only the following normal modes were excited: "
+                 "(\"excite subspace\"):\n  ";
+
+    for (int nm : no_excite_subspace.get_active_subspace())
+      std::cout << nm << ' ';
+    std::cout << "\n";
+
+    if (ifAnyNormalModesReordered)
+      std::cout << "\nWARNING! The normal modes of one of the target states "
+                   "were reordered!\n"
+                << "         New order is used for the \"excite subspace\"\n";
+  }
+  std::cout << "\n";
+}
+
 //======================================================================
 // Parallel approximation
 //======================================================================
@@ -389,7 +417,6 @@ void harmonic_pes_parallel(xml_node &node_input,
   DoNotExcite no_excite_subspace(node_parallel_approx, n_molecular_nms);
   no_excite_subspace.print_summary(ifAnyNormalModesReordered);
 
-  bool if_use_do_not_excite_subspace = !(no_excite_subspace.empty());
   std::set<int> do_not_excite_subspace = no_excite_subspace.get_as_int_set();
 
   // create active_nm -- "excite subspace" (full_space-do_not_excite_subspace)
@@ -402,13 +429,11 @@ void harmonic_pes_parallel(xml_node &node_input,
   std::stringstream nmoverlapFName;
   nmoverlapFName << InputFileName << ".nmoverlap";
 
-  const std::string line(80, '-');
   std::cout << line << "\n\n";
   std::cout << "Begining the parallel mode approximation computations.\n\n"
             << std::flush;
 
-
-  // Process `the_only_initial_state` node and prepare input
+  // Read "the_only_initial_state" node from the input
   TheOnlyInitialState initial_vibrational_state(node_parallel_approx, n_molecular_nms);
 
   Parallel parallel(elStates, active_nm_parallel, fcf_threshold, temperature,
@@ -417,47 +442,17 @@ void harmonic_pes_parallel(xml_node &node_input,
                     if_web_version, nmoverlapFName.str().c_str(),
                     energy_threshold_initial, energy_threshold_target);
 
-  //================================================================================
-  //================================================================================
-  //================================================================================
-  //================================================================================
-
   //--------------------------------------------------------------------------------
   // Print the updated spectrum:
   parallel.getSpectrum().Sort();
-  std::cout << "-------------------------------------------------------------"
-               "-----------------\n";
+  std::cout << line << "\n";
   std::cout
       << "           Stick photoelectron spectrum (parallel approximation)\n";
-  std::cout << "-------------------------------------------------------------"
-               "-----------------\n";
-  if (ifAnyNormalModesReordered)
-    std::cout
-        << "\nWARNING! The normal modes of one of the target states were "
-           "reordered!\n"
-        << "         New order is used for the target state assignment.\n";
-  if (active_nm_parallel.size() != n_molecular_nms) {
-    std::cout << "\nNOTE: only the following normal modes were excited: "
-                 "(\"excite subspace\"):\n  ";
-    for (int nm = 0; nm < active_nm_parallel.size(); nm++)
-      std::cout << active_nm_parallel[nm] << ' ';
-    std::cout << "\n";
-    if (ifAnyNormalModesReordered)
-      std::cout << "\nWARNING! The normal modes of one of the target states "
-                   "were reordered!\n"
-                << "         New order is used for the \"excite subspace\"\n";
-  }
-  std::cout << "\n";
-  if (parallel.getSpectrum().getNSpectralPoints() > 0)
-    parallel.getSpectrum().PrintStickTable();
-  else
-    std::cout << "\n\n\n"
-              << "WARNING! The spectrum is empty.\n\n"
-              << "         Plese refer to \"My spectrum is empty!\" in the\n"
-              << "         \"Common problems\" section of the manual\n\n\n\n";
+  std::cout << line << "\n";
 
-  std::cout << "-------------------------------------------------------------"
-               "-----------------\n";
+  print_warnings(ifAnyNormalModesReordered, no_excite_subspace);
+
+  parallel.getSpectrum().PrintStickTable();
 
   // save this spectrum to the file
   std::stringstream spectrumFName;
@@ -465,12 +460,11 @@ void harmonic_pes_parallel(xml_node &node_input,
   parallel.getSpectrum().PrintStickTable(spectrumFName.str().c_str());
   std::cout << "\nStick spectrum was also saved in \"" << spectrumFName.str()
             << "\" file \n";
-  if (if_use_do_not_excite_subspace)
+  if (no_excite_subspace.non_empty())
     std::cout << " (Full list of the normal modes was used for assigning "
                  "transitions)\n";
 
-  std::cout << "-------------------------------------------------------------"
-               "-----------------\n\n";
+  std::cout << line << "\n\n";
 }
 
 //! converts string of type "1v1,1v2,1v3,3v19" into a vibrational state (i.e.
@@ -1012,9 +1006,8 @@ void harmonic_pes_dushinksy(xml_node &node_input,
     }
   }
   std::cout << "\n";
+
   (*dushinsky_ptr).getSpectrum().PrintStickTable();
-  std::cout << "-------------------------------------------------------------"
-               "-----------------\n";
 
   // save the spectrum to the file
   std::stringstream spectrumFName;
