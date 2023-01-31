@@ -606,9 +606,9 @@ void harmonic_pes_dushinksy(xml_node &node_input,
   // indexes of the initial and target electronic states:
   DushinskyRotation dushinsky_rotation(node_input, elStates.size(),
                                        job_parameters);
-  int iniN = 0;
+  const int iniN = 0;
   xml_node node_dushinsky_rotations(node_input, "dushinsky_rotations", 0);
-  int targN = dushinsky_rotation.get_targN();
+  const int targN = dushinsky_rotation.get_targN();
 
   // total number of the normal modes (in the molecule)
   // TODO: this is likely the most used variable throughout the program it
@@ -635,9 +635,8 @@ void harmonic_pes_dushinksy(xml_node &node_input,
   // create a new dushinsky object for a given set of normal modes
   // All matrices and zero-zero integral are evaluated for the full space;
   // then excitations are only added to the normal modes from "nms_dushinsky"
-  Dushinsky *dushinsky_ptr =
-      new Dushinsky(elStates, nms_dushinsky, fcf_threshold, targN,
-                    max_quanta_targ, max_quanta_ini);
+  Dushinsky dushinsky(elStates, nms_dushinsky, fcf_threshold, targN,
+                      max_quanta_targ, max_quanta_ini);
 
   //================================================================================
   //================================================================================
@@ -649,9 +648,8 @@ void harmonic_pes_dushinksy(xml_node &node_input,
             << "\n\n";
   std::cout << "Size of layers with exactly K' excitations in the target "
                "state (in bytes):\n";
-  (*dushinsky_ptr)
-      .printLayersSizes((max_quanta_targ < Kp_max_to_save) ? max_quanta_targ
-                                                           : Kp_max_to_save);
+  dushinsky.printLayersSizes(
+      (max_quanta_targ < Kp_max_to_save) ? max_quanta_targ : Kp_max_to_save);
   std::cout << "\n";
   //--------------------------------------------------------------------------------
 
@@ -665,7 +663,7 @@ void harmonic_pes_dushinksy(xml_node &node_input,
       std::cout << "Layer K'=" << Kp << " is being evaluated... " << std::flush;
     }
 
-    int n_fresh_points = (*dushinsky_ptr).evalNextLayer(Kp <= Kp_max_to_save);
+    int n_fresh_points = dushinsky.evalNextLayer(Kp <= Kp_max_to_save);
 
     std::cout << "Done\n";
     if (n_fresh_points > 0) {
@@ -728,11 +726,9 @@ void harmonic_pes_dushinksy(xml_node &node_input,
     std::cout << "Thresh[ini]=" << energy_threshold_initial
               << "  Thresh[targ]=" << energy_threshold_target << std::endl;
 
-    int n_hot_bands =
-        (*dushinsky_ptr)
-            .addHotBands(elStates, nms_dushinsky, fcf_threshold, temperature,
-                         max_quanta_ini, max_quanta_targ,
-                         energy_threshold_initial, energy_threshold_target);
+    int n_hot_bands = dushinsky.addHotBands(
+        elStates, nms_dushinsky, fcf_threshold, temperature, max_quanta_ini,
+        max_quanta_targ, energy_threshold_initial, energy_threshold_target);
     std::cout << n_hot_bands << " hot bands were added to the spectrum\n"
               << "Note: the Boltzmann distribution will be applied later\n\n"
               << std::flush;
@@ -755,9 +751,8 @@ void harmonic_pes_dushinksy(xml_node &node_input,
 
     // Don't show all the other points as this is expected to be
     // the_only_initial_state
-    for (int pt = 0; pt < (*dushinsky_ptr).getSpectrum().getNSpectralPoints();
-         pt++) {
-      (*dushinsky_ptr).getSpectrum().getSpectralPoint(pt).setIfPrint(false);
+    for (int pt = 0; pt < dushinsky.getSpectrum().getNSpectralPoints(); pt++) {
+      dushinsky.getSpectrum().getSpectralPoint(pt).setIfPrint(false);
     }
 
     std::cout << "Clearing the spectrum is ready" << std::endl;
@@ -775,10 +770,10 @@ void harmonic_pes_dushinksy(xml_node &node_input,
     std::cout << "The initial state is ready." << std::endl;
 
     // go over all layers and add points to the spectrum:
-    dushinsky_ptr->reset_Kp_max();
+    dushinsky.reset_Kp_max();
     for (int Kp = 0; Kp <= max_quanta_targ; Kp++) {
-      dushinsky_ptr->add_the_only_intial_state_transitions(
-          Kp, the_only_initial_state);
+      dushinsky.add_the_only_intial_state_transitions(Kp,
+                                                      the_only_initial_state);
     }
   }
 
@@ -814,13 +809,15 @@ void harmonic_pes_dushinksy(xml_node &node_input,
 
       My_istringstream ini_str(node_single_ex.read_string_value("ini"));
       // std::cout << "Single_ex [ini]=" << ini_str.str()  << std::endl;
-      fillVibrState(ini_str, single_transition.getVibrState1(), n_molecular_normal_modes);
+      fillVibrState(ini_str, single_transition.getVibrState1(),
+                    n_molecular_normal_modes);
       // std::cout << "Vibronic state 1:" << std::endl;
       // single_transition.getVibrState1().print();
 
       My_istringstream targ_str(node_single_ex.read_string_value("targ"));
       // std::cout << "Single_ex [targ]" << targ_str.str()  << std::endl;
-      fillVibrState(targ_str, single_transition.getVibrState2(), n_molecular_normal_modes);
+      fillVibrState(targ_str, single_transition.getVibrState2(),
+                    n_molecular_normal_modes);
       // std::cout << "Vibronic state 2:" << std::endl;
       // single_transition.getVibrState2().print();
 
@@ -829,13 +826,11 @@ void harmonic_pes_dushinksy(xml_node &node_input,
       int Kp = single_transition.getVibrState2().getTotalQuantaCount();
       // std::cout << "K=" << K << " Kp=" << Kp << std::endl;
 
-      double s_fcf =
-          (*dushinsky_ptr)
-              .evalSingleFCF_full_space(single_transition.getVibrState1(), K,
-                                        single_transition.getVibrState2(), Kp);
-      (*dushinsky_ptr)
-          .addSpectralPoint(s_fcf, single_transition.getVibrState1(),
-                            single_transition.getVibrState2());
+      double s_fcf = dushinsky.evalSingleFCF_full_space(
+          single_transition.getVibrState1(), K,
+          single_transition.getVibrState2(), Kp);
+      dushinsky.addSpectralPoint(s_fcf, single_transition.getVibrState1(),
+                                 single_transition.getVibrState2());
 
       std::cout << "FCF=" << std::scientific << std::setprecision(6) << s_fcf
                 << " ";
@@ -853,8 +848,7 @@ void harmonic_pes_dushinksy(xml_node &node_input,
   // update (fill) energies for every point in the spectrum and add the
   // Boltzmann distribution:
   int points_removed = 0;
-  for (int pt = 0; pt < (*dushinsky_ptr).getSpectrum().getNSpectralPoints();
-       pt++) {
+  for (int pt = 0; pt < dushinsky.getSpectrum().getNSpectralPoints(); pt++) {
     double energy = -elStates[targN].Energy();
     double E_prime_prime = 0; // no hot bands
 
@@ -862,22 +856,19 @@ void harmonic_pes_dushinksy(xml_node &node_input,
     // getV_full_dim() returns zero (no excitations):
     for (int nm = 0; nm < elStates[iniN].NNormModes(); nm++) {
       energy += elStates[iniN].getNormMode(nm).getFreq() * WAVENUMBERS2EV *
-                (*dushinsky_ptr)
-                    .getSpectrum()
+                dushinsky.getSpectrum()
                     .getSpectralPoint(pt)
                     .getVibrState1()
                     .getV_full_dim(nm);
       energy -= elStates[targN].getNormMode(nm).getFreq() * WAVENUMBERS2EV *
-                (*dushinsky_ptr)
-                    .getSpectrum()
+                dushinsky.getSpectrum()
                     .getSpectralPoint(pt)
                     .getVibrState2()
                     .getV_full_dim(nm);
 
       E_prime_prime += elStates[iniN].getNormMode(nm).getFreq() *
                        WAVENUMBERS2EV *
-                       (*dushinsky_ptr)
-                           .getSpectrum()
+                       dushinsky.getSpectrum()
                            .getSpectralPoint(pt)
                            .getVibrState1()
                            .getV_full_dim(nm);
@@ -895,21 +886,21 @@ void harmonic_pes_dushinksy(xml_node &node_input,
       if (IExponent > 100)
         IExponent = 100; // keep the intensity >= 10e-44 == exp(-100)
     }
-    (*dushinsky_ptr).getSpectrum().getSpectralPoint(pt).getIntensity() *=
+    dushinsky.getSpectrum().getSpectralPoint(pt).getIntensity() *=
         exp(-IExponent);
 
-    (*dushinsky_ptr).getSpectrum().getSpectralPoint(pt).getEnergy() = energy;
-    (*dushinsky_ptr).getSpectrum().getSpectralPoint(pt).getE_prime_prime() =
+    dushinsky.getSpectrum().getSpectralPoint(pt).getEnergy() = energy;
+    dushinsky.getSpectrum().getSpectralPoint(pt).getE_prime_prime() =
         E_prime_prime;
 
     // if intensity below the fcf_threshold^2 or energy above the threshold --
     // do not print
-    if (((*dushinsky_ptr).getSpectrum().getSpectralPoint(pt).getIntensity() <
+    if ((dushinsky.getSpectrum().getSpectralPoint(pt).getIntensity() <
          fcf_threshold * fcf_threshold) or
         (-(energy - E_prime_prime + elStates[targN].Energy()) >
          energy_threshold_target) or
         (E_prime_prime > energy_threshold_initial)) {
-      (*dushinsky_ptr).getSpectrum().getSpectralPoint(pt).setIfPrint(false);
+      dushinsky.getSpectrum().getSpectralPoint(pt).setIfPrint(false);
       points_removed++;
     }
   }
@@ -926,7 +917,7 @@ void harmonic_pes_dushinksy(xml_node &node_input,
 
   //--------------------------------------------------------------------------------
   // Print the updated spectrum:
-  (*dushinsky_ptr).getSpectrum().Sort();
+  dushinsky.getSpectrum().Sort();
   std::cout << line << "\n";
   std::cout
       << "        Stick photoelectron spectrum (with Dushinsky rotations) \n";
@@ -951,17 +942,16 @@ void harmonic_pes_dushinksy(xml_node &node_input,
   }
   std::cout << "\n";
 
-  (*dushinsky_ptr).getSpectrum().PrintStickTable();
+  dushinsky.getSpectrum().PrintStickTable();
 
   // save the spectrum to the file
-  std::string spectrumFName = InputFileName + std::string(".spectrum_dushinsky");
-  (*dushinsky_ptr).getSpectrum().PrintStickTable(spectrumFName);
+  std::string spectrumFName =
+      InputFileName + std::string(".spectrum_dushinsky");
+  dushinsky.getSpectrum().PrintStickTable(spectrumFName);
   std::cout << "\nStick spectrum was also saved in \"" << spectrumFName
             << "\" file \n";
   if (nms_dushinsky.size() != n_molecular_normal_modes)
     std::cout << " (Full list of the normal modes was used for assigning "
                  "transitions)\n";
   std::cout << "\n\n";
-
-  delete dushinsky_ptr;
 }
