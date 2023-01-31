@@ -16,6 +16,7 @@
 #include "vib_state_parser.h"
 #include "do_not_excite_subspace.h"
 #include "the_only_initial_state.h"
+#include "job_parameters.h"
 
 #include <limits>
 
@@ -24,5 +25,3 @@ bool harmonic_pes_main(const std::string InputFileName, xml_node &node_input,
                        xml_node &node_amu_table);
 
 #endif
-
-
