@@ -26,13 +26,13 @@ private:
   void check_for_duplicates() const;
 
 public:
-  DoNotExcite(const xml_node &node, int n_mol_nms);
+  DoNotExcite(const xml_node &node, const int n_mol_nms);
 
   /* Get number of modes that will be excluded, i.e., the size of the do not
    * excite subspace. */
   int get_size() const { return size; }
 
-  std::set<int> get_as_int_set() const { return subspace; }
+  std::set<int> get_subspace() const { return subspace; }
   std::vector<int> get_active_subspace() const;
 
   /* Check if there are any modes to be excluded in the calculations. */
