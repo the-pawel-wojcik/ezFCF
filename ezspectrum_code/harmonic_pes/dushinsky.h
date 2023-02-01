@@ -22,7 +22,8 @@
 #include "spectrum.h"
 #include "vibrational_indexing.h"
 #include "vibronic_state.h"
-#include <vector>
+#include "dushinsky_rotation.h"
+#include "do_not_excite_subspace.h"
 
 // IMPORTANT! All matrices and zero-zero integral are evaluated for the FULL
 // space of the normal modes of the molecule than space is shrinked to the space
@@ -68,9 +69,10 @@ class Dushinsky {
   double *sqrtArray;
 
 public:
-  Dushinsky(std::vector<MolState> &molStates, std::vector<int> &nm_list,
-            double in_fcf_threshold, int in_targN, int max_quanta_target,
-            int max_quanta_initial);
+  Dushinsky(std::vector<MolState> &molStates, const int in_targN,
+            const DushinskyRotation &dush_parameters,
+            const JobParameters &job_parameters,
+            const DoNotExcite &no_excite_subspace);
   ~Dushinsky();
 
   //! K'=0 is zero_zero; so it starts with K'=1 and increments Kp_max; Also

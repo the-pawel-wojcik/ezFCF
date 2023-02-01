@@ -1,20 +1,28 @@
 #include "dushinsky.h"
-Dushinsky::Dushinsky(std::vector <MolState>& molStates, std::vector<int>& nm_list, double in_fcf_threshold, int in_targN, int max_quanta_target, int max_quanta_initial)
-{
+Dushinsky::Dushinsky(std::vector<MolState> &molStates, const int in_targN,
+                     const DushinskyRotation &dush_parameters,
+                     const JobParameters &job_parameters,
+                     const DoNotExcite & no_excite_subspace) {
   //--------------------------------------------------------------------------------
-  // creates the Dushinsky object. Constractor evaluates <0|0> integral and all required matrices for a given set of normal modes.
-  // i.e. the layer L=0 and is ready for iterative evaluation of the next layers
+  // creates the Dushinsky object. Constructor evaluates <0|0> integral and all
+  // required matrices for a given set of normal modes. i.e. the layer L=0 and
+  // is ready for iterative evaluation of the next layers
 
-  // subspace defined by the nm_list (list of normal modes to include)
-  // molStates -- vector of molecular stated loaded from the input file;
-  // in_targN -- which target state to take from the vector;
+  // "do_not_excite_subspace" in the old version was passed as an argument
+  // ```nm_list``` which was a std::vector<int> that listed numbers of normal
+  // modes  (list of normal modes to include) 
+  // molStates -- vector of molecular states loaded from the input file; 
+  // in_targN -- which target state to take from the molStates vector;
 
-  //IMPORTANT! All matrices and zero-zero integral are evaluated for the FULL space of the normal modes of the molecule
-  //than space is shrinked to space described by nm_list, so excitations will be added only to those normal modes.
+  // IMPORTANT! All matrices and zero-zero integral are evaluated for the FULL
+  // space of the normal modes of the molecule than space is shrinked to space
+  // described by nm_list, so excitations will be added only to those normal
+  // modes.
 
   Kp_max=0;
   Kp_max_saved=0;
-  fcf_threshold=in_fcf_threshold;
+  // fcf threshold (from the <job_parameters> tag)
+  fcf_threshold = sqrt(job_parameters.get_intensity_thresh());
 
   // index of the inital electronic state
   int iniN = 0;
@@ -179,10 +187,11 @@ Dushinsky::Dushinsky(std::vector <MolState>& molStates, std::vector<int>& nm_lis
 
   //----------------------------------------------------------------------
   // shrink the space to the nm_list space
+  const std::vector<int> active_nm_subspace = no_excite_subspace.get_active_subspace();
 
-  if (N != nm_list.size())
+  if (N != active_nm_subspace.size())
   {
-    N = nm_list.size();
+    N = active_nm_subspace.size();
 
     // shrink "frequently used matrices"
     ompd = arma::Col<double> (N);
@@ -193,13 +202,13 @@ Dushinsky::Dushinsky(std::vector <MolState>& molStates, std::vector<int>& nm_lis
 
     for (int nm1=0; nm1<N; nm1++)
     {
-      ompd(nm1) = ompd_full( nm_list[nm1] );
-      rd(nm1) = rd_full( nm_list[nm1] );
+      ompd(nm1) = ompd_full( active_nm_subspace[nm1] );
+      rd(nm1) = rd_full( active_nm_subspace[nm1] );
       for (int nm2=0; nm2<N; nm2++)
       {
-        tpmo(nm1, nm2) = tpmo_full(nm_list[nm1], nm_list[nm2]);
-        tqmo(nm1, nm2) = tqmo_full(nm_list[nm1], nm_list[nm2]);
-        tr(nm1, nm2) = tr_full(nm_list[nm1], nm_list[nm2]);
+        tpmo(nm1, nm2) = tpmo_full(active_nm_subspace[nm1], active_nm_subspace[nm2]);
+        tqmo(nm1, nm2) = tqmo_full(active_nm_subspace[nm1], active_nm_subspace[nm2]);
+        tr(nm1, nm2) = tr_full(active_nm_subspace[nm1], active_nm_subspace[nm2]);
       }
     }
   }
@@ -216,14 +225,14 @@ Dushinsky::Dushinsky(std::vector <MolState>& molStates, std::vector<int>& nm_lis
   // create the initial ground vibr. state <0000...000|
   state0.clear();
   state0.setElStateIndex(iniN);
-  for (int nm=0; nm<nm_list.size(); nm++)
-    state0.addVibrQuanta(0, nm_list[nm]);
+  for (int nm=0; nm<active_nm_subspace.size(); nm++)
+    state0.addVibrQuanta(0, active_nm_subspace[nm]);
 
   // create a target ground vibr. state |0000...000>
   state.clear();
   state.setElStateIndex(targN);
-  for (int nm=0; nm<nm_list.size(); nm++)
-    state.addVibrQuanta(0, nm_list[nm]);
+  for (int nm=0; nm<active_nm_subspace.size(); nm++)
+    state.addVibrQuanta(0, active_nm_subspace[nm]);
 
 
   //----------------------------------------------------------------------
@@ -239,6 +248,9 @@ Dushinsky::Dushinsky(std::vector <MolState>& molStates, std::vector<int>& nm_lis
   // combinations nChoosek(n,k) = C_n^k = n!/(k!*(n-k)!); 
   // n=0..N+K-1; k=0..N-1=0..min(n,N-1);
   // N-total number of normal modes; K -- max number of quanta in target state
+  
+  int max_quanta_initial = dush_parameters.get_max_quanta_init();
+  int max_quanta_target = dush_parameters.get_max_quanta_targ();
 
   int K = max_quanta_target;
   int size=(N)*(N+K);
@@ -248,9 +260,7 @@ Dushinsky::Dushinsky(std::vector <MolState>& molStates, std::vector<int>& nm_lis
   sqrtArray=new double[K+2];
   for (int i=0; i<K+1; i++)
     sqrtArray[i]=sqrt(i);
-
 }
-
 
 Dushinsky::~Dushinsky()
 {
