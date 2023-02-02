@@ -524,17 +524,6 @@ void harmonic_pes_dushinksy(xml_node &node_input,
                             const std::string InputFileName) {
 
   JobParameters job_parameters(node_input);
-
-  // read global paramters
-  double temperature = job_parameters.get_temp();
-
-  std::cout << "\n\n=== Reading the Dushinsky rotations job parameters ===\n\n"
-            << std::flush;
-  //----------------------------------------------------------------------
-  // load parameters
-
-  // HINT: target_state is exclusively used in Duschinsky node. Paweł June '22
-  // indexes of the initial and target electronic states:
   DushinskyRotation dushinsky_rotation(node_input, elStates.size(),
                                        job_parameters);
   const int iniN = 0;
@@ -553,29 +542,13 @@ void harmonic_pes_dushinksy(xml_node &node_input,
                "be evaluated ==== \n\n"
             << std::flush;
 
-  //================================================================================
-  //================================================================================
-  //================================================================================
-  //================================================================================
-  //
+  Dushinsky dushinsky(elStates, targN, dushinsky_rotation, job_parameters, no_excite_subspace);
+
   int max_quanta_ini = dushinsky_rotation.get_max_quanta_init();
   int max_quanta_targ = dushinsky_rotation.get_max_quanta_targ();
   int Kp_max_to_save = dushinsky_rotation.get_Kp_max_to_save();
 
-  // create a new dushinsky object for a given set of normal modes
-  // All matrices and zero-zero integral are evaluated for the full space;
-  // then excitations are only added to the normal modes from "nms_dushinsky"
   std::vector<int> nms_dushinsky = no_excite_subspace.get_active_subspace();
-  // fcf threshold (from the <job_parameters> tag)
-  double fcf_threshold = sqrt(job_parameters.get_intensity_thresh());
-
-  Dushinsky dushinsky(elStates, targN, dushinsky_rotation, job_parameters, no_excite_subspace);
-
-  //================================================================================
-  //================================================================================
-  //================================================================================
-  //================================================================================
-
   // print estimated size of each layer up to K'_max:
   std::cout << "Number of normal modes to excite: " << nms_dushinsky.size()
             << "\n\n";
@@ -616,6 +589,8 @@ void harmonic_pes_dushinksy(xml_node &node_input,
 
   double energy_threshold_initial = DBL_MAX; // eV
   double energy_threshold_target = DBL_MAX;  // eV
+  double fcf_threshold = sqrt(job_parameters.get_intensity_thresh());
+  double temperature = job_parameters.get_temp();
   if (max_quanta_ini != 0) {
 
     if (node_dushinsky_rotations.find_subnode("energy_thresholds")) {
@@ -826,10 +801,10 @@ void harmonic_pes_dushinksy(xml_node &node_input,
     dushinsky.getSpectrum().getSpectralPoint(pt).getE_prime_prime() =
         E_prime_prime;
 
-    // if intensity below the fcf_threshold^2 or energy above the threshold --
-    // do not print
+    // if intensity below the intensity threshold or energy above the threshold
+    // -- do not print
     if ((dushinsky.getSpectrum().getSpectralPoint(pt).getIntensity() <
-         fcf_threshold * fcf_threshold) or
+         job_parameters.get_intensity_thresh()) or
         (-(energy - E_prime_prime + elStates[targN].Energy()) >
          energy_threshold_target) or
         (E_prime_prime > energy_threshold_initial)) {

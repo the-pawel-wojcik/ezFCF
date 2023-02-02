@@ -33,6 +33,9 @@ class DushinskyRotation {
                       const JobParameters &jp)
         : targN(1), max_quanta_ini(3), max_quanta_targ(3),
           Kp_max_to_save(32000), n_el_states(n_el_states) {
+      std::cout
+          << "\n\n=== Reading the Dushinsky rotations job parameters ===\n\n"
+          << std::flush;
       // TODO: check that there is just one as in JobParameters:
       // more than one make sense as this would allow to find spectrum
       // for transitions to more than just one target state

@@ -1,23 +1,27 @@
 #include "dushinsky.h"
+
+/* Creator of the Dushinsky class that is responsible for calculating the FCFs
+ * with inclusion of the Duschinsky rotation.
+ *
+ * Constructor evaluates the <0|0> integral and all required matrices for a
+ * given set of normal modes. i.e. the layer L=0 and is ready for iterative
+ * evaluation of next layers.
+ *
+ * "do_not_excite_subspace" in the old version was passed as an argument
+ * ```nm_list``` which was a std::vector<int> that listed numbers of normal
+ * modes (list of normal modes to include)
+ *
+ * molStates -- vector of molecular states loaded from the input file;
+ * in_targN -- which target state to take from the molStates vector;
+ *
+ * IMPORTANT! All matrices and zero-zero integral are evaluated for the FULL
+ * space of the normal modes of the molecule then space is shrinked to the
+ * "active subspace" described by the ```DoNotExcite``` object. Excitations
+ * will be added only to those normal modes. */
 Dushinsky::Dushinsky(std::vector<MolState> &molStates, const int in_targN,
                      const DushinskyRotation &dush_parameters,
                      const JobParameters &job_parameters,
                      const DoNotExcite & no_excite_subspace) {
-  //--------------------------------------------------------------------------------
-  // creates the Dushinsky object. Constructor evaluates <0|0> integral and all
-  // required matrices for a given set of normal modes. i.e. the layer L=0 and
-  // is ready for iterative evaluation of the next layers
-
-  // "do_not_excite_subspace" in the old version was passed as an argument
-  // ```nm_list``` which was a std::vector<int> that listed numbers of normal
-  // modes  (list of normal modes to include) 
-  // molStates -- vector of molecular states loaded from the input file; 
-  // in_targN -- which target state to take from the molStates vector;
-
-  // IMPORTANT! All matrices and zero-zero integral are evaluated for the FULL
-  // space of the normal modes of the molecule than space is shrinked to space
-  // described by nm_list, so excitations will be added only to those normal
-  // modes.
 
   Kp_max=0;
   Kp_max_saved=0;
