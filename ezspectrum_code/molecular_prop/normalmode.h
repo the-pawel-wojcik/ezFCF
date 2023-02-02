@@ -27,7 +27,8 @@ public:
 
   //! Returns frequency
   double &getFreq() { return freq; }
-  const double &getFreq() const { return freq; }
+  double getFreq() const { return freq; }
+
   // 3N displacements (x,y,z for N atoms)
   arma::Col<double> &getDisplacement() { return displacement; }
 

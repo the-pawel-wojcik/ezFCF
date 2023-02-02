@@ -18,14 +18,16 @@ class Atom {
 public:
   // backwards comp:
   double &Mass() { return mass; }
+  double Mass() const { return mass; }
   double &getMass() { return mass; }
 
   std::string &Name() { return name; }
   std::string &getName() { return name; }
 
   double &Coord(int i) { return coord[i]; }
+  double Coord(int i) const { return coord[i]; }
   double &getCoord(int i) { return coord[i]; }
-  const double &getCoord(int i) const { return coord[i]; }
+  double getCoord(int i) const { return coord[i]; }
 
   double getR(); // distance from the origin
   double getCoordMass(const int axis);

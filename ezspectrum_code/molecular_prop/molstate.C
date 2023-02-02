@@ -659,8 +659,8 @@ void MolState::Read_vertical_gradient(xml_node &node_state) {
   trim(units);
   if (units != "a.u.") {
     std::cout << "\nError! Gradient reported in unsupported units: \"" << units
-              << "\"\n  (use \"a.u.\" or contact us for implementation of your "
-                 "units)\n\n";
+              << "\"\n  (use \"a.u.\" or contact us to add a support of " 
+	      << units << ")\n\n";
     exit(1);
   }
 
