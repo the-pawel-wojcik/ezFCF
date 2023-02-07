@@ -429,7 +429,7 @@ void harmonic_pes_parallel(xml_node &node_input,
   std::string nmoverlapFName = InputFileName + std::string(".nmoverlap");
 
   std::cout << line << "\n\n";
-  std::cout << "Begining the parallel mode approximation computations.\n\n"
+  std::cout << "Beginning the parallel mode approximation computations.\n\n"
             << std::flush;
 
   // Read "the_only_initial_state" node from the input

@@ -46,13 +46,13 @@ void print_qchem_style_vector(arma::Col<double> v, std::string header)
                                          std::string("z")};
 
   // number of atoms per print block
-  const int blk_size = 5;
+  const int blk_size = 4;
 
   for (int block_idx = 0; block_idx < n_atoms/blk_size; ++block_idx) {
     // print header with atom numbers
     std::cout << std::string(4, ' ');
     for (int at_idx = block_idx * blk_size; at_idx < (block_idx + 1) * blk_size; ++at_idx) {
-      std::cout << " " << std::setw(4) << at_idx << std::string(3, ' ');
+      std::cout << " " << std::setw(6) << at_idx << std::string(3, ' ');
     }
     std::cout << std::endl;
 
@@ -61,7 +61,7 @@ void print_qchem_style_vector(arma::Col<double> v, std::string header)
       // 4 characters. Coordinate labels
       std::cout << "  " << num_to_xyz[xyz] << " ";
       for (int at_no = 0; at_no < blk_size; ++at_no) {
-        std::cout << " " << std::setw(7) << std::fixed << std::setprecision(3)
+        std::cout << " " << std::setw(9) << std::fixed << std::setprecision(5)
                   << v[(block_idx * blk_size + at_no * 3) + xyz];
       }
       // end of every line
@@ -79,7 +79,7 @@ void print_qchem_style_vector(arma::Col<double> v, std::string header)
 
     std::cout << std::string(4, ' ');
     for (int at_idx = n_prntd_atoms; at_idx < n_atoms; ++at_idx) {
-      std::cout << " " << std::setw(4) << at_idx << std::string(3, ' ');
+      std::cout << " " << std::setw(6) << at_idx << std::string(3, ' ');
     }
     std::cout << std::endl;
 
@@ -88,7 +88,7 @@ void print_qchem_style_vector(arma::Col<double> v, std::string header)
       // 4 characters. Coordinate labels
       std::cout << "  " << num_to_xyz[xyz] << " ";
       for (int at_idx = n_prntd_atoms; at_idx < n_atoms; ++at_idx) {
-        std::cout << " " << std::setw(7) << std::fixed << std::setprecision(3)
+        std::cout << " " << std::setw(9) << std::fixed << std::setprecision(5)
                   << v[at_idx * 3 + xyz];
       }
       // end of every line

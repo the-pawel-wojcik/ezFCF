@@ -1095,6 +1095,8 @@ void MolState::vertical_gradient_method() {
    * $M$) and the gradient vector have values stored in the atomic units.
    */
 
+    bool verbose = true;
+
   std::cout << "State geometry is calculated within VGA."
             << std::endl;
 
@@ -1105,6 +1107,17 @@ void MolState::vertical_gradient_method() {
   arma::Col<double> delta;
   delta =
       Omega_matrix_minus2 * d_matrix.t() * mass_matrix_minus_half * gradient;
+
+  if (verbose) {
+      std::cout << "\n" << " VGA in a verbose mode:" << "\n\n";
+      print_qchem_style_vector(gradient, "Gradient in Cartesian coordinates (a.u.):");
+      print_qchem_style_vector(d_matrix.t() * mass_matrix_minus_half * gradient,
+              "Gradient in normal mode coordinates (a.u.):");
+      print_qchem_style_vector(Omega_matrix_minus2 * d_matrix.t() * mass_matrix_minus_half * gradient,
+              "VGA displacement in normal mode coordinates (a.u.):");
+      print_qchem_style_vector(AU2ANGSTROM * mass_matrix_minus_half * d_matrix * Omega_matrix_minus2 * d_matrix.t() * mass_matrix_minus_half * gradient,
+              "VGA displacement in Cartesian coordinates (Angstroms):");
+  }
 
   vg_calc_geom(mass_matrix_minus_half, d_matrix, delta);
   vg_calc_energy(delta, Omega_matrix_minus2);
