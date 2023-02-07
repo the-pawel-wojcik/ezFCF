@@ -25,13 +25,17 @@
 #include "dushinsky_rotation.h"
 #include "do_not_excite_subspace.h"
 
-// IMPORTANT! All matrices and zero-zero integral are evaluated for the FULL
-// space of the normal modes of the molecule than space is shrinked to the space
-// described by nm_list, so excitations will be added only to those normal
-// modes.
-
+/* Class for calculations of FCFs that include the effects of Duschinsky
+ * rotation.
+ *
+ * IMPORTANT!
+ * All matrices and zero-zero integral are evaluated for the FULL space of
+ * normal modes (3N-5/6 normal modes). Then, the space is shrinked to
+ * the space described by ```no_excite_subspace.get_active_subspace()```, so
+ * excitations will be added only to those normal modes. 
+ * */
 class Dushinsky {
-  //! number of normal modes (dimentionality)
+  //! number of molecular normal modes (dimensionality) = 3*N_{atoms} - 5/6
   int N;
   //! frequently used matrices in the "excite subspace"
   arma::Mat<double> tpmo, tqmo, tr;
@@ -39,11 +43,11 @@ class Dushinsky {
   //! (outside the "excite subspace") and hot bands recursive calculations;
   arma::Mat<double> tpmo_full, tqmo_full, tr_full;
   arma::Col<double> ompd, ompd_full, rd, rd_full;
-  //! K' -- maximum layer which was stored ( maximum total number of quanta in
-  //! the target state):
+  //! K' -- maximum stored layer (maximum total number of quanta in the target
+  //! state):
   int Kp_max_saved;
-  //! K' -- maximum layer which was evaluated( maximum total number of quanta in
-  //! the target state):
+  //! K' -- maximum evaluated layer (maximum total number of quanta in the
+  //! target state):
   int Kp_max;
   //! <zero|zero> integral -- initital one in the recurrent procedure
   double zero_zero;
