@@ -513,6 +513,8 @@ void MolState::Read_molecular_geometry(xml_node &node_state) {
   atoms.clear();
 
   std::string units = node_geometry.read_string_value("units");
+  // TODO: make it more thorough. Alert if units are unrecognized.
+  //
   double coeff = (units == "au") ? AU2ANGSTROM : 1.0;
 
   Atom tmp_atom;
