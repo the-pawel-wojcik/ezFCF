@@ -974,7 +974,6 @@ void MolState::test_for_small_frequencies_in_VGA() {
               << " wavenumbers)."
                  "\nVGA can overestimate displacement along the "
                  "corresponding modes.\n"
-                 "Consider a separate treatment of these nodes.\n"
               << std::endl;
   }
 }
