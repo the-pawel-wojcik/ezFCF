@@ -10,16 +10,17 @@
 #include <time.h>
 
 // A line for separating sections of the output
-const std::string line(80, '-');
+const std::string HorizontalLine(80, '-');
 
 //! Error handling (print msg, exit(1))
-void error(const std::string msg);
+void error(const std::string & msg);
 void error(const std::stringstream & msg);
 
 //! if expr -> error(msg);
 inline void check(const bool expr, const char *const msg) {
-  if (expr)
+  if (expr) {
     error(msg);
+  }
 }
 
 //! Returns string with the current time:

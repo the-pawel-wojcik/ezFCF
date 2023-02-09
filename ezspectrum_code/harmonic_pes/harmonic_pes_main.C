@@ -428,7 +428,7 @@ void harmonic_pes_parallel(xml_node &node_input,
   // xml file
   std::string nmoverlapFName = InputFileName + std::string(".nmoverlap");
 
-  std::cout << line << "\n\n";
+  std::cout << HorizontalLine << "\n\n";
   std::cout << "Beginning the parallel mode approximation computations.\n\n"
             << std::flush;
 
@@ -444,10 +444,10 @@ void harmonic_pes_parallel(xml_node &node_input,
   //--------------------------------------------------------------------------------
   // Print the updated spectrum:
   parallel.getSpectrum().Sort();
-  std::cout << line << "\n";
+  std::cout << HorizontalLine << "\n";
   std::cout
       << "           Stick photoelectron spectrum (parallel approximation)\n";
-  std::cout << line << "\n";
+  std::cout << HorizontalLine << "\n";
 
   print_warnings(ifAnyNormalModesReordered, no_excite_subspace);
 
@@ -462,7 +462,7 @@ void harmonic_pes_parallel(xml_node &node_input,
     std::cout << " (Full list of the normal modes was used for assigning "
                  "transitions)\n";
 
-  std::cout << line << "\n\n";
+  std::cout << HorizontalLine << "\n\n";
 }
 
 //! converts string of type "1v1,1v2,1v3,3v19" into a vibrational state (i.e.
@@ -826,10 +826,10 @@ void harmonic_pes_dushinksy(xml_node &node_input,
   //--------------------------------------------------------------------------------
   // Print the updated spectrum:
   dushinsky.getSpectrum().Sort();
-  std::cout << line << "\n";
+  std::cout << HorizontalLine << "\n";
   std::cout
       << "        Stick photoelectron spectrum (with Dushinsky rotations) \n";
-  std::cout << line << "\n";
+  std::cout << HorizontalLine << "\n";
   if (elStates[targN].ifNMReorderedManually()) {
     std::cout
         << "\nWARNING! The normal modes of the target state were reordered!\n"

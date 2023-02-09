@@ -19,7 +19,7 @@ time_t GetRawTime(){
   return  rawtime;
 }
 
-void error(const std::string msg)
+void error(const std::string & msg)
 {
   std::cout << "\nezFCF: Error!\n" << msg <<"\n\n";
   exit(EXIT_FAILURE);

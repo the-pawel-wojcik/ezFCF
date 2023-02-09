@@ -24,11 +24,10 @@ int main(int argc, char *argv[]) {
 
   bool if_web_version = node_input.read_flag_value("if_web_version");
   if (not(if_web_version)) {
-    std::string line(80, '-');
     std::cout << "A copy of the \"" << argv[1] << "\" input:\n";
-    std::cout << line << "\n";
+    std::cout << HorizontalLine << "\n";
     node_input.print(std::cout);
-    std::cout << line << "\n\n";
+    std::cout << HorizontalLine << "\n\n";
   }
 
   std::string job = node_input.read_string_value("job");

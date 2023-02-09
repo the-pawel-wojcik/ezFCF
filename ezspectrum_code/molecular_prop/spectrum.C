@@ -15,7 +15,7 @@ void Spectrum::PrintStickTable()
               << "         Please refer to \"My spectrum is empty!\" in the\n"
               << "         \"Common problems\" section of the manual.\n\n\n\n";
   }
-  std::cout << line << std::endl;
+  std::cout << HorizontalLine << std::endl;
 }
 
 void Spectrum::PrintStickTable( const std::string spectrumFileName )
