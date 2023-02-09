@@ -1,4 +1,6 @@
 #include "harmonic_pes_main.h"
+#include "molstate.h"
+#include <algorithm>
 
 //! converts string of type "1v1,1v2,1v3,3v19" into a vibrational state
 //! stored as an object of the VibronicState class.
@@ -172,15 +174,12 @@ bool harmonic_pes_main(const std::string InputFileName, xml_node &node_input,
   return true;
 }
 
-/* Returns true if normal modes reordering was requested in at least one state.
+/* Returns true if normal modes reordering was requested for at least one state.
  */
 bool normal_modes_reordered(std::vector<MolState> &elStates) {
-  for (const auto &state : elStates) {
-    if (state.ifNMReorderedManually())
-      return true;
-  }
-
-  return false;
+  return std::any_of(
+      elStates.begin(), elStates.end(),
+      [](const MolState &state) { return state.ifNMReorderedManually(); });
 }
 
 /* A helper function used in parsing of the "parallel_approximation" node of the
