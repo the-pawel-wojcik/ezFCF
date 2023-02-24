@@ -156,7 +156,7 @@ bool find_section_in_stream(std::streampos start_at,  std::streampos end_at, std
     //Find end: 
     std::streampos tail_found=find_tail_in_stream(head_found,end_at,xml_file,sec_name); 
     if (!(tail_found <= end_at) || (tail_found == -1)) {
-      std::cout << "Closing tag for section " <<sec_name << " not fond\n";
+      std::cout << "Closing tag for section " <<sec_name << " not found\n";
       exit(1);
     }
       
