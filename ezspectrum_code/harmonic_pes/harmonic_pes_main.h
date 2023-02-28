@@ -17,7 +17,7 @@
 #include "do_not_excite_subspace.h"
 #include "the_only_initial_state.h"
 #include "job_parameters.h"
-#include "dushinsky_rotation.h"
+#include "dushinsky_parameters.h"
 
 #include <limits>
 

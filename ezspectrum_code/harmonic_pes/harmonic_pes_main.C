@@ -228,8 +228,8 @@ void read_energy_tresholds(const xml_node &node_parallel_approx,
   }
 }
 
-/* print the overlap matrix with the initial state for each target states 
- * TODO: getNormalModeOverlapWithOtherState should be const. 
+/* print the overlap matrix with the initial state for each target states
+ * TODO: getNormalModeOverlapWithOtherState should be const.
  * TODO: should use const DoNotExcite & insted of the set. */
 void print_overlap_matrix(std::vector<MolState> &elStates,
                           std::set<int> do_not_excite_subspace,
@@ -419,7 +419,8 @@ void harmonic_pes_parallel(xml_node &node_input,
   std::set<int> do_not_excite_subspace = no_excite_subspace.get_subspace();
 
   // create active_nm -- "excite subspace" (full_space-do_not_excite_subspace)
-  std::vector<int> active_nm_parallel = no_excite_subspace.get_active_subspace();
+  std::vector<int> active_nm_parallel =
+      no_excite_subspace.get_active_subspace();
 
   print_overlap_matrix(elStates, do_not_excite_subspace, if_print_normal_modes);
 
@@ -428,11 +429,12 @@ void harmonic_pes_parallel(xml_node &node_input,
   std::string nmoverlapFName = InputFileName + std::string(".nmoverlap");
 
   std::cout << HorizontalLine << "\n\n";
-  std::cout << "Beginning the parallel mode approximation computations.\n\n"
+  std::cout << " Beginning the parallel mode approximation computations.\n\n"
             << std::flush;
 
   // Read "the_only_initial_state" node from the input
-  TheOnlyInitialState initial_vibrational_state(node_parallel_approx, n_molecular_nms);
+  TheOnlyInitialState initial_vibrational_state(node_parallel_approx,
+                                                n_molecular_nms);
 
   Parallel parallel(elStates, active_nm_parallel, fcf_threshold, temperature,
                     max_n_initial, max_n_target, initial_vibrational_state,
@@ -510,7 +512,6 @@ void fillVibrState(My_istringstream &vibr_str, VibronicState &v_state,
   }
 }
 
-
 /*
  * =============================================================================
  *  Dushinski rotation (reach exact solution within harmonic approximation)
@@ -523,8 +524,8 @@ void harmonic_pes_dushinksy(xml_node &node_input,
                             const std::string InputFileName) {
 
   JobParameters job_parameters(node_input);
-  DushinskyRotation dushinsky_rotation(node_input, elStates.size(),
-                                       job_parameters);
+  DushinskyParameters dushinsky_rotation(node_input, elStates.size(),
+                                         job_parameters);
   const int iniN = 0;
   const int targN = dushinsky_rotation.get_targN();
 
@@ -534,14 +535,17 @@ void harmonic_pes_dushinksy(xml_node &node_input,
   int n_molecular_normal_modes = elStates[0].NNormModes();
 
   xml_node node_dushinsky_rotations(node_input, "dushinsky_rotations", 0);
-  DoNotExcite no_excite_subspace(node_dushinsky_rotations, n_molecular_normal_modes);
+  DoNotExcite no_excite_subspace(node_dushinsky_rotations,
+                                 n_molecular_normal_modes);
   no_excite_subspace.print_summary(elStates[targN].ifNMReorderedManually());
 
-  std::cout << "=== Photoelectron spectrum with the Dushinsky rotations will "
-               "be evaluated ==== \n\n"
+  std::cout << HorizontalLine << "\n\n";
+  std::cout << " Beginning computations with an inclusion of the Duschinsky "
+               "effect.\n\n"
             << std::flush;
 
-  Dushinsky dushinsky(elStates, targN, dushinsky_rotation, job_parameters, no_excite_subspace);
+  Dushinsky dushinsky(elStates, targN, dushinsky_rotation, job_parameters,
+                      no_excite_subspace);
 
   int max_quanta_ini = dushinsky_rotation.get_max_quanta_init();
   int max_quanta_targ = dushinsky_rotation.get_max_quanta_targ();

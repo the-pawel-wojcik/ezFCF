@@ -19,7 +19,7 @@
  * "active subspace" described by the ```DoNotExcite``` object. Excitations
  * will be added only to those normal modes. */
 Dushinsky::Dushinsky(std::vector<MolState> &molStates, const int in_targN,
-                     const DushinskyRotation &dush_parameters,
+                     const DushinskyParameters &dush_parameters,
                      const JobParameters &job_parameters,
                      const DoNotExcite & no_excite_subspace) {
 

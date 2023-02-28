@@ -22,7 +22,7 @@
 #include "spectrum.h"
 #include "vibrational_indexing.h"
 #include "vibronic_state.h"
-#include "dushinsky_rotation.h"
+#include "dushinsky_parameters.h"
 #include "do_not_excite_subspace.h"
 
 /* Class for calculations of FCFs that include the effects of Duschinsky
@@ -74,7 +74,7 @@ class Dushinsky {
 
 public:
   Dushinsky(std::vector<MolState> &molStates, const int in_targN,
-            const DushinskyRotation &dush_parameters,
+            const DushinskyParameters &dush_parameters,
             const JobParameters &job_parameters,
             const DoNotExcite &no_excite_subspace);
   ~Dushinsky();
