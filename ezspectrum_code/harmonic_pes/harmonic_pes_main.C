@@ -209,13 +209,15 @@ double get_energy_thresh(const xml_node &node_energy_thresh,
   return energy_thresh;
 }
 
-/* A helper function used for parsing of the 'parallel_approximation' node */
-void read_energy_tresholds(const xml_node &node_parallel_approx,
+/* A helper function used for parsing of the 'energy_thresholds' subnode
+ * from either 'parallel_approximation' or 'dushinsky_rotations' nodes.
+ * TODO: turn into class. And embed into the other classes. */
+void read_energy_tresholds(const xml_node &node_appox_params,
                            double &energy_threshold_initial,
                            double &energy_threshold_target) {
 
   std::cout << "Reading energy thresholds." << std::endl;
-  xml_node node_energy_thresh(node_parallel_approx, "energy_thresholds", 0);
+  xml_node node_energy_thresh(node_appox_params, "energy_thresholds", 0);
 
   if (node_energy_thresh.find_subnode("initial_state")) {
     energy_threshold_initial =
@@ -547,79 +549,24 @@ void harmonic_pes_dushinksy(xml_node &node_input,
   Dushinsky dushinsky(elStates, targN, dushinsky_parameters, job_parameters,
                       no_excite_subspace);
 
-  int max_quanta_targ = dushinsky_parameters.get_max_quanta_targ();
-  int Kp_max_to_save = dushinsky_parameters.get_Kp_max_to_save();
   std::vector<int> nms_dushinsky = no_excite_subspace.get_active_subspace();
-
-  // go over all layers and add points to the spectrum:
-  for (int Kp = 1; Kp <= max_quanta_targ; Kp++) {
-    if (Kp <= Kp_max_to_save) {
-      std::cout << "Layer K'=" << Kp
-                << " is being evaluated (will be saved in memory)... "
-                << std::flush;
-    } else {
-      std::cout << "Layer K'=" << Kp << " is being evaluated... " << std::flush;
-    }
-
-    int n_fresh_points = dushinsky.evalNextLayer(Kp <= Kp_max_to_save);
-
-    std::cout << "Done\n";
-    if (n_fresh_points > 0) {
-      std::cout << n_fresh_points
-                << " points above the intensity threhold were added to the "
-                   "spectrum\n\n"
-                << std::flush;
-    } else {
-      std::cout << "No points above the intensity threhold were found in "
-                   "this layer\n\n"
-                << std::flush;
-    }
-  }
 
   //----------------------------------------------------------------------
   // add the hot bands if requested
 
+  int max_quanta_targ = dushinsky_parameters.get_max_quanta_targ();
   int max_quanta_ini = dushinsky_parameters.get_max_quanta_init();
   double energy_threshold_initial = DBL_MAX; // eV
   double energy_threshold_target = DBL_MAX;  // eV
-  double fcf_threshold = sqrt(job_parameters.get_intensity_thresh());
   double temperature = job_parameters.get_temp();
   if (max_quanta_ini != 0) {
 
     if (node_dushinsky_rotations.find_subnode("energy_thresholds")) {
-
-      xml_node node_energy_thresholds(node_dushinsky_rotations,
-                                      "energy_thresholds", 0);
-      // read the energy thresholds (if provided)
-
-      if (node_energy_thresholds.find_subnode("initial_state")) {
-        xml_node node_istate(node_energy_thresholds, "initial_state", 0);
-        std::string units = node_istate.read_string_value("units");
-        energy_threshold_initial = node_istate.read_node_double_value();
-        if (!covert_energy_to_eV(energy_threshold_initial, units)) {
-          std::cout
-              << "\nError! Unknown units of the initial state threshold: \""
-              << units
-              << "\"\n  (should be equal to \"eV\", \"K\", or \"cm-1\")\n\n";
-          exit(1);
-        }
-      }
-
-      if (node_energy_thresholds.find_subnode("target_state")) {
-
-        xml_node node_tstate(node_energy_thresholds, "target_state", 0);
-        std::string units = node_tstate.read_string_value("units");
-        energy_threshold_target = node_tstate.read_node_double_value();
-        if (!covert_energy_to_eV(energy_threshold_target, units)) {
-          std::cout
-              << "\nError! Unknown units of the target state threshold: \""
-              << units
-              << "\"\n  (should be equal to \"eV\", \"K\", or \"cm-1\")\n\n";
-          exit(1);
-        }
-      }
+      read_energy_tresholds(node_dushinsky_rotations, energy_threshold_initial,
+                            energy_threshold_target);
     }
 
+    double fcf_threshold = sqrt(job_parameters.get_intensity_thresh());
     std::cout << "T=" << temperature << " FCF thresh=" << fcf_threshold
               << std::endl;
     std::cout << "Max quanta ini=" << max_quanta_ini

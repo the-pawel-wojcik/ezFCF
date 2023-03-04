@@ -33,6 +33,8 @@
  * normal modes (3N-5/6 normal modes). Then, the space is shrinked to
  * the space described by ```no_excite_subspace.get_active_subspace()```, so
  * excitations will be added only to those normal modes.
+ *
+ * Notation and equations are from [Berger et al. JPCA 102:7157(1998)]
  * */
 class Dushinsky {
   //! number of molecular normal modes (dimensionality) = 3*N_{atoms} - 5/6
@@ -71,6 +73,8 @@ class Dushinsky {
 
   // array of sqrt: sqrtArray[i]=sqrt(i);
   double *sqrtArray;
+
+  void evaluate_higher_levels(const DushinskyParameters &dush_parameters);
 
 public:
   Dushinsky(std::vector<MolState> &molStates, const int in_targN,

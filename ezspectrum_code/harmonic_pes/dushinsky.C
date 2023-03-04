@@ -274,6 +274,39 @@ void Dushinsky::old_constructor(std::vector<MolState> &molStates,
     sqrtArray[i] = sqrt(i);
 }
 
+/* Go over all layers and add points to the spectrum. */
+void Dushinsky::evaluate_higher_levels(
+    const DushinskyParameters &dush_parameters) {
+
+  int max_quanta_targ = dush_parameters.get_max_quanta_targ();
+  int Kp_max_to_save = dush_parameters.get_Kp_max_to_save();
+
+  for (int Kp = 1; Kp <= max_quanta_targ; Kp++) {
+    bool save_layer = Kp <= Kp_max_to_save;
+    if (save_layer) {
+      std::cout << "Layer K'=" << Kp
+                << " is being evaluated (will be saved in memory)... "
+                << std::flush;
+    } else {
+      std::cout << "Layer K'=" << Kp << " is being evaluated... " << std::flush;
+    }
+
+    int n_fresh_points = evalNextLayer(save_layer);
+
+    std::cout << "Done\n";
+    if (n_fresh_points > 0) {
+      std::cout << n_fresh_points
+                << " points above the intensity threhold were added to the "
+                   "spectrum\n\n"
+                << std::flush;
+    } else {
+      std::cout << "No points above the intensity threhold were found in "
+                   "this layer\n\n"
+                << std::flush;
+    }
+  }
+}
+
 /* Creator of the Dushinsky class that is responsible for calculating the FCFs
  * with inclusion of the Duschinsky rotation. */
 Dushinsky::Dushinsky(std::vector<MolState> &molStates, const int in_targN,
@@ -283,6 +316,7 @@ Dushinsky::Dushinsky(std::vector<MolState> &molStates, const int in_targN,
   old_constructor(molStates, in_targN, dush_parameters, job_parameters,
                   no_excite_subspace);
   printLayersSizes(dush_parameters, no_excite_subspace);
+  evaluate_higher_levels(dush_parameters);
 }
 
 Dushinsky::~Dushinsky() {
@@ -661,7 +695,7 @@ int Dushinsky::addHotBands(std::vector<MolState> &molStates,
   // std::cout <<"NOTE: ezSpectrum may crash at this point if memory is
   // insufficient to store\n"
   //	    <<"      all vibrational states. If so, please reduce the initial
-  //state's energy\n"
+  // state's energy\n"
   //	    <<"      threshold or max_vibr_excitations_in_initial_el_state\n\n"
   //<< std::flush;
 
@@ -715,7 +749,7 @@ int Dushinsky::addHotBands(std::vector<MolState> &molStates,
   // std::cout <<"NOTE: ezSpectrum may crash at this point if memory is
   // insufficient to store\n"
   //	    <<"      all vibrational states. If so, please reduce the target
-  //state's energy\n"
+  // state's energy\n"
   //	    <<"      threshold or max_vibr_excitations_in_target_el_state\n\n"
   //<< std::flush;
 
@@ -736,7 +770,7 @@ int Dushinsky::addHotBands(std::vector<MolState> &molStates,
         // sizeof(VibronicState)*2 ); if (state_tmp==NULL)
         //	{
         //	  std::cout << "\nError: not enough memory available to store
-        //all target vibrational states\n\n"; 	  exit(2);
+        // all target vibrational states\n\n"; 	  exit(2);
         //	}
         // free (state_tmp);
 
@@ -788,7 +822,7 @@ void Dushinsky::printLayersSizes(const DushinskyParameters &dush_parameters,
                                  const DoNotExcite &no_excite_subspace) {
 
   std::cout << "Number of normal modes active in this calculation: "
-            << no_excite_subspace.get_size() << "\n\n";
+            << no_excite_subspace.get_active_subspace().size() << "\n\n";
   std::cout << "Size of layers with exactly K' excitations in the target "
                "state (in bytes):\n";
 
@@ -797,7 +831,8 @@ void Dushinsky::printLayersSizes(const DushinskyParameters &dush_parameters,
   int max_quanta_targ = dush_parameters.get_max_quanta_targ();
   int Kp_max_to_save = dush_parameters.get_Kp_max_to_save();
 
-  const int uptoKp = (max_quanta_targ < Kp_max_to_save) ? max_quanta_targ : Kp_max_to_save;
+  const int uptoKp =
+      (max_quanta_targ < Kp_max_to_save) ? max_quanta_targ : Kp_max_to_save;
 
   unsigned long elements_per_layer, size_per_layer = 0, size_per_layer_prev = 0;
 
