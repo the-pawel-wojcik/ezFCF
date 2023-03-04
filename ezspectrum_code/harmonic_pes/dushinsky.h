@@ -16,14 +16,14 @@
 */
 
 #include "constants.h"
+#include "do_not_excite_subspace.h"
+#include "dushinsky_parameters.h"
 #include "genincludes.h"
 #include "mathutil.h"
 #include "molstate.h"
 #include "spectrum.h"
 #include "vibrational_indexing.h"
 #include "vibronic_state.h"
-#include "dushinsky_parameters.h"
-#include "do_not_excite_subspace.h"
 
 /* Class for calculations of FCFs that include the effects of Duschinsky
  * rotation.
@@ -32,7 +32,7 @@
  * All matrices and zero-zero integral are evaluated for the FULL space of
  * normal modes (3N-5/6 normal modes). Then, the space is shrinked to
  * the space described by ```no_excite_subspace.get_active_subspace()```, so
- * excitations will be added only to those normal modes. 
+ * excitations will be added only to those normal modes.
  * */
 class Dushinsky {
   //! number of molecular normal modes (dimensionality) = 3*N_{atoms} - 5/6
@@ -79,6 +79,11 @@ public:
             const DoNotExcite &no_excite_subspace);
   ~Dushinsky();
 
+  void old_constructor(std::vector<MolState> &molStates, const int in_targN,
+                       const DushinskyParameters &dush_parameters,
+                       const JobParameters &job_parameters,
+                       const DoNotExcite &no_excite_subspace);
+
   //! K'=0 is zero_zero; so it starts with K'=1 and increments Kp_max; Also
   //! updates the spectrum and returns number of points below the threahold
   //! added;
@@ -105,7 +110,8 @@ public:
   double evalSingleFCF(VibronicState &state_ini, int K,
                        VibronicState &state_targ, int Kp);
   //! a separate copy of evalSingleFCF() for faster execution; if there are
-  //! excitations in normal modes outside "excite subspace", than use this one;
+  //! excitations in normal modes outside "excite subspace", than use this
+  //! one;
   double evalSingleFCF_full_space(VibronicState &state_ini, int K,
                                   VibronicState &state_targ, int Kp);
 
@@ -117,9 +123,10 @@ public:
                         VibronicState state_targ);
   //! returns Kp_max
   int getLmax() { return Kp_max; };
-  //! Prints estimated sizes of each layer up to Kp_max (works before the memory
-  //! is actually allocated)
-  void printLayersSizes(const int uptoKp);
+  //! Prints estimated sizes of each layer up to Kp_max (works before the
+  //! memory is actually allocated)
+  void printLayersSizes(const DushinskyParameters &dush_parameters,
+                        const DoNotExcite &no_excite_subspace);
 };
 
 #endif

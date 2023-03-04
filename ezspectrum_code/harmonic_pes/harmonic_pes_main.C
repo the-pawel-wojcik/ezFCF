@@ -524,10 +524,10 @@ void harmonic_pes_dushinksy(xml_node &node_input,
                             const std::string InputFileName) {
 
   JobParameters job_parameters(node_input);
-  DushinskyParameters dushinsky_rotation(node_input, elStates.size(),
-                                         job_parameters);
+  DushinskyParameters dushinsky_parameters(node_input, elStates.size(),
+                                           job_parameters);
   const int iniN = 0;
-  const int targN = dushinsky_rotation.get_targN();
+  const int targN = dushinsky_parameters.get_targN();
 
   // total number of the normal modes (in the molecule)
   // TODO: this is likely the most used variable throughout the program it
@@ -544,23 +544,12 @@ void harmonic_pes_dushinksy(xml_node &node_input,
                "effect.\n\n"
             << std::flush;
 
-  Dushinsky dushinsky(elStates, targN, dushinsky_rotation, job_parameters,
+  Dushinsky dushinsky(elStates, targN, dushinsky_parameters, job_parameters,
                       no_excite_subspace);
 
-  int max_quanta_ini = dushinsky_rotation.get_max_quanta_init();
-  int max_quanta_targ = dushinsky_rotation.get_max_quanta_targ();
-  int Kp_max_to_save = dushinsky_rotation.get_Kp_max_to_save();
-
+  int max_quanta_targ = dushinsky_parameters.get_max_quanta_targ();
+  int Kp_max_to_save = dushinsky_parameters.get_Kp_max_to_save();
   std::vector<int> nms_dushinsky = no_excite_subspace.get_active_subspace();
-  // print estimated size of each layer up to K'_max:
-  std::cout << "Number of normal modes to excite: " << nms_dushinsky.size()
-            << "\n\n";
-  std::cout << "Size of layers with exactly K' excitations in the target "
-               "state (in bytes):\n";
-  dushinsky.printLayersSizes(
-      (max_quanta_targ < Kp_max_to_save) ? max_quanta_targ : Kp_max_to_save);
-  std::cout << "\n";
-  //--------------------------------------------------------------------------------
 
   // go over all layers and add points to the spectrum:
   for (int Kp = 1; Kp <= max_quanta_targ; Kp++) {
@@ -590,6 +579,7 @@ void harmonic_pes_dushinksy(xml_node &node_input,
   //----------------------------------------------------------------------
   // add the hot bands if requested
 
+  int max_quanta_ini = dushinsky_parameters.get_max_quanta_init();
   double energy_threshold_initial = DBL_MAX; // eV
   double energy_threshold_target = DBL_MAX;  // eV
   double fcf_threshold = sqrt(job_parameters.get_intensity_thresh());
