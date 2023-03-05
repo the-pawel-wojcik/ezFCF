@@ -1,5 +1,17 @@
 #include "dushinsky_parameters.h"
 
+void DushinskyParameters::test_targN() const {
+  if ((targN < 1) or (targN > n_el_states - 1)) {
+    std::stringstream msg;
+    msg << "\"dushinsky_rotations\"->\"target_state\" value = " << targN
+        << " is incorrect.\n"
+        << " Pick one that corresponds to a target state.\n"
+           " Target states indices are 1 through "
+        << n_el_states - 1 << ".";
+    error(msg);
+  }
+}
+
 /* Class for the "dushinsky_rotations" input node. This class is used only for
  * processing the node input and offering access to collected data. This class
  * is not used for computing FCFs.*/
@@ -13,11 +25,14 @@ DushinskyParameters::DushinskyParameters(const xml_node &node_input,
       n_el_states(n_el_states) {
   std::cout << "\n\n=== Reading the Dushinsky rotations job parameters ===\n\n"
             << std::flush;
-  // TODO: check that there is just one as in JobParameters:
+  // TODO: check that the input contains only one "dushinsky_rotations" node;
+  // see comment in JobParameters. Although here
   // more than one make sense as this would allow to find spectrum
-  // for transitions to more than just one target state
-  // although it sounds smarter to allow more target states as it
-  // is allowed in the parallel approximation
+  // for transitions to more than just one target state.
+  // It sounds smarter to allow more target states as it
+  // is allowed in the parallel approximation, but perhaps more unified approach
+  // is better: adding extra target states the same way as they are added 
+  // in the parallel mode makes the program more consistent.
   xml_node node_dushinsky_rotations(node_input, "dushinsky_rotations", 0);
   targN = node_dushinsky_rotations.read_int_value("target_state");
   max_quanta_ini = node_dushinsky_rotations.read_int_value(
