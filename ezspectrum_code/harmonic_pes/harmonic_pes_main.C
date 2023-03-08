@@ -1,6 +1,5 @@
 #include "harmonic_pes_main.h"
 #include "molstate.h"
-#include <algorithm>
 
 //! converts string of type "1v1,1v2,1v3,3v19" into a vibrational state
 //! stored as an object of the VibronicState class.
@@ -182,54 +181,6 @@ bool normal_modes_reordered(std::vector<MolState> &elStates) {
       [](const MolState &state) { return state.ifNMReorderedManually(); });
 }
 
-/* A helper function used in parsing of the "parallel_approximation" node of the
- * input xml file. `label` is one of "initial_state" or or "target_state" */
-double get_energy_thresh(const xml_node &node_energy_thresh,
-                         const std::string label) {
-
-  if (label != std::string("initial_state") &&
-      label != std::string("target_state")) {
-    std::string msg("get_energy_thresh: unknown state label: ");
-    msg += label;
-    error(msg);
-  }
-
-  xml_node node_state_thresh(node_energy_thresh, label, 0);
-  std::string units = node_state_thresh.read_string_value("units");
-  double energy_thresh = node_state_thresh.read_node_double_value();
-
-  if (!covert_energy_to_eV(energy_thresh, units)) {
-    std::stringstream msg;
-    msg << "get_energy_thresh: Unknown units of the " << label
-        << " energy threshold: \"" << units << "\"\n"
-        << "  (accepted units: \"eV\", \"K\", or \"cm-1\").";
-    error(msg);
-  }
-
-  return energy_thresh;
-}
-
-/* A helper function used for parsing of the 'energy_thresholds' subnode
- * from either 'parallel_approximation' or 'dushinsky_rotations' nodes.
- * TODO: turn into class. And embed into the other classes. */
-void read_energy_tresholds(const xml_node &node_appox_params,
-                           double &energy_threshold_initial,
-                           double &energy_threshold_target) {
-
-  std::cout << "Reading energy thresholds." << std::endl;
-  xml_node node_energy_thresh(node_appox_params, "energy_thresholds", 0);
-
-  if (node_energy_thresh.find_subnode("initial_state")) {
-    energy_threshold_initial =
-        get_energy_thresh(node_energy_thresh, "initial_state");
-  }
-
-  if (node_energy_thresh.find_subnode("target_state")) {
-    energy_threshold_target =
-        get_energy_thresh(node_energy_thresh, "target_state");
-  }
-}
-
 /* print the overlap matrix with the initial state for each target states
  * TODO: getNormalModeOverlapWithOtherState should be const.
  * TODO: should use const DoNotExcite & insted of the set. */
@@ -405,14 +356,7 @@ void harmonic_pes_parallel(xml_node &node_input,
   bool if_print_fcfs =
       node_parallel_approx.read_flag_value("print_franck_condon_matrices");
 
-  // read energy thresholds in eV (if provided)
-  double energy_threshold_initial = DBL_MAX;
-  double energy_threshold_target = DBL_MAX;
-
-  if (node_parallel_approx.find_subnode("energy_thresholds")) {
-    read_energy_tresholds(node_parallel_approx, energy_threshold_initial,
-                          energy_threshold_target);
-  }
+  EnergyThresholds thresholds(node_parallel_approx);
 
   // read normal modes do_not_excite subspace
   DoNotExcite no_excite_subspace(node_parallel_approx, n_molecular_nms);
@@ -441,8 +385,8 @@ void harmonic_pes_parallel(xml_node &node_input,
   Parallel parallel(elStates, active_nm_parallel, fcf_threshold, temperature,
                     max_n_initial, max_n_target, initial_vibrational_state,
                     if_comb_bands, if_use_target_nm, if_print_fcfs,
-                    if_web_version, nmoverlapFName, energy_threshold_initial,
-                    energy_threshold_target);
+                    if_web_version, nmoverlapFName, thresholds.initial_eV(),
+                    thresholds.target_eV());
 
   //--------------------------------------------------------------------------------
   // Print the updated spectrum:
@@ -549,34 +493,34 @@ void harmonic_pes_dushinksy(xml_node &node_input,
   Dushinsky dushinsky(elStates, targN, dushinsky_parameters, job_parameters,
                       no_excite_subspace);
 
-  std::vector<int> nms_dushinsky = no_excite_subspace.get_active_subspace();
-
   //----------------------------------------------------------------------
   // add the hot bands if requested
 
   int max_quanta_targ = dushinsky_parameters.get_max_quanta_targ();
   int max_quanta_ini = dushinsky_parameters.get_max_quanta_init();
-  double energy_threshold_initial = DBL_MAX; // eV
-  double energy_threshold_target = DBL_MAX;  // eV
+  EnergyThresholds thresholds(node_dushinsky_rotations);
   double temperature = job_parameters.get_temp();
+  std::vector<int> nms_dushinsky = no_excite_subspace.get_active_subspace();
   if (max_quanta_ini != 0) {
 
-    if (node_dushinsky_rotations.find_subnode("energy_thresholds")) {
-      read_energy_tresholds(node_dushinsky_rotations, energy_threshold_initial,
-                            energy_threshold_target);
-    }
-
     double fcf_threshold = sqrt(job_parameters.get_intensity_thresh());
-    std::cout << "T=" << temperature << " FCF thresh=" << fcf_threshold
+
+    std::cout << "Summary of the job parameters." << std::endl;
+    std::cout << "T = " << temperature << " K" << std::endl
+              << "FCF thresh = " << fcf_threshold << std::endl;
+    std::cout << "Max quanta in the intial state = " << max_quanta_ini
+              << std::endl
+              << "Max quanta in the target state = " << max_quanta_targ
               << std::endl;
-    std::cout << "Max quanta ini=" << max_quanta_ini
-              << "  Max quanta targ=" << max_quanta_targ << std::endl;
-    std::cout << "Thresh[ini]=" << energy_threshold_initial
-              << "  Thresh[targ]=" << energy_threshold_target << std::endl;
+    std::cout << "Thresh[ini] = " << thresholds.initial_eV() << " eV"
+              << std::endl
+              << "Thresh[targ] = " << thresholds.target_eV() << " eV"
+              << std::endl;
 
     int n_hot_bands = dushinsky.addHotBands(
         elStates, nms_dushinsky, fcf_threshold, temperature, max_quanta_ini,
-        max_quanta_targ, energy_threshold_initial, energy_threshold_target);
+        max_quanta_targ, thresholds.initial_eV(), thresholds.target_eV());
+
     std::cout << n_hot_bands << " hot bands were added to the spectrum\n"
               << "Note: the Boltzmann distribution will be applied later\n\n"
               << std::flush;
@@ -746,8 +690,8 @@ void harmonic_pes_dushinksy(xml_node &node_input,
     if ((dushinsky.getSpectrum().getSpectralPoint(pt).getIntensity() <
          job_parameters.get_intensity_thresh()) or
         (-(energy - E_prime_prime + elStates[targN].Energy()) >
-         energy_threshold_target) or
-        (E_prime_prime > energy_threshold_initial)) {
+         thresholds.target_eV()) or
+        (E_prime_prime > thresholds.initial_eV())) {
       dushinsky.getSpectrum().getSpectralPoint(pt).setIfPrint(false);
       points_removed++;
     }
