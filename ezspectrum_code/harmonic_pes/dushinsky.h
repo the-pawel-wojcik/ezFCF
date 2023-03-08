@@ -25,6 +25,7 @@
 #include "vibrational_indexing.h"
 #include "vibronic_state.h"
 #include "energy_thresholds.h"
+#include "job_parameters.h"
 
 /* Class for calculations of FCFs that include the effects of Duschinsky
  * rotation.
@@ -106,8 +107,9 @@ public:
 
   //! add hot bands to the spectrum
   int addHotBands(std::vector<MolState> &molStates, std::vector<int> &nm_list,
-                  double fcf_threshold, double temperature, int max_n_initial,
-                  int max_n_target, const EnergyThresholds &thresholds);
+                  const JobParameters &job_config,
+                  const DushinskyParameters &dush_config,
+                  const EnergyThresholds &thresholds);
 
   //! if total number excitations in the stete is larger than Kp_max (stored),
   //! evaluates FCF recursively;

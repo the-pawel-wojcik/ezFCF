@@ -1,4 +1,5 @@
 #include "dushinsky.h"
+#include "dushinsky_parameters.h"
 #include "energy_thresholds.h"
 
 /* This function contains exactly what the old constructor contained. There is
@@ -645,12 +646,15 @@ double Dushinsky::evalSingleFCF_full_space(VibronicState &state_ini, int K,
 }
 
 int Dushinsky::addHotBands(std::vector<MolState> &molStates,
-                           std::vector<int> &nm_list, double fcf_threshold,
-                           double temperature, int max_n_initial,
-                           int max_n_target,
+                           std::vector<int> &nm_list,
+                           const JobParameters &job_config,
+                           const DushinskyParameters &dush_config,
                            const EnergyThresholds &thresholds) {
 
-  int points_added = 0;
+  double fcf_threshold = sqrt(job_config.get_intensity_thresh());
+
+  int max_n_target = dush_config.get_max_quanta_targ();
+  int max_n_initial = dush_config.get_max_quanta_init();
 
   // vector of states below the energy thresholds and with total number of
   // excitations up to requested number
@@ -795,6 +799,7 @@ int Dushinsky::addHotBands(std::vector<MolState> &molStates,
   std::cout << "Hot bands are being calculated..." << std::flush;
 
   // evaluate all possible cross integrals
+  int points_added = 0;
   for (int curr_ini = 0; curr_ini < selected_states_ini.size(); curr_ini++)
     for (int curr_targ = 0; curr_targ < selected_states_targ.size();
          curr_targ++) {

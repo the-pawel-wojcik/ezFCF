@@ -516,9 +516,9 @@ void harmonic_pes_dushinksy(xml_node &node_input,
               << "Thresh[targ] = " << thresholds.target_eV() << " eV"
               << std::endl;
 
-    int n_hot_bands = dushinsky.addHotBands(
-        elStates, nms_dushinsky, fcf_threshold, job_parameters.get_temp(),
-        max_quanta_ini, max_quanta_targ, thresholds);
+    int n_hot_bands =
+        dushinsky.addHotBands(elStates, nms_dushinsky, job_parameters,
+                              dushinsky_parameters, thresholds);
 
     std::cout << n_hot_bands << " hot bands were added to the spectrum\n"
               << "Note: the Boltzmann distribution will be applied later\n\n"
