@@ -1,4 +1,5 @@
 #include "dushinsky.h"
+#include "energy_thresholds.h"
 
 /* This function contains exactly what the old constructor contained. There is
  * work needed here.
@@ -646,8 +647,8 @@ double Dushinsky::evalSingleFCF_full_space(VibronicState &state_ini, int K,
 int Dushinsky::addHotBands(std::vector<MolState> &molStates,
                            std::vector<int> &nm_list, double fcf_threshold,
                            double temperature, int max_n_initial,
-                           int max_n_target, double energy_threshold_initial,
-                           double energy_threshold_target) {
+                           int max_n_target,
+                           const EnergyThresholds &thresholds) {
 
   int points_added = 0;
 
@@ -680,11 +681,12 @@ int Dushinsky::addHotBands(std::vector<MolState> &molStates,
   // find INITIAL states with up to 'max_n_initial' vibrational quanta and with
   // energy below 'energy_threshold_initial':
   std::cout << "A set of initial vibrational states is being created...\n";
-  if (energy_threshold_initial < DBL_MAX)
+  if (thresholds.present()){
     std::cout << "  energy threshold = " << std::fixed
-              << energy_threshold_initial << " eV ("
-              << energy_threshold_initial / KELVINS2EV << " K)\n"
+              << thresholds.initial_eV() << " eV ("
+              << thresholds.initial_eV() / KELVINS2EV << " K)\n"
               << std::flush;
+  }
   else {
     std::cout
         << "  energy threshold is not specified in the input (Please consider "
@@ -711,7 +713,7 @@ int Dushinsky::addHotBands(std::vector<MolState> &molStates,
             molStates[state0.getElStateIndex()].getNormMode(nm).getFreq() *
             WAVENUMBERS2EV * state0.getV_full_dim(nm);
 
-      if (energy < energy_threshold_initial) {
+      if (energy < thresholds.initial_eV()) {
         // check memory available (dirty, but anyway one copying of the state is
         // requared...)
         // VibronicState * state_tmp = (VibronicState*) malloc (
@@ -735,16 +737,18 @@ int Dushinsky::addHotBands(std::vector<MolState> &molStates,
   // find TARGET states with up to 'max_n_target' vibrational quanta and with
   // energy below 'energy_threshold_target':
   std::cout << "A set of target vibrational states is being created...\n";
-  if (energy_threshold_target < DBL_MAX)
+  if (thresholds.present()) {
     std::cout << "  energy threshold = " << std::fixed
-              << energy_threshold_target << " eV ("
-              << energy_threshold_target / WAVENUMBERS2EV << " cm-1)\n"
+              << thresholds.target_eV() << " eV ("
+              << thresholds.target_eV() / WAVENUMBERS2EV << " cm-1)\n"
               << std::flush;
-  else
+  }
+  else {
     std::cout
-        << "  energy threshold is not specified in the input (Please consider "
-           "adding\n"
+        << "  energy thresholds are not specified in the input (Please "
+           "consider adding\n"
         << "  the \"energy_thresholds\" tag for a faster calculation.)\n\n";
+  }
 
   // std::cout <<"NOTE: ezSpectrum may crash at this point if memory is
   // insufficient to store\n"
@@ -763,7 +767,7 @@ int Dushinsky::addHotBands(std::vector<MolState> &molStates,
         energy += molStates[state.getElStateIndex()].getNormMode(nm).getFreq() *
                   WAVENUMBERS2EV * state.getV_full_dim(nm);
 
-      if (energy < energy_threshold_target) {
+      if (energy < thresholds.target_eV()) {
         // check memory available (dirty, but anyway one copying of the state is
         // requared...)
         // VibronicState * state_tmp = (VibronicState*) malloc (

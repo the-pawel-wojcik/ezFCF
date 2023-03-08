@@ -499,14 +499,13 @@ void harmonic_pes_dushinksy(xml_node &node_input,
   int max_quanta_targ = dushinsky_parameters.get_max_quanta_targ();
   int max_quanta_ini = dushinsky_parameters.get_max_quanta_init();
   EnergyThresholds thresholds(node_dushinsky_rotations);
-  double temperature = job_parameters.get_temp();
   std::vector<int> nms_dushinsky = no_excite_subspace.get_active_subspace();
   if (max_quanta_ini != 0) {
 
     double fcf_threshold = sqrt(job_parameters.get_intensity_thresh());
 
     std::cout << "Summary of the job parameters." << std::endl;
-    std::cout << "T = " << temperature << " K" << std::endl
+    std::cout << "T = " << job_parameters.get_temp() << " K" << std::endl
               << "FCF thresh = " << fcf_threshold << std::endl;
     std::cout << "Max quanta in the intial state = " << max_quanta_ini
               << std::endl
@@ -518,8 +517,8 @@ void harmonic_pes_dushinksy(xml_node &node_input,
               << std::endl;
 
     int n_hot_bands = dushinsky.addHotBands(
-        elStates, nms_dushinsky, fcf_threshold, temperature, max_quanta_ini,
-        max_quanta_targ, thresholds.initial_eV(), thresholds.target_eV());
+        elStates, nms_dushinsky, fcf_threshold, job_parameters.get_temp(),
+        max_quanta_ini, max_quanta_targ, thresholds);
 
     std::cout << n_hot_bands << " hot bands were added to the spectrum\n"
               << "Note: the Boltzmann distribution will be applied later\n\n"
@@ -640,6 +639,7 @@ void harmonic_pes_dushinksy(xml_node &node_input,
   // update (fill) energies for every point in the spectrum and add the
   // Boltzmann distribution:
   int points_removed = 0;
+  double temperature = job_parameters.get_temp();
   for (int pt = 0; pt < dushinsky.getSpectrum().getNSpectralPoints(); pt++) {
     double energy = -elStates[targN].Energy();
     double E_prime_prime = 0; // no hot bands
