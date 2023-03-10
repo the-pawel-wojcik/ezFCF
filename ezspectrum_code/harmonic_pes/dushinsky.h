@@ -80,6 +80,7 @@ class Dushinsky {
 
 public:
   Dushinsky(std::vector<MolState> &molStates, const int in_targN,
+            const EnergyThresholds &thresholds,
             const DushinskyParameters &dush_parameters,
             const JobParameters &job_parameters,
             const DoNotExcite &no_excite_subspace);
@@ -106,11 +107,11 @@ public:
   void reset_Kp_max() { Kp_max = 0; }
 
   //! add hot bands to the spectrum
-  int addHotBands(std::vector<MolState> &molStates,
-                  const DoNotExcite &no_excite_subspace,
-                  const JobParameters &job_config,
-                  const DushinskyParameters &dush_config,
-                  const EnergyThresholds &thresholds);
+  void addHotBands(std::vector<MolState> &molStates,
+                   const DoNotExcite &no_excite_subspace,
+                   const JobParameters &job_config,
+                   const DushinskyParameters &dush_config,
+                   const EnergyThresholds &thresholds);
 
   //! if total number excitations in the stete is larger than Kp_max (stored),
   //! evaluates FCF recursively;

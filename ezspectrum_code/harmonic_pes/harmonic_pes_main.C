@@ -477,44 +477,31 @@ void harmonic_pes_dushinksy(xml_node &node_input,
 
   // total number of the normal modes (in the molecule)
   // TODO: this is likely the most used variable throughout the program it
-  // should be treated in a more general unified way
+  // should be treated in a more general, unified way
   int n_molecular_normal_modes = elStates[0].NNormModes();
 
   xml_node node_dushinsky_rotations(node_input, "dushinsky_rotations", 0);
   DoNotExcite no_excite_subspace(node_dushinsky_rotations,
                                  n_molecular_normal_modes);
   no_excite_subspace.print_summary(elStates[targN].ifNMReorderedManually());
+  EnergyThresholds thresholds(node_dushinsky_rotations);
 
   std::cout << HorizontalLine << "\n\n";
   std::cout << " Beginning computations with an inclusion of the Duschinsky "
                "effect.\n\n"
             << std::flush;
 
-  Dushinsky dushinsky(elStates, targN, dushinsky_parameters, job_parameters,
-                      no_excite_subspace);
-
-  //----------------------------------------------------------------------
-  // add the hot bands if requested
-
-  int max_quanta_targ = dushinsky_parameters.get_max_quanta_targ();
-  int max_quanta_ini = dushinsky_parameters.get_max_quanta_init();
-  EnergyThresholds thresholds(node_dushinsky_rotations);
-  if (max_quanta_ini != 0) {
-
-    int n_hot_bands =
-        dushinsky.addHotBands(elStates, no_excite_subspace, job_parameters,
-                              dushinsky_parameters, thresholds);
-
-    std::cout << n_hot_bands << " hot bands were added to the spectrum\n"
-              << "Note: the Boltzmann distribution will be applied later\n\n"
-              << std::flush;
-  }
+  Dushinsky dushinsky(elStates, targN, thresholds, dushinsky_parameters,
+                      job_parameters, no_excite_subspace);
 
   //----------------------------------------------------------------------
   // If the_only_initial_state node is present in the xml input.
   // Hide the already calculated spectrum. Add transitions from
   // the_only_initial_state. No finesse. the_only_initial_state is in the
   // "full space"; do_not_excite_subspace does not apply;
+
+  int max_quanta_targ = dushinsky_parameters.get_max_quanta_targ();
+  int max_quanta_ini = dushinsky_parameters.get_max_quanta_init();
 
   std::vector<int> nms_dushinsky = no_excite_subspace.get_active_subspace();
   size_t do_the_only_initial_state =

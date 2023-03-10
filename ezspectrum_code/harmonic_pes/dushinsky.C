@@ -312,14 +312,17 @@ void Dushinsky::evaluate_higher_levels(
 
 /* Creator of the Dushinsky class that is responsible for calculating the FCFs
  * with inclusion of the Duschinsky rotation. */
-Dushinsky::Dushinsky(std::vector<MolState> &molStates, const int in_targN,
-                     const DushinskyParameters &dush_parameters,
+Dushinsky::Dushinsky(std::vector<MolState> &elStates, const int in_targN,
+                     const EnergyThresholds &thresholds,
+                     const DushinskyParameters &dush_config,
                      const JobParameters &job_parameters,
                      const DoNotExcite &no_excite_subspace) {
-  old_constructor(molStates, in_targN, dush_parameters, job_parameters,
+  old_constructor(elStates, in_targN, dush_config, job_parameters,
                   no_excite_subspace);
-  printLayersSizes(dush_parameters, no_excite_subspace);
-  evaluate_higher_levels(dush_parameters);
+  printLayersSizes(dush_config, no_excite_subspace);
+  evaluate_higher_levels(dush_config);
+  addHotBands(elStates, no_excite_subspace, job_parameters, dush_config,
+              thresholds);
 }
 
 Dushinsky::~Dushinsky() {
@@ -646,11 +649,17 @@ double Dushinsky::evalSingleFCF_full_space(VibronicState &state_ini, int K,
   return fcf;
 }
 
-int Dushinsky::addHotBands(std::vector<MolState> &molStates,
-                           const DoNotExcite &no_excite_subspace,
-                           const JobParameters &job_config,
-                           const DushinskyParameters &dush_config,
-                           const EnergyThresholds &thresholds) {
+void Dushinsky::addHotBands(std::vector<MolState> &molStates,
+                            const DoNotExcite &no_excite_subspace,
+                            const JobParameters &job_config,
+                            const DushinskyParameters &dush_config,
+                            const EnergyThresholds &thresholds) {
+
+  // If no excitations in the inital state are allowed, there will be no hot
+  // bands
+  if (dush_config.get_max_quanta_init() == 0) {
+    return;
+  }
 
   // vector of states below the energy thresholds and with total number of
   // excitations up to requested number
@@ -787,7 +796,11 @@ int Dushinsky::addHotBands(std::vector<MolState> &molStates,
 
   std::cout << "Done\n\n" << std::flush;
 
-  return points_added;
+  std::cout << points_added << " hot bands were added to the spectrum\n"
+            << "Note: the Boltzmann distribution will be applied later\n\n"
+            << std::flush;
+
+  return;
 }
 
 void Dushinsky::addSpectralPoint(const double fcf, VibronicState state_ini,
