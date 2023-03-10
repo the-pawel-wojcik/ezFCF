@@ -18,14 +18,14 @@
 #include "constants.h"
 #include "do_not_excite_subspace.h"
 #include "dushinsky_parameters.h"
+#include "energy_thresholds.h"
 #include "genincludes.h"
+#include "job_parameters.h"
 #include "mathutil.h"
 #include "molstate.h"
 #include "spectrum.h"
 #include "vibrational_indexing.h"
 #include "vibronic_state.h"
-#include "energy_thresholds.h"
-#include "job_parameters.h"
 
 /* Class for calculations of FCFs that include the effects of Duschinsky
  * rotation.
@@ -106,7 +106,8 @@ public:
   void reset_Kp_max() { Kp_max = 0; }
 
   //! add hot bands to the spectrum
-  int addHotBands(std::vector<MolState> &molStates, std::vector<int> &nm_list,
+  int addHotBands(std::vector<MolState> &molStates,
+                  const DoNotExcite &no_excite_subspace,
                   const JobParameters &job_config,
                   const DushinskyParameters &dush_config,
                   const EnergyThresholds &thresholds);

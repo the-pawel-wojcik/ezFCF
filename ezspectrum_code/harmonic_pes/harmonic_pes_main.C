@@ -499,25 +499,10 @@ void harmonic_pes_dushinksy(xml_node &node_input,
   int max_quanta_targ = dushinsky_parameters.get_max_quanta_targ();
   int max_quanta_ini = dushinsky_parameters.get_max_quanta_init();
   EnergyThresholds thresholds(node_dushinsky_rotations);
-  std::vector<int> nms_dushinsky = no_excite_subspace.get_active_subspace();
   if (max_quanta_ini != 0) {
 
-    double fcf_threshold = sqrt(job_parameters.get_intensity_thresh());
-
-    std::cout << "Summary of the job parameters." << std::endl;
-    std::cout << "T = " << job_parameters.get_temp() << " K" << std::endl
-              << "FCF thresh = " << fcf_threshold << std::endl;
-    std::cout << "Max quanta in the intial state = " << max_quanta_ini
-              << std::endl
-              << "Max quanta in the target state = " << max_quanta_targ
-              << std::endl;
-    std::cout << "Thresh[ini] = " << thresholds.initial_eV() << " eV"
-              << std::endl
-              << "Thresh[targ] = " << thresholds.target_eV() << " eV"
-              << std::endl;
-
     int n_hot_bands =
-        dushinsky.addHotBands(elStates, nms_dushinsky, job_parameters,
+        dushinsky.addHotBands(elStates, no_excite_subspace, job_parameters,
                               dushinsky_parameters, thresholds);
 
     std::cout << n_hot_bands << " hot bands were added to the spectrum\n"
@@ -531,6 +516,7 @@ void harmonic_pes_dushinksy(xml_node &node_input,
   // the_only_initial_state. No finesse. the_only_initial_state is in the
   // "full space"; do_not_excite_subspace does not apply;
 
+  std::vector<int> nms_dushinsky = no_excite_subspace.get_active_subspace();
   size_t do_the_only_initial_state =
       node_dushinsky_rotations.find_subnode("the_only_initial_state");
   if (do_the_only_initial_state) {
