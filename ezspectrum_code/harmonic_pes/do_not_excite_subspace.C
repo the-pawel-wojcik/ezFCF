@@ -56,7 +56,6 @@ void DoNotExcite::parse_normal_modes_stream(std::stringstream &nmodes_stream) {
 /* Prints summary and warrnings about the parsed "do_not_excite_subspace". */
 void DoNotExcite::print_summary(const bool nm_were_reordered) const {
   if (empty()) {
-    std::cout << "All normal modes modes will be excited\n\n";
     return;
   }
 
@@ -74,7 +73,7 @@ void DoNotExcite::print_summary(const bool nm_were_reordered) const {
   std::cout << "\n\n";
 
   std::cout << "The following normal modes will be excited:\n";
-            /* << " (for both states the order is same as in the input):\n"; */
+  /* << " (for both states the order is same as in the input):\n"; */
   for (int mode_no : get_active_subspace())
     std::cout << mode_no << ' ';
   std::cout << "\n\n";
@@ -82,7 +81,7 @@ void DoNotExcite::print_summary(const bool nm_were_reordered) const {
 
 /* Make sure that the list of modes to be excluded makes sense. */
 void DoNotExcite::run_tests() const {
-  
+
   // Tests assume that the do_not_excite_subspace is NOT empty.
   if (empty()) {
     return;
@@ -148,7 +147,7 @@ void DoNotExcite::check_for_duplicates() const {
   error(msg);
 }
 
-/* Create the "excite subspace": full_space - do_not_excite_subspace 
+/* Create the "excite subspace": full_space - do_not_excite_subspace
  * Only normal modes from this subspace will be excited */
 std::vector<int> DoNotExcite::get_active_subspace() const {
   std::vector<int> active_nms;

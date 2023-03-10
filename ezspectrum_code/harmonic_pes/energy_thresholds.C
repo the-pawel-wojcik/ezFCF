@@ -20,7 +20,7 @@ EnergyThresholds::EnergyThresholds(const xml_node &node_parent)
 void EnergyThresholds::read_energy_tresholds(
     const xml_node &node_appox_params) {
 
-  std::cout << "Reading energy thresholds." << std::endl;
+  std::cout << "Reading energy thresholds.\n\n" << std::flush;
   xml_node node_energy_thresh(node_appox_params, "energy_thresholds", 0);
 
   if (node_energy_thresh.find_subnode("initial_state")) {

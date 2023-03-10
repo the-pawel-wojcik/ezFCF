@@ -1096,10 +1096,9 @@ void MolState::vertical_gradient_method() {
    * $M$) and the gradient vector have values stored in the atomic units.
    */
 
-    bool verbose = true;
+  bool verbose = false;
 
-  std::cout << "State geometry is calculated within VGA."
-            << std::endl;
+  std::cout << "State geometry is calculated within VGA." << std::endl;
 
   // arma::sqrt is an element-wise square root
   arma::Mat<double> Omega_matrix_minus2 = arma::inv(arma::square(omega_matrix));

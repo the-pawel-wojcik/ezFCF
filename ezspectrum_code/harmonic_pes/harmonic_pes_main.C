@@ -217,9 +217,13 @@ void print_overlap_matrix(std::vector<MolState> &elStates,
     // Create an overlap submatrix:
     if ((if_overlap_diagonal) or (new_normal_modes_list.size() <= 1)) {
       std::cout << "The normal modes overlap matrix with the initial state "
-                   "is diagonal\n";
-      if (do_not_excite_subspace.size() > 0)
-        std::cout << "  (do_not_excite_subspace is excluded)\n";
+                   "is diagonal.\n";
+      // TODO: This message can be interpreted both ways. Make it clearer 
+      // and then add it back.
+      /* if (!do_not_excite_subspace.empty()) { */
+      /*   std::cout */
+      /*       << "  (do_not_excite_subspace is excluded)\n"; */
+      /* } */
       std::cout << "\n";
     } else {
       std::cout << "WARNING! The normal modes overlap matrix with the "
@@ -374,8 +378,9 @@ void harmonic_pes_parallel(xml_node &node_input,
   // xml file
   std::string nmoverlapFName = InputFileName + std::string(".nmoverlap");
 
-  std::cout << HorizontalLine << "\n\n";
-  std::cout << " Beginning the parallel mode approximation computations.\n\n"
+  std::cout << HorizontalLine << "\n"
+            << " Beginning the parallel mode approximation computations.\n"
+            << HorizontalLine << "\n\n"
             << std::flush;
 
   // Read "the_only_initial_state" node from the input
@@ -486,9 +491,10 @@ void harmonic_pes_dushinksy(xml_node &node_input,
   no_excite_subspace.print_summary(elStates[targN].ifNMReorderedManually());
   EnergyThresholds thresholds(node_dushinsky_rotations);
 
-  std::cout << HorizontalLine << "\n\n";
-  std::cout << " Beginning computations with an inclusion of the Duschinsky "
-               "effect.\n\n"
+  std::cout << HorizontalLine << "\n"
+            << " Beginning computations with an inclusion of the Duschinsky "
+               "effect.\n"
+            << HorizontalLine << "\n\n"
             << std::flush;
 
   Dushinsky dushinsky(elStates, targN, thresholds, dushinsky_parameters,
@@ -503,7 +509,6 @@ void harmonic_pes_dushinksy(xml_node &node_input,
   int max_quanta_targ = dushinsky_parameters.get_max_quanta_targ();
   int max_quanta_ini = dushinsky_parameters.get_max_quanta_init();
 
-  std::vector<int> nms_dushinsky = no_excite_subspace.get_active_subspace();
   size_t do_the_only_initial_state =
       node_dushinsky_rotations.find_subnode("the_only_initial_state");
   if (do_the_only_initial_state) {
@@ -693,6 +698,7 @@ void harmonic_pes_dushinksy(xml_node &node_input,
         << "         New order is used for the target state assignment.\n";
   }
 
+  std::vector<int> nms_dushinsky = no_excite_subspace.get_active_subspace();
   if (nms_dushinsky.size() != n_molecular_normal_modes) {
     std::cout << "\nNOTE: only the following normal modes were excited "
                  "(\"excite subspace\"):\n  ";

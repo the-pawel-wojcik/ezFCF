@@ -160,7 +160,7 @@ void Dushinsky::old_constructor(std::vector<MolState> &molStates,
   double detS = arma::det(S);
   std::cout << "Determinant of the normal modes rotation matrix: |Det(S)| ="
             << std::fixed << std::setw(12) << std::setprecision(8) << fabs(detS)
-            << "\n";
+            << "\n\n" << std::flush;
   if (fabs(detS) < 0.5) {
     std::cout << "\n"
               << "Error: |Det(S)| is too small (<0.5). Please see \"|Det(S)| "
