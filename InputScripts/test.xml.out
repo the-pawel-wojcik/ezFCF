@@ -1,7 +1,7 @@
-Job "../bin/ezFCF_linux.exe test.xml" has been started: Wed Sep 21 13:02:13 2022
+Job "../ezspectrum_code/ezFCF_linux.exe test.xml" has been started: Thu Mar  9 19:36:54 2023
 
 A copy of the "test.xml" input:
-------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 Node input
 <input
   job = "harmonic_pes">
@@ -83,8 +83,8 @@ Node input
     text   = "
       O       0.000000     0.000000     0.113962
       H      -0.748828     0.000000    -0.455848
-      H       0.748828     0.000000    -0.455848
-             ">
+      H       0.748828     0.000000    -0.455848"
+  >
   </geometry>
 
   <OPT_manual_atoms_reordering
@@ -96,16 +96,16 @@ Node input
     text = "
           0.000  0.000 -0.070    0.000  0.000 -0.050   -0.071  0.000  0.000
          -0.430  0.000  0.559    0.583  0.000  0.398    0.561  0.000  0.427
-          0.430  0.000  0.559   -0.583  0.000  0.398    0.561  0.000 -0.427
+          0.430  0.000  0.559   -0.583  0.000  0.398    0.561  0.000 -0.427"
 
-           "
-   atoms = "   O     H     H             ">
+   atoms = "O     H     H"
+  >
   </normal_modes>
 
   <frequencies
     text = "
-       1750.92                4142.16                4237.44
-             ">
+       1750.92                4142.16                4237.44"
+  >
   </frequencies>
 
 </initial_state>
@@ -127,8 +127,8 @@ Node input
     text   = "
        O    0.000000000    0.000000000   -0.120483673
        H    0.000000000    1.415013605    0.956240684
-       H    0.000000000   -1.415013605    0.956240684
-                   ">
+       H    0.000000000   -1.415013605    0.956240684"
+  >
   </geometry>
 
   <OPT_manual_atoms_reordering
@@ -140,10 +140,10 @@ Node input
     text = "
      0.00000     0.00000    -0.06771        0.00000     0.00000    -0.04909        0.00000    -0.06796     0.00000
      0.00000    -0.41341     0.53737        0.00000     0.57022     0.38959        0.00000     0.53939     0.41044
-     0.00000     0.41341     0.53737        0.00000    -0.57022     0.38959        0.00000     0.53939    -0.41044
+     0.00000     0.41341     0.53737        0.00000    -0.57022     0.38959        0.00000     0.53939    -0.41044"
 
-           "
-   atoms = " O  H  H            ">
+   atoms = "O  H  H"
+  >
   </normal_modes>
 
   <OPT_manual_normal_modes_reordering
@@ -152,8 +152,8 @@ Node input
 
   <frequencies
     text = "
-          1750.39     4142.65     4237.92
-             ">
+          1750.39     4142.65     4237.92"
+  >
   </frequencies>
 
 </target_state>
@@ -175,8 +175,8 @@ Node input
     text   = "
       O        0.00000000     0.00000005     0.12054476
       H        0.00000000    -1.41495347    -0.95656584
-      H        0.00000000     1.41495260    -0.95656650
-             ">
+      H        0.00000000     1.41495260    -0.95656650"
+  >
   </geometry>
 
   <OPT_manual_atoms_reordering
@@ -188,10 +188,10 @@ Node input
     text = "
     0.000 0.0000  0.2708    0.0000  0.0000  0.1964    0.0000  0.2718  0.0000
     0.000 0.4151 -0.5394    0.0000 -0.5724 -0.3912    0.0000 -0.5415 -0.4122
-    0.000-0.4151 -0.5394    0.0000  0.5724 -0.3912    0.0000 -0.5415  0.4122
+    0.000-0.4151 -0.5394    0.0000  0.5724 -0.3912    0.0000 -0.5415  0.4122"
 
-           "
-   atoms = "O   H   H              ">
+   atoms = "O   H   H"
+  >
   </normal_modes>
 
   <OPT_manual_normal_modes_reordering
@@ -200,8 +200,8 @@ Node input
 
   <frequencies
     text = "
-              1751.31                   4141.52                   4236.61 
-             ">
+              1751.31                   4141.52                   4236.61"
+  >
   </frequencies>
 
 </target_state>
@@ -223,8 +223,8 @@ Node input
     text   = "
       O        0.00000000     0.00000005    -0.12054473
       H        0.00000000    -1.41495306     0.95656558
-      H        0.00000000     1.41495221     0.95656623
-             ">
+      H        0.00000000     1.41495221     0.95656623"
+  >
   </geometry>
 
   <OPT_manual_atoms_reordering
@@ -236,10 +236,10 @@ Node input
     text = "
   0.0000  0.0000  0.2708    0.0000  0.0000  0.1964    0.0000  0.2718  0.0000
   0.0000 -0.4151 -0.5395    0.0000  0.5725 -0.3911    0.0000 -0.5415  0.4122
-  0.0000  0.4151 -0.5395    0.0000 -0.5725 -0.3911    0.0000 -0.5415 -0.4122
+  0.0000  0.4151 -0.5395    0.0000 -0.5725 -0.3911    0.0000 -0.5415 -0.4122"
 
-           "
-   atoms = "O   H   H              ">
+   atoms = "O   H   H"
+  >
   </normal_modes>
 
   <OPT_manual_normal_modes_reordering
@@ -248,8 +248,8 @@ Node input
 
   <frequencies
     text = "
-              1749.67                   4141.13                   4237.01 
-             ">
+              1749.67                   4141.13                   4237.01"
+  >
   </frequencies>
 
 </target_state>
@@ -271,9 +271,8 @@ Node input
     text   = "
       O    -0.0000130277       -0.1205372395        0.0000000000
       H     1.4151971296        0.9564278022        0.0000000000
-      H    -1.4149903701        0.9565851692        0.0000000000
-     
-             ">
+      H    -1.4149903701        0.9565851692        0.0000000000"
+  >
   </geometry>
 
   <OPT_manual_atoms_reordering
@@ -285,11 +284,10 @@ Node input
     text = "
  -0.00000016 -0.06772342  0.00000000    -0.00024468 -0.04909578  0.00000000    -0.06796999  0.00018021  0.00000000
  -0.41341384  0.53751704  0.00000000     0.57220644  0.39100692  0.00000000     0.53738012  0.40910024  0.00000000
-  0.41341645  0.53730490  0.00000000    -0.56832298  0.38817837  0.00000000     0.54135208 -0.41196032  0.00000000
+  0.41341645  0.53730490  0.00000000    -0.56832298  0.38817837  0.00000000     0.54135208 -0.41196032  0.00000000"
 
-           "
-   atoms = " O    H    H   
-           ">
+   atoms = "O    H    H"
+  >
   </normal_modes>
 
   <OPT_manual_normal_modes_reordering
@@ -298,8 +296,8 @@ Node input
 
   <frequencies
     text = "
-       1749.68 4140.55 4236.50
-             ">
+       1749.68 4140.55 4236.50"
+  >
   </frequencies>
 
 </target_state>
@@ -321,8 +319,8 @@ Node input
     text   = "
       O      0.000000    0.000000    0.113962
       H      0.000000    0.748828   -0.455848
-      H      0.000000   -0.748828   -0.455848
-             ">
+      H      0.000000   -0.748828   -0.455848"
+  >
   </geometry>
 
   <OPT_manual_atoms_reordering
@@ -334,10 +332,10 @@ Node input
     text = "
    0.00   0.00   0.07     0.00   0.00   0.05     0.00   0.07   0.00
    0.00  -0.43  -0.56     0.00   0.58  -0.40     0.00  -0.56   0.43
-   0.00   0.43  -0.56     0.00  -0.58  -0.40     0.00  -0.56  -0.43
+   0.00   0.43  -0.56     0.00  -0.58  -0.40     0.00  -0.56  -0.43"
 
-           "
-   atoms = "    O   H   H              ">
+   atoms = "O   H   H"
+  >
   </normal_modes>
 
   <OPT_manual_normal_modes_reordering
@@ -346,8 +344,8 @@ Node input
 
   <frequencies
     text = "
-   1750.9224              4142.1539              4237.4314
-             ">
+   1750.9224              4142.1539              4237.4314"
+  >
   </frequencies>
 
 </target_state>
@@ -369,8 +367,8 @@ Node input
     text   = "
 O            0.000000     0.000000    -0.063790
 H            0.000000    -0.748761     0.506193
-H            0.000000     0.748760     0.506193
-             ">
+H            0.000000     0.748760     0.506193"
+  >
   </geometry>
 
   <OPT_manual_atoms_reordering
@@ -382,10 +380,10 @@ H            0.000000     0.748760     0.506193
     text = "
      0.000  -0.000   0.070     0.000  -0.000   0.050     0.000  -0.071  -0.000
      0.000  -0.430  -0.559     0.000   0.583  -0.398     0.000   0.561  -0.427
-     0.000   0.430  -0.559     0.000  -0.583  -0.398     0.000   0.561   0.427
+     0.000   0.430  -0.559     0.000  -0.583  -0.398     0.000   0.561   0.427"
 
-           "
-   atoms = "   O    H    H            ">
+   atoms = "O    H    H"
+  >
   </normal_modes>
 
   <OPT_manual_normal_modes_reordering
@@ -394,8 +392,8 @@ H            0.000000     0.748760     0.506193
 
   <frequencies
     text = "
-    1750.98    4142.03    4236.68
-             ">
+    1750.98    4142.03    4236.68"
+  >
   </frequencies>
 
 </target_state>
@@ -406,29 +404,23 @@ H            0.000000     0.748760     0.506193
  -->
 
 </input>
-------------------------------------------------------------------------------
- 
+--------------------------------------------------------------------------------
+
 
 ====== Reading the initial state ======
 ===== Reading the target state #0 =====
 Excitation energy = 1.000000 eV
-Excitation energy = 1.000000 eV 
 ===== Reading the target state #1 =====
 Excitation energy = 2.000000 eV
-Excitation energy = 2.000000 eV 
 ===== Reading the target state #2 =====
 Excitation energy = 3.000000 eV
-Excitation energy = 3.000000 eV 
 ===== Reading the target state #3 =====
 Excitation energy = 4.000000 eV
-Excitation energy = 4.000000 eV 
 ===== Reading the target state #4 =====
 Excitation energy = 5.000000 eV
-Excitation energy = 5.000000 eV 
 ===== Reading the target state #5 =====
 Excitation energy = 6.000000 eV
-Excitation energy = 6.000000 eV 
-Done reading states
+===== Done reading states =====
 
 Coordinate axes were aligned with MOI principal axes; center mass was shifted to the origin.
 
@@ -436,147 +428,120 @@ New molecular geometry:
    O      0.0000       0.0638       0.0000 
    H      0.0000      -0.5060      -0.7488 
    H      0.0000      -0.5060       0.7488 
-
+ 
 MOI tensor:
-                0           1           2
-    0    1.711476    0.000000    0.000000
-    1    0.000000    1.130268    0.000000
-    2    0.000000    0.000000    0.581208
-
-
-Coordinate axes were aligned with MOI principal axes; center mass was shifted to the origin.
-Also rotated by 0/2*pi, 2/2*pi, and 2/2*pi CCW around x, y, and z.
-The norm of the geometry difference from the initial state is 0.0001
-
-New molecular geometry:
-   O      0.0000       0.0638       0.0000 
-   H      0.0000      -0.5060      -0.7488 
-   H      0.0000      -0.5060       0.7488 
-
-MOI tensor:
-                0           1           2
-    0    1.711323    0.000000    0.000000
-    1    0.000000    1.130174    0.000000
-    2    0.000000    0.000000    0.581149
-
-
-Coordinate axes were aligned with MOI principal axes; center mass was shifted to the origin.
-Also rotated by 0/2*pi, 2/2*pi, and 3/2*pi CCW around x, y, and z.
-The norm of the geometry difference from the initial state is 0.0002
-
-New molecular geometry:
-   O      0.0000       0.0638       0.0000 
-   H      0.0000      -0.5062      -0.7488 
-   H      0.0000      -0.5062       0.7488 
-
-MOI tensor:
-                0           1           2
-    0    1.711644    0.000000    0.000000
-    1    0.000000    1.130077    0.000000
-    2    0.000000    0.000000    0.581566
-
-
+     1.711476     0.000000     0.000000
+     0.000000     1.130268     0.000000
+     0.000000     0.000000     0.581208
 Coordinate axes were aligned with MOI principal axes; center mass was shifted to the origin.
 Also rotated by 2/2*pi, 0/2*pi, and 3/2*pi CCW around x, y, and z.
-The norm of the geometry difference from the initial state is 0.0002
+The norm of the geometry difference from the initial state is 0.000057
+
+New molecular geometry:
+   O      0.0000       0.0638       0.0000 
+   H      0.0000      -0.5060      -0.7488 
+   H      0.0000      -0.5060       0.7488 
+ 
+MOI tensor:
+     1.711323     0.000000     0.000000
+     0.000000     1.130174     0.000000
+     0.000000     0.000000     0.581149
+Coordinate axes were aligned with MOI principal axes; center mass was shifted to the origin.
+Also rotated by 0/2*pi, 0/2*pi, and 3/2*pi CCW around x, y, and z.
+The norm of the geometry difference from the initial state is 0.000239
 
 New molecular geometry:
    O      0.0000       0.0638       0.0000 
    H      0.0000      -0.5062      -0.7488 
    H      0.0000      -0.5062       0.7488 
-
+ 
 MOI tensor:
-                0           1           2
-    0    1.711643    0.000000    0.000000
-    1    0.000000    1.130077   -0.000000
-    2    0.000000   -0.000000    0.581566
-
-
+     1.711644     0.000000     0.000000
+     0.000000     1.130077     0.000000
+     0.000000     0.000000     0.581566
 Coordinate axes were aligned with MOI principal axes; center mass was shifted to the origin.
 Also rotated by 2/2*pi, 2/2*pi, and 3/2*pi CCW around x, y, and z.
-The norm of the geometry difference from the initial state is 0.0002
+The norm of the geometry difference from the initial state is 0.000239
+
+New molecular geometry:
+   O      0.0000       0.0638       0.0000 
+   H      0.0000      -0.5062      -0.7488 
+   H      0.0000      -0.5062       0.7488 
+ 
+MOI tensor:
+     1.711643     0.000000     0.000000
+     0.000000     1.130077     0.000000
+     0.000000     0.000000     0.581566
+Coordinate axes were aligned with MOI principal axes; center mass was shifted to the origin.
+Also rotated by 2/2*pi, 0/2*pi, and 3/2*pi CCW around x, y, and z.
+The norm of the geometry difference from the initial state is 0.000202
 
 New molecular geometry:
    O      0.0000       0.0638       0.0000 
    H      0.0000      -0.5061      -0.7489 
    H      0.0000      -0.5062       0.7488 
-
+ 
 MOI tensor:
-                0           1           2
-    0    1.711796    0.000000    0.000000
-    1    0.000000    1.130302   -0.000000
-    2    0.000000   -0.000000    0.581494
-
-
+     1.711796     0.000000     0.000000
+     0.000000     1.130302     0.000000
+     0.000000     0.000000     0.581494
 Coordinate axes were aligned with MOI principal axes; center mass was shifted to the origin.
-Also rotated by 2/2*pi, 0/2*pi, and 2/2*pi CCW around x, y, and z.
-The norm of the geometry difference from the initial state is 0.0000
+Also rotated by 0/2*pi, 2/2*pi, and 3/2*pi CCW around x, y, and z.
+The norm of the geometry difference from the initial state is 0.000000
 
 New molecular geometry:
    O      0.0000       0.0638       0.0000 
    H      0.0000      -0.5060      -0.7488 
    H      0.0000      -0.5060       0.7488 
-
+ 
 MOI tensor:
-                0           1           2
-    0    1.711476    0.000000    0.000000
-    1    0.000000    1.130268   -0.000000
-    2    0.000000   -0.000000    0.581208
-
-
+     1.711476     0.000000     0.000000
+     0.000000     1.130268     0.000000
+     0.000000     0.000000     0.581208
 Coordinate axes were aligned with MOI principal axes; center mass was shifted to the origin.
-Also rotated by 2/2*pi, 0/2*pi, and 3/2*pi CCW around x, y, and z.
-The norm of the geometry difference from the initial state is 0.0002
+Also rotated by 0/2*pi, 2/2*pi, and 2/2*pi CCW around x, y, and z.
+The norm of the geometry difference from the initial state is 0.000238
 
 New molecular geometry:
    O      0.0000       0.0638       0.0000 
    H      0.0000      -0.5062      -0.7488 
    H      0.0000      -0.5062       0.7488 
-
+ 
 MOI tensor:
-                0           1           2
-    0    1.711625    0.000000    0.000000
-    1    0.000000    1.130064   -0.000000
-    2    0.000000   -0.000000    0.581561
-
-
+     1.711625     0.000000     0.000000
+     0.000000     1.130064     0.000000
+     0.000000     0.000000     0.581561
 Done with the transformations
-------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 === Reading the parallel approximation job parameters ===
 
 ===== Overlap matrix of the target state #1 with the initial state =====
-The normal modes overlap matrix with the initial state is diagonal
-  (do_not_excite_subspace is excluded)
+The normal modes overlap matrix with the initial state is diagonal.
 
 
 ===== Overlap matrix of the target state #2 with the initial state =====
-The normal modes overlap matrix with the initial state is diagonal
-  (do_not_excite_subspace is excluded)
+The normal modes overlap matrix with the initial state is diagonal.
 
 
 ===== Overlap matrix of the target state #3 with the initial state =====
-The normal modes overlap matrix with the initial state is diagonal
-  (do_not_excite_subspace is excluded)
+The normal modes overlap matrix with the initial state is diagonal.
 
 
 ===== Overlap matrix of the target state #4 with the initial state =====
-The normal modes overlap matrix with the initial state is diagonal
-  (do_not_excite_subspace is excluded)
+The normal modes overlap matrix with the initial state is diagonal.
 
 
 ===== Overlap matrix of the target state #5 with the initial state =====
-The normal modes overlap matrix with the initial state is diagonal
-  (do_not_excite_subspace is excluded)
+The normal modes overlap matrix with the initial state is diagonal.
 
 
 ===== Overlap matrix of the target state #6 with the initial state =====
-The normal modes overlap matrix with the initial state is diagonal
-  (do_not_excite_subspace is excluded)
+The normal modes overlap matrix with the initial state is diagonal.
 
-------------------------------------------------------------------------------
-
-Photoelectron spectrum in the parallel approximation will be evaluated
+--------------------------------------------------------------------------------
+ Beginning the parallel mode approximation computations.
+--------------------------------------------------------------------------------
 
 ===== Target state #1 =====
 
@@ -718,9 +683,9 @@ Angstrom*sqrt(amu):
 normal mode  dQ in initial  dQ in target   frequency   frequency   comments
   number      state coord.  state coord.    initial      target
 
-       0       0.000000       -0.000000      1750.92    1750.92
-       1      -0.000000        0.000000      4142.16    4142.15
-       2      -0.000000       -0.000000      4237.44    4237.43
+       0       0.000000        0.000000      1750.92    1750.92
+       1       0.000000        0.000000      4142.16    4142.15
+       2       0.000000        0.000000      4237.44    4237.43
 
 
 TARGET state normal coordinates (displacements dQ) will be used.
@@ -776,9 +741,9 @@ A set of target vibrational states is being created...
 Total number of combination bands with thresholds applied: 140
 
 Intensities of combination bands are being calculated...
-------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
            Stick photoelectron spectrum (parallel approximation)
-------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 Energy,eV    Intensity     FC factor         E",K   Transition
 
@@ -788,11 +753,11 @@ Energy,eV    Intensity     FC factor         E",K   Transition
  4.0000      9.999984e-01  +9.999992e-01     0.000  0(0)->4(0)
  5.0000      1.000000e+00  +1.000000e+00     0.000  0(0)->5(0)
  6.0000      9.999982e-01  +9.999991e-01     0.000  0(0)->6(0)
-------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 Stick spectrum was also saved in "test.xml.spectrum_parallel" file 
-------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 
-Job "../bin/ezFCF_linux.exe test.xml" has finished: Wed Sep 21 13:02:13 2022
+Job "../ezspectrum_code/ezFCF_linux.exe test.xml" has finished: Thu Mar  9 19:36:54 2023
 
