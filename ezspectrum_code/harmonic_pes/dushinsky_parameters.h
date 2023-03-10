@@ -15,6 +15,10 @@ private:
 
   int max_quanta_ini;
   int max_quanta_targ;
+
+  // Dushinsky calculations define layers, Kp is the index of the highest
+  // layer that will be saved to memory (in contrast to higher layers which are
+  // calculated on the go)
   int Kp_max_to_save;
 
   /* Helpers */

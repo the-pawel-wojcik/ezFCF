@@ -7,8 +7,8 @@
  * work needed here.
  *
  * This function evaluates the <0|0> integral and all required matrices for a
- * given set of normal modes. i.e. the layer L=0 and is ready for iterative
- * evaluation of next layers.
+ * given set of normal modes, i.e., the layer L=0. After than the program
+ * is ready for iterative evaluation of next layers.
  *
  * "do_not_excite_subspace" in the old version was passed as an argument
  * ```nm_list``` which was a std::vector<int> that listed numbers of normal
