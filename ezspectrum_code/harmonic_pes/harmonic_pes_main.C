@@ -446,7 +446,7 @@ void fillVibrState(My_istringstream &vibr_str, VibronicState &v_state,
   if (ex_str != "0") {
     get_qnt_nm(ex_str, qnt, nm);
 
-    // TODO: make run stronger tests as a function here
+    // TODO: write a function 'run stronger tests', and use it here
     if (nm > nm_max) {
       std::cout << "\nError! Normal mode " << nm << " (in [" << qnt << 'v' << nm
                 << "] excitation) is out of range.\n\n";
@@ -490,6 +490,8 @@ void harmonic_pes_dushinksy(xml_node &node_input,
                                  n_molecular_normal_modes);
   no_excite_subspace.print_summary(elStates[targN].ifNMReorderedManually());
   EnergyThresholds thresholds(node_dushinsky_rotations);
+  TheOnlyInitialState the_only_init_state(node_dushinsky_rotations,
+                                          n_molecular_normal_modes);
 
   std::cout << HorizontalLine << "\n"
             << " Beginning computations with an inclusion of the Duschinsky "
@@ -506,17 +508,9 @@ void harmonic_pes_dushinksy(xml_node &node_input,
   // the_only_initial_state. No finesse. the_only_initial_state is in the
   // "full space"; do_not_excite_subspace does not apply;
 
-  int max_quanta_targ = dushinsky_parameters.get_max_quanta_targ();
-  int max_quanta_ini = dushinsky_parameters.get_max_quanta_init();
+  if (the_only_init_state.present()) {
 
-  size_t do_the_only_initial_state =
-      node_dushinsky_rotations.find_subnode("the_only_initial_state");
-  if (do_the_only_initial_state) {
-    if (do_the_only_initial_state != 1) {
-      std::cout << "Error! Only one the_only_initial_state node is allowed."
-                << std::endl;
-      exit(1);
-    }
+    VibronicState vib_st_tois = the_only_init_state.get_vibronic_state(iniN);
 
     // Don't show all the other points as this is expected to be
     // the_only_initial_state
@@ -524,25 +518,12 @@ void harmonic_pes_dushinksy(xml_node &node_input,
       dushinsky.getSpectrum().getSpectralPoint(pt).setIfPrint(false);
     }
 
-    std::cout << "Clearing the spectrum is ready" << std::endl;
-
-    xml_node node_the_only_initial_state(node_dushinsky_rotations,
-                                         "the_only_initial_state", 0);
-    std::string text = node_the_only_initial_state.read_string_value("text");
-    My_istringstream ini_str(text);
-    VibronicState the_only_initial_state;
-    for (int nm = 0; nm < n_molecular_normal_modes; nm++) {
-      the_only_initial_state.addVibrQuanta(0, nm);
-    }
-    fillVibrState(ini_str, the_only_initial_state, n_molecular_normal_modes);
-
-    std::cout << "The initial state is ready." << std::endl;
-
     // go over all layers and add points to the spectrum:
     dushinsky.reset_Kp_max();
+    int max_quanta_targ = dushinsky_parameters.get_max_quanta_targ();
+
     for (int Kp = 0; Kp <= max_quanta_targ; Kp++) {
-      dushinsky.add_the_only_intial_state_transitions(Kp,
-                                                      the_only_initial_state);
+      dushinsky.add_the_only_intial_state_transitions(Kp, vib_st_tois);
     }
   }
 
@@ -676,7 +657,7 @@ void harmonic_pes_dushinksy(xml_node &node_input,
   }
   std::cout << "Done\n" << std::flush;
 
-  if (max_quanta_ini != 0) {
+  if (dushinsky_parameters.get_max_quanta_init() != 0) {
     if (points_removed > 0)
       std::cout << "  " << points_removed
                 << " hot bands were removed from the spectrum\n";

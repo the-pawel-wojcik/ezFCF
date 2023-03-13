@@ -11,6 +11,10 @@ and excitation quantum number along each normal mode;
 
 #include "genincludes.h"
 
+// TODO: Store the excitation values as a list or a vector of pairs
+// the pairs will likely need its own class as a container.
+//
+// TODO: Add a ctor that accepts a string "3v4,51v1,55v1" as an input 
 class VibronicState {
   //! electronic state index: 0=initial state, 1,2... target states
   int elStateIndex;
