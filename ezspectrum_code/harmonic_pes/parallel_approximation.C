@@ -304,7 +304,7 @@ Parallel::Parallel(std::vector<MolState> &molStates,
     // find INITIAL states with up to 'max_n_initial' vibrational quanta and 
     // with energy below 'energy_threshold_initial':
     std::cout << "A set of initial vibrational states is being created...\n";
-    if (energy_threshold_initial < DBL_MAX) {
+    if (energy_threshold_initial < std::numeric_limits<double>::max()) {
       std::cout << "  energy threshold = " 
         << std::fixed << energy_threshold_initial 
         << " eV ("
@@ -352,7 +352,7 @@ Parallel::Parallel(std::vector<MolState> &molStates,
     // TODO: This is a duplicate of the above code. It should be a function. Paweł Apr '22
     // find TARGET states with up to 'max_n_target' vibrational quanta and with energy below 'energy_threshold_target':
     std::cout << "A set of target vibrational states is being created...\n";
-    if (energy_threshold_target < DBL_MAX)
+    if (energy_threshold_target < std::numeric_limits<double>::max())
       std::cout << "  energy threshold = " << std::fixed <<energy_threshold_target <<" eV ("<< energy_threshold_target/WAVENUMBERS2EV <<" cm-1)\n"<<std::flush;
     else
       std::cout << "  energy threshold is not specified in the input\n"<<std::flush;

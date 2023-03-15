@@ -3,12 +3,13 @@
 /* Parses the input node and extracts the energy thresholds for initial and
  * target states.
  * `node_parent` can contain "energy_thresholds" as its subnode. If no
- * "energy_thresholds" subnode is found the `present()` function returns false 
- * and the energy thresholds are set to DBL_MAX.
+ * "energy_thresholds" subnode is found the `present()` function returns false
+ * and the energy thresholds are set to maximum possible double value.
  */
 EnergyThresholds::EnergyThresholds(const xml_node &node_parent)
-    : energy_thresholds_detected(false), thresh_initial_eV(DBL_MAX),
-      thresh_target_eV(DBL_MAX) {
+    : energy_thresholds_detected(false),
+      thresh_initial_eV(std::numeric_limits<double>::max()),
+      thresh_target_eV(std::numeric_limits<double>::max()) {
   if (node_parent.find_subnode("energy_thresholds")) {
     read_energy_tresholds(node_parent);
     energy_thresholds_detected = true;

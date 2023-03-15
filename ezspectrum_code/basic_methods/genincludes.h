@@ -14,7 +14,7 @@
 #include <strings.h>
 #include <sys/types.h>
 
-#include <float.h> // used for DBL_MAX constant
+#include <limits> // used for std::numeric_limits<double>::max()
 
 #include <queue>
 #include <set>

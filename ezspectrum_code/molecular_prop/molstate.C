@@ -60,7 +60,7 @@ void MolState::align(const MolState &other) {
   //  SUM[i=1..Natoms](deltaRi) DeltaRi: distance between i'th atoms of the
   //  initial and target states
 
-  double min_diff = DBL_MAX; // minimum of the "sum"
+  double min_diff = std::numeric_limits<double>::max(); // minimum of the "sum"
   int min_x_rot, min_y_rot,
       min_z_rot; // rotations, that correspond to the minimum of the "sum"
 
