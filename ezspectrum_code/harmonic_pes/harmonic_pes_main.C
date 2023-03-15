@@ -500,32 +500,7 @@ void harmonic_pes_dushinksy(xml_node &node_input,
             << std::flush;
 
   Dushinsky dushinsky(elStates, targN, thresholds, dushinsky_parameters,
-                      job_parameters, no_excite_subspace);
-
-  //----------------------------------------------------------------------
-  // If the_only_initial_state node is present in the xml input.
-  // Hide the already calculated spectrum. Add transitions from
-  // the_only_initial_state. No finesse. the_only_initial_state is in the
-  // "full space"; do_not_excite_subspace does not apply;
-
-  if (the_only_init_state.present()) {
-
-    VibronicState vib_st_tois = the_only_init_state.get_vibronic_state(iniN);
-
-    // Don't show all the other points as this is expected to be
-    // the_only_initial_state
-    for (int pt = 0; pt < dushinsky.getSpectrum().getNSpectralPoints(); pt++) {
-      dushinsky.getSpectrum().getSpectralPoint(pt).setIfPrint(false);
-    }
-
-    // go over all layers and add points to the spectrum:
-    dushinsky.reset_Kp_max();
-    int max_quanta_targ = dushinsky_parameters.get_max_quanta_targ();
-
-    for (int Kp = 0; Kp <= max_quanta_targ; Kp++) {
-      dushinsky.add_the_only_intial_state_transitions(Kp, vib_st_tois);
-    }
-  }
+                      job_parameters, no_excite_subspace, the_only_init_state);
 
   //----------------------------------------------------------------------
   // now load the list of single transitions to evaluate FCFs recursively

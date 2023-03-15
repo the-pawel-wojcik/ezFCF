@@ -46,6 +46,10 @@ class Spectrum
   void PrintStickTable();
   void PrintStickTable(const std::string spectrumFileName);
  
+
+  void clear() {
+    spectralPoints.clear();
+  }
 };
 
 #endif

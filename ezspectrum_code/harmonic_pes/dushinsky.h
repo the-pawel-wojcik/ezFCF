@@ -24,6 +24,7 @@
 #include "mathutil.h"
 #include "molstate.h"
 #include "spectrum.h"
+#include "the_only_initial_state.h"
 #include "vibrational_indexing.h"
 #include "vibronic_state.h"
 
@@ -83,7 +84,8 @@ public:
             const EnergyThresholds &thresholds,
             const DushinskyParameters &dush_parameters,
             const JobParameters &job_parameters,
-            const DoNotExcite &no_excite_subspace);
+            const DoNotExcite &no_excite_subspace,
+            const TheOnlyInitialState& the_only_initial_state);
   ~Dushinsky();
 
   void old_constructor(std::vector<MolState> &molStates, const int in_targN,

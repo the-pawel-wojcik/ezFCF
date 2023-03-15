@@ -316,13 +316,35 @@ Dushinsky::Dushinsky(std::vector<MolState> &elStates, const int in_targN,
                      const EnergyThresholds &thresholds,
                      const DushinskyParameters &dush_config,
                      const JobParameters &job_parameters,
-                     const DoNotExcite &no_excite_subspace) {
+                     const DoNotExcite &no_excite_subspace,
+                     const TheOnlyInitialState &the_only_initial_state) {
+
+  const int iniN = 0; // index of the ground state
   old_constructor(elStates, in_targN, dush_config, job_parameters,
                   no_excite_subspace);
   printLayersSizes(dush_config, no_excite_subspace);
-  evaluate_higher_levels(dush_config);
-  addHotBands(elStates, no_excite_subspace, job_parameters, dush_config,
-              thresholds);
+
+  if (the_only_initial_state.present()) {
+    // TODO: sweep all this into add_the_only_intial_state_transitions
+
+    VibronicState vib_st_tois = the_only_initial_state.get_vibronic_state(iniN);
+
+    // go over all layers and add points to the spectrum:
+    reset_Kp_max();
+    int max_quanta_targ = dush_config.get_max_quanta_targ();
+
+    // Remove the <0|0> point from the spectrum. It's generated in the
+    // old_constructor();
+    getSpectrum().clear();
+
+    for (int Kp = 0; Kp <= max_quanta_targ; Kp++) {
+      add_the_only_intial_state_transitions(Kp, vib_st_tois);
+    }
+  } else {
+    evaluate_higher_levels(dush_config);
+    addHotBands(elStates, no_excite_subspace, job_parameters, dush_config,
+                thresholds);
+  }
 }
 
 Dushinsky::~Dushinsky() {
