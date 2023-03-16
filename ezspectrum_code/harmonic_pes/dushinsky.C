@@ -2,6 +2,7 @@
 #include "dushinsky.h"
 #include "dushinsky_parameters.h"
 #include "energy_thresholds.h"
+#include "the_only_initial_state.h"
 
 /* This function contains exactly what the old constructor contained. There is
  * work needed here.
@@ -312,34 +313,21 @@ void Dushinsky::evaluate_higher_levels(
 
 /* Creator of the Dushinsky class that is responsible for calculating the FCFs
  * with inclusion of the Duschinsky rotation. */
-Dushinsky::Dushinsky(std::vector<MolState> &elStates, const int in_targN,
+Dushinsky::Dushinsky(std::vector<MolState> &elStates, const int targN,
                      const EnergyThresholds &thresholds,
                      const DushinskyParameters &dush_config,
                      const JobParameters &job_parameters,
                      const DoNotExcite &no_excite_subspace,
                      const TheOnlyInitialState &the_only_initial_state) {
 
-  const int iniN = 0; // index of the ground state
-  old_constructor(elStates, in_targN, dush_config, job_parameters,
+  old_constructor(elStates, targN, dush_config, job_parameters,
                   no_excite_subspace);
   printLayersSizes(dush_config, no_excite_subspace);
 
+  const int iniN = 0; // index of the ground state
   if (the_only_initial_state.present()) {
-    // TODO: sweep all this into add_the_only_intial_state_transitions
-
-    VibronicState vib_st_tois = the_only_initial_state.get_vibronic_state(iniN);
-
-    // go over all layers and add points to the spectrum:
-    reset_Kp_max();
-    int max_quanta_targ = dush_config.get_max_quanta_targ();
-
-    // Remove the <0|0> point from the spectrum. It's generated in the
-    // old_constructor();
-    getSpectrum().clear();
-
-    for (int Kp = 0; Kp <= max_quanta_targ; Kp++) {
-      add_the_only_intial_state_transitions(Kp, vib_st_tois);
-    }
+    add_the_only_intial_state_transitions(dush_config, the_only_initial_state,
+                                          iniN);
   } else {
     evaluate_higher_levels(dush_config);
     addHotBands(elStates, no_excite_subspace, job_parameters, dush_config,
@@ -450,64 +438,40 @@ int Dushinsky::evalNextLayer(const bool if_save) {
   return points_added;
 }
 
-int Dushinsky::add_the_only_intial_state_transitions(
-    const int Kp, VibronicState &the_only_initial_state) {
-  // This is basically a slightly eddited version of Duschinsky::evalNextLayer()
+// This is basically a slightly eddited version of Duschinsky::evalNextLayer()
+void Dushinsky::add_the_only_intial_state_transitions(
+    const DushinskyParameters &dush_config,
+    const TheOnlyInitialState &the_only_initial_state, const int iniN) {
+  VibronicState vib_st_tois = the_only_initial_state.get_vibronic_state(iniN);
 
-  // points above the threshold
-  int points_added = 0;
+  // Remove the <0|0> point from the spectrum. It's generated in the
+  // old_constructor();
+  getSpectrum().clear();
 
-  // reset the target state
-  for (int i = 0; i < N; i++) {
-    state.getV()[i] = -1;
-  }
-
-  // create a new layer
-  std::vector<double> *layer_ptr = new std::vector<double>;
-
-  unsigned long index_counter = 0;
-  while (enumerateVibrStates(state.getVibrQuantaSize(), Kp_max, state.getV(),
-                             true)) {
-    unsigned long index_rev = convVibrState2Index(state.getV(), N, Kp_max);
-
-    // check if the reverse index is ok
-    if (index_rev != index_counter) {
-      // if numbers are too large, factorials in nChoosek() function will be out
-      // of "unsigned long" range ...
-      std::cout << "\n Error!\n[Debug info: reverse index function "
-                   "convVibrState2Index(state.getV()) for the state:\n";
-      state.print();
-      std::cout
-          << "\n"
-          << "returns index=" << index_rev
-          << "; should be index=" << index_counter << "]\n\n"
-          << "Layer #" << Kp_max
-          << " is the maximum layer which can be handled for this system.\n"
-          << "Please reduce \"max_vibr_excitations_in_target_el_state\" value "
-             "to "
-          << Kp_max << ".\n"
-          << "You can also use \"single_excitation\" elements to add higher "
-             "excitations manually.\n";
-      exit(2);
+  // Go over all layers and add points to the spectrum
+  reset_Kp_max();
+  int max_quanta_targ = dush_config.get_max_quanta_targ();
+  for (int Kp = 0; Kp <= max_quanta_targ; Kp++) {
+    // reset the target state
+    for (int i = 0; i < N; i++) {
+      state.getV()[i] = -1;
     }
 
-    // evaluate FCF for each transition and add to the spectrum:
-    int K = the_only_initial_state.getTotalQuantaCount();
-    int Kp = state.getTotalQuantaCount();
+    while (enumerateVibrStates(state.getVibrQuantaSize(), Kp_max, state.getV(),
+                               true)) {
+      // evaluate FCF for each transition and add to the spectrum:
+      int K = vib_st_tois.getTotalQuantaCount();
+      int Kp = state.getTotalQuantaCount();
 
-    double fcf = evalSingleFCF_full_space(the_only_initial_state, K, state, Kp);
-
-    if (fabs(fcf) > fcf_threshold) {
-      points_added++;
-      addSpectralPoint(fcf, the_only_initial_state, state);
+      double fcf = evalSingleFCF_full_space(vib_st_tois, K, state, Kp);
+      if (fabs(fcf) > fcf_threshold) {
+        addSpectralPoint(fcf, vib_st_tois, state);
+      }
     }
-
-    index_counter++;
+    Kp_max++;
   }
 
-  Kp_max++;
-
-  return points_added;
+  return;
 }
 
 double Dushinsky::evalSingleFCF(VibronicState &state_ini, int K,

@@ -79,13 +79,21 @@ class Dushinsky {
 
   void evaluate_higher_levels(const DushinskyParameters &dush_parameters);
 
+  //! Just like evalNextLayer, but the initial state comes from
+  //! the_only_initial_state node. Start with Kp = 0 and increment to Kp_max;
+  //! Also updates the spectrum and returns number of points below the
+  //! threashold added;
+  void add_the_only_intial_state_transitions(
+      const DushinskyParameters &dush_config,
+      const TheOnlyInitialState &the_only_initial_state, const int iniN);
+
 public:
   Dushinsky(std::vector<MolState> &molStates, const int in_targN,
             const EnergyThresholds &thresholds,
             const DushinskyParameters &dush_parameters,
             const JobParameters &job_parameters,
             const DoNotExcite &no_excite_subspace,
-            const TheOnlyInitialState& the_only_initial_state);
+            const TheOnlyInitialState &the_only_initial_state);
   ~Dushinsky();
 
   void old_constructor(std::vector<MolState> &molStates, const int in_targN,
@@ -98,12 +106,6 @@ public:
   //! added;
   int evalNextLayer(const bool if_save = true);
 
-  //! Just like evalNextLayer, but the initial state comes from
-  //! the_only_initial_state node. Start with Kp = 0 and increment to Kp_max;
-  //! Also updates the spectrum and returns number of points below the
-  //! threashold added;
-  int add_the_only_intial_state_transitions(
-      const int Kp, VibronicState &the_only_initial_state);
   //! It's needed to start over the iterations over layers in
   //! "the_only_initial_state"
   void reset_Kp_max() { Kp_max = 0; }
