@@ -137,6 +137,9 @@ class My_istringstream
     return next;
   };
 
+  // getNextWord skips untill the first letter or number (A-Z, a-z, 0-9)
+  // and keeps reading for as long as only letters and numbers appear,
+  // i.e., stops reading at a comma ",".
   bool getNextWord(std::string& next) {
     char tmp_char;
     

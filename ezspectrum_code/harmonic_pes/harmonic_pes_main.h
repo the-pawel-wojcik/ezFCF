@@ -20,8 +20,6 @@
 #include "dushinsky_parameters.h"
 #include "energy_thresholds.h"
 
-#include <limits>
-
 //! program itself:
 bool harmonic_pes_main(const std::string InputFileName, xml_node &node_input,
                        xml_node &node_amu_table);

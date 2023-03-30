@@ -1,11 +1,6 @@
 #include "harmonic_pes_main.h"
 #include "molstate.h"
 
-//! converts string of type "1v1,1v2,1v3,3v19" into a vibrational state
-//! stored as an object of the VibronicState class.
-void fillVibrState(My_istringstream &vibr_str, VibronicState &v_state,
-                   const int nm_max);
-
 void harmonic_pes_parallel(xml_node &node_input,
                            std::vector<MolState> &elStates,
                            const std::string InputFileName);
@@ -218,7 +213,7 @@ void print_overlap_matrix(std::vector<MolState> &elStates,
     if ((if_overlap_diagonal) or (new_normal_modes_list.size() <= 1)) {
       std::cout << "The normal modes overlap matrix with the initial state "
                    "is diagonal.\n";
-      // TODO: This message can be interpreted both ways. Make it clearer 
+      // TODO: This message can be interpreted both ways. Make it clearer
       // and then add it back.
       /* if (!do_not_excite_subspace.empty()) { */
       /*   std::cout */
@@ -417,52 +412,6 @@ void harmonic_pes_parallel(xml_node &node_input,
   std::cout << HorizontalLine << "\n\n";
 }
 
-//! converts string of type "1v1,1v2,1v3,3v19" into a vibrational state (i.e.
-//! vector of integers)
-void fillVibrState(My_istringstream &vibr_str, VibronicState &v_state,
-                   const int nm_max) {
-  // set all excitations back to 0
-  v_state.reset();
-
-  // string like 3v19"
-  std::string ex_str;
-
-  // string like "1v1,1v2,1v3,3v19"
-  // getNextWord skips untill the first letter or number (A-Z, a-z, 0-9)
-  // and keeps reading for as long as only letters and numbers appear,
-  // i.e., stops reading at a comma ",".
-  bool if_read = vibr_str.getNextWord(ex_str);
-
-  if (ex_str.empty()) {
-    std::cout << "\nError! Empty specification of a vibrational state."
-              << std::endl;
-    exit(1);
-  }
-
-  // quanta & normal mode number (for parsing "3v19" to qnt=3 and nm=19)
-  int qnt = 0, nm = 0;
-
-  // fill vibrational state (if == 0 -- nothing to do)
-  if (ex_str != "0") {
-    get_qnt_nm(ex_str, qnt, nm);
-
-    // TODO: write a function 'run stronger tests', and use it here
-    if (nm > nm_max) {
-      std::cout << "\nError! Normal mode " << nm << " (in [" << qnt << 'v' << nm
-                << "] excitation) is out of range.\n\n";
-      exit(1);
-    }
-    v_state.setVibrQuanta(nm, qnt);
-
-    // repeat
-    while (not(vibr_str.fail())) {
-      vibr_str.getNextWord(ex_str);
-      get_qnt_nm(ex_str, qnt, nm);
-      v_state.setVibrQuanta(nm, qnt);
-    }
-  }
-}
-
 /*
  * =============================================================================
  *  Dushinski rotation (reach exact solution within harmonic approximation)
@@ -474,16 +423,16 @@ void harmonic_pes_dushinksy(xml_node &node_input,
                             std::vector<MolState> &elStates,
                             const std::string InputFileName) {
 
-  JobParameters job_parameters(node_input);
-  DushinskyParameters dushinsky_parameters(node_input, elStates.size(),
-                                           job_parameters);
+  JobParameters job_config(node_input);
+  DushinskyParameters dush_config(node_input, elStates.size(), job_config);
+
   const int iniN = 0;
-  const int targN = dushinsky_parameters.get_targN();
+  const int targN = dush_config.get_targN();
 
   // total number of the normal modes (in the molecule)
   // TODO: this is likely the most used variable throughout the program it
   // should be treated in a more general, unified way
-  int n_molecular_normal_modes = elStates[0].NNormModes();
+  const int n_molecular_normal_modes = elStates[0].NNormModes();
 
   xml_node node_dushinsky_rotations(node_input, "dushinsky_rotations", 0);
   DoNotExcite no_excite_subspace(node_dushinsky_rotations,
@@ -499,8 +448,10 @@ void harmonic_pes_dushinksy(xml_node &node_input,
             << HorizontalLine << "\n\n"
             << std::flush;
 
-  Dushinsky dushinsky(elStates, targN, thresholds, dushinsky_parameters,
-                      job_parameters, no_excite_subspace, the_only_init_state);
+  // TODO: move iniN to arg of dushinsky and remove targN from the list as it
+  // is already in the dush_config
+  Dushinsky dushinsky(elStates, targN, thresholds, dush_config, job_config,
+                      no_excite_subspace, the_only_init_state);
 
   //----------------------------------------------------------------------
   // now load the list of single transitions to evaluate FCFs recursively
@@ -562,7 +513,7 @@ void harmonic_pes_dushinksy(xml_node &node_input,
   // update (fill) energies for every point in the spectrum and add the
   // Boltzmann distribution:
   int points_removed = 0;
-  double temperature = job_parameters.get_temp();
+  double temperature = job_config.get_temp();
   for (int pt = 0; pt < dushinsky.getSpectrum().getNSpectralPoints(); pt++) {
     double energy = -elStates[targN].Energy();
     double E_prime_prime = 0; // no hot bands
@@ -611,7 +562,7 @@ void harmonic_pes_dushinksy(xml_node &node_input,
     // if intensity below the intensity threshold or energy above the threshold
     // -- do not print
     if ((dushinsky.getSpectrum().getSpectralPoint(pt).getIntensity() <
-         job_parameters.get_intensity_thresh()) or
+         job_config.get_intensity_thresh()) or
         (-(energy - E_prime_prime + elStates[targN].Energy()) >
          thresholds.target_eV()) or
         (E_prime_prime > thresholds.initial_eV())) {
@@ -621,7 +572,7 @@ void harmonic_pes_dushinksy(xml_node &node_input,
   }
   std::cout << "Done\n" << std::flush;
 
-  if (dushinsky_parameters.get_max_quanta_init() != 0) {
+  if (dush_config.get_max_quanta_init() != 0) {
     if (points_removed > 0)
       std::cout << "  " << points_removed
                 << " hot bands were removed from the spectrum\n";
