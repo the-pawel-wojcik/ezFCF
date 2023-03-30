@@ -28,9 +28,12 @@ class SpectralPoint {
   VibronicState State1, State2;
 
 public:
-  SpectralPoint() {
-    if_print = true;
-  }; // by default the point is active(visible)
+  // TODO: this class needs to improve its interface. At this point
+  // it's just a struct
+  SpectralPoint() : if_print(true){};
+
+  SpectralPoint(const VibronicState &initial, const VibronicState &target)
+      : State1(initial), State2(target), if_print(true){};
 
   double &getIntensity() { return I; };
   double &getEnergy() { return E; };
@@ -43,9 +46,6 @@ public:
 
   VibronicState &getVibrState1() { return State1; };
   VibronicState &getVibrState2() { return State2; };
-
-  // void ini(const double E, const double I, const double fcf, const double
-  // Epp, VibronicState state_ini, VibronicState state_targ );
 
   void print();
 };
