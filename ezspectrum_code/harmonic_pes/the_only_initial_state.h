@@ -1,16 +1,18 @@
 #ifndef _the_only_initial_state_h_
 #define _the_only_initial_state_h_
 
-#include "genutil.h"
-#include "genincludes.h"
 #include "aik_xml_parser.h"
+#include "genincludes.h"
+#include "genutil.h"
 #include "vib_state_parser.h"
 #include "vibronic_state.h"
 
 /* Class for handing the access to data from the "the_only_initial_state" input
  * node. */
-// TODO: add input test 
+// TODO: add input test
 // TODO: unite it with the Duschinsky version VibronicState class
+// TODO: single_state is older but uses a different text input convention. Use
+// that older convention.
 class TheOnlyInitialState {
 private:
   /* Number of molecular normal modes, i.e., 3 N_{atoms} - 5/6. */
@@ -18,8 +20,8 @@ private:
   /* A subnode "the_only_initial_state" exist in the input. */
   bool node_present;
 
-  /* Containers for values of arguments passed to the input node. 
-   * It's size is n_molecular_nms at the the_only_state[mode_number] 
+  /* Containers for values of arguments passed to the input node.
+   * It's size is n_molecular_nms at the the_only_state[mode_number]
    * stores number of exciations in the mode `mode_number`. */
   std::vector<int> the_only_state;
 

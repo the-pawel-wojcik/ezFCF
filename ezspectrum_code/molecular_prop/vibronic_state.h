@@ -2,19 +2,26 @@
 #define _vibronic_state_h_
 
 /*! \file vibronic_state.h
-\brief Vibronic state, 
-i.e. stores electronic state index 
+\brief Vibronic state,
+i.e. stores electronic state index
 and excitation quantum number along each normal mode;
 
 \ingroup MOLECULAR_PROP
 */
 
+#include "aik_xml_parser.h"
 #include "genincludes.h"
 
 // TODO: Store the excitation values as a list or a vector of pairs
 // the pairs will likely need its own class as a container.
 //
-// TODO: Add a ctor that accepts a string "3v4,51v1,55v1" as an input 
+// TODO: Fix the use of this class. Even though this class has the
+// tempting idea of storing only the nodes that have non-zero excitations
+// at the end it is still used as if it was a vector<int> where
+// the index is the normal_mode_number and the value is the excitation
+// with the excitations being set to either zero or -1 by default.
+// This should be changed by inspecting the palces where the objects
+// of this class are used.
 class VibronicState {
   //! electronic state index: 0=initial state, 1,2... target states
   int elStateIndex;
@@ -29,10 +36,11 @@ class VibronicState {
   std::vector<int> excite_subspace;
 
 public:
-  VibronicState() {
-    elStateIndex = 0;
-    vibrQuanta.clear();
-  };
+  VibronicState() : elStateIndex(0){};
+
+  // A ctor that accepts a string "3v4 5v1 1v14" as an input
+  VibronicState(std::string &input, const int n_molecular_normal_modes,
+                const int el_st_idx);
 
   //! remove all vibronic excitations and set the electronic state index to 0
   void reset() {
@@ -47,23 +55,21 @@ public:
     excite_subspace.clear();
   };
 
-  int getElStateIndex() { return elStateIndex; };
+  int getElStateIndex() const { return elStateIndex; };
   void setElStateIndex(const int index) { elStateIndex = index; };
 
   //! returns the number of normal modes with specified occupation
-  int getNNormModes() { return vibrQuanta.size(); };
-  int getVibrQuantaSize() { return vibrQuanta.size(); };
+  int getNNormModes() const { return vibrQuanta.size(); };
+  int getVibrQuantaSize() const { return vibrQuanta.size(); };
 
   // adds a quanta the normal mode number
   void addVibrQuanta(const int quantNumber, const int nm) {
     vibrQuanta.push_back(quantNumber);
     excite_subspace.push_back(nm);
   };
-  int getVibrQuanta(const int i) { return vibrQuanta[i]; };
-  //! sets the number of excitations in the normal mode number
-  //! excite_subspace[i]
-  void setVibrQuanta(const int i, const int quantNumber) {
-    vibrQuanta[i] = quantNumber;
+  int getVibrQuanta(const int which_mode) { return vibrQuanta[which_mode]; };
+  void setVibrQuanta(const int which_mode, const int how_excited) {
+    vibrQuanta[which_mode] = how_excited;
   };
 
   //! checks if nm is in the "excite subspace":
