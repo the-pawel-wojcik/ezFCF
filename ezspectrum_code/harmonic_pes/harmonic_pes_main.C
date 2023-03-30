@@ -506,17 +506,10 @@ void harmonic_pes_dushinksy(xml_node &node_input,
   // now load the list of single transitions to evaluate FCFs recursively
   // single_transition is in the "full space"; do_not_excite_subspace does not
   // apply;
-  SpectralPoint single_transition;
-  for (int nm = 0; nm < elStates[iniN].NNormModes(); nm++) {
-    single_transition.getVibrState1().addVibrQuanta(0, nm);
-    single_transition.getVibrState2().addVibrQuanta(0, nm);
-  }
-  single_transition.getVibrState1().setElStateIndex(iniN);
-  single_transition.getVibrState2().setElStateIndex(targN);
 
   size_t n_single_ex =
       node_dushinsky_rotations.find_subnode("single_excitation");
-  if (n_single_ex) {
+  if (n_single_ex > 0) {
     if (elStates[targN].ifNMReorderedManually()) {
       std::cout
           << "WARNING! The normal modes of the target state were reordered!\n"
@@ -532,19 +525,15 @@ void harmonic_pes_dushinksy(xml_node &node_input,
       xml_node node_single_ex(node_dushinsky_rotations, "single_excitation",
                               nsex);
 
-      My_istringstream ini_str(node_single_ex.read_string_value("ini"));
-      // std::cout << "Single_ex [ini]=" << ini_str.str()  << std::endl;
-      fillVibrState(ini_str, single_transition.getVibrState1(),
-                    n_molecular_normal_modes);
-      // std::cout << "Vibronic state 1:" << std::endl;
-      // single_transition.getVibrState1().print();
+      std::string initial_state_str = node_single_ex.read_string_value("ini");
+      VibronicState init_vibronic_st(initial_state_str,
+                                     n_molecular_normal_modes, iniN);
 
-      My_istringstream targ_str(node_single_ex.read_string_value("targ"));
-      // std::cout << "Single_ex [targ]" << targ_str.str()  << std::endl;
-      fillVibrState(targ_str, single_transition.getVibrState2(),
-                    n_molecular_normal_modes);
-      // std::cout << "Vibronic state 2:" << std::endl;
-      // single_transition.getVibrState2().print();
+      std::string target_state_str = node_single_ex.read_string_value("targ");
+      VibronicState targ_vibronic_st(target_state_str, n_molecular_normal_modes,
+                                     iniN);
+
+      SpectralPoint single_transition(init_vibronic_st, targ_vibronic_st);
 
       // evaluate FCF for each transition and add to the spectrum:
       int K = single_transition.getVibrState1().getTotalQuantaCount();
