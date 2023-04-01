@@ -489,7 +489,6 @@ void harmonic_pes_dushinksy(xml_node &node_input,
       // evaluate FCF for each transition and add to the spectrum:
       int K = single_transition.getVibrState1().getTotalQuantaCount();
       int Kp = single_transition.getVibrState2().getTotalQuantaCount();
-      // std::cout << "K=" << K << " Kp=" << Kp << std::endl;
 
       double s_fcf = dushinsky.evalSingleFCF_full_space(
           single_transition.getVibrState1(), K,
@@ -498,11 +497,7 @@ void harmonic_pes_dushinksy(xml_node &node_input,
                                  single_transition.getVibrState2());
 
       std::cout << "FCF=" << std::scientific << std::setprecision(6) << s_fcf
-                << " ";
-      single_transition.getVibrState1().print();
-      std::cout << "->";
-      single_transition.getVibrState2().print();
-      std::cout << "\n" << std::flush;
+                << " " << single_transition << std::endl;
     }
   }
 
