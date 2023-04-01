@@ -183,6 +183,10 @@ public:
   void rotate(const double alpha_x, const double alpha_y, const double alpha_z);
   bool ifAlignedManually();
   bool ifNMReorderedManually() const;
+
+  /* Print a warning before using the reordered normal modes.
+   * Use it in places like: single_excitations, do_not_excite_subspace ... */
+  void warn_about_nm_reordering(std::string, std::ostream & = std::cout) const;
 };
 
 #endif

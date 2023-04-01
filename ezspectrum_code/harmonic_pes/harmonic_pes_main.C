@@ -272,6 +272,7 @@ void print_overlap_matrix(std::vector<MolState> &elStates,
 void print_warnings(bool ifAnyNormalModesReordered,
                     DoNotExcite no_excite_subspace) {
 
+  // TODO: use MolState::warn_about_nm_reordering
   if (ifAnyNormalModesReordered)
     std::cout
         << "\n"
@@ -288,6 +289,7 @@ void print_warnings(bool ifAnyNormalModesReordered,
       std::cout << nm << ' ';
     std::cout << "\n";
 
+    // TODO: use MolState::warn_about_nm_reordering
     if (ifAnyNormalModesReordered)
       std::cout << "\nWARNING! The normal modes of one of the target states "
                    "were reordered!\n"
@@ -461,11 +463,8 @@ void harmonic_pes_dushinksy(xml_node &node_input,
   size_t n_single_ex =
       node_dushinsky_rotations.find_subnode("single_excitation");
   if (n_single_ex > 0) {
-    if (elStates[targN].ifNMReorderedManually()) {
-      std::cout
-          << "WARNING! The normal modes of the target state were reordered!\n"
-          << "         New order is used for the single transitions.\n\n";
-    }
+
+    elStates[targN].warn_about_nm_reordering("single excitations");
 
     std::cout
         << "The following single transitions were added to the spectrum:\n"
@@ -583,11 +582,7 @@ void harmonic_pes_dushinksy(xml_node &node_input,
   std::cout
       << "        Stick photoelectron spectrum (with Dushinsky rotations) \n";
   std::cout << HorizontalLine << "\n";
-  if (elStates[targN].ifNMReorderedManually()) {
-    std::cout
-        << "\nWARNING! The normal modes of the target state were reordered!\n"
-        << "         New order is used for the target state assignment.\n";
-  }
+  elStates[targN].warn_about_nm_reordering("target state assignment");
 
   std::vector<int> nms_dushinsky = no_excite_subspace.get_active_subspace();
   if (nms_dushinsky.size() != n_molecular_normal_modes) {
@@ -596,11 +591,8 @@ void harmonic_pes_dushinksy(xml_node &node_input,
     for (int nm = 0; nm < nms_dushinsky.size(); nm++)
       std::cout << nms_dushinsky[nm] << ' ';
     std::cout << "\n";
-    if (elStates[targN].ifNMReorderedManually()) {
-      std::cout << "\nWARNING! The normal modes of the target state were "
-                   "reordered!\n"
-                << "         New order is used for the \"excite subspace\"\n";
-    }
+
+   elStates[targN].warn_about_nm_reordering("the excite subspace");
   }
   std::cout << "\n";
 

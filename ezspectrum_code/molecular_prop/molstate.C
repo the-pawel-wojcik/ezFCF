@@ -1,4 +1,6 @@
 #include "molstate.h"
+#include <algorithm>
+#include <cctype>
 
 /*! \file molstate.C
   \brief Molecular state: Stores Geometry, Normal Modes & Frequencies.
@@ -231,6 +233,20 @@ bool MolState::ifAlignedManually() { return if_aligned_manually; }
 //------------------------------
 bool MolState::ifNMReorderedManually() const {
   return if_nm_reordered_manually;
+}
+
+void MolState::warn_about_nm_reordering(std::string use_case,
+                                        std::ostream &os) const {
+  // If normal modes are left untouched no need for a warning
+  if (if_nm_reordered_manually == false) {
+    return;
+  }
+
+  // Highligh the variable part
+  std::transform(use_case.begin(), use_case.end(), use_case.begin(), ::toupper);
+
+  os << "WARNING! The normal modes of the target state were reordered!\n"
+     << "         New order is used for " << use_case << ".\n\n";
 }
 
 //------------------------------
