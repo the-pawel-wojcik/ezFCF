@@ -91,7 +91,7 @@ public:
 
   bool if_equal(VibronicState &other);
 
-  void print();
+  void print(std::ostream& os = std::cout) const;
 };
 
 #endif

@@ -124,21 +124,21 @@ int VibronicState::getV_full_dim(const int nm) {
 // a, b, c, ... -- how how excited 
 // k, l, m, ... -- normal mode number
 // 'v' is a character that separates how excited from mode number
-void VibronicState::print() {
+void VibronicState::print(std::ostream & os) const {
   int quanta_printed = 0;
-  std::cout << elStateIndex << '(';
+  os << elStateIndex << '(';
 
   for (int nm = 0; nm < excite_subspace.size(); nm++) {
     if (vibrQuanta[nm] > 0) {
       if (quanta_printed > 0) // not the first normal mode in the vector
-        std::cout << ',';
+        os << ',';
       quanta_printed++;
-      std::cout << vibrQuanta[nm] << 'v' << excite_subspace[nm];
+      os << vibrQuanta[nm] << 'v' << excite_subspace[nm];
     }
   }
 
   // no excitations stands for the ground vibrational state, i.e., "(0)"
   if (quanta_printed == 0)
-    std::cout << '0';
-  std::cout << ")";
+    os << '0';
+  os << ")";
 }

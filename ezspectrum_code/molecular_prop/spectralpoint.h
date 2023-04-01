@@ -25,15 +25,16 @@ class SpectralPoint {
 
   bool if_print;
 
-  VibronicState State1, State2;
+  VibronicState intial, target;
 
 public:
   // TODO: this class needs to improve its interface. At this point
   // it's just a struct
   SpectralPoint() : if_print(true){};
 
-  SpectralPoint(const VibronicState &initial, const VibronicState &target)
-      : State1(initial), State2(target), if_print(true){};
+  SpectralPoint(const VibronicState &init_vibst,
+                const VibronicState &targ_vibst)
+      : intial(init_vibst), target(targ_vibst), if_print(true){};
 
   double &getIntensity() { return I; };
   double &getEnergy() { return E; };
@@ -44,10 +45,12 @@ public:
   bool getIfPrint() { return if_print; };
   void setIfPrint(const bool flag) { if_print = flag; };
 
-  VibronicState &getVibrState1() { return State1; };
-  VibronicState &getVibrState2() { return State2; };
+  VibronicState &getVibrState1() { return intial; };
+  VibronicState &getVibrState2() { return target; };
 
-  void print();
+  void print() const;
+
+  friend std::ostream &operator<<(std::ostream &os, const SpectralPoint &obj);
 };
 
 #endif
