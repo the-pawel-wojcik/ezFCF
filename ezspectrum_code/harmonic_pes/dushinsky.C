@@ -398,11 +398,10 @@ int Dushinsky::evalNextLayer(const bool if_save) {
     if (index_rev != index_counter) {
       // if numbers are too large, factorials in nChoosek() function will be out
       // of "unsigned long" range ...
-      std::cout << "\n Error!\n[Debug info: reverse index function "
-                   "convVibrState2Index(state.getV()) for the state:\n";
-      state.print();
       std::cout
-          << "\n"
+          << "\n Error!\n[Debug info: reverse index function "
+             "convVibrState2Index(state.getV()) for the state:\n"
+          << state << "\n"
           << "returns index=" << index_rev
           << "; should be index=" << index_counter << "]\n\n"
           << "Layer #" << Kp_max

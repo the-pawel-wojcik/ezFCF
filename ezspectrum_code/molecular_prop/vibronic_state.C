@@ -120,11 +120,7 @@ int VibronicState::getV_full_dim(const int nm) {
   return return_quanta;
 }
 
-// print in format N(avk,bvl,cvm,...), where N is the electronic state index,
-// a, b, c, ... -- how how excited 
-// k, l, m, ... -- normal mode number
-// 'v' is a character that separates how excited from mode number
-void VibronicState::print(std::ostream & os) const {
+void VibronicState::print_to(std::ostream &os) const {
   int quanta_printed = 0;
   os << elStateIndex << '(';
 
@@ -141,4 +137,9 @@ void VibronicState::print(std::ostream & os) const {
   if (quanta_printed == 0)
     os << '0';
   os << ")";
+}
+
+std::ostream &operator<<(std::ostream &os, const VibronicState &vibst) {
+  vibst.print_to(os);
+  return os;
 }

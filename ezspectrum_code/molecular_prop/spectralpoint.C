@@ -12,8 +12,6 @@ void SpectralPoint::print(std::ostream & os) const
 // It's a a non-member friend function of SpectralPoint as it needs to access
 // the obj.inital private variable
 std::ostream &operator<<(std::ostream &os, const SpectralPoint &obj) {
-  obj.intial.print(os);
-  os << "->";
-  obj.target.print(os);
+  os << obj.intial << "->" << obj.target;
   return os;
 }

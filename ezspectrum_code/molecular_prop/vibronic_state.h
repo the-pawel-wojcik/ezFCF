@@ -91,7 +91,17 @@ public:
 
   bool if_equal(VibronicState &other);
 
-  void print(std::ostream& os = std::cout) const;
+  // Note: operator<< offers the same functionality.
+  //
+  // print the state in format N(avk,bvl,cvm,...)
+  // N is the electronic state index,
+  // a, b, c, ... -- how how excited
+  // k, l, m, ... -- normal mode number
+  // 'v' is a character that separates how excited from mode number
+  void print_to(std::ostream &os = std::cout) const;
 };
+
+// an alternative way of accessing print(ostream&)
+std::ostream &operator<<(std::ostream &, const VibronicState &);
 
 #endif
