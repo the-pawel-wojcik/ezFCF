@@ -4,53 +4,46 @@
 /*! \file spectrum.h
 \brief Spectrum object
 Implemented:
-1) stores stick spectrum (vector of "SpectralPoint"s {I,E}) ) 
+1) stores stick spectrum (vector of "SpectralPoint"s {I,E}) )
 2) sorts it by energy
 3) prints as a table
-
-Sould be done soon:
-1) prints as a spectrum with some bradening..
-2)
 
 \ingroup MOLECULAR_PROP
 */
 #include "genincludes.h"
-#include "spectralpoint.h"
 #include "genutil.h"
+#include "spectralpoint.h"
 
-class Spectrum
-{
+class Spectrum {
   std::vector<SpectralPoint> spectralPoints;
 
-  struct SortByEnergy
-  {
-    bool operator()(SpectralPoint p1, SpectralPoint p2)
-    {
-      return (p1.getEnergy() > p2.getEnergy());
-    };
+  struct SortByEnergy {
+    bool operator()(const SpectralPoint &p1, const SpectralPoint &p2) const {
+      return p1.get_energy() > p2.get_energy();
+    }
   };
 
- public:
-  Spectrum(){};
-  
-  SpectralPoint& getSpectralPoint(int i) { return spectralPoints[i]; };
-  int getNSpectralPoints() {return spectralPoints.size(); };
+public:
+  SpectralPoint &getSpectralPoint(int i) { return spectralPoints[i]; };
+  int getNSpectralPoints() const { return spectralPoints.size(); };
 
-  void AddSpectralPoint( SpectralPoint& PointToAdd);
-  void AddSpectralPoint(const double E, const double I, const double fcf, const double Epp, 
-			VibronicState state_ini, VibronicState state_targ, const bool if_print_flag=true );
+  void AddSpectralPoint(const SpectralPoint &PointToAdd);
+  void AddSpectralPoint(const double E, const double I, const double fcf,
+                        const double Epp, VibronicState state_ini,
+                        VibronicState state_targ,
+                        const bool if_print_flag = true);
 
+  void Sort() {
+    sort(spectralPoints.begin(), spectralPoints.end(), SortByEnergy());
+  };
 
-  void Sort() { sort( spectralPoints.begin(), spectralPoints.end(), SortByEnergy() );};
+  /* Print with comments to std::cout. */
+  void PrintStickTable() const;
 
-  void PrintStickTable();
-  void PrintStickTable(const std::string spectrumFileName);
- 
+  /* Print without decorations to a file. */
+  void PrintStickTable(const std::string spectrumFileName) const;
 
-  void clear() {
-    spectralPoints.clear();
-  }
+  void clear() { spectralPoints.clear(); }
 };
 
 #endif
-

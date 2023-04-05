@@ -546,10 +546,11 @@ void harmonic_pes_dushinksy(xml_node &node_input,
       if (IExponent > 100)
         IExponent = 100; // keep the intensity >= 10e-44 == exp(-100)
     }
-    dushinsky.getSpectrum().getSpectralPoint(pt).getIntensity() *=
-        exp(-IExponent);
+    double fcf_only = dushinsky.getSpectrum().getSpectralPoint(pt).getIntensity();
+    double intensity = fcf_only * exp(-IExponent);
+    dushinsky.getSpectrum().getSpectralPoint(pt).set_intensity(intensity);
 
-    dushinsky.getSpectrum().getSpectralPoint(pt).getEnergy() = energy;
+    dushinsky.getSpectrum().getSpectralPoint(pt).set_energy(energy);
     dushinsky.getSpectrum().getSpectralPoint(pt).getE_prime_prime() =
         E_prime_prime;
 

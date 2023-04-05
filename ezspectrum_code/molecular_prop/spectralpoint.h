@@ -13,8 +13,8 @@ initial and target states)
 #include "vibronic_state.h"
 
 class SpectralPoint {
-  double I;
-  double E;
+  double intensity;
+  double initial2target_E_gap_eV;
 
   // energy of the hot bands (vibr. excited states of the initial electronic
   // state)
@@ -28,28 +28,42 @@ class SpectralPoint {
   VibronicState intial, target;
 
 public:
-  // TODO: this class needs to improve its interface. At this point
-  // it's just a struct
   SpectralPoint() : if_print(true){};
 
   SpectralPoint(const VibronicState &init_vibst,
                 const VibronicState &targ_vibst)
-      : intial(init_vibst), target(targ_vibst), if_print(true){};
+      : intensity(0.0), initial2target_E_gap_eV(0.0), Epp(0.0), FCF(0.0),
+        if_print(true), intial(init_vibst), target(targ_vibst){};
 
-  double &getIntensity() { return I; };
-  double &getEnergy() { return E; };
+  // Peak intensity: FCF * Boltzmann
+  double getIntensity() const { return intensity; }
+  void set_intensity(const double _intensity) { intensity = _intensity; }
 
+  // Energy gap (eV) between the initial and target vibronic states.
+  double get_energy() const { return initial2target_E_gap_eV; }
+  void set_energy(const double _energy) { initial2target_E_gap_eV = _energy; }
+
+  // TODO: what is E_prime_prime
   double &getE_prime_prime() { return Epp; };
-  double &getFCF() { return FCF; };
 
-  bool getIfPrint() { return if_print; };
-  void setIfPrint(const bool flag) { if_print = flag; };
+  // Franck-Condon factor, |<initial|target>|^2
+  double getFCF() const { return FCF; };
+  void set_FCF(const double fcf) { FCF = fcf; };
 
+  bool getIfPrint() const { return if_print; };
+  void setIfPrint(const bool flag) { if_print = flag; }
+
+  // TODO: This is a bad interface -- if that's the only way it can be
+  // implemented then initial and target should be public.
   VibronicState &getVibrState1() { return intial; };
   VibronicState &getVibrState2() { return target; };
 
-  void print() const;
+  /* Print energy, intensity, FCF and transition */
+  void print(std::ostream & = std::cout) const;
 
+  // operator<< is a a non-member friend function of SpectralPoint as it needs
+  // to access the obj.inital private variable
+  /* Print 0(1v13,2v12)->1(0) */
   friend std::ostream &operator<<(std::ostream &os, const SpectralPoint &obj);
 };
 

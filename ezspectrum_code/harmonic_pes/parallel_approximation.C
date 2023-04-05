@@ -425,10 +425,10 @@ Parallel::Parallel(std::vector<MolState> &molStates,
         // add the point to the spectrum if its intensity is above the threshold
         if (intens > intens_threshold)
         {
-          tmpPoint.getIntensity() = intens;
-          tmpPoint.getEnergy() = energy;
+          tmpPoint.set_intensity(intens);
+          tmpPoint.set_energy(energy);
           tmpPoint.getE_prime_prime()= E_prime_prime;
-          tmpPoint.getFCF()= FCF;
+          tmpPoint.set_FCF(FCF);
           tmpPoint.getVibrState1().reset();
           tmpPoint.getVibrState1().setElStateIndex(0);
           tmpPoint.getVibrState2().reset();
