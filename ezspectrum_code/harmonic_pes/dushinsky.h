@@ -23,6 +23,7 @@
 #include "job_parameters.h"
 #include "mathutil.h"
 #include "molstate.h"
+#include "single_excitations.h"
 #include "spectrum.h"
 #include "the_only_initial_state.h"
 #include "vibrational_indexing.h"
@@ -93,7 +94,8 @@ public:
             const DushinskyParameters &dush_parameters,
             const JobParameters &job_parameters,
             const DoNotExcite &no_excite_subspace,
-            const TheOnlyInitialState &the_only_initial_state);
+            const TheOnlyInitialState &the_only_initial_state,
+            SingleExcitations &single_excitations);
   ~Dushinsky();
 
   void old_constructor(std::vector<MolState> &molStates, const int in_targN,
@@ -139,6 +141,10 @@ public:
   //! memory is actually allocated)
   void printLayersSizes(const DushinskyParameters &dush_parameters,
                         const DoNotExcite &no_excite_subspace);
+
+  // goes over all single excitations finds FCFs and adds them to the 
+  // spectrum
+  void add_single_excitations(SingleExcitations &storage);
 };
 
 #endif

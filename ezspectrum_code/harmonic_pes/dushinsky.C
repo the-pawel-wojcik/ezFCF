@@ -318,7 +318,9 @@ Dushinsky::Dushinsky(std::vector<MolState> &elStates, const int targN,
                      const DushinskyParameters &dush_config,
                      const JobParameters &job_parameters,
                      const DoNotExcite &no_excite_subspace,
-                     const TheOnlyInitialState &the_only_initial_state) {
+                     const TheOnlyInitialState &the_only_initial_state,
+                     SingleExcitations &single_excitations) {
+  // TODO: make SingleExcitations const
 
   old_constructor(elStates, targN, dush_config, job_parameters,
                   no_excite_subspace);
@@ -332,6 +334,10 @@ Dushinsky::Dushinsky(std::vector<MolState> &elStates, const int targN,
     evaluate_higher_levels(dush_config);
     addHotBands(elStates, no_excite_subspace, job_parameters, dush_config,
                 thresholds);
+  }
+
+  if (!single_excitations.empty()) {
+    add_single_excitations(single_excitations);
   }
 }
 
@@ -849,4 +855,22 @@ void Dushinsky::printLayersSizes(const DushinskyParameters &dush_parameters,
          "excitations.\n";
 
   std::cout << "\n";
+}
+
+
+void Dushinsky::add_single_excitations(SingleExcitations &storage) {
+  for (auto &single_excitation : storage.single_excitations) {
+    int K = single_excitation.getVibrState1().getTotalQuantaCount();
+    int Kp = single_excitation.getVibrState2().getTotalQuantaCount();
+
+    double s_fcf =
+        evalSingleFCF_full_space(single_excitation.getVibrState1(), K,
+                                 single_excitation.getVibrState2(), Kp);
+
+    addSpectralPoint(s_fcf, single_excitation.getVibrState1(),
+                     single_excitation.getVibrState2());
+
+    std::cout << "FCF=" << std::scientific << std::setprecision(6) << s_fcf
+              << " " << single_excitation << std::endl;
+  }
 }

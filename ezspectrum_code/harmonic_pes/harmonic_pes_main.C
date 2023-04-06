@@ -1,5 +1,8 @@
+#include "aik_xml_parser.h"
+#include "dushinsky.h"
 #include "harmonic_pes_main.h"
 #include "molstate.h"
+#include "vibronic_state.h"
 
 void harmonic_pes_parallel(xml_node &node_input,
                            std::vector<MolState> &elStates,
@@ -441,6 +444,9 @@ void harmonic_pes_dushinksy(xml_node &node_input,
                                  n_molecular_normal_modes);
   no_excite_subspace.print_summary(elStates[targN].ifNMReorderedManually());
   EnergyThresholds thresholds(node_dushinsky_rotations);
+  SingleExcitations single_excitations(node_dushinsky_rotations,
+                                       elStates[targN],
+                                       n_molecular_normal_modes, targN);
   TheOnlyInitialState the_only_init_state(node_dushinsky_rotations,
                                           n_molecular_normal_modes);
 
@@ -453,52 +459,8 @@ void harmonic_pes_dushinksy(xml_node &node_input,
   // TODO: move iniN to arg of dushinsky and remove targN from the list as it
   // is already in the dush_config
   Dushinsky dushinsky(elStates, targN, thresholds, dush_config, job_config,
-                      no_excite_subspace, the_only_init_state);
-
-  //----------------------------------------------------------------------
-  // now load the list of single transitions to evaluate FCFs recursively
-  // single_transition is in the "full space"; do_not_excite_subspace does not
-  // apply;
-
-  size_t n_single_ex =
-      node_dushinsky_rotations.find_subnode("single_excitation");
-  if (n_single_ex > 0) {
-
-    elStates[targN].warn_about_nm_reordering("single excitations");
-
-    std::cout
-        << "The following single transitions were added to the spectrum:\n"
-        << std::flush;
-
-    for (size_t nsex = 0; nsex < n_single_ex; nsex++) {
-
-      xml_node node_single_ex(node_dushinsky_rotations, "single_excitation",
-                              nsex);
-
-      std::string initial_state_str = node_single_ex.read_string_value("ini");
-      VibronicState init_vibronic_st(initial_state_str,
-                                     n_molecular_normal_modes, iniN);
-
-      std::string target_state_str = node_single_ex.read_string_value("targ");
-      VibronicState targ_vibronic_st(target_state_str, n_molecular_normal_modes,
-                                     iniN);
-
-      SpectralPoint single_transition(init_vibronic_st, targ_vibronic_st);
-
-      // evaluate FCF for each transition and add to the spectrum:
-      int K = single_transition.getVibrState1().getTotalQuantaCount();
-      int Kp = single_transition.getVibrState2().getTotalQuantaCount();
-
-      double s_fcf = dushinsky.evalSingleFCF_full_space(
-          single_transition.getVibrState1(), K,
-          single_transition.getVibrState2(), Kp);
-      dushinsky.addSpectralPoint(s_fcf, single_transition.getVibrState1(),
-                                 single_transition.getVibrState2());
-
-      std::cout << "FCF=" << std::scientific << std::setprecision(6) << s_fcf
-                << " " << single_transition << std::endl;
-    }
-  }
+                      no_excite_subspace, the_only_init_state,
+                      single_excitations);
 
   std::cout
       << "\nUpdating the energies and applying the Boltzmann distribution..."
@@ -546,7 +508,8 @@ void harmonic_pes_dushinksy(xml_node &node_input,
       if (IExponent > 100)
         IExponent = 100; // keep the intensity >= 10e-44 == exp(-100)
     }
-    double fcf_only = dushinsky.getSpectrum().getSpectralPoint(pt).getIntensity();
+    double fcf_only =
+        dushinsky.getSpectrum().getSpectralPoint(pt).getIntensity();
     double intensity = fcf_only * exp(-IExponent);
     dushinsky.getSpectrum().getSpectralPoint(pt).set_intensity(intensity);
 
