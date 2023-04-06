@@ -366,7 +366,8 @@ void harmonic_pes_parallel(xml_node &node_input,
   DoNotExcite no_excite_subspace(node_parallel_approx, n_molecular_nms);
   no_excite_subspace.print_summary(ifAnyNormalModesReordered);
 
-  std::set<int> do_not_excite_subspace = no_excite_subspace.get_subspace();
+  std::set<int> do_not_excite_subspace =
+      no_excite_subspace.get_inactive_subspace();
 
   // create active_nm -- "excite subspace" (full_space-do_not_excite_subspace)
   std::vector<int> active_nm_parallel =
@@ -395,6 +396,16 @@ void harmonic_pes_parallel(xml_node &node_input,
 
   //--------------------------------------------------------------------------------
   // Print the updated spectrum:
+  for (auto &spectral_point : parallel.getSpectrum().getSpectralPoints()) {
+    // TODO:
+    // The old convention kept the transition energies (peak positions)
+    // as negative values. Since about 2021, ezFCF prints peak positions
+    // as positvie values. The positive sign in already implemented in
+    // the Dushinsky version. It needs to be fixed thorughout the parallel as
+    // well. For now here is a quick hack.
+    double peak_position_eV = spectral_point.get_energy();
+    spectral_point.set_energy(-peak_position_eV);
+  }
   parallel.getSpectrum().Sort();
   std::cout << HorizontalLine << "\n";
   std::cout
@@ -469,62 +480,59 @@ void harmonic_pes_dushinksy(xml_node &node_input,
   // update (fill) energies for every point in the spectrum and add the
   // Boltzmann distribution:
   int points_removed = 0;
-  double temperature = job_config.get_temp();
-  for (int pt = 0; pt < dushinsky.getSpectrum().getNSpectralPoints(); pt++) {
-    double energy = -elStates[targN].Energy();
+  for (SpectralPoint &spectral_point :
+       dushinsky.getSpectrum().getSpectralPoints()) {
+
+    double peak_position_eV = elStates[targN].Energy();
     double E_prime_prime = 0; // no hot bands
 
     // run it over the full space, if nm not in the nms_dushinsky subspace,
     // getV_full_dim() returns zero (no excitations):
-    for (int nm = 0; nm < elStates[iniN].NNormModes(); nm++) {
-      energy += elStates[iniN].getNormMode(nm).getFreq() * WAVENUMBERS2EV *
-                dushinsky.getSpectrum()
-                    .getSpectralPoint(pt)
-                    .getVibrState1()
-                    .getV_full_dim(nm);
-      energy -= elStates[targN].getNormMode(nm).getFreq() * WAVENUMBERS2EV *
-                dushinsky.getSpectrum()
-                    .getSpectralPoint(pt)
-                    .getVibrState2()
-                    .getV_full_dim(nm);
+    for (int nm = 0; nm < n_molecular_normal_modes; nm++) {
 
-      E_prime_prime += elStates[iniN].getNormMode(nm).getFreq() *
-                       WAVENUMBERS2EV *
-                       dushinsky.getSpectrum()
-                           .getSpectralPoint(pt)
-                           .getVibrState1()
-                           .getV_full_dim(nm);
+      double quantum_of_energy_initial =
+          elStates[iniN].getNormMode(nm).getFreq() * WAVENUMBERS2EV;
+      int how_excited_initial =
+          spectral_point.getVibrState1().getV_full_dim(nm);
+
+      peak_position_eV -= quantum_of_energy_initial * how_excited_initial;
+      E_prime_prime += quantum_of_energy_initial * how_excited_initial;
+
+      int how_excited_target = spectral_point.getVibrState2().getV_full_dim(nm);
+      double quantum_of_energy_target =
+          elStates[targN].getNormMode(nm).getFreq() * WAVENUMBERS2EV;
+
+      peak_position_eV += quantum_of_energy_target * how_excited_target;
     }
 
+    spectral_point.set_energy(peak_position_eV);
+    spectral_point.getE_prime_prime() = E_prime_prime;
+
+    double temperature = job_config.get_temp();
     // add the Boltzmann distribution to the initial state population
     double IExponent;
-    if (temperature == 0)
+    if (temperature == 0) {
       if (E_prime_prime == 0)
         IExponent = 0; // intensity unchanged
       else
         IExponent = 100; //(intensity < 10e-44 for non ground states
-    else {
+    } else {
       IExponent = E_prime_prime / (temperature * KELVINS2EV);
       if (IExponent > 100)
         IExponent = 100; // keep the intensity >= 10e-44 == exp(-100)
     }
-    double fcf_only =
-        dushinsky.getSpectrum().getSpectralPoint(pt).getIntensity();
+    double fcf_only = spectral_point.getIntensity();
     double intensity = fcf_only * exp(-IExponent);
-    dushinsky.getSpectrum().getSpectralPoint(pt).set_intensity(intensity);
+    spectral_point.set_intensity(intensity);
 
-    dushinsky.getSpectrum().getSpectralPoint(pt).set_energy(energy);
-    dushinsky.getSpectrum().getSpectralPoint(pt).getE_prime_prime() =
-        E_prime_prime;
-
-    // if intensity below the intensity threshold or energy above the threshold
+    // if intensity below the intensity threshold or energy above the
+    // threshold
     // -- do not print
-    if ((dushinsky.getSpectrum().getSpectralPoint(pt).getIntensity() <
-         job_config.get_intensity_thresh()) or
-        (-(energy - E_prime_prime + elStates[targN].Energy()) >
+    if ((spectral_point.getIntensity() < job_config.get_intensity_thresh()) or
+        (peak_position_eV + E_prime_prime - elStates[targN].Energy() >
          thresholds.target_eV()) or
         (E_prime_prime > thresholds.initial_eV())) {
-      dushinsky.getSpectrum().getSpectralPoint(pt).setIfPrint(false);
+      spectral_point.setIfPrint(false);
       points_removed++;
     }
   }
@@ -548,16 +556,7 @@ void harmonic_pes_dushinksy(xml_node &node_input,
   std::cout << HorizontalLine << "\n";
   elStates[targN].warn_about_nm_reordering("target state assignment");
 
-  std::vector<int> nms_dushinsky = no_excite_subspace.get_active_subspace();
-  if (nms_dushinsky.size() != n_molecular_normal_modes) {
-    std::cout << "\nNOTE: only the following normal modes were excited "
-                 "(\"excite subspace\"):\n  ";
-    for (int nm = 0; nm < nms_dushinsky.size(); nm++)
-      std::cout << nms_dushinsky[nm] << ' ';
-    std::cout << "\n";
-
-   elStates[targN].warn_about_nm_reordering("the excite subspace");
-  }
+  no_excite_subspace.new_print_summary(elStates[targN]);
   std::cout << "\n";
 
   dushinsky.getSpectrum().PrintStickTable();
@@ -568,8 +567,9 @@ void harmonic_pes_dushinksy(xml_node &node_input,
   dushinsky.getSpectrum().PrintStickTable(spectrumFName);
   std::cout << "\nStick spectrum was also saved in \"" << spectrumFName
             << "\" file \n";
-  if (nms_dushinsky.size() != n_molecular_normal_modes)
+  if (no_excite_subspace.empty()) {
     std::cout << " (Full list of the normal modes was used for assigning "
                  "transitions)\n";
+  }
   std::cout << "\n\n";
 }

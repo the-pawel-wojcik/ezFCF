@@ -1,4 +1,5 @@
 #include "do_not_excite_subspace.h"
+#include "molstate.h"
 
 /* ```node``` points to an input node that can contain
  * "do_not_excite_subspace" as its subnode. If no
@@ -49,7 +50,7 @@ void DoNotExcite::parse_normal_modes_stream(std::stringstream &nmodes_stream) {
       error(msg);
     }
 
-    subspace.insert(mode_no);
+    inactive_subspace.insert(mode_no);
   }
 }
 
@@ -65,15 +66,28 @@ void DoNotExcite::print_summary(const bool nm_were_reordered) const {
         << "         New order is used for the \"do_not_excite_subspace\"."
         << "\n\n";
 
-  std::cout << "The following normal modes will have no vibrational "
-               "excitations:\n";
+  print_summary_helper();
+}
 
-  for (int mode_no : subspace)
+/* Prints summary and warrnings about the parsed "do_not_excite_subspace". */
+void DoNotExcite::new_print_summary(const MolState &target_el_st) const {
+  if (empty()) {
+    return;
+  }
+
+  target_el_st.warn_about_nm_reordering("do not excite subspace");
+  print_summary_helper();
+}
+
+void DoNotExcite::print_summary_helper() const {
+  std::cout << "Do not excite space in use.\n"
+            << "Normal modes with no excitations:\n";
+
+  for (int mode_no : inactive_subspace)
     std::cout << mode_no << ' ';
   std::cout << "\n\n";
 
-  std::cout << "The following normal modes will be excited:\n";
-  /* << " (for both states the order is same as in the input):\n"; */
+  std::cout << "Normal modes active in the calculations:\n";
   for (int mode_no : get_active_subspace())
     std::cout << mode_no << ' ';
   std::cout << "\n\n";
@@ -96,7 +110,8 @@ void DoNotExcite::run_tests() const {
  * the "do_not_excite_subspace" is smaller than number of molecular normal
  * modes. */
 void DoNotExcite::check_the_largest(const int n_mol_nms) const {
-  auto largest_mode = std::max_element(subspace.begin(), subspace.end());
+  auto largest_mode =
+      std::max_element(inactive_subspace.begin(), inactive_subspace.end());
   int largest_exclude_nm_no = *largest_mode;
 
   if (largest_exclude_nm_no < n_mol_nms)
@@ -114,7 +129,8 @@ void DoNotExcite::check_the_largest(const int n_mol_nms) const {
 /* Helper of `DoNotExcite::run_tests`. Make sure numbers of modes to be excluded
  * are not negative. */
 void DoNotExcite::check_the_smallest() const {
-  auto smallest_mode = std::min_element(subspace.begin(), subspace.end());
+  auto smallest_mode =
+      std::min_element(inactive_subspace.begin(), inactive_subspace.end());
   int smallest_mode_number = *smallest_mode;
 
   if (smallest_mode_number >= 0)
@@ -131,7 +147,7 @@ void DoNotExcite::check_the_smallest() const {
 /* Helper of `DoNotExcite::run_tests`. Assure that the user did not input
  * duplicates in the list of modes to be excluded. */
 void DoNotExcite::check_for_duplicates() const {
-  int subspace_size = subspace.size();
+  int subspace_size = inactive_subspace.size();
 
   if (subspace_size == size)
     return;
@@ -140,7 +156,7 @@ void DoNotExcite::check_for_duplicates() const {
   msg << "Duplicates dected in "
       << "\"do_not_excite_subspace\"->\"normal_modes\".\n"
       << " Input contains " << subspace_size << " unique elements:\n";
-  for (auto i : subspace) {
+  for (auto i : inactive_subspace) {
     msg << " " << i;
   }
   msg << "\n";
@@ -152,8 +168,8 @@ void DoNotExcite::check_for_duplicates() const {
 std::vector<int> DoNotExcite::get_active_subspace() const {
   std::vector<int> active_nms;
   for (int nm = 0; nm < n_molecular_nms; nm++) {
-    auto intSet_iter = subspace.find(nm);
-    if (intSet_iter == subspace.end())
+    auto intSet_iter = inactive_subspace.find(nm);
+    if (intSet_iter == inactive_subspace.end())
       active_nms.push_back(nm);
   }
   return active_nms;

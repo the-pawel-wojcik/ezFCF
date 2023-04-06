@@ -4,6 +4,7 @@
 #include "genutil.h"
 #include "genincludes.h"
 #include "aik_xml_parser.h"
+#include "molstate.h"
 
 /* Class for handing the access to data from the "do_not_excite_subspace" input
  * node. */
@@ -11,13 +12,14 @@ class DoNotExcite {
 private:
   /* Two containers for arguments passed to the input node */
   int size;
-  std::set<int> subspace;
+  std::set<int> inactive_subspace;
 
   /* Number of molecular normal modes, i.e., 3 N_{atoms} - 5/6. */
   const int n_molecular_nms;
 
   /* Helpers */
   void parse_normal_modes_stream(std::stringstream & nmodes_stream);
+  void print_summary_helper() const;
 
   /* Functions testing user's input */
   void run_tests() const;
@@ -32,14 +34,15 @@ public:
    * excite subspace. */
   int get_size() const { return size; }
 
-  std::set<int> get_subspace() const { return subspace; }
+  std::set<int> get_inactive_subspace() const { return inactive_subspace; }
   std::vector<int> get_active_subspace() const;
 
   /* Check if there are any modes to be excluded in the calculations. */
-  bool empty() const { return subspace.empty(); }
+  bool empty() const { return inactive_subspace.empty(); }
   bool non_empty() const { return !empty(); }
 
   void print_summary(const bool nm_were_reordered) const;
+  void new_print_summary(const MolState& nm_were_reordered) const;
 };
 
 #endif

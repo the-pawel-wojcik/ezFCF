@@ -19,12 +19,17 @@ class Spectrum {
 
   struct SortByEnergy {
     bool operator()(const SpectralPoint &p1, const SpectralPoint &p2) const {
-      return p1.get_energy() > p2.get_energy();
+      return p1.get_energy() < p2.get_energy();
     }
   };
 
 public:
+  // Both getSpectralPoint and getSpectralPoints are bad practice -- might 
+  // as well call this class a struct and keep spectralPoints a public 
+  // member.
   SpectralPoint &getSpectralPoint(int i) { return spectralPoints[i]; };
+  std::vector<SpectralPoint> &getSpectralPoints() { return spectralPoints; };
+
   int getNSpectralPoints() const { return spectralPoints.size(); };
 
   void AddSpectralPoint(const SpectralPoint &PointToAdd);

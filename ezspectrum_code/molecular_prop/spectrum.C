@@ -21,12 +21,15 @@ void Spectrum::PrintStickTable() const {
 }
 
 void Spectrum::PrintStickTable(const std::string spectrumFileName) const {
+
   std::ofstream spectrumF(spectrumFileName, std::ios::out);
+
   for (const auto &spectral_point : spectralPoints) {
     if (spectral_point.getIfPrint()) {
       spectral_point.print(spectrumF);
     }
   }
+
   spectrumF.close();
 }
 

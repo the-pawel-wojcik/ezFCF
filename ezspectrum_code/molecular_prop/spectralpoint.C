@@ -2,7 +2,7 @@
 
 void SpectralPoint::print(std::ostream & os) const
 {
-  os << std::fixed << std::setprecision(4) << std::setw(7) << -initial2target_E_gap_eV;
+  os << std::fixed << std::setprecision(4) << std::setw(7) << initial2target_E_gap_eV;
   os << std::scientific << std::setprecision(6) << std::setw(18) << intensity << "  ";
   os << std::scientific << std::setprecision(6) << std::setw(11) << std::showpos << FCF << std::noshowpos ;
   os << std::fixed << std::setprecision(3) << std::setw(10) << Epp/KELVINS2EV << "  ";

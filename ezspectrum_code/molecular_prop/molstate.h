@@ -135,8 +135,11 @@ public:
   NormalMode &getNormMode(int i) { return normModes[i]; }
   //! Returns NormalMode order index
   int getNormModeIndex(int i) { return normModesOrder[i]; }
+
   //! Excitation Energy (formerly IP)
+  //! TODO: specify: adiabatic or vertical E excitation
   double Energy() const { return energy; }
+
   //! Returns number of atoms
   int NAtoms() const { return atoms.size(); }
   //! Returns number of molecular normal modes, i.e., 3N - 5/6
