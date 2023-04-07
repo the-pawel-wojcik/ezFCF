@@ -26,14 +26,21 @@ class VibronicState {
   //! electronic state index: 0=initial state, 1,2... target states
   int elStateIndex;
 
-  // TODO: vibrQuanta and excite_subspace are tied together.
-  // std::map<int, int> would keep them safely together.
-
   //! Vibrational state quantum numbers, e.g. (0,2,1) for three normal modes
   std::vector<int> vibrQuanta;
   //! numbers of normal modes; e.g. if the "excite subspace" is {v3,v7,v12},
-  //! then (0,2,1) excitaion will be (2v7, 1v12) in the full space
+  //! then (0,2,1) excitation will be (2v7, 1v12) in the full space
   std::vector<int> excite_subspace;
+  //! HINT: this is only in the plan of whoever wrote this class -- in
+  //! practice both vectors are always as large as the vibrational dimension
+  //! and one of them is simply a list of normal mode numbers while the other
+  //! holds the excitations for each mode -- which for most use cases is 
+  //! a long list of zeroes with a few non-zero elements.
+
+  // TODO: vibrQuanta and excite_subspace are tied together. They should be
+  // something like std::map<int, int> but think about it twice before
+  // implementing it -- check what operations are used the most often and
+  // perhaps a different underlying data structure will suit it better.
 
 public:
   VibronicState() : elStateIndex(0){};
@@ -77,31 +84,18 @@ public:
   //! otherwise returns zero
   int getV_full_dim(const int nm);
 
-  //! returns the number of the normal mode nm (nm in the full space) in the
-  //! "excite subspace"
-  // int getEx_full_dim(const int nm);
-
   int getTotalQuantaCount();
-
-  void incrIndex(const int index, const int add) { vibrQuanta[index] += add; };
 
   // avoid this:
   std::vector<int> &getV() { return vibrQuanta; };
   std::vector<int> &getEx() { return excite_subspace; };
 
-  bool if_equal(VibronicState &other);
-
-  // Note: operator<< offers the same functionality.
-  //
   // print the state in format N(avk,bvl,cvm,...)
   // N is the electronic state index,
   // a, b, c, ... -- how how excited
   // k, l, m, ... -- normal mode number
   // 'v' is a character that separates how excited from mode number
-  void print_to(std::ostream &os = std::cout) const;
+  friend std::ostream &operator<<(std::ostream &, const VibronicState &);
 };
-
-// an alternative way of accessing print(ostream&)
-std::ostream &operator<<(std::ostream &, const VibronicState &);
 
 #endif

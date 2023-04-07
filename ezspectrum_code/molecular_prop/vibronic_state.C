@@ -88,21 +88,6 @@ VibronicState::VibronicState(std::string &input,
   }
 };
 
-bool VibronicState::if_equal(VibronicState &other) {
-  bool return_bool = true;
-  if (elStateIndex != other.elStateIndex)
-    return_bool = false;
-
-  if (getVibrQuantaSize() != other.getVibrQuantaSize())
-    return_bool = false;
-  else
-    for (int nm = 0; nm < getVibrQuantaSize(); nm++)
-      if (getVibrQuanta(nm) != other.getVibrQuanta(nm))
-        return_bool = false;
-
-  return return_bool;
-}
-
 int VibronicState::getTotalQuantaCount() {
   int count = 0;
   for (int nm = 0; nm < getV().size(); nm++)
@@ -120,16 +105,16 @@ int VibronicState::getV_full_dim(const int nm) {
   return return_quanta;
 }
 
-void VibronicState::print_to(std::ostream &os) const {
+std::ostream &operator<<(std::ostream &os, const VibronicState &vibst) {
   int quanta_printed = 0;
-  os << elStateIndex << '(';
+  os << vibst.elStateIndex << '(';
 
-  for (int nm = 0; nm < excite_subspace.size(); nm++) {
-    if (vibrQuanta[nm] > 0) {
+  for (int nm = 0; nm < vibst.excite_subspace.size(); nm++) {
+    if (vibst.vibrQuanta[nm] > 0) {
       if (quanta_printed > 0) // not the first normal mode in the vector
         os << ',';
       quanta_printed++;
-      os << vibrQuanta[nm] << 'v' << excite_subspace[nm];
+      os << vibst.vibrQuanta[nm] << 'v' << vibst.excite_subspace[nm];
     }
   }
 
@@ -137,9 +122,5 @@ void VibronicState::print_to(std::ostream &os) const {
   if (quanta_printed == 0)
     os << '0';
   os << ")";
-}
-
-std::ostream &operator<<(std::ostream &os, const VibronicState &vibst) {
-  vibst.print_to(os);
   return os;
 }
