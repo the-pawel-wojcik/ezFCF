@@ -508,26 +508,14 @@ void harmonic_pes_dushinksy(xml_node &node_input,
     spectral_point.set_energy(peak_position_eV);
     spectral_point.getE_prime_prime() = E_prime_prime;
 
-    double temperature = job_config.get_temp();
     // add the Boltzmann distribution to the initial state population
-    double IExponent;
-    if (temperature == 0) {
-      if (E_prime_prime == 0)
-        IExponent = 0; // intensity unchanged
-      else
-        IExponent = 100; //(intensity < 10e-44 for non ground states
-    } else {
-      IExponent = E_prime_prime / (temperature * KELVINS2EV);
-      if (IExponent > 100)
-        IExponent = 100; // keep the intensity >= 10e-44 == exp(-100)
-    }
     double fcf_only = spectral_point.getIntensity();
-    double intensity = fcf_only * exp(-IExponent);
+    double temperature = job_config.get_temp();
+    double intensity = fcf_only * Boltzmann_factor(temperature, E_prime_prime);
     spectral_point.set_intensity(intensity);
 
     // if intensity below the intensity threshold or energy above the
-    // threshold
-    // -- do not print
+    // threshold -- do not print
     if ((spectral_point.getIntensity() < job_config.get_intensity_thresh()) or
         (peak_position_eV + E_prime_prime - elStates[targN].Energy() >
          thresholds.target_eV()) or

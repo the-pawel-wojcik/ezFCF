@@ -12,6 +12,8 @@
 // A line for separating sections of the output
 const std::string HorizontalLine(80, '-');
 
+double Boltzmann_factor(double temperature, double energy);
+
 //! Error handling (print msg, exit(1))
 void error(const std::string & msg);
 void error(const std::stringstream & msg);

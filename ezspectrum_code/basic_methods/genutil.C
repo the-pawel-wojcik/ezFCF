@@ -6,6 +6,20 @@
 #include "constants.h"
 #include "genincludes.h"
 
+double Boltzmann_factor(double temperature, double energy) {
+  if (temperature == 0 and energy == 0)
+    return 1.0; // intensity unchanged
+
+  if (temperature == 0 and energy > 0)
+    return 0.0; // suppress hot bands at T = 0
+
+  double exponent = energy / (temperature * KELVINS2EV);
+  if (exponent > 100)
+    return 0.0; // original code wanted the value to be > 10^-44 = exp(-100)
+
+  return exp(-exponent);
+}
+
 // Return string with the current time:
 std::string GetTime(){
   time_t rawtime;
