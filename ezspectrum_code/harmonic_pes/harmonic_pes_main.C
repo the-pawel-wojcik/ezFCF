@@ -1,8 +1,10 @@
 #include "aik_xml_parser.h"
 #include "dushinsky.h"
 #include "harmonic_pes_main.h"
+#include "job_parameters.h"
 #include "molstate.h"
 #include "vibronic_state.h"
+#include <cstdlib>
 
 void harmonic_pes_parallel(xml_node &node_input,
                            std::vector<MolState> &elStates,
@@ -450,16 +452,13 @@ void harmonic_pes_dushinksy(xml_node &node_input,
   // should be treated in a more general, unified way
   const int n_molecular_normal_modes = elStates[0].NNormModes();
 
-  xml_node node_dushinsky_rotations(node_input, "dushinsky_rotations", 0);
-  DoNotExcite no_excite_subspace(node_dushinsky_rotations,
-                                 n_molecular_normal_modes);
-  no_excite_subspace.print_summary(elStates[targN].ifNMReorderedManually());
-  EnergyThresholds thresholds(node_dushinsky_rotations);
-  SingleExcitations single_excitations(node_dushinsky_rotations,
-                                       elStates[targN],
+  xml_node node_dush(node_input, "dushinsky_rotations", 0);
+  DoNotExcite no_excite_subspace(node_dush, n_molecular_normal_modes);
+  no_excite_subspace.new_print_summary(elStates[targN]);
+  EnergyThresholds thresholds(node_dush);
+  SingleExcitations single_excitations(node_dush, elStates[targN],
                                        n_molecular_normal_modes, targN);
-  TheOnlyInitialState the_only_init_state(node_dushinsky_rotations,
-                                          n_molecular_normal_modes);
+  TheOnlyInitialState the_only_init_state(node_dush, n_molecular_normal_modes);
 
   std::cout << HorizontalLine << "\n"
             << " Beginning computations with an inclusion of the Duschinsky "
@@ -473,85 +472,23 @@ void harmonic_pes_dushinksy(xml_node &node_input,
                       no_excite_subspace, the_only_init_state,
                       single_excitations);
 
-  std::cout
-      << "\nUpdating the energies and applying the Boltzmann distribution..."
-      << std::flush;
-  //--------------------------------------------------------------------------------
-  // update (fill) energies for every point in the spectrum and add the
-  // Boltzmann distribution:
-  int points_removed = 0;
-  for (SpectralPoint &spectral_point :
-       dushinsky.getSpectrum().getSpectralPoints()) {
-
-    double peak_position_eV = elStates[targN].Energy();
-    double E_prime_prime = 0; // no hot bands
-
-    // run it over the full space, if nm not in the nms_dushinsky subspace,
-    // getV_full_dim() returns zero (no excitations):
-    for (int nm = 0; nm < n_molecular_normal_modes; nm++) {
-
-      double quantum_of_energy_initial =
-          elStates[iniN].getNormMode(nm).getFreq() * WAVENUMBERS2EV;
-      int how_excited_initial =
-          spectral_point.getVibrState1().getV_full_dim(nm);
-
-      peak_position_eV -= quantum_of_energy_initial * how_excited_initial;
-      E_prime_prime += quantum_of_energy_initial * how_excited_initial;
-
-      int how_excited_target = spectral_point.getVibrState2().getV_full_dim(nm);
-      double quantum_of_energy_target =
-          elStates[targN].getNormMode(nm).getFreq() * WAVENUMBERS2EV;
-
-      peak_position_eV += quantum_of_energy_target * how_excited_target;
-    }
-
-    spectral_point.set_energy(peak_position_eV);
-    spectral_point.getE_prime_prime() = E_prime_prime;
-
-    // add the Boltzmann distribution to the initial state population
-    double fcf_only = spectral_point.getIntensity();
-    double temperature = job_config.get_temp();
-    double intensity = fcf_only * Boltzmann_factor(temperature, E_prime_prime);
-    spectral_point.set_intensity(intensity);
-
-    // if intensity below the intensity threshold or energy above the
-    // threshold -- do not print
-    if ((spectral_point.getIntensity() < job_config.get_intensity_thresh()) or
-        (peak_position_eV + E_prime_prime - elStates[targN].Energy() >
-         thresholds.target_eV()) or
-        (E_prime_prime > thresholds.initial_eV())) {
-      spectral_point.setIfPrint(false);
-      points_removed++;
-    }
-  }
-  std::cout << "Done\n" << std::flush;
-
-  if (dush_config.get_max_quanta_init() != 0) {
-    if (points_removed > 0)
-      std::cout << "  " << points_removed
-                << " hot bands were removed from the spectrum\n";
-    else
-      std::cout << "All hot bands are above the intensity threshold\n";
-    std::cout << "\n" << std::flush;
-  }
-
   //--------------------------------------------------------------------------------
   // Print the updated spectrum:
   dushinsky.getSpectrum().Sort();
+
   std::cout << HorizontalLine << "\n";
   std::cout
       << "        Stick photoelectron spectrum (with Dushinsky rotations) \n";
   std::cout << HorizontalLine << "\n";
   elStates[targN].warn_about_nm_reordering("target state assignment");
-
   no_excite_subspace.new_print_summary(elStates[targN]);
-  std::cout << "\n";
 
   dushinsky.getSpectrum().PrintStickTable();
 
   // save the spectrum to the file
-  std::string spectrumFName =
-      InputFileName + std::string(".spectrum_dushinsky");
+  std::string spectrumFName(InputFileName);
+  spectrumFName.append(".spectrum_dushinsky");
+
   dushinsky.getSpectrum().PrintStickTable(spectrumFName);
   std::cout << "\nStick spectrum was also saved in \"" << spectrumFName
             << "\" file \n";

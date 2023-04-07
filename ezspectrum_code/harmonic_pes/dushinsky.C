@@ -2,6 +2,8 @@
 #include "dushinsky.h"
 #include "dushinsky_parameters.h"
 #include "energy_thresholds.h"
+#include "job_parameters.h"
+#include "molstate.h"
 #include "the_only_initial_state.h"
 
 /* This function contains exactly what the old constructor contained. There is
@@ -316,29 +318,34 @@ void Dushinsky::evaluate_higher_levels(
 Dushinsky::Dushinsky(std::vector<MolState> &elStates, const int targN,
                      const EnergyThresholds &thresholds,
                      const DushinskyParameters &dush_config,
-                     const JobParameters &job_parameters,
+                     const JobParameters &job_config,
                      const DoNotExcite &no_excite_subspace,
                      const TheOnlyInitialState &the_only_initial_state,
                      SingleExcitations &single_excitations) {
   // TODO: make SingleExcitations const
 
-  old_constructor(elStates, targN, dush_config, job_parameters,
-                  no_excite_subspace);
+  old_constructor(elStates, targN, dush_config, job_config, no_excite_subspace);
+
+  // TODO: this is a leftover from the original code -- is it really needed?
   printLayersSizes(dush_config, no_excite_subspace);
 
-  const int iniN = 0; // index of the ground state
+  // index of the ground state
+  const int iniN = 0;
   if (the_only_initial_state.present()) {
     add_the_only_intial_state_transitions(dush_config, the_only_initial_state,
                                           iniN);
   } else {
     evaluate_higher_levels(dush_config);
-    addHotBands(elStates, no_excite_subspace, job_parameters, dush_config,
+    addHotBands(elStates, no_excite_subspace, job_config, dush_config,
                 thresholds);
   }
 
   if (!single_excitations.empty()) {
     add_single_excitations(single_excitations);
   }
+
+  updated_intensities_and_positions(job_config, dush_config, thresholds,
+                                    elStates[0], elStates[targN]);
 }
 
 Dushinsky::~Dushinsky() {
@@ -872,5 +879,77 @@ void Dushinsky::add_single_excitations(SingleExcitations &storage) {
 
     std::cout << "FCF=" << std::scientific << std::setprecision(6) << s_fcf
               << " " << single_excitation << std::endl;
+  }
+}
+
+void Dushinsky::updated_intensities_and_positions(
+    const JobParameters &job_config, const DushinskyParameters &dush_config,
+    const EnergyThresholds &thresholds, MolState &initial_el_st,
+    MolState &target_el_st) {
+
+  int points_removed = 0;
+  for (SpectralPoint &spectral_point : getSpectrum().getSpectralPoints()) {
+
+    double peak_position_eV = target_el_st.Energy();
+
+    // Energy of the initial vibronic state calculated with respect to
+    // the energy of the ground vibronal state of the initial electronic state
+    // -- basically the value that you put into the Boltzmann factor to get
+    // relative intensities in the hot bands.
+    double E_prime_prime = 0;
+
+    // run it over the full space, if nm not in the nms_dushinsky subspace,
+    // getV_full_dim() returns zero (no excitations):
+    //
+    // HINT: watch out for the range as at this point in code
+    // the int Dushinsky::n_mol_nms is different from initial_el_st.NNormModes()
+    //
+    // The Dushinsky::n_mol_nms should be either set to const or it should 
+    // be used through some general higer level way of handing the molecular 
+    // properties.
+    for (int nm = 0; nm < initial_el_st.NNormModes(); nm++) {
+
+      double quantum_of_energy_initial =
+          initial_el_st.getNormMode(nm).getFreq() * WAVENUMBERS2EV;
+      int how_excited_initial =
+          spectral_point.getVibrState1().getV_full_dim(nm);
+
+      peak_position_eV -= quantum_of_energy_initial * how_excited_initial;
+      E_prime_prime += quantum_of_energy_initial * how_excited_initial;
+
+      int how_excited_target = spectral_point.getVibrState2().getV_full_dim(nm);
+      double quantum_of_energy_target =
+          target_el_st.getNormMode(nm).getFreq() * WAVENUMBERS2EV;
+
+      peak_position_eV += quantum_of_energy_target * how_excited_target;
+    }
+
+    spectral_point.set_energy(peak_position_eV);
+    spectral_point.getE_prime_prime() = E_prime_prime;
+
+    // add the Boltzmann distribution to the initial state population
+    double fcf_only = spectral_point.getIntensity();
+    double temperature = job_config.get_temp();
+    double intensity = fcf_only * Boltzmann_factor(temperature, E_prime_prime);
+    spectral_point.set_intensity(intensity);
+
+    // if intensity below the intensity threshold or energy above the
+    // threshold -- do not print
+    if ((spectral_point.getIntensity() < job_config.get_intensity_thresh()) or
+        (peak_position_eV + E_prime_prime - target_el_st.Energy() >
+         thresholds.target_eV()) or
+        (E_prime_prime > thresholds.initial_eV())) {
+      spectral_point.setIfPrint(false);
+      points_removed++;
+    }
+  }
+
+  if (dush_config.get_max_quanta_init() != 0) {
+    if (points_removed > 0)
+      std::cout << "  " << points_removed
+                << " hot bands were removed from the spectrum\n";
+    else
+      std::cout << "All hot bands are above the intensity threshold\n";
+    std::cout << "\n" << std::flush;
   }
 }

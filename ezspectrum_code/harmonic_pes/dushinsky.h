@@ -142,9 +142,24 @@ public:
   void printLayersSizes(const DushinskyParameters &dush_parameters,
                         const DoNotExcite &no_excite_subspace);
 
-  // goes over all single excitations finds FCFs and adds them to the 
+  // goes over all single excitations finds FCFs and adds them to the
   // spectrum
   void add_single_excitations(SingleExcitations &storage);
+
+  // Set energies (peak positions) and intensities (by applying Boltzmann
+  // distribution) for every point in the spectrum. Applies intensity cutoff 
+  // to decide if the state is going to be printed in the spectrum.
+  //
+  // TODO: this should be tied to the Dushinsky::addSpectralPoint or
+  // Spectrum::addSpectralPoint functions or even earlier -- when the spectral
+  // points are created they should be fully formed before being added to the
+  // vector of points.
+  void
+  updated_intensities_and_positions(const JobParameters &job_config,
+                                    const DushinskyParameters &dush_parameters,
+                                    const EnergyThresholds &thresholds,
+                                    MolState &initial_el_st,
+                                    MolState &target_el_st);
 };
 
 #endif
