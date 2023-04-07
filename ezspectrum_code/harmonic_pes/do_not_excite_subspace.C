@@ -81,13 +81,13 @@ void DoNotExcite::new_print_summary(const MolState &target_el_st) const {
 
 void DoNotExcite::print_summary_helper() const {
   std::cout << "Do not excite space in use.\n"
-            << "Normal modes with no excitations:\n";
+            << "Normal modes kept at zero excitations:\n  ";
 
   for (int mode_no : inactive_subspace)
     std::cout << mode_no << ' ';
-  std::cout << "\n\n";
+  std::cout << "\n";
 
-  std::cout << "Normal modes active in the calculations:\n";
+  std::cout << "Normal modes active in the calculations:\n  ";
   for (int mode_no : get_active_subspace())
     std::cout << mode_no << ' ';
   std::cout << "\n\n";
