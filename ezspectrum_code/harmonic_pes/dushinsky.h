@@ -41,8 +41,14 @@
  * Notation and equations are from [Berger et al. JPCA 102:7157(1998)]
  * */
 class Dushinsky {
-  //! number of molecular normal modes (dimensionality) = 3*N_{atoms} - 5/6
-  int N;
+  //! number of normal modes in the molecule
+  //! n_mol_nms = 3N-5/6 
+  const int n_mol_nms;
+  //! number of normal modes in the active space: 
+  //! n_active_nms = 3N-5/6 - size(do_not_excite_subspace)
+  const int n_active_nms;
+  //! target state index
+  const int targN;
   //! frequently used matrices in the "excite subspace"
   arma::Mat<double> tpmo, tqmo, tr;
   //! frequently used matrices in the full space; requred for single excitation
@@ -59,17 +65,17 @@ class Dushinsky {
   double zero_zero;
   //! threshold for FCFs to be included in the spectrum:
   double fcf_threshold;
-  //! target state index
-  int targN;
 
   //! initial('constant' for the no hot bands case) and target(variable) states:
   VibronicState state0, state;
 
+  //! TODO: no need for memory handling
+  //!
   //! "layer" #K' (K'=0...Kp_max)contains all states with the total number of
   //! excitations = K' in the target state only
-  // each layer is a linear vector; to get between "vector's index" and
-  // "vibrational state" functions convVibrState2Index() and convIndex2VibrState
-  // are used
+  //! each layer is a linear vector; to get between "vector's index" and
+  //! "vibrational state" functions convVibrState2Index() and convIndex2VibrState
+  //! are used
   std::vector<std::vector<double> *> layers;
 
   //! spectrum which stores all the points
@@ -98,7 +104,7 @@ public:
             SingleExcitations &single_excitations);
   ~Dushinsky();
 
-  void old_constructor(std::vector<MolState> &molStates, const int in_targN,
+  void old_constructor(std::vector<MolState> &molStates,
                        const DushinskyParameters &dush_parameters,
                        const JobParameters &job_parameters,
                        const DoNotExcite &no_excite_subspace);
@@ -147,7 +153,7 @@ public:
   void add_single_excitations(SingleExcitations &storage);
 
   // Set energies (peak positions) and intensities (by applying Boltzmann
-  // distribution) for every point in the spectrum. Applies intensity cutoff 
+  // distribution) for every point in the spectrum. Applies intensity cutoff
   // to decide if the state is going to be printed in the spectrum.
   //
   // TODO: this should be tied to the Dushinsky::addSpectralPoint or

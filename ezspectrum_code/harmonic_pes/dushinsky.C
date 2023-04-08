@@ -26,7 +26,6 @@
  * will be added only to those normal modes.
  * */
 void Dushinsky::old_constructor(std::vector<MolState> &molStates,
-                                const int in_targN,
                                 const DushinskyParameters &dush_parameters,
                                 const JobParameters &job_parameters,
                                 const DoNotExcite &no_excite_subspace) {
@@ -37,10 +36,6 @@ void Dushinsky::old_constructor(std::vector<MolState> &molStates,
 
   // index of the inital electronic state
   int iniN = 0;
-  targN = in_targN;
-
-  // number of normal modes in the subset
-  N = molStates[iniN].NNormModes();
 
   //----------------------------------------------------------------------
   // get frequencies, displacements and rotation matrix for the current
@@ -49,36 +44,36 @@ void Dushinsky::old_constructor(std::vector<MolState> &molStates,
   // Load frequencies:
   std::vector<double> selected_nm_freq_ini;
   selected_nm_freq_ini.clear();
-  for (int nm = 0; nm < N; nm++)
+  for (int nm = 0; nm < n_mol_nms; nm++)
     selected_nm_freq_ini.push_back(molStates[iniN].getNormMode(nm).getFreq());
   std::vector<double> selected_nm_freq_targ;
   selected_nm_freq_targ.clear();
-  for (int nm = 0; nm < N; nm++)
+  for (int nm = 0; nm < n_mol_nms; nm++)
     selected_nm_freq_targ.push_back(molStates[targN].getNormMode(nm).getFreq());
 
   // get w & w'; frequencies; p=='==target electronic state; [N];
   // frequency==w_i=nu_i[cm-1]*BOHR_2_CM*2*PI*SPEEDOFLIGHT_AU;
-  arma::Col<double> w(N);
-  for (int nm = 0; nm < N; nm++)
+  arma::Col<double> w(n_mol_nms);
+  for (int nm = 0; nm < n_mol_nms; nm++)
     w(nm) = selected_nm_freq_ini[nm] * BOHR_2_CM * 2 * PI * SPEEDOFLIGHT_AU;
 
-  arma::Col<double> wp(N);
-  for (int nm = 0; nm < N; nm++)
+  arma::Col<double> wp(n_mol_nms);
+  for (int nm = 0; nm < n_mol_nms; nm++)
     wp(nm) = selected_nm_freq_targ[nm] * BOHR_2_CM * 2 * PI * SPEEDOFLIGHT_AU;
 
   // get normal modes: L and Lp (for the selected subspace):
-  arma::Mat<double> L(CARTDIM * (molStates[iniN].NAtoms()), N,
+  arma::Mat<double> L(CARTDIM * (molStates[iniN].NAtoms()), n_mol_nms,
                       arma::fill::zeros);
   for (int a = 0; a < molStates[iniN].NAtoms(); a++)
-    for (int nm = 0; nm < N; nm++)
+    for (int nm = 0; nm < n_mol_nms; nm++)
       for (int k = 0; k < CARTDIM; k++)
         L(a * CARTDIM + k, nm) =
             molStates[iniN].getNormMode(nm).getDisplacement()(a * CARTDIM + k);
 
-  arma::Mat<double> Lp(CARTDIM * (molStates[targN].NAtoms()), N,
+  arma::Mat<double> Lp(CARTDIM * (molStates[targN].NAtoms()), n_mol_nms,
                        arma::fill::zeros);
   for (int a = 0; a < molStates[targN].NAtoms(); a++)
-    for (int nm = 0; nm < N; nm++)
+    for (int nm = 0; nm < n_mol_nms; nm++)
       for (int k = 0; k < CARTDIM; k++)
         Lp(a * CARTDIM + k, nm) =
             molStates[targN].getNormMode(nm).getDisplacement()(a * CARTDIM + k);
@@ -122,48 +117,49 @@ void Dushinsky::old_constructor(std::vector<MolState> &molStates,
   // now evaluate all the matrices:
 
   // temporary NxN matrices:
-  arma::Mat<double> tmpM(N, N);
+  arma::Mat<double> tmpM(n_mol_nms, n_mol_nms);
 
   // diag(1) NxN matrix:
-  arma::Mat<double> I = arma::eye(N, N);
+  arma::Mat<double> I = arma::eye(n_mol_nms, n_mol_nms);
 
   // get Lm & Lmp; lamda & lamda'; [NxN] diag.; sqrt.freq.;
   // \lamda=diag(sqrt(w_i));
-  arma::Mat<double> Lm(N, N, arma::fill::zeros);
-  for (int nm = 0; nm < N; nm++)
+  arma::Mat<double> Lm(n_mol_nms, n_mol_nms, arma::fill::zeros);
+  for (int nm = 0; nm < n_mol_nms; nm++)
     Lm(nm, nm) = sqrt(w(nm));
 
-  arma::Mat<double> Lmp(N, N, arma::fill::zeros);
-  for (int nm = 0; nm < N; nm++)
+  arma::Mat<double> Lmp(n_mol_nms, n_mol_nms, arma::fill::zeros);
+  for (int nm = 0; nm < n_mol_nms; nm++)
     Lmp(nm, nm) = sqrt(wp(nm));
 
   // get Dt; [N]; \delta=Lmp*d;
   arma::Col<double> Dt = Lmp * d;
 
   // get J;  [NxN]; J=Lmp*S*Lm^{-1};  ^{-1} -- inverse;
-  arma::Mat<double> J(N, N);
+  arma::Mat<double> J(n_mol_nms, n_mol_nms);
   J = Lmp * S * Lm.i();
 
   // get Q;  [NxN] symm. pos.; Q = (1 + J^T * J)^{-1}; ^{T} -- transposed; ^{-1}
   // -- inverse;
-  arma::Mat<double> Q(N, N);
+  arma::Mat<double> Q(n_mol_nms, n_mol_nms);
   tmpM = I + J.t() * J;
   Q = tmpM.i();
   double detQ = arma::det(Q);
 
   // get P;  [NxN] symm.; P = J * Q * J^T
-  arma::Mat<double> P(N, N);
+  arma::Mat<double> P(n_mol_nms, n_mol_nms);
   P = J * Q * J.t();
 
   // get R;  [NxN]; R = Q * J^T
-  arma::Mat<double> R(N, N);
+  arma::Mat<double> R(n_mol_nms, n_mol_nms);
   R = Q * J.t();
 
   // get Det(S)
   double detS = arma::det(S);
   std::cout << "Determinant of the normal modes rotation matrix: |Det(S)| ="
             << std::fixed << std::setw(12) << std::setprecision(8) << fabs(detS)
-            << "\n\n" << std::flush;
+            << "\n\n"
+            << std::flush;
   if (fabs(detS) < 0.5) {
     std::cout << "\n"
               << "Error: |Det(S)| is too small (<0.5). Please see \"|Det(S)| "
@@ -176,11 +172,11 @@ void Dushinsky::old_constructor(std::vector<MolState> &molStates,
   //--------------------------------------------------------------------------------
   // zero_zero, K'=0: one element = <0|0>
   double zero_zero = 1;
-  for (int nm = 0; nm < N; nm++)
+  for (int nm = 0; nm < n_mol_nms; nm++)
     zero_zero *= w(nm) / wp(nm);
   // ORIGINAL: pow 0.25; MODIFIED TO: pow -0.25
-  zero_zero =
-      pow(2.0, N * 0.5) * pow(zero_zero, -0.25) * sqrt(detQ) / sqrt(fabs(detS));
+  zero_zero = pow(2.0, n_mol_nms * 0.5) * pow(zero_zero, -0.25) * sqrt(detQ) /
+              sqrt(fabs(detS));
   tmpM = -0.5 * Dt.t() * (I - P) * Dt; // It's a scalar now
   zero_zero *= exp(tmpM(0, 0));
 
@@ -211,20 +207,19 @@ void Dushinsky::old_constructor(std::vector<MolState> &molStates,
   const std::vector<int> active_nm_subspace =
       no_excite_subspace.get_active_subspace();
 
-  if (N != active_nm_subspace.size()) {
-    N = active_nm_subspace.size();
+  if (n_mol_nms != n_active_nms) {
 
     // shrink "frequently used matrices"
-    ompd = arma::Col<double>(N);
-    rd = arma::Col<double>(N);
-    tpmo = arma::Mat<double>(N, N);
-    tqmo = arma::Mat<double>(N, N);
-    tr = arma::Mat<double>(N, N);
+    ompd = arma::Col<double>(n_active_nms);
+    rd = arma::Col<double>(n_active_nms);
+    tpmo = arma::Mat<double>(n_active_nms, n_active_nms);
+    tqmo = arma::Mat<double>(n_active_nms, n_active_nms);
+    tr = arma::Mat<double>(n_active_nms, n_active_nms);
 
-    for (int nm1 = 0; nm1 < N; nm1++) {
+    for (int nm1 = 0; nm1 < n_active_nms; nm1++) {
       ompd(nm1) = ompd_full(active_nm_subspace[nm1]);
       rd(nm1) = rd_full(active_nm_subspace[nm1]);
-      for (int nm2 = 0; nm2 < N; nm2++) {
+      for (int nm2 = 0; nm2 < n_active_nms; nm2++) {
         tpmo(nm1, nm2) =
             tpmo_full(active_nm_subspace[nm1], active_nm_subspace[nm2]);
         tqmo(nm1, nm2) =
@@ -271,7 +266,7 @@ void Dushinsky::old_constructor(std::vector<MolState> &molStates,
   int max_quanta_target = dush_parameters.get_max_quanta_targ();
 
   int K = max_quanta_target;
-  int size = (N) * (N + K);
+  int size = (n_active_nms) * (n_active_nms + K);
 
   // Create an array of sqrt() 0..K+1
   K = std::max(max_quanta_target, max_quanta_initial);
@@ -321,10 +316,13 @@ Dushinsky::Dushinsky(std::vector<MolState> &elStates, const int targN,
                      const JobParameters &job_config,
                      const DoNotExcite &no_excite_subspace,
                      const TheOnlyInitialState &the_only_initial_state,
-                     SingleExcitations &single_excitations) {
+                     SingleExcitations &single_excitations)
+    : n_mol_nms(elStates[0].NNormModes()),
+      n_active_nms(no_excite_subspace.get_active_subspace().size()),
+      targN(targN) {
   // TODO: make SingleExcitations const
 
-  old_constructor(elStates, targN, dush_config, job_config, no_excite_subspace);
+  old_constructor(elStates, dush_config, job_config, no_excite_subspace);
 
   // TODO: this is a leftover from the original code -- is it really needed?
   printLayersSizes(dush_config, no_excite_subspace);
@@ -371,7 +369,7 @@ int Dushinsky::evalNextLayer(const bool if_save) {
   int points_added = 0;
 
   // reset the target state
-  for (int i = 0; i < N; i++) {
+  for (int i = 0; i < n_active_nms; i++) {
     state.getV()[i] = -1;
   }
 
@@ -405,7 +403,8 @@ int Dushinsky::evalNextLayer(const bool if_save) {
     // ZZZ 4/11/2012 removed, and the combinations are calculated now on the fly
     // unsigned long index_rev=convVibrState2Index(state.getV(), N, C,
     // Kp_max+1);
-    unsigned long index_rev = convVibrState2Index(state.getV(), N, Kp_max + 1);
+    unsigned long index_rev =
+        convVibrState2Index(state.getV(), n_active_nms, Kp_max + 1);
 
     // check if the reverse index is ok
     if (index_rev != index_counter) {
@@ -465,7 +464,7 @@ void Dushinsky::add_the_only_intial_state_transitions(
   int max_quanta_targ = dush_config.get_max_quanta_targ();
   for (int Kp = 0; Kp <= max_quanta_targ; Kp++) {
     // reset the target state
-    for (int i = 0; i < N; i++) {
+    for (int i = 0; i < n_active_nms; i++) {
       state.getV()[i] = -1;
     }
 
@@ -498,7 +497,8 @@ double Dushinsky::evalSingleFCF(VibronicState &state_ini, int K,
                       // combinations are calculated now on the fly
                       // fcf=(*layers[Kp])[convVibrState2Index(state_targ.getV(),
                       // N, C, Kp)];
-      fcf = (*layers[Kp])[convVibrState2Index(state_targ.getV(), N, Kp)];
+      fcf = (*layers[Kp])[convVibrState2Index(state_targ.getV(), n_active_nms,
+                                              Kp)];
 
     else {
       // find first non zero quanta
@@ -512,7 +512,7 @@ double Dushinsky::evalSingleFCF(VibronicState &state_ini, int K,
 
       // add the second term for K'>=2
       if (Kp > 1)
-        for (int theta = ksi; theta < N; theta++)
+        for (int theta = ksi; theta < n_active_nms; theta++)
           if (state_targ.getV()[theta] > 0) {
             double tmp_dbl =
                 tpmo(ksi, theta) * sqrtArray[state_targ.getV()[theta]];
@@ -538,7 +538,7 @@ double Dushinsky::evalSingleFCF(VibronicState &state_ini, int K,
 
     // add the second term
     if (K > 1)
-      for (int theta = ksi; theta < N; theta++)
+      for (int theta = ksi; theta < n_active_nms; theta++)
         if (state_ini.getV()[theta] > 0) {
           double tmp_dbl =
               tqmo(ksi, theta) * sqrtArray[state_ini.getV()[theta]];
@@ -550,7 +550,7 @@ double Dushinsky::evalSingleFCF(VibronicState &state_ini, int K,
 
     // add the third term
     if (Kp > 0)
-      for (int theta = 0; theta < N; theta++)
+      for (int theta = 0; theta < n_active_nms; theta++)
         if (state_targ.getV()[theta] > 0) {
           double tmp_dbl = tr(ksi, theta) * sqrtArray[state_targ.getV()[theta]];
           state_targ.getV()[theta]--;
@@ -589,7 +589,7 @@ double Dushinsky::evalSingleFCF_full_space(VibronicState &state_ini, int K,
 
       // add the second term for K'>=2
       if (Kp > 1)
-        for (int theta = ksi; theta < N; theta++)
+        for (int theta = ksi; theta < n_active_nms; theta++)
           if (state_targ.getV()[theta] > 0) {
             double tmp_dbl =
                 tpmo_full(ksi, theta) * sqrt(state_targ.getV()[theta]);
@@ -617,7 +617,7 @@ double Dushinsky::evalSingleFCF_full_space(VibronicState &state_ini, int K,
 
     // add the second term
     if (K > 1)
-      for (int theta = ksi; theta < N; theta++)
+      for (int theta = ksi; theta < n_active_nms; theta++)
         if (state_ini.getV()[theta] > 0) {
           double tmp_dbl =
               tqmo_full(ksi, theta) * sqrt(state_ini.getV()[theta]);
@@ -629,7 +629,7 @@ double Dushinsky::evalSingleFCF_full_space(VibronicState &state_ini, int K,
 
     // add the third term
     if (Kp > 0)
-      for (int theta = 0; theta < N; theta++)
+      for (int theta = 0; theta < n_active_nms; theta++)
         if (state_targ.getV()[theta] > 0) {
           double tmp_dbl = tr_full(ksi, theta) * sqrt(state_targ.getV()[theta]);
           state_targ.getV()[theta]--;
@@ -664,10 +664,10 @@ void Dushinsky::addHotBands(std::vector<MolState> &molStates,
   std::vector<VibronicState> selected_states_ini, selected_states_targ;
 
   // reset the initial state
-  for (int i = 0; i < N; i++)
+  for (int i = 0; i < n_active_nms; i++)
     state0.getV()[i] = -1;
   // reset the target state
-  for (int i = 0; i < N; i++)
+  for (int i = 0; i < n_active_nms; i++)
     state.getV()[i] = -1;
 
   int no_of_active_nms = no_excite_subspace.get_active_subspace().size();
@@ -826,7 +826,7 @@ void Dushinsky::printLayersSizes(const DushinskyParameters &dush_parameters,
   unsigned long elements_per_layer, size_per_layer = 0, size_per_layer_prev = 0;
 
   for (int Kp = 0; Kp <= uptoKp; Kp++) {
-    elements_per_layer = nChoosek(Kp + N - 1, N - 1);
+    elements_per_layer = nChoosek(Kp + n_active_nms - 1, n_active_nms - 1);
     size_per_layer_prev = size_per_layer;
     size_per_layer = elements_per_layer * sizeof(double);
 
@@ -864,7 +864,6 @@ void Dushinsky::printLayersSizes(const DushinskyParameters &dush_parameters,
   std::cout << "\n";
 }
 
-
 void Dushinsky::add_single_excitations(SingleExcitations &storage) {
   for (auto &single_excitation : storage.single_excitations) {
     int K = single_excitation.getVibrState1().getTotalQuantaCount();
@@ -900,14 +899,7 @@ void Dushinsky::updated_intensities_and_positions(
 
     // run it over the full space, if nm not in the nms_dushinsky subspace,
     // getV_full_dim() returns zero (no excitations):
-    //
-    // HINT: watch out for the range as at this point in code
-    // the int Dushinsky::n_mol_nms is different from initial_el_st.NNormModes()
-    //
-    // The Dushinsky::n_mol_nms should be either set to const or it should 
-    // be used through some general higer level way of handing the molecular 
-    // properties.
-    for (int nm = 0; nm < initial_el_st.NNormModes(); nm++) {
+    for (int nm = 0; nm < n_mol_nms; nm++) {
 
       double quantum_of_energy_initial =
           initial_el_st.getNormMode(nm).getFreq() * WAVENUMBERS2EV;
