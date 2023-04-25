@@ -12,8 +12,8 @@ class SingleExcitations {
 public:
   std::vector<SpectralPoint> single_excitations;
 
-  SingleExcitations(xml_node &node_head, const MolState &targ_elst,
-                    const int n_molecular_nms, const int iniN);
+  SingleExcitations(xml_node &node_head, const int n_molecular_nms,
+                    const int iniN, const int targN);
 
   bool empty() const { return single_excitations.empty(); }
 };

@@ -48,7 +48,6 @@ DushinskyParameters::DushinskyParameters(const xml_node &node_input,
               << std::flush;
   }
 
-  // TODO: find and document what is Kp_max_to_save
   if (node_dushinsky_rotations.find_subnode("max_vibr_to_store")) {
 
     xml_node node_max_vibr_to_store(node_dushinsky_rotations,

@@ -273,17 +273,16 @@ Parallel::Parallel(std::vector<MolState> &molStates,
     } // end for each normal mode
 
     //==========================================================================
-    // evaluate the overal intensities as all possible products of 1D 
+    // evaluate the overal intensities as all possible products of 1D
     // intensities (including combination bands)
-    std::cout << "Maximum number of vibrational excitations: " 
-      << max_n_initial << " and "<< max_n_target 
-      << "\n in the initial and each target state, respectively.\n\n";
+    std::cout << "Maximum number of vibrational excitations:\n"
+              << "  " << max_n_initial << " (in the initial state),\n"
+              << "  " << max_n_target << " (in each target state).\n\n";
 
     unsigned long total_combs_ini = 0, total_combs_targ = 0;
     if (if_the_only_initial_state) {
       total_combs_ini = 1;
-    } 
-    else {
+    } else {
       for (int curr_max_ini = 0; curr_max_ini <= max_n_initial; curr_max_ini++)
         total_combs_ini +=
             nChoosek(curr_max_ini + n_active_nm - 1, n_active_nm - 1);
@@ -293,50 +292,50 @@ Parallel::Parallel(std::vector<MolState> &molStates,
       total_combs_targ +=
           nChoosek(curr_max_targ + n_active_nm - 1, n_active_nm - 1);
 
-    std::cout << "Maximum number of combination bands = " 
-      << total_combs_ini * total_combs_targ  
-      << "\n   = " << total_combs_ini 
-      << " (# of vibrational states in the initial electronic state)"
-      << "\n   * " << total_combs_targ  
-      << " (# of vibrational states in the target electronic state)\n\n" << std::flush;
+    std::cout << "Maximum number of combination bands = "
+              << total_combs_ini * total_combs_targ
+              << "\n   = " << total_combs_ini
+              << " (# of vibrational states in the initial electronic state)"
+              << "\n   * " << total_combs_targ
+              << " (# of vibrational states in the target electronic state).\n"
+              << std::endl;
 
-
-    // find INITIAL states with up to 'max_n_initial' vibrational quanta and 
+    // find INITIAL states with up to 'max_n_initial' vibrational quanta and
     // with energy below 'energy_threshold_initial':
     std::cout << "A set of initial vibrational states is being created...\n";
     if (energy_threshold_initial < std::numeric_limits<double>::max()) {
-      std::cout << "  energy threshold = " 
-        << std::fixed << energy_threshold_initial 
-        << " eV ("
-        << energy_threshold_initial/KELVINS2EV 
-        << " K)\n" << std::flush;
-    }
-    else {
-      std::cout << "  energy threshold is not specified in the input\n"<<std::flush;
+      std::cout << "  Energy threshold = " << std::fixed
+                << energy_threshold_initial << " eV ("
+                << energy_threshold_initial / KELVINS2EV << " K).\n"
+                << std::flush;
+    } else {
+      std::cout << "  Energy threshold is not specified in the input.\n"
+                << std::flush;
     }
 
-    // Container for the set of inital vibrational states (for each electronic state) 
+    // Container for the set of inital vibrational states (for each electronic
+    // state)
     // -- after energy threshold applied
     // Every vibrational state is of `n_molecule_nm` length, i.e., full space
-    std::vector < std::vector <int> > selected_states_ini;
+    std::vector<std::vector<int>> selected_states_ini;
 
     // Containers for a single vibrational states in the "excite subspace"
-    std::vector <int> state_ini_subspace(n_active_nm, default_value);
-    for (int curr_max_ini=0; curr_max_ini<=max_n_initial; curr_max_ini++)
-    {
-      while (enumerateVibrStates(n_active_nm, curr_max_ini, state_ini_subspace, if_comb_bands))
-      {
+    std::vector<int> state_ini_subspace(n_active_nm, default_value);
+    for (int curr_max_ini = 0; curr_max_ini <= max_n_initial; curr_max_ini++) {
+      while (enumerateVibrStates(n_active_nm, curr_max_ini, state_ini_subspace,
+                                 if_comb_bands)) {
         // state_ini is a full-space version of the 'state_ini_subspace'
         // initlize the state to zero excitation
         std::vector<int> state_ini(n_molecule_nm, 0);
-        // copy indexes from the subspace state_ini_subspace into 
+        // copy indexes from the subspace state_ini_subspace into
         // the full space state_ini (the rest stays=0):
         for (int nm = 0; nm < n_active_nm; nm++)
           state_ini[active_nms[nm]] = state_ini_subspace[nm];
 
         double energy = 0;
-        for (int nm=0; nm < n_molecule_nm; nm++) 
-          energy += E_position[nm](state_ini[nm], 0) + molStates[targN].Energy();
+        for (int nm = 0; nm < n_molecule_nm; nm++)
+          energy +=
+              E_position[nm](state_ini[nm], 0) + molStates[targN].Energy();
 
         if (energy < energy_threshold_initial) {
           selected_states_ini.push_back(state_ini);
@@ -346,63 +345,74 @@ Parallel::Parallel(std::vector<MolState> &molStates,
       // see the `enumerateVibrStates` function the the top of the loop
       state_ini_subspace[0] = default_value;
     }
-    std::cout << "  " << selected_states_ini.size() 
-      << " vibrational states below the energy threshold\n\n"<<std::flush;
+    std::cout << "  " << selected_states_ini.size()
+              << " vibrational states below the energy threshold.\n\n"
+              << std::flush;
 
-    // TODO: This is a duplicate of the above code. It should be a function. Paweł Apr '22
-    // find TARGET states with up to 'max_n_target' vibrational quanta and with energy below 'energy_threshold_target':
+    // TODO: This is a duplicate of the above code. It should be a function.
+    // Paweł Apr '22 find TARGET states with up to 'max_n_target' vibrational
+    // quanta and with energy below 'energy_threshold_target':
     std::cout << "A set of target vibrational states is being created...\n";
-    if (energy_threshold_target < std::numeric_limits<double>::max())
-      std::cout << "  energy threshold = " << std::fixed <<energy_threshold_target <<" eV ("<< energy_threshold_target/WAVENUMBERS2EV <<" cm-1)\n"<<std::flush;
-    else
-      std::cout << "  energy threshold is not specified in the input\n"<<std::flush;
+    if (energy_threshold_target < std::numeric_limits<double>::max()) {
+      std::cout << "  Energy threshold = " << std::fixed
+                << energy_threshold_target << " eV ("
+                << energy_threshold_target / WAVENUMBERS2EV << " cm-1).\n"
+                << std::flush;
+    } else {
+      std::cout << "  Energy threshold is not specified in the input.\n"
+                << std::flush;
+    }
 
     std::vector<std::vector<int>> selected_states_targ;
     std::vector<int> state_targ_subspace(n_active_nm, default_value);
     selected_states_targ.clear();
-    for (int curr_max_targ=0; curr_max_targ<=max_n_target; curr_max_targ++)
-    {
-      while (enumerateVibrStates(n_active_nm, curr_max_targ, state_targ_subspace, if_comb_bands))
-      {
+    for (int curr_max_targ = 0; curr_max_targ <= max_n_target;
+         curr_max_targ++) {
+      while (enumerateVibrStates(n_active_nm, curr_max_targ,
+                                 state_targ_subspace, if_comb_bands)) {
         std::vector<int> state_targ(n_molecule_nm, 0);
-        //copy indexes from the subspace state_targ_subspace into the full space state_targ (the rest stays=0):
-        for (int nm=0; nm<n_active_nm; nm++)
-          state_targ[ active_nms[nm] ] = state_targ_subspace[nm];
-
+        // copy indexes from the subspace state_targ_subspace into the full
+        // space state_targ (the rest stays=0):
+        for (int nm = 0; nm < n_active_nm; nm++)
+          state_targ[active_nms[nm]] = state_targ_subspace[nm];
 
         double energy = 0;
 
-        for (int nm=0; nm < n_molecule_nm; nm++)
+        for (int nm = 0; nm < n_molecule_nm; nm++)
           // threshold -- energy above the ground state:
-          energy += E_position[nm](0, state_targ[nm])+molStates[targN].Energy();
+          energy +=
+              E_position[nm](0, state_targ[nm]) + molStates[targN].Energy();
 
         if (-energy < energy_threshold_target) {
           selected_states_targ.push_back(state_targ);
         }
       }
-      //reset the target state's vibration "population"
-      state_targ_subspace[0]=-1;
+      // reset the target state's vibration "population"
+      state_targ_subspace[0] = -1;
     }
 
-    std::cout << "  " << selected_states_targ.size() << " vibrational states below the energy threshold\n\n";
+    std::cout << "  " << selected_states_targ.size()
+              << " vibrational states below the energy threshold.\n\n";
 
     if (if_the_only_initial_state) {
       selected_states_ini.clear();
       selected_states_ini.push_back(the_only_initial_state);
-      std::cout << " The only initial state active:\n"
-        << "    The initial state contains only ONE vibrational state.\n"
-        << std::endl;
+      std::cout
+          << " The only initial state active:\n"
+          << "    The initial state contains only ONE vibrational state.\n"
+          << std::endl;
     }
 
-    std::cout << "Total number of combination bands with thresholds applied: " 
-      << selected_states_ini.size() * selected_states_targ.size() 
-      << "\n\n" << std::flush;
+    std::cout << "Total number of combination bands with thresholds applied: "
+              << selected_states_ini.size() * selected_states_targ.size()
+              << ".\n\n"
+              << std::flush;
 
-    std::cout << "Intensities of combination bands are being calculated...\n" <<std::flush;
+    std::cout << "Intensities of combination bands are being calculated..."
+              << std::flush;
 
-    for (const auto & ini_state: selected_states_ini)
-      for (const auto & targ_state: selected_states_targ)
-      {
+    for (const auto &ini_state : selected_states_ini)
+      for (const auto &targ_state : selected_states_targ) {
         double intens = 1.0;
         double FCF = 1.0;
         double energy = -molStates[targN].Energy();
@@ -423,23 +433,24 @@ Parallel::Parallel(std::vector<MolState> &molStates,
         }
 
         // add the point to the spectrum if its intensity is above the threshold
-        if (intens > intens_threshold)
-        {
+        if (intens > intens_threshold) {
           tmpPoint.set_intensity(intens);
           tmpPoint.set_energy(energy);
-          tmpPoint.getE_prime_prime()= E_prime_prime;
+          tmpPoint.getE_prime_prime() = E_prime_prime;
           tmpPoint.set_FCF(FCF);
           tmpPoint.getVibrState1().reset();
           tmpPoint.getVibrState1().setElStateIndex(0);
           tmpPoint.getVibrState2().reset();
           tmpPoint.getVibrState2().setElStateIndex(targN);
-          for (int nm=0; nm<n_active_nm; nm++)
-          {
-            tmpPoint.getVibrState1().setVibrQuanta(nm, ini_state[ active_nms[nm] ]);
-            tmpPoint.getVibrState2().setVibrQuanta(nm, targ_state[ active_nms[nm] ]);
+          for (int nm = 0; nm < n_active_nm; nm++) {
+            tmpPoint.getVibrState1().setVibrQuanta(nm,
+                                                   ini_state[active_nms[nm]]);
+            tmpPoint.getVibrState2().setVibrQuanta(nm,
+                                                   targ_state[active_nms[nm]]);
           }
-          spectrum.AddSpectralPoint( tmpPoint );
+          spectrum.AddSpectralPoint(tmpPoint);
         }
       }
+    std::cout << "done.\n" << std::flush;
   } // end for each target state
 }

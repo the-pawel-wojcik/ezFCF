@@ -1,6 +1,7 @@
 #include "molstate.h"
 #include <algorithm>
 #include <cctype>
+#include <iomanip>
 
 /*! \file molstate.C
   \brief Molecular state: Stores Geometry, Normal Modes & Frequencies.
@@ -50,8 +51,9 @@ void MolState::align() {
 
   transformCoordinates(MOI_eigenVectors); // rotate coordinates using matrix of
                                           // the MOI eigen vectors
-  std::cout << "Coordinate axes were aligned with MOI principal axes; center "
-               "mass was shifted to the origin.\n";
+  std::cout << std::endl;
+  std::cout << "Coordinate axes were aligned with MOI principal axes.\n"
+               "Center of mass was shifted to the origin.\n";
 }
 
 //------------------------------
@@ -91,10 +93,11 @@ void MolState::align(const MolState &other) {
   // (min_x_rot, min_y_rot, min_z_rot):
   rotate(min_x_rot * PI / 2.0, min_y_rot * PI / 2.0, min_z_rot * PI / 2.0);
 
-  std::cout << "Also rotated by " << min_x_rot << "/2*pi, " << min_y_rot
+  std::cout << "Molecule was rotated by " << min_x_rot << "/2*pi, " << min_y_rot
             << "/2*pi, and " << min_z_rot << "/2*pi CCW around x, y, and z.\n";
+
   std::cout << "The norm of the geometry difference from the initial state is "
-            << sqrt(min_diff) << "\n";
+            << std::setprecision(3) << sqrt(min_diff) << ".\n";
 }
 
 //------------------------------
@@ -788,7 +791,7 @@ void MolState::Read_atoms_reorder(xml_node &node_state) {
   xml_node reorder_atoms(node_state, "manual_atoms_reordering", 0);
 
   std::istringstream order_istr(reorder_atoms.read_string_value("new_order"));
-  std::cout << "New atoms order:\n" << order_istr.str() << "\n";
+  std::cout << "New atoms order:\n  " << order_istr.str() << "\n";
 
   int atom;
   for (int nm = 0; nm < NAtoms(); nm++) {
@@ -1145,15 +1148,16 @@ void MolState::apply_manual_coord_transformation(const MolState &ground) {
     applyCoordinateThreshold(COORDINATE_THRESHOLD);
 
     std::cout << "Molecule was shifted by " << shift(0) << ", " << shift(1)
-              << ", " << shift(2) << " in x, y, and z." << std::endl;
+              << ", " << shift(2) << " in x, y, and z axes." << std::endl;
 
-    std::cout << "Also rotated by " << rotation(0) << "*pi, " << rotation(1)
+    std::cout << "Molecule rotated by " << rotation(0) << "*pi, " << rotation(1)
               << "*pi, and " << rotation(2) << "*pi around x, y, and z axes."
               << std::endl;
 
     double diff_from_ground = this->getGeomDifference(ground);
     std::cout << "Norm of the geometry difference to the initial state: "
-              << sqrt(diff_from_ground) << std::endl;
+              << std::setprecision(3) << sqrt(diff_from_ground) << "."
+              << std::endl;
 
     if_aligned_manually = true;
   }

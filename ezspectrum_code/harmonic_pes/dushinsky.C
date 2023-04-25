@@ -157,8 +157,8 @@ void Dushinsky::old_constructor(std::vector<MolState> &molStates,
   // get Det(S)
   double detS = arma::det(S);
   std::cout << "Determinant of the normal modes rotation matrix: |Det(S)| ="
-            << std::fixed << std::setw(12) << std::setprecision(8) << fabs(detS)
-            << "\n\n"
+            << std::fixed << std::setw(8) << std::setprecision(4) << fabs(detS)
+            << ".\n\n"
             << std::flush;
   if (fabs(detS) < 0.5) {
     std::cout << "\n"
@@ -339,6 +339,7 @@ Dushinsky::Dushinsky(std::vector<MolState> &elStates, const int targN,
   }
 
   if (!single_excitations.empty()) {
+    elStates[targN].warn_about_nm_reordering("single excitations");
     add_single_excitations(single_excitations);
   }
 
@@ -653,8 +654,9 @@ void Dushinsky::addHotBands(std::vector<MolState> &molStates,
                             const DushinskyParameters &dush_config,
                             const EnergyThresholds &thresholds) {
 
-  // If no excitations in the inital state are allowed, there will be no hot
-  // bands
+  // TODO: weed this function.
+
+  // No hot bands if no excitations are allowed.
   if (dush_config.get_max_quanta_init() == 0) {
     return;
   }
@@ -696,13 +698,13 @@ void Dushinsky::addHotBands(std::vector<MolState> &molStates,
   // energy below 'energy_threshold_initial':
   std::cout << "A set of initial vibrational states is being created...\n";
   if (thresholds.present()) {
-    std::cout << "  energy threshold = " << std::fixed
+    std::cout << "  Energy threshold = " << std::fixed
               << thresholds.initial_eV() << " eV ("
-              << thresholds.initial_eV() / KELVINS2EV << " K)\n"
+              << thresholds.initial_eV() / KELVINS2EV << " K).\n"
               << std::flush;
   } else {
     std::cout
-        << "  energy threshold is not specified in the input (Please consider "
+        << "  Energy threshold is not specified in the input (Please consider "
            "adding\n"
         << "  the \"energy_thresholds\" tag for a faster calculation.)\n\n";
   }
@@ -727,20 +729,20 @@ void Dushinsky::addHotBands(std::vector<MolState> &molStates,
     state0.getV()[0] = -1;
   }
   std::cout << "  " << selected_states_ini.size()
-            << " vibrational states below the energy threshold\n\n"
+            << " vibrational states below the energy threshold.\n\n"
             << std::flush;
 
   // find TARGET states with up to 'max_n_target' vibrational quanta and with
   // energy below 'energy_threshold_target':
   std::cout << "A set of target vibrational states is being created...\n";
   if (thresholds.present()) {
-    std::cout << "  energy threshold = " << std::fixed << thresholds.target_eV()
+    std::cout << "  Energy threshold = " << std::fixed << thresholds.target_eV()
               << " eV (" << thresholds.target_eV() / WAVENUMBERS2EV
-              << " cm-1)\n"
+              << " cm-1).\n"
               << std::flush;
   } else {
     std::cout
-        << "  energy thresholds are not specified in the input (Please "
+        << "  Energy thresholds are not specified in the input (Please "
            "consider adding\n"
         << "  the \"energy_thresholds\" tag for a faster calculation.)\n\n";
   }
@@ -794,8 +796,8 @@ void Dushinsky::addHotBands(std::vector<MolState> &molStates,
 
   std::cout << "Done\n\n" << std::flush;
 
-  std::cout << points_added << " hot bands were added to the spectrum\n"
-            << "Note: the Boltzmann distribution will be applied later\n\n"
+  std::cout << points_added << " hot bands were added to the spectrum.\n"
+            << "Note: the Boltzmann distribution will be applied later.\n\n"
             << std::flush;
 
   return;
@@ -811,7 +813,7 @@ void Dushinsky::printLayersSizes(const DushinskyParameters &dush_parameters,
                                  const DoNotExcite &no_excite_subspace) {
 
   std::cout << "Number of normal modes active in this calculation: "
-            << no_excite_subspace.get_active_subspace().size() << "\n\n";
+            << no_excite_subspace.get_active_subspace().size() << ".\n\n";
   std::cout << "Size of layers with exactly K' excitations in the target "
                "state (in bytes):\n";
 
@@ -865,6 +867,10 @@ void Dushinsky::printLayersSizes(const DushinskyParameters &dush_parameters,
 }
 
 void Dushinsky::add_single_excitations(SingleExcitations &storage) {
+
+  std::cout << "List of single excitations added to the spectrum:\n"
+            << std::flush;
+
   for (auto &single_excitation : storage.single_excitations) {
     int K = single_excitation.getVibrState1().getTotalQuantaCount();
     int Kp = single_excitation.getVibrState2().getTotalQuantaCount();
@@ -879,12 +885,17 @@ void Dushinsky::add_single_excitations(SingleExcitations &storage) {
     std::cout << "FCF=" << std::scientific << std::setprecision(6) << s_fcf
               << " " << single_excitation << std::endl;
   }
+
+  std::cout << std::endl;
 }
 
 void Dushinsky::updated_intensities_and_positions(
     const JobParameters &job_config, const DushinskyParameters &dush_config,
     const EnergyThresholds &thresholds, MolState &initial_el_st,
     MolState &target_el_st) {
+
+  std::cout << "Scaling intensities by Boltzmann distribution and applying "
+               "thresholds.\n";
 
   int points_removed = 0;
   for (SpectralPoint &spectral_point : getSpectrum().getSpectralPoints()) {
@@ -939,9 +950,9 @@ void Dushinsky::updated_intensities_and_positions(
   if (dush_config.get_max_quanta_init() != 0) {
     if (points_removed > 0)
       std::cout << "  " << points_removed
-                << " hot bands were removed from the spectrum\n";
+                << " hot bands were removed from the spectrum.\n";
     else
-      std::cout << "All hot bands are above the intensity threshold\n";
+      std::cout << "All hot bands are above the intensity threshold.\n";
     std::cout << "\n" << std::flush;
   }
 }

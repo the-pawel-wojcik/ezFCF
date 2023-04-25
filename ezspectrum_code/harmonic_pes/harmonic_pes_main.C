@@ -113,7 +113,8 @@ void run_transformations(std::vector<MolState> &elStates, bool print_nms) {
     }
   }
 
-  std::cout << "Done with the transformations" << std::endl;
+  std::cout << "\nTransformations of the molecular orientation are complete."
+            << std::endl;
   std::string line(80, '-');
   std::cout << line << "\n";
 }
@@ -278,28 +279,28 @@ void print_warnings(bool ifAnyNormalModesReordered,
                     DoNotExcite no_excite_subspace) {
 
   // TODO: use MolState::warn_about_nm_reordering
-  if (ifAnyNormalModesReordered)
+  if (ifAnyNormalModesReordered) {
+    std::string use_case("target state assignment");
+
+    // Highligh the variable part
+    std::transform(use_case.begin(), use_case.end(), use_case.begin(),
+                   ::toupper);
+
     std::cout
-        << "\n"
-        << "WARNING! The normal modes of one of the target states were "
-           "reordered!\n"
-        << "         New order is used for the target state assignment.\n";
+        << "WARNING! Normal modes of at least one target states were reordered!"
+        << std::endl
+        << "         New order is used for " << use_case << ".\n";
+  }
 
   if (no_excite_subspace.non_empty()) {
-
-    std::cout << "\nNOTE: only the following normal modes were excited: "
-                 "(\"excite subspace\"):\n  ";
-
-    for (int nm : no_excite_subspace.get_active_subspace())
-      std::cout << nm << ' ';
-    std::cout << "\n";
-
-    // TODO: use MolState::warn_about_nm_reordering
-    if (ifAnyNormalModesReordered)
-      std::cout << "\nWARNING! The normal modes of one of the target states "
-                   "were reordered!\n"
-                << "         New order is used for the \"excite subspace\"\n";
+    std::cout << "NOTE: Do not excite subspace:\n"
+              << "      Full list of ";
+    if (ifAnyNormalModesReordered) {
+      std::cout << "reordered ";
+    }
+    std::cout << "normal modes used in assigning transitions.\n";
   }
+
   std::cout << "\n";
 }
 
@@ -418,21 +419,18 @@ void harmonic_pes_parallel(xml_node &node_input,
 
   parallel.getSpectrum().PrintStickTable();
 
-  // save this spectrum to the file
+  // save the spectrum to a file
   std::string spectrumFName = InputFileName + std::string(".spectrum_parallel");
   parallel.getSpectrum().PrintStickTable(spectrumFName);
   std::cout << "\nStick spectrum was also saved in \"" << spectrumFName
-            << "\" file \n";
-  if (no_excite_subspace.non_empty())
-    std::cout << " (Full list of the normal modes was used for assigning "
-                 "transitions)\n";
+            << "\" file.\n";
 
   std::cout << HorizontalLine << "\n\n";
 }
 
 /*
  * =============================================================================
- *  Dushinski rotation (reach exact solution within harmonic approximation)
+ *  Duschinsky rotation (reach exact solution within harmonic approximation)
  * =============================================================================
  *  Notation and equations are from [Berger et al. JPCA 102:7157(1998)]
  * =============================================================================
@@ -456,8 +454,8 @@ void harmonic_pes_dushinksy(xml_node &node_input,
   DoNotExcite no_excite_subspace(node_dush, n_molecular_normal_modes);
   no_excite_subspace.new_print_summary(elStates[targN]);
   EnergyThresholds thresholds(node_dush);
-  SingleExcitations single_excitations(node_dush, elStates[targN],
-                                       n_molecular_normal_modes, targN);
+  SingleExcitations single_excitations(node_dush, n_molecular_normal_modes,
+                                       iniN, targN);
   TheOnlyInitialState the_only_init_state(node_dush, n_molecular_normal_modes);
 
   std::cout << HorizontalLine << "\n"
@@ -480,21 +478,16 @@ void harmonic_pes_dushinksy(xml_node &node_input,
   std::cout
       << "        Stick photoelectron spectrum (with Dushinsky rotations) \n";
   std::cout << HorizontalLine << "\n";
-  elStates[targN].warn_about_nm_reordering("target state assignment");
-  no_excite_subspace.new_print_summary(elStates[targN]);
+
+  print_warnings(elStates[targN].ifNMReorderedManually(), no_excite_subspace);
 
   dushinsky.getSpectrum().PrintStickTable();
 
-  // save the spectrum to the file
-  std::string spectrumFName(InputFileName);
-  spectrumFName.append(".spectrum_dushinsky");
-
+  // save the spectrum to a file
+  std::string spectrumFName =
+      InputFileName + std::string(".spectrum_dushinsky");
   dushinsky.getSpectrum().PrintStickTable(spectrumFName);
   std::cout << "\nStick spectrum was also saved in \"" << spectrumFName
-            << "\" file \n";
-  if (no_excite_subspace.empty()) {
-    std::cout << " (Full list of the normal modes was used for assigning "
-                 "transitions)\n";
-  }
-  std::cout << "\n\n";
+            << "\" file.\n";
+  std::cout << HorizontalLine << "\n\n";
 }

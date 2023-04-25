@@ -679,7 +679,17 @@ An example use of VGA
   </gradient>
 </target_state>
 \end{lstlisting}
-The \texttt{text} argument contains $3*(\textrm{\# atoms})$ numbers -- the gradient components. The order of the components must stick to the coordinate system used throughout the \texttt{geometry} and \texttt{normal\_modes} nodes of the \texttt{initial\_state}, i.e., it must be a list of the $x$, $y$, and $z$ gradient components corresponding to the first atom, followed by the $x$, $y$, and $z$ components of the second atoms and so on; the order of atoms must be the same as the order of atoms appearing in the \texttt{geometry} node of the \texttt{initial\_state}. The value of the \texttt{text} argument is read as a series of floating point number separated by white-spaces.  The gradient must be given in atomic units \texttt{a.u.} (Hartree/Bohr).
+The \texttt{text} argument contains $3*(\textrm{\# atoms})$ numbers -- the 
+gradient components. The order of the components must stick to the coordinate 
+system used throughout the \texttt{geometry} and \texttt{normal\_modes} nodes 
+of the \texttt{initial\_state}, i.e., it must be a list of the $x$, $y$, and 
+$z$ gradient components corresponding to the first atom, followed by the $x$, 
+$y$, and $z$ components of the second atoms and so on; the order of atoms must 
+be the same as the order of atoms appearing in the \texttt{geometry} node of 
+the \texttt{initial\_state}. The value of the \texttt{text} argument is read as 
+a series of floating point number separated by white-spaces. Express the 
+gradient in atomic units \texttt{a.u.} (Hartree/Bohr), and use regualal 
+Cartesian coordinates (as opposed to e.g. mass-weighted coordinates).
 
 The VGA calculations do not allow for \texttt{excitation\_energy} node (its 
 value is also not available as the target state optimization is omitted), 
@@ -687,7 +697,7 @@ instead user has to use the analog \texttt{vertical\_excitation\_energy}
 node.
 
 \subsection{Warnings}
-\label{sec:vga:equations}
+\label{sec:vga:warnings}
 The VGA is an approximation to the parallel mode approximation, therefore it 
 inherits all limitations of the latter method. Additionally VGA relies on the 
 extrapolation of the target state geometry using harmonic potential.
@@ -728,7 +738,7 @@ is given by
     \vec{g}.
 \end{equation}
 where $\Omega$ is an $N \times N$ diagonal matrix of harmonic frequencies, $\vec{g}$ is the gradient
-of  the potential energy surface of the target state in Cartesian coordinates evaluated at the geometry of the ground state. The other symbols are explained in Sec.~\ref{sec:dhush:overview}. The adiabatic excitation energy (bottom to bottom) extrapolated by the vertical gradient method is given by
+of  the potential energy surface of the target state in Cartesian coordinates evaluated at the geometry of the ground state. The remaining symbols are explained in Sec.~\ref{sec:dhush:overview}. The adiabatic excitation energy (bottom to bottom) extrapolated by the vertical gradient method is given by
 \begin{equation}
     \label{eq:VG_energy}
     E _\text{ad} = E _\text{vert} - \frac{1}{2} \sum _{i = 1} ^N \omega _i ^2 d _i ^2,
