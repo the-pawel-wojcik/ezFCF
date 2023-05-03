@@ -1,4 +1,4 @@
-Job "../ezspectrum_code/ezFCF_linux.exe adenine.xml" has been started: Thu Mar  9 19:41:41 2023
+Job "../ezspectrum_code/ezFCF_linux.exe adenine.xml" has been started: Wed May  3 15:52:42 2023
 
 A copy of the "adenine.xml" input:
 --------------------------------------------------------------------------------
@@ -602,12 +602,14 @@ Excitation energy = 8.900000 eV
 New normal modes order was requested:
  11 0 1 3 2 10 6 5 9 4 8 7 12 13 14 17 15 16 19 18 21 20 22 23 24 25 26 28 27 30 29 31 32 33 34 35 36 37 38 
 New atoms order:
-0 6 7 8 9 10 11 12 13 14 4 5 2 3 1
+  0 6 7 8 9 10 11 12 13 14 4 5 2 3 1
 Normal modes reordered.
 Atoms reordered in both molecular geometry and normal modes.
 ===== Done reading states =====
 
-Coordinate axes were aligned with MOI principal axes; center mass was shifted to the origin.
+
+Coordinate axes were aligned with MOI principal axes.
+Center of mass was shifted to the origin.
 
 New molecular geometry:
    C     -0.5233      -0.0003      -0.1966 
@@ -630,9 +632,11 @@ MOI tensor:
    320.496518     0.000000     0.000000
      0.000000   532.636909     0.000000
      0.000000     0.000000   212.140862
-Coordinate axes were aligned with MOI principal axes; center mass was shifted to the origin.
-Also rotated by 0/2*pi, 0/2*pi, and 3/2*pi CCW around x, y, and z.
-The norm of the geometry difference from the initial state is 0.208636
+
+Coordinate axes were aligned with MOI principal axes.
+Center of mass was shifted to the origin.
+Molecule was rotated by 0/2*pi, 0/2*pi, and 3/2*pi CCW around x, y, and z.
+The norm of the geometry difference from the initial state is 0.209.
 
 New molecular geometry:
    C     -0.5478      -0.0000      -0.2011 
@@ -655,7 +659,8 @@ MOI tensor:
    324.801082     0.000000     0.000000
      0.000000   533.768319     0.000000
      0.000000     0.000000   208.967239
-Done with the transformations
+
+Transformations of the molecular orientation are complete.
 --------------------------------------------------------------------------------
 
 === Reading the parallel approximation job parameters ===
@@ -686,7 +691,7 @@ WARNING! The normal modes overlap matrix with the initial state
 
 ===== Target state #1 =====
 
-Difference (dQ) between the initial and the target state geometries.
+Difference (dQ) between the initial and the target state geometries
 Angstrom*sqrt(amu):
 
 normal mode  dQ in initial  dQ in target   frequency   frequency   comments
@@ -735,30 +740,30 @@ normal mode  dQ in initial  dQ in target   frequency   frequency   comments
 
 TARGET state normal coordinates (displacements dQ) will be used.
 
-Maximum number of vibrational excitations: 3 and 3
- in the initial and each target state, respectively.
+Maximum number of vibrational excitations:
+  3 (in the initial state),
+  3 (in each target state).
 
 Maximum number of combination bands = 131790400
    = 11480 (# of vibrational states in the initial electronic state)
-   * 11480 (# of vibrational states in the target electronic state)
+   * 11480 (# of vibrational states in the target electronic state).
 
 A set of initial vibrational states is being created...
-  energy threshold = 0.09 eV (1000.00 K)
-  54 vibrational states below the energy threshold
+  Energy threshold = 0.09 eV (1000.00 K).
+  54 vibrational states below the energy threshold.
 
 A set of target vibrational states is being created...
-  energy threshold = 0.25 eV (2016.37 cm-1)
-  1466 vibrational states below the energy threshold
+  Energy threshold = 0.25 eV (2016.37 cm-1).
+  1466 vibrational states below the energy threshold.
 
-Total number of combination bands with thresholds applied: 79164
+Total number of combination bands with thresholds applied: 79164.
 
-Intensities of combination bands are being calculated...
+Intensities of combination bands are being calculated...done.
 --------------------------------------------------------------------------------
            Stick photoelectron spectrum (parallel approximation)
 --------------------------------------------------------------------------------
-
-WARNING! The normal modes of one of the target states were reordered!
-         New order is used for the target state assignment.
+WARNING! Normal modes of at least one target states were reordered!
+         New order is used for TARGET STATE ASSIGNMENT.
 
 Energy,eV    Intensity     FC factor         E",K   Transition
 
@@ -1030,7 +1035,7 @@ Energy,eV    Intensity     FC factor         E",K   Transition
  9.1464      1.312091e-03  -3.622279e-02     0.000  0(0)->1(1v6,1v26)
 --------------------------------------------------------------------------------
 
-Stick spectrum was also saved in "adenine.xml.spectrum_parallel" file 
+Stick spectrum was also saved in "adenine.xml.spectrum_parallel" file.
 --------------------------------------------------------------------------------
 
 
@@ -1045,9 +1050,9 @@ Reading energy thresholds.
  Beginning computations with an inclusion of the Duschinsky effect.
 --------------------------------------------------------------------------------
 
-Determinant of the normal modes rotation matrix: |Det(S)| =  0.99924341
+Determinant of the normal modes rotation matrix: |Det(S)| =  0.9992.
 
-Number of normal modes active in this calculation: 39
+Number of normal modes active in this calculation: 39.
 
 Size of layers with exactly K' excitations in the target state (in bytes):
    layer K'=0: 8
@@ -1073,37 +1078,36 @@ Maximum number of combination bands = 131790400
    * 11480 (# of vibrational states in the target electronic state)
 
 A set of initial vibrational states is being created...
-  energy threshold = 0.09 eV (1000.00 K)
-  53 vibrational states below the energy threshold
+  Energy threshold = 0.09 eV (1000.00 K).
+  53 vibrational states below the energy threshold.
 
 A set of target vibrational states is being created...
-  energy threshold = 0.25 eV (2016.37 cm-1)
+  Energy threshold = 0.25 eV (2016.37 cm-1).
   1466 vibrational states below the energy threshold
 
 Total number of combination bands with thresholds applied: 77698
 
 Hot bands are being calculated...Done
 
-1109 hot bands were added to the spectrum
-Note: the Boltzmann distribution will be applied later
+1109 hot bands were added to the spectrum.
+Note: the Boltzmann distribution will be applied later.
 
 WARNING! The normal modes of the target state were reordered!
-         New order is used for the single transitions.
+         New order is used for SINGLE EXCITATIONS.
 
-The following single transitions were added to the spectrum:
-FCF=4.735618e-02 0(0)->0(4v0)
-FCF=5.363579e-02 0(0)->0(3v0,1v12)
-FCF=4.402473e-02 0(0)->0(2v0,2v12)
+List of single excitations added to the spectrum:
+FCF=4.735618e-02 0(0)->1(4v0)
+FCF=5.363579e-02 0(0)->1(3v0,1v12)
+FCF=4.402473e-02 0(0)->1(2v0,2v12)
 
-Updating the energies and applying the Boltzmann distribution...Done
-  921 hot bands were removed from the spectrum
+Scaling intensities by Boltzmann distribution and applying thresholds.
+  921 hot bands were removed from the spectrum.
 
 --------------------------------------------------------------------------------
         Stick photoelectron spectrum (with Dushinsky rotations) 
 --------------------------------------------------------------------------------
-
-WARNING! The normal modes of the target state were reordered!
-         New order is used for the target state assignment.
+WARNING! Normal modes of at least one target states were reordered!
+         New order is used for TARGET STATE ASSIGNMENT.
 
 Energy,eV    Intensity     FC factor         E",K   Transition
 
@@ -1395,9 +1399,9 @@ Energy,eV    Intensity     FC factor         E",K   Transition
  9.1475      1.022824e-03  -3.198162e-02     0.000  0(0)->1(1v0,1v10,1v12)
 --------------------------------------------------------------------------------
 
-Stick spectrum was also saved in "adenine.xml.spectrum_dushinsky" file 
+Stick spectrum was also saved in "adenine.xml.spectrum_dushinsky" file.
+--------------------------------------------------------------------------------
 
 
-
-Job "../ezspectrum_code/ezFCF_linux.exe adenine.xml" has finished: Thu Mar  9 19:41:41 2023
+Job "../ezspectrum_code/ezFCF_linux.exe adenine.xml" has finished: Wed May  3 15:52:42 2023
 

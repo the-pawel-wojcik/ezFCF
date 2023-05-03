@@ -1,4 +1,4 @@
-Job "../ezspectrum_code/ezFCF_linux.exe thymine.xml" has been started: Thu Mar  9 19:41:41 2023
+Job "../ezspectrum_code/ezFCF_linux.exe thymine.xml" has been started: Wed May  3 15:52:42 2023
 
 A copy of the "thymine.xml" input:
 --------------------------------------------------------------------------------
@@ -587,7 +587,9 @@ Node input
 Excitation energy = 8.910000 eV
 ===== Done reading states =====
 
-Coordinate axes were aligned with MOI principal axes; center mass was shifted to the origin.
+
+Coordinate axes were aligned with MOI principal axes.
+Center of mass was shifted to the origin.
 
 New molecular geometry:
    N     -0.0000       1.0150       0.6403 
@@ -610,9 +612,11 @@ MOI tensor:
    516.038328     0.000000     0.000000
      0.000000   361.003522     0.000000
      0.000000     0.000000   158.158876
-Coordinate axes were aligned with MOI principal axes; center mass was shifted to the origin.
-Also rotated by 2/2*pi, 2/2*pi, and 3/2*pi CCW around x, y, and z.
-The norm of the geometry difference from the initial state is 0.167773
+
+Coordinate axes were aligned with MOI principal axes.
+Center of mass was shifted to the origin.
+Molecule was rotated by 2/2*pi, 2/2*pi, and 3/2*pi CCW around x, y, and z.
+The norm of the geometry difference from the initial state is 0.168.
 
 New molecular geometry:
    N      0.0000       1.0593       0.6335 
@@ -635,7 +639,8 @@ MOI tensor:
    513.550478     0.000000     0.000000
      0.000000   356.023877     0.000000
      0.000000     0.000000   160.574861
-Done with the transformations
+
+Transformations of the molecular orientation are complete.
 --------------------------------------------------------------------------------
 
 
@@ -643,11 +648,11 @@ Done with the transformations
 
 Duschinsky calculations will work with the input target state number 1.
 
-The following normal modes will have no vibrational excitations:
-13 14 18 20 21 26 28 33 34 35 36 37 38 
-
-The following normal modes will be excited:
-0 1 2 3 4 5 6 7 8 9 10 11 12 15 16 17 19 22 23 24 25 27 29 30 31 32 
+Do not excite subspace in use.
+Normal modes kept at zero excitations:
+  13 14 18 20 21 26 28 33 34 35 36 37 38.
+Normal modes active in calculations:
+  0 1 2 3 4 5 6 7 8 9 10 11 12 15 16 17 19 22 23 24 25 27 29 30 31 32.
 
 Reading energy thresholds.
 
@@ -655,9 +660,9 @@ Reading energy thresholds.
  Beginning computations with an inclusion of the Duschinsky effect.
 --------------------------------------------------------------------------------
 
-Determinant of the normal modes rotation matrix: |Det(S)| =  0.99906009
+Determinant of the normal modes rotation matrix: |Det(S)| =  0.9991.
 
-Number of normal modes active in this calculation: 26
+Number of normal modes active in this calculation: 26.
 
 Size of layers with exactly K' excitations in the target state (in bytes):
    layer K'=0: 8
@@ -693,30 +698,28 @@ Maximum number of combination bands = 24834191760
    * 906192 (# of vibrational states in the target electronic state)
 
 A set of initial vibrational states is being created...
-  energy threshold = 0.09 eV (1000.00 K)
-  59 vibrational states below the energy threshold
+  Energy threshold = 0.09 eV (1000.00 K).
+  59 vibrational states below the energy threshold.
 
 A set of target vibrational states is being created...
-  energy threshold = 0.30 eV (2419.64 cm-1)
+  Energy threshold = 0.30 eV (2419.64 cm-1).
   25405 vibrational states below the energy threshold
 
 Total number of combination bands with thresholds applied: 1498895
 
 Hot bands are being calculated...Done
 
-3545 hot bands were added to the spectrum
-Note: the Boltzmann distribution will be applied later
+3545 hot bands were added to the spectrum.
+Note: the Boltzmann distribution will be applied later.
 
-
-Updating the energies and applying the Boltzmann distribution...Done
-  2185 hot bands were removed from the spectrum
+Scaling intensities by Boltzmann distribution and applying thresholds.
+  2185 hot bands were removed from the spectrum.
 
 --------------------------------------------------------------------------------
         Stick photoelectron spectrum (with Dushinsky rotations) 
 --------------------------------------------------------------------------------
-
-NOTE: only the following normal modes were excited ("excite subspace"):
-  0 1 2 3 4 5 6 7 8 9 10 11 12 15 16 17 19 22 23 24 25 27 29 30 31 32 
+NOTE: Do not excite subspace:
+      Full list of normal modes used in assigning transitions.
 
 Energy,eV    Intensity     FC factor         E",K   Transition
 
@@ -2191,10 +2194,9 @@ Energy,eV    Intensity     FC factor         E",K   Transition
  9.2091      1.447041e-03  -3.803999e-02     0.000  0(0)->1(2v8,1v23)
 --------------------------------------------------------------------------------
 
-Stick spectrum was also saved in "thymine.xml.spectrum_dushinsky" file 
- (Full list of the normal modes was used for assigning transitions)
+Stick spectrum was also saved in "thymine.xml.spectrum_dushinsky" file.
+--------------------------------------------------------------------------------
 
 
-
-Job "../ezspectrum_code/ezFCF_linux.exe thymine.xml" has finished: Thu Mar  9 19:42:02 2023
+Job "../ezspectrum_code/ezFCF_linux.exe thymine.xml" has finished: Wed May  3 15:53:06 2023
 

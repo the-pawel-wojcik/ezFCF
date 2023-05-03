@@ -1,4 +1,4 @@
-Job "../ezspectrum_code/ezFCF_linux.exe vg_phenolate.xml" has been started: Thu Mar  9 19:42:02 2023
+Job "../ezspectrum_code/ezFCF_linux.exe vg_phenolate.xml" has been started: Wed May  3 15:53:06 2023
 
 A copy of the "vg_phenolate.xml" input:
 --------------------------------------------------------------------------------
@@ -289,7 +289,9 @@ Target-state VGA geometry:
 Adiabatic excitation energy (within VGA) = 2.2534 eV 
 ===== Done reading states =====
 
-Coordinate axes were aligned with MOI principal axes; center mass was shifted to the origin.
+
+Coordinate axes were aligned with MOI principal axes.
+Center of mass was shifted to the origin.
 
 New molecular geometry:
    C     -1.2054       0.0000       0.2374 
@@ -309,9 +311,11 @@ MOI tensor:
    186.370450     0.000000     0.000000
      0.000000   273.863504     0.000000
      0.000000     0.000000    87.493053
-Coordinate axes were aligned with MOI principal axes; center mass was shifted to the origin.
-Also rotated by 2/2*pi, 2/2*pi, and 2/2*pi CCW around x, y, and z.
-The norm of the geometry difference from the initial state is 0.111811
+
+Coordinate axes were aligned with MOI principal axes.
+Center of mass was shifted to the origin.
+Molecule was rotated by 2/2*pi, 2/2*pi, and 2/2*pi CCW around x, y, and z.
+The norm of the geometry difference from the initial state is 0.112.
 
 New molecular geometry:
    C     -1.2348       0.0000       0.2410 
@@ -331,7 +335,8 @@ MOI tensor:
    179.393185     0.000000     0.000000
      0.000000   270.208982     0.000000
      0.000000     0.000000    90.815797
-Done with the transformations
+
+Transformations of the molecular orientation are complete.
 --------------------------------------------------------------------------------
 
 === Reading the parallel approximation job parameters ===
@@ -345,7 +350,7 @@ The normal modes overlap matrix with the initial state is diagonal.
 
 ===== Target state #1 =====
 
-Difference (dQ) between the initial and the target state geometries.
+Difference (dQ) between the initial and the target state geometries
 Angstrom*sqrt(amu):
 
 normal mode  dQ in initial  dQ in target   frequency   frequency   comments
@@ -385,24 +390,25 @@ normal mode  dQ in initial  dQ in target   frequency   frequency   comments
 
 TARGET state normal coordinates (displacements dQ) will be used.
 
-Maximum number of vibrational excitations: 1 and 4
- in the initial and each target state, respectively.
+Maximum number of vibrational excitations:
+  1 (in the initial state),
+  4 (in each target state).
 
 Maximum number of combination bands = 1437656
    = 31 (# of vibrational states in the initial electronic state)
-   * 46376 (# of vibrational states in the target electronic state)
+   * 46376 (# of vibrational states in the target electronic state).
 
 A set of initial vibrational states is being created...
-  energy threshold is not specified in the input
-  31 vibrational states below the energy threshold
+  Energy threshold is not specified in the input.
+  31 vibrational states below the energy threshold.
 
 A set of target vibrational states is being created...
-  energy threshold is not specified in the input
-  46376 vibrational states below the energy threshold
+  Energy threshold is not specified in the input.
+  46376 vibrational states below the energy threshold.
 
-Total number of combination bands with thresholds applied: 1437656
+Total number of combination bands with thresholds applied: 1437656.
 
-Intensities of combination bands are being calculated...
+Intensities of combination bands are being calculated...done.
 --------------------------------------------------------------------------------
            Stick photoelectron spectrum (parallel approximation)
 --------------------------------------------------------------------------------
@@ -487,9 +493,9 @@ Energy,eV    Intensity     FC factor         E",K   Transition
  2.5341      2.255430e-03  -4.749137e-02     0.000  0(0)->1(2v4,1v17)
 --------------------------------------------------------------------------------
 
-Stick spectrum was also saved in "vg_phenolate.xml.spectrum_parallel" file 
+Stick spectrum was also saved in "vg_phenolate.xml.spectrum_parallel" file.
 --------------------------------------------------------------------------------
 
 
-Job "../ezspectrum_code/ezFCF_linux.exe vg_phenolate.xml" has finished: Thu Mar  9 19:42:02 2023
+Job "../ezspectrum_code/ezFCF_linux.exe vg_phenolate.xml" has finished: Wed May  3 15:53:06 2023
 

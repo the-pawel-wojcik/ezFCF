@@ -1,4 +1,4 @@
-Job "../ezspectrum_code/ezFCF_linux.exe the_only_initial_state.xml" has been started: Thu Mar  9 19:41:41 2023
+Job "../ezspectrum_code/ezFCF_linux.exe the_only_initial_state.xml" has been started: Wed May  3 15:52:42 2023
 
 A copy of the "the_only_initial_state.xml" input:
 --------------------------------------------------------------------------------
@@ -147,7 +147,9 @@ New normal modes order was requested:
 Normal modes reordered.
 ===== Done reading states =====
 
-Coordinate axes were aligned with MOI principal axes; center mass was shifted to the origin.
+
+Coordinate axes were aligned with MOI principal axes.
+Center of mass was shifted to the origin.
 
 New molecular geometry:
    C      0.0000      -0.0000      -0.6068 
@@ -159,9 +161,11 @@ MOI tensor:
     14.731157     0.000000     0.000000
      0.000000    13.024798     0.000000
      0.000000     0.000000     1.706359
-Coordinate axes were aligned with MOI principal axes; center mass was shifted to the origin.
-Also rotated by 0/2*pi, 2/2*pi, and 3/2*pi CCW around x, y, and z.
-The norm of the geometry difference from the initial state is 0.072368
+
+Coordinate axes were aligned with MOI principal axes.
+Center of mass was shifted to the origin.
+Molecule was rotated by 0/2*pi, 2/2*pi, and 3/2*pi CCW around x, y, and z.
+The norm of the geometry difference from the initial state is 0.072.
 
 New molecular geometry:
    C      0.0000       0.0000      -0.6244 
@@ -173,7 +177,8 @@ MOI tensor:
     15.116307     0.000000     0.000000
      0.000000    13.283623     0.000000
      0.000000     0.000000     1.832684
-Done with the transformations
+
+Transformations of the molecular orientation are complete.
 --------------------------------------------------------------------------------
 
 === Reading the parallel approximation job parameters ===
@@ -189,7 +194,7 @@ The normal modes overlap matrix with the initial state is diagonal.
 
 ===== Target state #1 =====
 
-Difference (dQ) between the initial and the target state geometries.
+Difference (dQ) between the initial and the target state geometries
 Angstrom*sqrt(amu):
 
 normal mode  dQ in initial  dQ in target   frequency   frequency   comments
@@ -205,33 +210,33 @@ normal mode  dQ in initial  dQ in target   frequency   frequency   comments
 
 TARGET state normal coordinates (displacements dQ) will be used.
 
-Maximum number of vibrational excitations: 3 and 4
- in the initial and each target state, respectively.
+Maximum number of vibrational excitations:
+  3 (in the initial state),
+  4 (in each target state).
 
 Maximum number of combination bands = 210
    = 1 (# of vibrational states in the initial electronic state)
-   * 210 (# of vibrational states in the target electronic state)
+   * 210 (# of vibrational states in the target electronic state).
 
 A set of initial vibrational states is being created...
-  energy threshold = 0.69 eV (8000.00 K)
-  44 vibrational states below the energy threshold
+  Energy threshold = 0.69 eV (8000.00 K).
+  44 vibrational states below the energy threshold.
 
 A set of target vibrational states is being created...
-  energy threshold = 1.20 eV (9678.57 cm-1)
-  183 vibrational states below the energy threshold
+  Energy threshold = 1.20 eV (9678.57 cm-1).
+  183 vibrational states below the energy threshold.
 
  The only initial state active:
     The initial state contains only ONE vibrational state.
 
-Total number of combination bands with thresholds applied: 183
+Total number of combination bands with thresholds applied: 183.
 
-Intensities of combination bands are being calculated...
+Intensities of combination bands are being calculated...done.
 --------------------------------------------------------------------------------
            Stick photoelectron spectrum (parallel approximation)
 --------------------------------------------------------------------------------
-
-WARNING! The normal modes of one of the target states were reordered!
-         New order is used for the target state assignment.
+WARNING! Normal modes of at least one target states were reordered!
+         New order is used for TARGET STATE ASSIGNMENT.
 
 Energy,eV    Intensity     FC factor         E",K   Transition
 
@@ -239,7 +244,7 @@ Energy,eV    Intensity     FC factor         E",K   Transition
 11.0136      1.243181e-04  -4.304617e-01  4384.124  0(1v1,1v2)->1(1v1,1v2,1v3)
 --------------------------------------------------------------------------------
 
-Stick spectrum was also saved in "the_only_initial_state.xml.spectrum_parallel" file 
+Stick spectrum was also saved in "the_only_initial_state.xml.spectrum_parallel" file.
 --------------------------------------------------------------------------------
 
 
@@ -254,9 +259,9 @@ Reading energy thresholds.
  Beginning computations with an inclusion of the Duschinsky effect.
 --------------------------------------------------------------------------------
 
-Determinant of the normal modes rotation matrix: |Det(S)| =  0.99951975
+Determinant of the normal modes rotation matrix: |Det(S)| =  0.9995.
 
-Number of normal modes active in this calculation: 6
+Number of normal modes active in this calculation: 6.
 
 Size of layers with exactly K' excitations in the target state (in bytes):
    layer K'=0: 8
@@ -269,49 +274,14 @@ otherwise use "max_vibr_to_store" tag to limit the memory use.
 You also can reduce "max_vibr_excitations_in_target_el_state" value,
 and/or use "single_excitation" elements to add higher excitations.
 
-Layer K'=1 is being evaluated (will be saved in memory)... Done
-3 points above the intensity threhold were added to the spectrum
-
-Layer K'=2 is being evaluated (will be saved in memory)... Done
-7 points above the intensity threhold were added to the spectrum
-
-Layer K'=3 is being evaluated (will be saved in memory)... Done
-3 points above the intensity threhold were added to the spectrum
-
-Layer K'=4 is being evaluated (will be saved in memory)... Done
-No points above the intensity threhold were found in this layer
-
-Maximum number of combination bands = 17640
-   = 84 (# of vibrational states in the initial electronic state)
-   * 210 (# of vibrational states in the target electronic state)
-
-A set of initial vibrational states is being created...
-  energy threshold = 0.69 eV (8000.00 K)
-  43 vibrational states below the energy threshold
-
-A set of target vibrational states is being created...
-  energy threshold = 1.20 eV (9678.57 cm-1)
-  183 vibrational states below the energy threshold
-
-Total number of combination bands with thresholds applied: 7869
-
-Hot bands are being calculated...Done
-
-665 hot bands were added to the spectrum
-Note: the Boltzmann distribution will be applied later
-
-Clearing the spectrum is ready
-The initial state is ready.
-
-Updating the energies and applying the Boltzmann distribution...Done
-  640 hot bands were removed from the spectrum
+Scaling intensities by Boltzmann distribution and applying thresholds.
+  16 hot bands were removed from the spectrum.
 
 --------------------------------------------------------------------------------
         Stick photoelectron spectrum (with Dushinsky rotations) 
 --------------------------------------------------------------------------------
-
-WARNING! The normal modes of the target state were reordered!
-         New order is used for the target state assignment.
+WARNING! Normal modes of at least one target states were reordered!
+         New order is used for TARGET STATE ASSIGNMENT.
 
 Energy,eV    Intensity     FC factor         E",K   Transition
 
@@ -319,9 +289,9 @@ Energy,eV    Intensity     FC factor         E",K   Transition
 11.0136      1.270068e-04  -4.350918e-01  4384.124  0(1v1,1v2)->1(1v1,1v2,1v3)
 --------------------------------------------------------------------------------
 
-Stick spectrum was also saved in "the_only_initial_state.xml.spectrum_dushinsky" file 
+Stick spectrum was also saved in "the_only_initial_state.xml.spectrum_dushinsky" file.
+--------------------------------------------------------------------------------
 
 
-
-Job "../ezspectrum_code/ezFCF_linux.exe the_only_initial_state.xml" has finished: Thu Mar  9 19:41:41 2023
+Job "../ezspectrum_code/ezFCF_linux.exe the_only_initial_state.xml" has finished: Wed May  3 15:52:42 2023
 
