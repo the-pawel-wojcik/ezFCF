@@ -5,7 +5,7 @@
 
 int main(int argc, char *argv[]) {
 
-  if ((argc - 1) < 1) {
+  if (argc != 2) {
     std::cerr << argv[0]
               << ": one and only one argument required, <Job.xml>.\n";
     exit(1);
@@ -22,15 +22,6 @@ int main(int argc, char *argv[]) {
   }
   xml_node node_input("input", xml_file);
 
-  bool if_web_version = node_input.read_flag_value("if_web_version");
-  if (not(if_web_version)) {
-    std::cout << "A copy of the \"" << argv[1] << "\" input:\n";
-    std::cout << HorizontalLine << "\n";
-    node_input.print(std::cout);
-    std::cout << HorizontalLine << "\n\n";
-  }
-
-  std::string job = node_input.read_string_value("job");
 
   std::ifstream xml_amu_file(ATOMIC_MASSES_FILE);
   if (!xml_amu_file.is_open()) {
@@ -41,6 +32,7 @@ int main(int argc, char *argv[]) {
   xml_node node_amu_table("masses", xml_amu_file);
 
   bool done = false;
+  std::string job = node_input.read_string_value("job");
   if (job == "harmonic_pes")
     done = harmonic_pes_main(arg, node_input, node_amu_table);
 

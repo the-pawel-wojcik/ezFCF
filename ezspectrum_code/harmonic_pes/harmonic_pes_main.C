@@ -126,8 +126,6 @@ bool harmonic_pes_main(const std::string InputFileName, xml_node &node_input,
   // Read initial state and N target states; i.e. (N+1) electronic states total
   std::vector<MolState> elStates;
 
-  // TODO: separate Reading from processing
-  // TODO: Read what's recomended depending on if VG requested or not
   std::cout << "\n====== Reading the initial state ======\n";
   xml_node node_istate(node_input, "initial_state", 0);
   MolState elSt;

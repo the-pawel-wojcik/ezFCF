@@ -1,11 +1,10 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import sys
 import re 
 import math as m
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
-from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 
 COLORS = [color for color in mcolors.TABLEAU_COLORS.keys()]
 FONTSIZE = 12
