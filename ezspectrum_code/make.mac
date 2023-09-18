@@ -2,8 +2,13 @@ CC=gcc-6
 
 CCFLAGS = -O3 --std=c++11
 
+# If armadillo is installed to a non-default directory, uncomment the and adjust 
+# the following lines
+# LIB_ARMADILLO = -L/home/user/armadillo/lib
+# INCLUDE_ARMADILLO = -I/home/user/armadillo/include 
+
 LSTD = -lstdc++
-LARMA=-L/usr/local/lib/ -larmadillo
+LARMA=-L/usr/local/lib/ $(LIB_ARMADILLO) -larmadillo
 LDFLAGS =  $(LSTD) $(LARMA) -lm 
 
 CODE = ezFCF_mac.exe
@@ -22,7 +27,7 @@ INC = -I /usr/local/include/
 INCLUDES_COMMON = -I molecular_prop/ -I basic_methods/ 
 INCLUDES_HARMONIC_PES = -I harmonic_pes/
 
-INCLUDES = $(INC) $(INCLUDES_COMMON) $(INCLUDES_HARMONIC_PES)  
+INCLUDES = $(INC) $(INCLUDE_ARMADILLO) $(INCLUDES_COMMON) $(INCLUDES_HARMONIC_PES)  
 
 CXXBINOBJ = $(CXX_SRC:%.C=%.o)
 
