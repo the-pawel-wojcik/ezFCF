@@ -12,7 +12,22 @@
 
 To compile type "make -f makefile" (e.g., make.mac) 
 
-Compilation requires LAPACK, BLAS, and Armadillo.
+ezFCF uses Armadillo which, in turn, has the optionally dependencies: OpenBLAS, 
+LAPACK, ARPACK, and SuperLU.
+
+It's recommended to install these dependecines using the system package 
+manager, for example
+apt install libopenblas-openmp-dev libarmadillo-dev
+
+If you decide to install armadillo manually and in a non-default location (i.e.
+not in /usr/), make sure to adjust the include, -I, and library, -L, locations 
+in the makefile.
+
+If you use ezFCF on a compute cluster you should be able to load most of the 
+optional dependecines as modules. After you load this modules, make sure that 
+the corresponding include, and library directories are visible to the compiler 
+and linker, as they might not be added by default to the CPATH, LIBRARY_PATH, 
+and LD_LIBRARY_PATH.
 
 ----------------------------------------------------------------------
 The structure of the code:
@@ -53,9 +68,6 @@ molecular_prop/spectrum.h
       molecular_prop/spectralpoint.h
         --> VibronicState -- vibronic state
 	    molecular_prop/vibronic_state.h
-
-KMatrix -- matrix math & LAPACK wrapers
-matrix_math/kmatrix.h
 
 ----------------------------------------------------------------------
 Additional funcions (see comments in each file):
