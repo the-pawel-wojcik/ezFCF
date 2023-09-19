@@ -22,6 +22,10 @@ int main(int argc, char *argv[]) {
   }
   xml_node node_input("input", xml_file);
 
+  std::cout << "A copy of the \"" << argv[1] << "\" input:\n";
+  std::cout << HorizontalLine << std::endl;
+  node_input.print(std::cout);
+  std::cout << HorizontalLine << std::endl << std::endl;
 
   std::ifstream xml_amu_file(ATOMIC_MASSES_FILE);
   if (!xml_amu_file.is_open()) {
