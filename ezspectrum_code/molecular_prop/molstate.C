@@ -367,7 +367,7 @@ arma::Col<double> MolState::get_geometry_as_col() {
 
 void MolState::printNormalModes() {
   // print in qchem format (3 per line)
-  int nModesPerLine = 3; // three number of vib. modes per Line
+  const int nModesPerLine = 3; // three number of vib. modes per Line
   int nLines = NNormModes() / nModesPerLine;
   if (NNormModes() % nModesPerLine != 0)
     nLines++;
@@ -581,7 +581,7 @@ void MolState::Read_normal_modes(xml_node &node_state) {
   My_istringstream nmodes_iStr(node_nmodes.read_string_value("text"));
 
   // number of normal modes per Line in the xml input
-  int nModesPerLine = 3;
+  const int nModesPerLine = 3;
   int nLines;
   nLines = n_molecular_nm / nModesPerLine;
   if (n_molecular_nm % nModesPerLine != 0)
