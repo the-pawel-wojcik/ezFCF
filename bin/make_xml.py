@@ -7,7 +7,7 @@ Script supports the following ab initio outputs:
 
 Q-Chem
 ACES II (versions 0.3 [old] and 2.5.0 [new])
-Cfour (should be handled by new ACES II)
+CFOUR
 Molpro
 GAMESS (linear molecules are not supported)
 ORCA
@@ -261,6 +261,98 @@ def parse_aces_new(StateF, data: dict):
 
 # END ACES_NEW
 # ================================================================================
+
+
+def parse_cfour(cfour, data: dict):
+    """ Very raw parser of CFOUR's output.
+    If things go wrong, things go wrong.
+    """
+
+    data['geometry_units'] = 'au'
+    geo_start = 'Coordinates used in calculation (QCOMP)'
+
+    # Parse CFOUR's geometry
+    while True:
+        line = cfour.readline()
+
+        if not line.strip().startswith(geo_start):
+            continue
+
+        # Skip through the decoration
+        for _ in range(4):
+            cfour.readline()
+
+        # Get ready
+        geo_end = '-' * 64
+        geometry = []
+
+        # Collect geometry data
+        while True:
+            line = cfour.readline()
+            if line.strip() == geo_end:
+                break
+            splitline = line.split()
+
+            # Skip dummy and ghost atoms
+            if splitline[0] == "X" or splitline[0] == "GH":
+                continue
+
+            geometry += [[
+                splitline[0],
+                float(splitline[2]),
+                float(splitline[3]),
+                float(splitline[4]),
+            ]]
+
+        # Save collected data
+        data['NAtoms'] = len(geometry)
+        atoms_list = [geo_line[0] for geo_line in geometry]
+        data['atoms_list'] = " ".join(atoms_list)
+        for geo_line in geometry:
+            data['Geometry'] += f"\n     {geo_line[0]:2}"
+            for xyz in geo_line[1:]:
+                data['Geometry'] += f" {xyz:-10.6f} "
+        data['Geometry'] = data['Geometry'][1:]  # remove the leading "\n"
+
+        # Say bye
+        break
+
+    # Parse CFOUR's normal modes
+    freq_start = 'Normal Coordinates'
+    freq_end = '-' * 74
+    while True:
+        line = cfour.readline()
+
+        if not (line.strip() == freq_start):
+            continue
+
+        # Loop over the normal coordinates blocks
+        # Each block prints up to three modes
+        while True:
+            line = cfour.readline()
+            # If it is a blank line -- the modes are comming
+            # it it is a line of dashes -- this is the end of listing
+            if line.strip() == freq_end:
+                break
+            cfour.readline()  # skip line with symmetries of the modes
+            data['Frequencies'] += cfour.readline()
+            cfour.readline()  # skip line with mode type names
+            data['NormalModes'] += "\n\n"
+            for _ in range(data['NAtoms']):
+                line = cfour.readline()
+                # skip the atom symbol
+                # CFOUR's output leaves no space for a minus sign -- dumb
+                data["NormalModes"] += " ".join([line[3:13], line[13:]])
+
+        break
+
+    nfreqs = len(data['Frequencies'].split())
+    data["NormalModes"] = data["NormalModes"][2:]  # remove the leading \n\n
+    if nfreqs == (3 * data['NAtoms'] - 5):
+        data['ifLinear'] = True
+
+    # IDK -- I just took it from ACES
+    data['if_normal_modes_weighted'] = False
 
 
 def parse_molpro_old(StateF, data: dict):
@@ -998,6 +1090,7 @@ def read_state(FileName, data: dict, run_type: str):
     file_type_detected = False
     StateF = open(FileName, 'r')
     Line = StateF.readline()
+    c4_welcome = 'CFOUR Coupled-Cluster techniques for Computational Chemistry'
     while Line:
         if Line.find('Welcome to Q-Chem') >= 0:
             file_type_detected = True
@@ -1012,6 +1105,11 @@ def read_state(FileName, data: dict, run_type: str):
         if Line.find('* ACES :') >= 0:
             file_type_detected = True
             parse_aces_new(StateF, data)
+            break
+
+        if Line.find(c4_welcome) >= 0:
+            file_type_detected = True
+            parse_cfour(StateF, data)
             break
 
         if Line.find('PROGRAM SYSTEM MOLPRO') >= 0:
