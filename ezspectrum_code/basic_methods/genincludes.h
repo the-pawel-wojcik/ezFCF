@@ -32,5 +32,6 @@
 #include <armadillo>
 
 const std::string ATOMIC_MASSES_FILE("atomicMasses.xml");
+const std::string GLOBAL_ATOMIC_MASSES_FILE("/usr/local/share/ezFCF/atomicMasses.xml");
 
 #endif
