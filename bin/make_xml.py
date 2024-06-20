@@ -297,8 +297,10 @@ def parse_cfour(cfour, data: dict):
             if splitline[0] == "X" or splitline[0] == "GH":
                 continue
 
+            atomic_symbol = splitline[0]
+            atomic_symbol = atomic_symbol[0] + atomic_symbol[1:].lower()
             geometry += [[
-                splitline[0],
+                atomic_symbol,
                 float(splitline[2]),
                 float(splitline[3]),
                 float(splitline[4]),
