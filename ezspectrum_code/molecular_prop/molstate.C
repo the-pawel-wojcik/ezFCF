@@ -9,6 +9,7 @@
   \ingroup DATA_CLASSES
   */
 
+double NORMAL_MODE_NORM_THRESHOLD = 1e-2;
 //------------------------------
 // align each state:
 // 1. center of mass in the coordinates origin
@@ -979,6 +980,33 @@ void MolState::test_for_small_frequencies_in_VGA() {
   }
 }
 
+void MolState::test_if_mass_weighted() {
+  bool mass_weighted = false;
+  /* std::cout << "Norms of the normal modes: " << std::endl; */
+  for (int nm = 0; nm < NNormModes(); nm++)
+  {
+    double mode_norm = 0.0;
+    for (int a = 0; a < NAtoms(); a++) {
+      for (int i = 0; i < CARTDIM; i++){
+        double displacement = getNormMode(nm).getDisplacement()(a * CARTDIM + i);
+        mode_norm += displacement * displacement;
+      }
+    }
+    /* std::cout << "Mode #" << nm << ": " << mode_norm << "\n"; */
+    if (fabs(mode_norm - 1) > NORMAL_MODE_NORM_THRESHOLD){
+      mass_weighted = true;
+      break;
+    }
+  }
+
+  if (ifInputNMmassweighted != mass_weighted) {
+    std::cout << "Error in checking if normal modes are mass weighted.\n"
+      << "Input says if_mass_weighted = " << ifInputNMmassweighted << "\n"
+      << "Norms of the normal modes say = " << mass_weighted << "\n"
+      << "Please check the input.\n.";
+  }
+}
+
 /* Copies the bare minimum of data from the initial state for the VG
  * calculations. */
 void MolState::copy_data_from_the_initial_state(const MolState &is) {
@@ -1208,6 +1236,7 @@ void MolState::ApplyKeyWords(xml_node &node_amu_table,
                              MolState &initial_state) {
 
   if (!IfGradientAvailable) {
+    test_if_mass_weighted();
     convert_atomic_names_to_masses(node_amu_table);
 
     if (ifInputNMmassweighted) {
