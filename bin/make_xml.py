@@ -1221,6 +1221,11 @@ def write_state_xml_file(xmlF, data: dict, which_state: str, run_type: str):
             xmlF.write(f'     new_order="{normal_modes}">\n')
             xmlF.write('  </manual_normal_modes_reordering>\n\n')
 
+    xmlF.write('''  <OPT_manual_coordinates_transformation
+    shift_along_x="0" shift_along_y="0" shift_along_z="0"
+    rotate_around_x="0" rotate_around_y="0" rotate_around_z="0">
+  </OPT_manual_coordinates_transformation>\n\n''')
+
     xmlF.write('  <frequencies\n')
     xmlF.write('    text = "\n')
     frequencies = data['Frequencies']
