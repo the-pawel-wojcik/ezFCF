@@ -1,7 +1,7 @@
+#include "aik_xml_parser.h"
 #include "genincludes.h"
 #include "genutil.h"
 #include "harmonic_pes_main.h"
-#include "aik_xml_parser.h"
 #include <fstream>
 
 int main(int argc, char *argv[]) {
@@ -28,28 +28,8 @@ int main(int argc, char *argv[]) {
   node_input.print(std::cout);
   std::cout << HorizontalLine << std::endl << std::endl;
 
-  std::ifstream xml_amu_file(ATOMIC_MASSES_FILE);
-  if (!xml_amu_file.is_open()) {
-    std::cout << "Atomic masses file " << ATOMIC_MASSES_FILE
-              << " is not found in the current directory." 
-              << "\nAttempting to use the global file:\n\t"
-              << GLOBAL_ATOMIC_MASSES_FILE << std::endl;
-    xml_amu_file = std::ifstream(GLOBAL_ATOMIC_MASSES_FILE);
-    if (!xml_amu_file.is_open()) {
-      std::cout << "Global version of the atomic masses file\n\n" 
-                << ATOMIC_MASSES_FILE
-                << "\n is also not found." << std::endl;
-      exit(1);
-    }
-    else {
-      std::cout << "Using the global version of the atomic masses file:\n\t"
-        << GLOBAL_ATOMIC_MASSES_FILE << std::endl;
-    }
-  }
-  else {
-    std::cout << "Using the local version of the atomic masses file:\n\t"
-      << ATOMIC_MASSES_FILE << std::endl;
-  }
+  std::ifstream xml_amu_file;
+  get_atomic_masses_file(xml_amu_file);
   xml_node node_amu_table("masses", xml_amu_file);
 
   bool done = false;

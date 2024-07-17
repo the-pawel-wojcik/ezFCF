@@ -8,10 +8,11 @@
 
 #include "genincludes.h"
 #include <time.h>
+#include <fstream>
 
 // A line for separating sections of the output
 const std::string HorizontalLine(80, '-');
-
+void get_atomic_masses_file(std::ifstream & xml_amu_file);
 double Boltzmann_factor(double temperature, double energy);
 
 //! Error handling (print msg, exit(1))

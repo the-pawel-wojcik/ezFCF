@@ -6,6 +6,51 @@
 #include "constants.h"
 #include "genincludes.h"
 
+void get_atomic_masses_file(std::ifstream & xml_amu_file) {
+
+  xml_amu_file.open(ATOMIC_MASSES_FILE);
+  if (xml_amu_file.is_open()) {
+    std::cout << "Using the local version of the atomic masses file:\n\t"
+              << ATOMIC_MASSES_FILE << std::endl;
+    return;
+  }
+
+  std::cout << "Atomic masses file " << ATOMIC_MASSES_FILE
+    << " not found in the current directory.\n";
+
+  // See if enviroment points to the data directory
+  std::string data_path;
+  char *val = getenv(ENVIRONMENT_VAR_NAME.c_str());
+  if (val == NULL) {
+    std::cout << "ezFCF's environmental variable \"" << ENVIRONMENT_VAR_NAME
+      << "\" is not set.\n";
+    data_path = GLOBAL_DATA_PATH;
+  } else {
+    std::cout << "ezFCF's root directory was set using the \""
+      << ENVIRONMENT_VAR_NAME << "\" environmental variable.\n";
+    data_path = std::string(val) + std::string("/share/ezFCF");
+  }
+  std::cout << "Looking for the atomic masses file in:\n\t" << data_path
+    << "\n";
+
+  const std::string atomic_masses_file =
+    data_path + std::string("/") + ATOMIC_MASSES_FILE;
+  xml_amu_file = std::ifstream(atomic_masses_file);
+  if (xml_amu_file.is_open()) {
+    std::cout << "Using the following atomic masses file:\n\t"
+      << atomic_masses_file << std::endl;
+    return;
+  }
+
+  std::cout
+    << "Cannot open the atomic masses file\n\t" 
+    << atomic_masses_file
+    << "\nError: Make sure that the atomic masses file exists and is readable." 
+    << std::endl;
+  exit(1);
+}
+
+
 double Boltzmann_factor(double temperature, double energy) {
   if (temperature == 0 and energy == 0)
     return 1.0; // intensity unchanged
