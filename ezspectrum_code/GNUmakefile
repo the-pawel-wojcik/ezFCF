@@ -13,25 +13,21 @@ INCLUDES = $(INCLUDES_ARMADILLO)
 
 CXX = g++
 CC = gcc
-CXXFLAGS = -O3 --std=c++11
-# CXXFLAGS = --std=c++11 -g
+CXXFLAGS = -O3 --std=c++20
+# CXXFLAGS = --std=c++20 -g
 CPPFLAGS = $(INCLUDES)
 
-mol_prop = molstate atom normalmode vibronic_state spectrum spectralpoint
-mol_prop_obj = $(patsubst %,molecular_prop/%.o,$(mol_prop))
+mol_prop_src = $(wildcard molecular_prop/*.C)
+mol_prop_obj = $(patsubst %.C,%.o,$(mol_prop_src))
 
-basic_methods = genutil mathutil aik_xml_parser conversions vib_state_parser
-basic_methods_obj = $(patsubst %,basic_methods/%.o,$(basic_methods))
+basic_methods_src = $(wildcard basic_methods/*.C)
+basic_methods_obj = $(basic_methods_src:.C=.o)
 
-harmonic_pes = franck_condon harmonic_pes_main parallel_approximation
-harmonic_pes += vibrational_indexing dushinsky do_not_excite_subspace
-harmonic_pes += the_only_initial_state job_parameters
-harmonic_pes += dushinsky_parameters energy_thresholds
-harmonic_pes += single_excitations
-harmonic_pes_obj = $(patsubst %,harmonic_pes/%.o,$(harmonic_pes))
+harmonic_pes_src =$(wildcard harmonic_pes/*.C)
+harmonic_pes_obj =$(harmonic_pes_src:.C=.o)
 
-objects = main.o $(mol_prop_obj) $(basic_methods_obj) $(harmonic_pes_obj)
-sources = $(objects:.o=.c)
+sources = main.C $(mol_prop_src) $(basic_methods_src) $(harmonic_pes_src)
+objects = $(sources:.C=.o)
 
 INCLUDES += $(addprefix -I ,molecular_prop basic_methods harmonic_pes)
 
@@ -44,13 +40,13 @@ all: $(PROGRAM)
 $(PROGRAM): $(objects)
 	$(CXX) $^ $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS) $(LDLIBS) -o $(PROGRAM)
 
-# # Add headers as prerequisites
-# %.d: %.C
-# 	set -e; rm -f $@; \
-# 	 $(CXX) -MM $(CPPFLAGS) $(INCLUDES) $< > $@.$$$$; \
-# 	 sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; \
-# 	 rm -f $@.$$$$
-# include $(objects:.o=.d)
+# Add headers as prerequisites
+%.d: %.C
+	set -e; rm -f $@; \
+	 $(CXX) -MM $(CPPFLAGS) $(INCLUDES) $< > $@.$$$$; \
+	 sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; \
+	 rm -f $@.$$$$
+include $(objects:.o=.d)
 
 # Common prefixes for installation directories.
 # Allows the user a modification of the default install paths, e.g.,
