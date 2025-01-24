@@ -1284,9 +1284,7 @@ def main():
     out_file.write('</initial_state>\n\n')
     out_file.write(STATES_DELIMITER)
 
-    state_n = 0
-    for targetStateFileName in ai_filenames[1:]:
-        state_n += 1
+    for state_n, targetStateFileName in enumerate(ai_filenames[1:], start=1):
         out_file.write('<target_state>\n\n')
         out_file.write(
             '  <excitation_energy units="eV">'
