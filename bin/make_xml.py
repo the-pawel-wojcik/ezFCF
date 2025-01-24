@@ -22,6 +22,7 @@ Default job parameters and energy difference between the electronic
 states (IP, EA, etc) should be adjusted as necessary in the created XML file.
 """
 
+import argparse
 import sys
 
 DEFAULT_JOB_PARAMETERS = """<input
@@ -549,10 +550,11 @@ def parse_molpro_new(StateF, data: dict):
     # =========================================================================
 
 
-def parse_gamess(StateF, data: dict, run_type):
+def parse_gamess(StateF, data: dict):
     """ Parser of a GAMESS output. (Note: linear molecules are not supported) """
-    if run_type != "web":
-        print("\nWarning! All geometries from GAMESS' outputs treated as non-linear.")
+    print(
+        "\nWarning! All geometries from GAMESS' outputs treated as non-linear."
+    )
 
     data['ifLinear'] = False
     if_geometry_is_loaded = False
@@ -708,15 +710,17 @@ def parse_orca(StateF, data: dict):
     # =========================================================================
 
 
-def parse_orca_new(StateF, data: dict, run_type):
+def parse_orca_new(StateF, data: dict):
     """ Parser of an ORCA output.
     On Sep 8th 2021 users reported that optput of Orca 4.2.0
     is not recognized by the script. This is a version of
     'parse_orca' function edited to match the new output format.
     """
 
-    if run_type != "web":
-        print("\nWarning! All geometries from ORCA's outputs treated as non-linear (excpet for diatomics).")
+    print(
+        "\nWarning! All geometries from ORCA's outputs treated as non-linear"
+        " (excpet for diatomics)."
+    )
 
 
     line = StateF.readline()
@@ -887,14 +891,15 @@ def parse_orca_new(StateF, data: dict, run_type):
     # =========================================================================
 
 
-def parse_NWChem(StateF, data: dict, run_type: str):
+def parse_NWChem(StateF, data: dict):
     """ Parser of an NWChem 6.8 output. """
     # TODO: confirm with the NWChem manual the units
     # TODO: add recomendations for when to use the 'Projected' version
     # TODO: add detection of linear molecules
 
-    if run_type != "web":
-        print("\nWarning! All geometries from NWChem outputs treated as non-linear.")
+    print(
+        "\nWarning! All geometries from NWChem outputs treated as non-linear."
+    )
 
     geometry_header = 'Atom information'
     nmodes_header = 'NORMAL MODE EIGENVECTORS IN CARTESIAN COORDINATES'
@@ -1085,7 +1090,7 @@ def parse_other(StateF, data: dict):
     # =========================================================================
 
 
-def read_state(FileName, data: dict, run_type: str):
+def read_state(FileName, data: dict):
     """Reads one state from an ab-initio packackage output file."""
 
     # check which ab initio package created the input file
@@ -1132,7 +1137,7 @@ def read_state(FileName, data: dict, run_type: str):
 
         if Line.find('GAMESS VERSION = ') >= 0:
             file_type_detected = True
-            parse_gamess(StateF, data, run_type)
+            parse_gamess(StateF, data)
             break
 
         if Line.find('$orca_hessian_file') >= 0:
@@ -1142,12 +1147,12 @@ def read_state(FileName, data: dict, run_type: str):
 
         if Line.find('* O   R   C   A *') >= 0:
             file_type_detected = True
-            parse_orca_new(StateF, data, run_type)
+            parse_orca_new(StateF, data)
             break
 
         if Line.find('Northwest Computational Chemistry Package (NWChem)') >= 0:
             file_type_detected = True
-            parse_NWChem(StateF, data, run_type)
+            parse_NWChem(StateF, data)
             break
 
         if Line.find('RESTRICTED RIGHTS') >= 0:
@@ -1159,13 +1164,14 @@ def read_state(FileName, data: dict, run_type: str):
 
     if file_type_detected is False:
         unknown_format = f'Error: File "{FileName}" has an unknown format.'
-        unknown_format += ' Q-Chem, Molpro, ACES II, GAMESS, ORCA, or Gaussian frequency jobs are supported.'
+        unknown_format += ' Q-Chem, Molpro, ACES II, GAMESS, ORCA, or Gaussian'
+        unknown_format += ' frequency jobs are supported.'
         raise ValueError(unknown_format)
 
     return data
 
 
-def write_state_xml_file(xmlF, data: dict, which_state: str, run_type: str):
+def write_state_xml_file(xmlF, data: dict, which_state: str):
     """ Write the state to the xml file. """
     # To improve readability, each item of the data dictionary is unpacked to a variable.
 
@@ -1212,14 +1218,9 @@ def write_state_xml_file(xmlF, data: dict, which_state: str, run_type: str):
         normal_modes = " ".join([f"{str(nm)}" for nm in range(3*no_atoms - 6)])
 
     if which_state == "target":
-        if run_type != "web":
-            xmlF.write('  <OPT_manual_normal_modes_reordering\n')
-            xmlF.write(f'     new_order="{normal_modes}">\n')
-            xmlF.write('  </OPT_manual_normal_modes_reordering>\n\n')
-        else:  # web version:
-            xmlF.write('  <manual_normal_modes_reordering\n')
-            xmlF.write(f'     new_order="{normal_modes}">\n')
-            xmlF.write('  </manual_normal_modes_reordering>\n\n')
+        xmlF.write('  <OPT_manual_normal_modes_reordering\n')
+        xmlF.write(f'     new_order="{normal_modes}">\n')
+        xmlF.write('  </OPT_manual_normal_modes_reordering>\n\n')
 
     xmlF.write('''  <OPT_manual_coordinates_transformation
     shift_along_x="0" shift_along_y="0" shift_along_z="0"
@@ -1233,7 +1234,7 @@ def write_state_xml_file(xmlF, data: dict, which_state: str, run_type: str):
     xmlF.write('"\n  >\n')
     xmlF.write('  </frequencies>\n\n')
 
-def read_write_state(file_name, run_type: str, which_state: str, xmlF):
+def read_write_state(file_name, which_state: str, xmlF):
     """ Controls reading input and writing output. """
 
     # data necessary for xml output
@@ -1245,75 +1246,75 @@ def read_write_state(file_name, run_type: str, which_state: str, xmlF):
             'Frequencies': '',
             'if_normal_modes_weighted': None,
             'geometry_units': None}
-    read_state(file_name, data, run_type)
+    read_state(file_name, data)
     # remove new lines at the end of the entries
     data['Geometry'] = data['Geometry'].rstrip()
     data['atoms_list'] = data['atoms_list'].strip()
     data['NormalModes'] = data['NormalModes'].rstrip()
     data['Frequencies'] = data['Frequencies'].rstrip()
-    write_state_xml_file(xmlF, data, which_state, run_type)
+    write_state_xml_file(xmlF, data, which_state)
 
 
-def main(xml_filename, ai_filenames, run_type):
-    if len(ai_filenames) == 0:
-        if run_type != "web":
-            print(WRONG_INPUT)
-            sys.exit(2)
-        else:
-            return "Error. make_xml.py: no ab-initio file names found"
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        'ab_initio',
+        nargs='+',
+        help='Output of an ab inito calculation.'
+    )
+    args = parser.parse_args()
+    ai_filenames = args.ab_initio
 
-    xmlF = open(xml_filename, 'w')
+    out_file = sys.stdout
 
     # Write default job parameters
-    xmlF.write(DEFAULT_JOB_PARAMETERS)
-
-    # web version
-    if run_type == "web":
-        xmlF.write('<if_web_version flag="true">\n</if_web_version>\n\n')
-
-    xmlF.write('<initial_state>\n')
-    xmlF.write(f'  <!-- THIS INITIAL STATE IS FROM "{ai_filenames[0]}" FILE -->\n\n')
+    out_file.write(DEFAULT_JOB_PARAMETERS)
+    out_file.write('<initial_state>\n')
+    out_file.write(
+        f'  <!-- THIS INITIAL STATE IS FROM "{ai_filenames[0]}" FILE -->\n\n'
+    )
 
     try:
-        read_write_state(ai_filenames[0], run_type, "initial", xmlF)
+        read_write_state(ai_filenames[0], "initial", out_file)
     except (ValueError, IOError) as e:
-        xmlF.close()
-        if run_type == "web":
-            return str(e)
-        else:
-            print(e)
-            sys.exit(2)
+        print(e, file=sys.stderr)
+        out_file.close()
+        sys.exit(2)
 
-    xmlF.write('</initial_state>\n\n')
-    xmlF.write(STATES_DELIMITER)
+    out_file.write('</initial_state>\n\n')
+    out_file.write(STATES_DELIMITER)
 
     state_n = 0
     for targetStateFileName in ai_filenames[1:]:
         state_n += 1
-        xmlF.write('<target_state>\n\n')
-        xmlF.write(f'  <excitation_energy units="eV"> {str(state_n)} </excitation_energy>\n\n')
-        xmlF.write(f'  <!-- THIS TARGET STATE IS FROM "{targetStateFileName}" FILE -->\n')
+        out_file.write('<target_state>\n\n')
+        out_file.write(
+            '  <excitation_energy units="eV">'
+            f' {str(state_n)} '
+            '</excitation_energy>'
+            '\n\n'
+        )
+        out_file.write(
+            '  <!-- THIS TARGET STATE IS FROM'
+            f' "{targetStateFileName}" '
+            'FILE -->'
+            '\n'
+        )
 
         try:
-            read_write_state(targetStateFileName, run_type, "target", xmlF)
+            read_write_state(targetStateFileName, "target", out_file)
         except (ValueError, IOError) as e:
-            xmlF.close()
-            if run_type == "web":
-                return str(e)
-            else:
-                print(e)
-                sys.exit(2)
+            print(e, file=sys.stderr)
+            out_file.close()
+            sys.exit(2)
 
         # xmlF.write(OPT_GRADIENT_SECTION)
-        xmlF.write('</target_state>\n\n')
-        xmlF.write(STATES_DELIMITER)
+        out_file.write('</target_state>\n\n')
+        out_file.write(STATES_DELIMITER)
 
-    xmlF.write('</input>\n')
-    xmlF.close()
+    out_file.write('</input>\n')
+    out_file.close()
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print(WRONG_INPUT)
-        sys.exit(2)
-    main(sys.argv[1], sys.argv[2:], "command_line")
+    main()
