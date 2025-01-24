@@ -241,7 +241,8 @@ GRADIENT_ezFCF_end = '''
 '''
 
 
-def print_ezFCF_gradient(gradient):
+def print_ezFCF_gradient(gradient, filename: str):
+    print(f'<!-- THIS TARGET STATE IS FROM "{filename}" FILE -->')
     print(GRADIENT_ezFCF, end='')
     print('    units = "' + gradient['unit'] + '"')
     print('    text = "', end='')
@@ -255,8 +256,9 @@ def print_ezFCF_gradient(gradient):
 
 def main():
     args = get_args()
+    filename = args.gradient_file
 
-    with open(args.gradient_file, 'r') as f:
+    with open(filename, 'r') as f:
         lines = f.readlines()
 
     program_name = find_program_name(lines)
@@ -287,7 +289,7 @@ def main():
         return -1
 
     # pretty_print_gradient(gradient)
-    print_ezFCF_gradient(gradient)
+    print_ezFCF_gradient(gradient, filename)
 
     return 0
 
