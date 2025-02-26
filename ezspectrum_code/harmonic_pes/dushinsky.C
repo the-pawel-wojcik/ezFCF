@@ -5,6 +5,7 @@
 #include "job_parameters.h"
 #include "molstate.h"
 #include "the_only_initial_state.h"
+#include <fstream>
 
 /* This function contains exactly what the old constructor contained. There is
  * work needed here.
@@ -77,6 +78,29 @@ void Dushinsky::old_constructor(std::vector<MolState> &molStates,
       for (int k = 0; k < CARTDIM; k++)
         Lp(a * CARTDIM + k, nm) =
             molStates[targN].getNormMode(nm).getDisplacement()(a * CARTDIM + k);
+
+  const bool debug = false;
+  if (debug) {
+    std::ofstream dbg("LtL.data");
+    arma::Mat<double> LtL = L.t() * L;
+    LtL.raw_print(dbg, "LtL");
+    dbg.close();
+
+    dbg.open("LLt.data");
+    arma::Mat<double> LLt = L * L.t();
+    LLt.raw_print(dbg, "LLt");
+    dbg.close();
+
+    dbg.open("LptLp.data");
+    arma::Mat<double> LptLp = Lp.t() * Lp;
+    LptLp.raw_print(dbg, "LptLp");
+    dbg.close();
+
+    dbg.open("LpLpt.data");
+    arma::Mat<double> LpLpt = Lp * Lp.t();
+    LpLpt.raw_print(dbg, "LpLpt");
+    dbg.close();
+  }
 
   // get S; [NxN]; S=(Lp^T)*L; n.m.rotation matrix; if S==I, than norm. modes
   // are parallel, det(S) sould be close to 1
