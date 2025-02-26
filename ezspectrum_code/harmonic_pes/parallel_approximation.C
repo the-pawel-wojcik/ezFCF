@@ -327,8 +327,9 @@ Parallel::Parallel(std::vector<MolState> &molStates,
         // state_ini is a full-space version of the 'state_ini_subspace'
         // initlize the state to zero excitation
         std::vector<int> state_ini(n_molecule_nm, 0);
-        // copy indexes from the subspace state_ini_subspace into
-        // the full space state_ini (the rest stays=0):
+        // copy indexes from the subspace state_ini_subspace into the full
+        // space state_ini 
+        // The rest stays=0 – this is the essence of the do_not_excite keyword
         for (int nm = 0; nm < n_active_nm; nm++)
           state_ini[active_nms[nm]] = state_ini_subspace[nm];
 
