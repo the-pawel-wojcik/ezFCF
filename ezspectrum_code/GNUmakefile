@@ -13,20 +13,15 @@ INCLUDES = $(INCLUDES_ARMADILLO)
 
 CXX = g++
 CC = gcc
-CXXFLAGS = -O3 --std=c++20
+CXXFLAGS = -O3 --std=c++23
 # CXXFLAGS = --std=c++20 -g
 CPPFLAGS = $(INCLUDES)
 
-mol_prop_src = $(wildcard molecular_prop/*.C)
-mol_prop_obj = $(patsubst %.C,%.o,$(mol_prop_src))
+sources = main.C
+sources += $(wildcard molecular_prop/*.C)
+sources += $(wildcard basic_methods/*.C)
+sources += $(wildcard harmonic_pes/*.C)
 
-basic_methods_src = $(wildcard basic_methods/*.C)
-basic_methods_obj = $(basic_methods_src:.C=.o)
-
-harmonic_pes_src =$(wildcard harmonic_pes/*.C)
-harmonic_pes_obj =$(harmonic_pes_src:.C=.o)
-
-sources = main.C $(mol_prop_src) $(basic_methods_src) $(harmonic_pes_src)
 objects = $(sources:.C=.o)
 
 INCLUDES += $(addprefix -I ,molecular_prop basic_methods harmonic_pes)
