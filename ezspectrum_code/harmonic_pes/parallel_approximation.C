@@ -1,4 +1,27 @@
 #include "parallel_approximation.h"
+#include <cmath>
+
+constexpr double get_Huang_Rhys(double dq, double wavenumber) {
+  // dq in AA \sqrt{amu}
+  // wavenumber in cm-1
+  const double pi = 3.1415926535;
+  const double c_SI = 2.99792458e8;
+  const double h_SI = 6.62607015e-34;
+  const double inv_cm_to_inv_m = 100;
+  const double amu_to_kg = 1.66053906892e-27;
+  const double aa_to_m = 1e-10;
+
+  const double hrf = 0.5 * (
+      (2.0 * pi)*(2.0 * pi) 
+      * c_SI 
+      * wavenumber * inv_cm_to_inv_m 
+      * dq*dq * aa_to_m*aa_to_m  * amu_to_kg
+      / h_SI
+      - 1
+  );
+
+  return hrf;
+}
 
 Parallel::Parallel(std::vector<MolState> &molStates,
                    std::vector<int> &active_nms, double fcf_threshold,
@@ -129,19 +152,32 @@ Parallel::Parallel(std::vector<MolState> &molStates,
     NormModeShift_ini *= AU2ANGSTROM;
     NormModeShift_targ *= AU2ANGSTROM;
 
-    std::cout << "Difference (dQ) between the initial and the target state geometries.\n"
+    std::cout 
+      << "Difference (dQ) between the initial and the target state geometries.\n"
       << "Angstrom*sqrt(amu):\n\n"
-      << "normal mode  dQ in initial  dQ in target   frequency   frequency   comments\n"
-      << "  number      state coord.  state coord.    initial      target\n\n";
+    << "normal mode  dQ in initial  dQ in target   frequency   frequency   Huang-Rhys\n"
+    << "  number      state coord.  state coord.    initial      target      factor\n"
+    << "                                                                   (initial dQ)\n";
     for (int nm=0; nm<n_molecule_nm; nm++)
     {
+      const double dq_ini = NormModeShift_ini[nm];
+      const double wavenumber_ini = molStates[iniN].getNormMode(nm).getFreq();
+      double hrf = get_Huang_Rhys(dq_ini, wavenumber_ini);
+      if( hrf < 0.0 ) {
+        hrf = 0.0;
+      }
       std::cout << "     " << std::fixed << std::setw(3) << nm << "      " 
         << std::setprecision(6) 
-        << std::setw(9) <<  NormModeShift_ini[nm] << "       " 
+        << std::setw(9) << dq_ini  << "       " 
         << std::setw(9) << NormModeShift_targ[nm] << "      " 
         << std::setprecision(2) 
-        << std::setw(7) << molStates[iniN].getNormMode(nm).getFreq() << "    " 
-        << std::setw(7) << molStates[targN].getNormMode(nm).getFreq() << "\n";
+        << std::setw(7) << wavenumber_ini << "    " 
+        << std::setw(7) << molStates[targN].getNormMode(nm).getFreq() 
+        << "    "
+        << std::setprecision(2) 
+        << std::setw(7) 
+        << hrf
+        << "\n";
     }
     std::cout<<"\n\n";
 
