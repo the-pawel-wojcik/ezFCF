@@ -155,28 +155,31 @@ Parallel::Parallel(std::vector<MolState> &molStates,
     std::cout 
       << "Difference (dQ) between the initial and the target state geometries.\n"
       << "Angstrom*sqrt(amu):\n\n"
-    << "normal mode  dQ in initial  dQ in target   frequency   frequency   Huang-Rhys\n"
-    << "  number      state coord.  state coord.    initial      target      factor\n"
-    << "                                                                   (initial dQ)\n";
+    << "normal mode  dQ in initial  dQ in target   frequency   frequency  Huang-Rhys\n"
+    << "  number      state coord.  state coord.    initial      target     factor\n"
+    << "                                                                  init, targ\n"
+    << "\n";
     for (int nm=0; nm<n_molecule_nm; nm++)
     {
       const double dq_ini = NormModeShift_ini[nm];
+      const double dq_targ = NormModeShift_targ[nm];
       const double wavenumber_ini = molStates[iniN].getNormMode(nm).getFreq();
-      double hrf = get_Huang_Rhys(dq_ini, wavenumber_ini);
-      if( hrf < 0.0 ) {
-        hrf = 0.0;
-      }
+      const double wavenumber_targ = molStates[targN].getNormMode(nm).getFreq();
+      const double hrf_ini = get_Huang_Rhys(dq_ini, wavenumber_ini);
+      const double hrf_targ = get_Huang_Rhys(dq_targ, wavenumber_targ);
       std::cout << "     " << std::fixed << std::setw(3) << nm << "      " 
         << std::setprecision(6) 
         << std::setw(9) << dq_ini  << "       " 
-        << std::setw(9) << NormModeShift_targ[nm] << "      " 
+        << std::setw(9) << dq_targ << "      " 
         << std::setprecision(2) 
-        << std::setw(7) << wavenumber_ini << "    " 
-        << std::setw(7) << molStates[targN].getNormMode(nm).getFreq() 
-        << "    "
-        << std::setprecision(2) 
-        << std::setw(7) 
-        << hrf
+        << std::setw(7) << wavenumber_ini  << "    " 
+        << std::setw(7) << wavenumber_targ << "  "
+        << std::setprecision(1) 
+        << std::setw(5) 
+        << hrf_ini
+        << ","
+        << std::setw(5) 
+        << hrf_targ
         << "\n";
     }
     std::cout<<"\n\n";

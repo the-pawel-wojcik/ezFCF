@@ -401,9 +401,10 @@ The parallel approximation job's output also includes:
 target electronic states (each matrix should be diagonal for the parallel approximation;
 otherwise, the normal modes must be reordered to minimize the off diagonal elements---see 
 Sec.~\ref{sec:nonparallel});
-and (b) the table of the target states displacements, 
+(b) the table of the target states displacements, 
 $\Delta Q$, relative to the initial state geometry in the ``initial coordinates''
-and in ``target coordinates'' (i.e., along the normal modes of the initial and the target electronic states, respectively).
+and in ``target coordinates'' (i.e., along the normal modes of the initial and the target electronic states, respectively)
+(c) the Huang--Rhys factors, see Sec.~\ref{sec:huang_rhys}.
 In the Duschinsky rotation section of the output, one should check the normal modes rotation matrix determinant,
 $Det(S)$, which should be close to one (see Sec.~\ref{sec:detS}); also check that you have enough
 memory to store all the requested ``layers''. 
@@ -415,6 +416,21 @@ A basic {\tt python3} script for plotting the resulting spectra is provided in {
   ./plot_spectrum_new.py trans_hcoh.xml.spectrum_parallel
 \end{lstlisting}
 The plot will be in {\tt trans\_hcoh.xml.spectrum\_parallel.pdf}. Tweak the parameters in the script for the desired appearance. (Note that {\tt python} executable path should be properly setup). 
+
+\subsubsection{Huang--Rhys factors}
+\label{sec:huang_rhys}
+The Huang--Rhys factors quantify the excpted activity along each normal mode. Energy of a displaced harmonic oscillator, in normal coordinates, is given by $E(\Delta Q) = \frac{1}{2} \omega^2 \Delta Q^2$. Energy levels of a quantized harmonic oscillator are given by $E _n = \hbar \omega (n + \frac{1}{2})$. Comparing $E (\Delta Q)$, with $\Delta Q$ corresponding to the change in the molecular geometry, to $E _n$ and solving for $n$ gives an effective quantum number of harmonic excitations produced by the displacement, or the Huang--Rhys factor (HRf)
+\begin{equation}
+    HRf = \frac{\omega}{2 \hbar} \left(\Delta Q \right) ^2 - \frac{1}{2}
+\label{eq:hrf}
+\end{equation}
+The HRf is equal to $-\frac{1}{2}$ for mode along which no structural
+relaxation occurs, i.e. $\Delta Q = 0$, such modes can safely be excluded from
+the simulation, see Sec.~\ref{sec:para:subspace}. For HRf close to an integer
+value, the maximum in a progression should be observed close to that integer
+number of excitation quanta. Very large HRfs ($HRf \gg 0$) mark large geometric
+changes along specific mode. In that case one should set increase the default
+\texttt{max\_vibr\_excitations}, otherwise an empty spectrum is excpected.
 
 
 %----------------------------------------------------------------------
